@@ -15,11 +15,13 @@ import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { TOUCH_MODE_LABELS, type TouchMode } from './gestureMapper'
 import { createTouchInteractionKernel } from './touchInteractionKernel'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
+import { resolveCanvasQualityProfile } from './canvasQuality'
 
 installThreeConsoleFilter()
 
 type InteractiveCanvasProps = PropsWithChildren<{
   camera: NonNullable<ComponentProps<typeof Canvas>['camera']>
+  frameloop?: ComponentProps<typeof Canvas>['frameloop']
   controlsEnabled?: boolean
   controls?: Partial<
     Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>
@@ -28,6 +30,7 @@ type InteractiveCanvasProps = PropsWithChildren<{
 
 export function InteractiveCanvas({
   camera,
+  frameloop = 'always',
   controlsEnabled = true,
   controls,
   children,
@@ -78,6 +81,7 @@ export function InteractiveCanvas({
       }),
     [showTouchFeedback],
   )
+  const quality = useMemo(() => resolveCanvasQualityProfile(), [])
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     touchKernel.onPointerDown(event.nativeEvent)
@@ -95,7 +99,7 @@ export function InteractiveCanvas({
     touchKernel.onPointerCancel(event.nativeEvent)
   }
 
-  const hint = `拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移 · 双击重置 · 三指切换模式（${TOUCH_MODE_LABELS[touchMode]}）`
+  const hint = `拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移 · 双击（触屏）重置 · 三指切换模式（${TOUCH_MODE_LABELS[touchMode]}）`
 
   if (typeof window === 'undefined' || !('WebGLRenderingContext' in window)) {
     return (
@@ -115,7 +119,13 @@ export function InteractiveCanvas({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
       >
-        <Canvas camera={camera}>
+        <Canvas
+          camera={camera}
+          frameloop={frameloop}
+          dpr={quality.dpr}
+          gl={{ antialias: quality.antialias, powerPreference: 'high-performance' }}
+          performance={{ min: 0.5, debounce: 250 }}
+        >
           {children}
           <OrbitControls
             ref={controlsRef}

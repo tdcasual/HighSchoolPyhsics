@@ -501,7 +501,10 @@ export function MhdGeneratorScene() {
         />
       }
       viewport={
-        <InteractiveCanvas camera={{ position: [0, 1.8, 6.8], fov: 39 }}>
+        <InteractiveCanvas
+          camera={{ position: [0, 1.8, 6.8], fov: 39 }}
+          frameloop={running ? 'always' : 'demand'}
+        >
           <MhdGenerator3D
             phase={phase}
             running={running}

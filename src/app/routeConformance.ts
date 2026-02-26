@@ -28,6 +28,10 @@ function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
     issues.push({ path: route.path, message: 'meta.highlights must provide at least two items' })
   }
 
+  if (typeof route.preload !== 'function') {
+    issues.push({ path: route.path, message: 'preload is required' })
+  }
+
   for (const [index, highlight] of route.meta.highlights.entries()) {
     if (!isNonBlankText(highlight)) {
       issues.push({ path: route.path, message: `meta.highlights[${index}] cannot be blank` })
@@ -41,8 +45,11 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
   const profile = route.touchProfile
 
-  if (profile.pageScroll !== 'vertical') {
-    issues.push({ path: route.path, message: 'touchProfile.pageScroll must be vertical' })
+  if (profile.pageScroll !== 'vertical-outside-canvas') {
+    issues.push({
+      path: route.path,
+      message: 'touchProfile.pageScroll must be vertical-outside-canvas',
+    })
   }
 
   if (profile.canvasGestureScope !== 'interactive-canvas') {

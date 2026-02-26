@@ -5,12 +5,16 @@ import {
   findDemoRoute,
   normalizeDemoPath,
 } from './app/demoRoutes'
+import { SceneRuntimeBoundary } from './app/SceneRuntimeBoundary'
 import { NavigationPage } from './pages/NavigationPage'
 import { useAppStore } from './store/useAppStore'
+import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 
 function App() {
   const theme = useAppStore((state) => state.theme)
+  const nightTone = useAppStore((state) => state.nightTone)
   const setTheme = useAppStore((state) => state.setTheme)
+  const setNightTone = useAppStore((state) => state.setNightTone)
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -28,6 +32,11 @@ function App() {
     const current = normalizeDemoPath(window.location.pathname)
     if (targetPath === current) {
       return
+    }
+
+    const route = findDemoRoute(targetPath)
+    if (route) {
+      void route.preload()
     }
 
     if (replace) {
@@ -51,34 +60,78 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  useGlobalShortcuts({
+    routes: DEMO_ROUTES,
+    pathname,
+    theme,
+    setTheme,
+    setNightTone,
+    navigateTo,
+  })
+
   const isOverviewPage = pathname === '/'
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const ActiveScene = activeRoute?.Component
+  const shellClassName = [
+    'app-shell',
+    `theme-${theme}`,
+    theme === 'night' ? `night-tone-${nightTone}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <main className={`app-shell theme-${theme}`}>
+    <main className={shellClassName}>
       <header className="app-header">
         <h1>3D Electromagnetics Lab</h1>
         <div className="app-controls">
           {!isOverviewPage ? (
-            <button className="overview-link" onClick={() => navigateTo('/')}>
+            <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
               返回导航
             </button>
           ) : null}
           <div className="theme-switch">
             <button
-              className={theme === 'day' ? 'active' : ''}
+              className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
+              aria-pressed={theme === 'day'}
+              aria-keyshortcuts="D"
+              title="快捷键 D"
               onClick={() => setTheme('day')}
             >
               白天模式
             </button>
             <button
-              className={theme === 'night' ? 'active' : ''}
+              className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
+              aria-pressed={theme === 'night'}
+              aria-keyshortcuts="N"
+              title="快捷键 N"
               onClick={() => setTheme('night')}
             >
               夜间模式
             </button>
           </div>
+          {theme === 'night' ? (
+            <div className="night-tone-switch" role="group" aria-label="夜间风格">
+              <button
+                className={`touch-target ${nightTone === 'minimal' ? 'active' : ''}`.trim()}
+                aria-pressed={nightTone === 'minimal'}
+                aria-keyshortcuts="M"
+                title="快捷键 M"
+                onClick={() => setNightTone('minimal')}
+              >
+                夜间极简
+              </button>
+              <button
+                className={`touch-target ${nightTone === 'neon' ? 'active' : ''}`.trim()}
+                aria-pressed={nightTone === 'neon'}
+                aria-keyshortcuts="E"
+                title="快捷键 E"
+                onClick={() => setNightTone('neon')}
+              >
+                夜间霓虹
+              </button>
+            </div>
+          ) : null}
         </div>
       </header>
       <section className="scene-container">
@@ -86,15 +139,23 @@ function App() {
           {isOverviewPage ? (
             <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
           ) : ActiveScene ? (
-            <ActiveScene />
+            <SceneRuntimeBoundary
+              scenePath={pathname}
+              onBackToOverview={() => navigateTo('/')}
+              onRetryScene={() => activeRoute?.preload()}
+            >
+              <ActiveScene />
+            </SceneRuntimeBoundary>
           ) : (
             <div className="scene-missing">
               <h2>页面不存在</h2>
               <p>请选择一个有效演示页面，或先返回导航：</p>
               <div className="scene-missing-links">
-                <button onClick={() => navigateTo('/')}>返回导航</button>
+                <button className="touch-target" onClick={() => navigateTo('/')}>
+                  返回导航
+                </button>
                 {DEMO_ROUTES.map((route) => (
-                  <button key={route.path} onClick={() => navigateTo(route.path)}>
+                  <button className="touch-target" key={route.path} onClick={() => navigateTo(route.path)}>
                     {route.label}
                   </button>
                 ))}

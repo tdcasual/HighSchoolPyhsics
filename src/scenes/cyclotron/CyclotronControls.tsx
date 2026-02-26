@@ -17,7 +17,7 @@ type CyclotronControlsProps = {
   onReset: () => void
   modeText: string
   cyclotronPeriodS: number
-  launchPositionX: number
+  launchPositionY: number
   voltageDirectionText: string
   currentVoltageV: number
   currentEnergyJ: number
@@ -39,7 +39,7 @@ export function CyclotronControls({
   onReset,
   modeText,
   cyclotronPeriodS,
-  launchPositionX,
+  launchPositionY,
   voltageDirectionText,
   currentVoltageV,
   currentEnergyJ,
@@ -82,13 +82,15 @@ export function CyclotronControls({
 
       <div className="cyclotron-mode-switch">
         <button
-          className={energyMode === 'ignore-acceleration-time' ? 'active' : ''}
+          className={`touch-target ${energyMode === 'ignore-acceleration-time' ? 'active' : ''}`.trim()}
+          aria-pressed={energyMode === 'ignore-acceleration-time'}
           onClick={() => onEnergyModeChange('ignore-acceleration-time')}
         >
           忽略加速时间
         </button>
         <button
-          className={energyMode === 'include-acceleration-time' ? 'active' : ''}
+          className={`touch-target ${energyMode === 'include-acceleration-time' ? 'active' : ''}`.trim()}
+          aria-pressed={energyMode === 'include-acceleration-time'}
           onClick={() => onEnergyModeChange('include-acceleration-time')}
         >
           考虑加速时间
@@ -113,7 +115,7 @@ export function CyclotronControls({
       <div className="readings">
         <p>模式: {modeText}</p>
         <p>自适应周期 T: {cyclotronPeriodS.toExponential(2)} s</p>
-        <p>自适应出发 x0: {launchPositionX.toExponential(2)} m</p>
+        <p>自适应出发 y0: {launchPositionY.toExponential(2)} m</p>
         <p>电压方向: {voltageDirectionText}</p>
         <p>当前 U: {currentVoltageV.toExponential(2)} V</p>
         <p>当前 Ek: {currentEnergyJ.toExponential(2)} J</p>

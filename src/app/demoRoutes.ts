@@ -1,5 +1,5 @@
-import { lazy } from 'react'
-import type { ComponentType, LazyExoticComponent } from 'react'
+import type { ComponentType } from 'react'
+import { createPreloadableScene } from './preloadableScene'
 
 export type TouchGestureMatrix = {
   singleFingerRotate: boolean
@@ -10,7 +10,7 @@ export type TouchGestureMatrix = {
 }
 
 export type TouchProfile = {
-  pageScroll: 'vertical'
+  pageScroll: 'vertical-outside-canvas'
   canvasGestureScope: 'interactive-canvas'
   minTouchTargetPx: number
   gestureMatrix: TouchGestureMatrix
@@ -28,33 +28,34 @@ export type DemoRouteMeta = {
 export type DemoRoute = {
   path: string
   label: string
-  Component: LazyExoticComponent<ComponentType>
+  Component: ComponentType
+  preload: () => Promise<void>
   meta: DemoRouteMeta
   touchProfile: TouchProfile
 }
 
-const OscilloscopeScene = lazy(async () => {
+const OscilloscopeScene = createPreloadableScene(async () => {
   const mod = await import('../pages/OscilloscopePage')
   return { default: mod.OscilloscopePage }
 })
 
-const CyclotronScene = lazy(async () => {
+const CyclotronScene = createPreloadableScene(async () => {
   const mod = await import('../pages/CyclotronPage')
   return { default: mod.CyclotronPage }
 })
 
-const MhdGeneratorScene = lazy(async () => {
+const MhdGeneratorScene = createPreloadableScene(async () => {
   const mod = await import('../pages/MhdPage')
   return { default: mod.MhdPage }
 })
 
-const OerstedScene = lazy(async () => {
+const OerstedScene = createPreloadableScene(async () => {
   const mod = await import('../pages/OerstedPage')
   return { default: mod.OerstedPage }
 })
 
 const ENHANCED_TOUCH_PROFILE: TouchProfile = {
-  pageScroll: 'vertical',
+  pageScroll: 'vertical-outside-canvas',
   canvasGestureScope: 'interactive-canvas',
   minTouchTargetPx: 44,
   gestureMatrix: {
@@ -70,7 +71,8 @@ export const DEMO_ROUTES: DemoRoute[] = [
   {
     path: '/oscilloscope',
     label: '示波器',
-    Component: OscilloscopeScene,
+    Component: OscilloscopeScene.Component,
+    preload: OscilloscopeScene.preload,
     meta: {
       tag: '波形合成',
       summary: '双通道电压驱动 + 李萨如图形',
@@ -82,7 +84,8 @@ export const DEMO_ROUTES: DemoRoute[] = [
   {
     path: '/cyclotron',
     label: '回旋加速器',
-    Component: CyclotronScene,
+    Component: CyclotronScene.Component,
+    preload: CyclotronScene.preload,
     meta: {
       tag: '粒子动力学',
       summary: '交变电场加速 + 磁场轨道约束',
@@ -94,7 +97,8 @@ export const DEMO_ROUTES: DemoRoute[] = [
   {
     path: '/mhd',
     label: '磁流体发电机',
-    Component: MhdGeneratorScene,
+    Component: MhdGeneratorScene.Component,
+    preload: MhdGeneratorScene.preload,
     meta: {
       tag: '能量转换',
       summary: '等离子体通道中的感应电势演示',
@@ -106,7 +110,8 @@ export const DEMO_ROUTES: DemoRoute[] = [
   {
     path: '/oersted',
     label: '奥斯特实验',
-    Component: OerstedScene,
+    Component: OerstedScene.Component,
+    preload: OerstedScene.preload,
     meta: {
       tag: '课堂观察',
       summary: '三磁针偏转与导线姿态联动',

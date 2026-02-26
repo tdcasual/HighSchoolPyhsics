@@ -5,7 +5,8 @@ import { useAppStore } from './store/useAppStore'
 
 describe('App shell', () => {
   beforeEach(() => {
-    useAppStore.setState({ theme: 'day' })
+    useAppStore.persist.clearStorage()
+    useAppStore.setState({ theme: 'day', nightTone: 'minimal' })
     window.history.replaceState(null, '', '/')
   })
 
@@ -28,14 +29,41 @@ describe('App shell', () => {
 
     const shell = container.querySelector('.app-shell') as HTMLElement
     const scoped = within(shell)
+    const dayButton = scoped.getByRole('button', { name: '白天模式' })
+    const nightButton = scoped.getByRole('button', { name: '夜间模式' })
 
     expect(shell).toHaveClass('theme-day')
+    expect(dayButton).toHaveAttribute('aria-pressed', 'true')
+    expect(nightButton).toHaveAttribute('aria-pressed', 'false')
+    expect(dayButton).toHaveClass('touch-target')
+    expect(nightButton).toHaveClass('touch-target')
 
-    fireEvent.click(scoped.getByRole('button', { name: '夜间模式' }))
+    fireEvent.click(nightButton)
     expect(shell).toHaveClass('theme-night')
+    expect(shell).toHaveClass('night-tone-minimal')
+    expect(dayButton).toHaveAttribute('aria-pressed', 'false')
+    expect(nightButton).toHaveAttribute('aria-pressed', 'true')
 
-    fireEvent.click(scoped.getByRole('button', { name: '白天模式' }))
+    const minimalToneButton = scoped.getByRole('button', { name: '夜间极简' })
+    const neonToneButton = scoped.getByRole('button', { name: '夜间霓虹' })
+
+    expect(minimalToneButton).toHaveAttribute('aria-pressed', 'true')
+    expect(neonToneButton).toHaveAttribute('aria-pressed', 'false')
+
+    fireEvent.click(neonToneButton)
+    expect(shell).toHaveClass('night-tone-neon')
+    expect(minimalToneButton).toHaveAttribute('aria-pressed', 'false')
+    expect(neonToneButton).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(dayButton)
     expect(shell).toHaveClass('theme-day')
+    expect(shell).not.toHaveClass('night-tone-minimal')
+    expect(shell).not.toHaveClass('night-tone-neon')
+    expect(dayButton).toHaveAttribute('aria-pressed', 'true')
+    expect(nightButton).toHaveAttribute('aria-pressed', 'false')
+
+    expect(screen.queryByRole('button', { name: '夜间极简' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '夜间霓虹' })).not.toBeInTheDocument()
   })
 
   it('keeps root path on overview navigation page', async () => {
@@ -52,7 +80,7 @@ describe('App shell', () => {
 
     const { container } = render(<App />)
 
-    expect(await screen.findByText('X 电场 Ux(t)')).toBeInTheDocument()
+    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
 
     expect(container.querySelector('.scene-nav')).not.toBeInTheDocument()
     expect(container.querySelector('.scene-actions')).toBeInTheDocument()
@@ -67,5 +95,35 @@ describe('App shell', () => {
     expect(await screen.findByText('磁流体发电机控制')).toBeInTheDocument()
     const wrapper = screen.getByTestId('demo-page')
     expect(wrapper).toHaveAttribute('data-page-id', 'mhd')
+  })
+
+  it('supports keyboard shortcuts for quick classroom switching', async () => {
+    const { container } = render(<App />)
+
+    const shell = container.querySelector('.app-shell') as HTMLElement
+
+    fireEvent.keyDown(window, { key: 'n' })
+    expect(shell).toHaveClass('theme-night')
+
+    fireEvent.keyDown(window, { key: 'e' })
+    expect(shell).toHaveClass('night-tone-neon')
+
+    fireEvent.keyDown(window, { key: '1' })
+    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/oscilloscope')
+
+    fireEvent.keyDown(window, { key: 'd' })
+    expect(shell).toHaveClass('theme-day')
+  })
+
+  it('ignores global shortcuts while typing in formula inputs', async () => {
+    window.history.replaceState(null, '', '/oscilloscope')
+    const { container } = render(<App />)
+
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    const formulaInput = await screen.findByRole('textbox', { name: 'Ux(t) 函数' })
+
+    fireEvent.keyDown(formulaInput, { key: 'n' })
+    expect(shell).toHaveClass('theme-day')
   })
 })

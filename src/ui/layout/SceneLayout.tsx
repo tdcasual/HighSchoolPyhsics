@@ -66,7 +66,7 @@ export function SceneLayout({ controls, viewport }: SceneLayoutProps) {
       {compact ? (
         <div className="scene-toolbar" role="toolbar" aria-label="场景参数工具条">
           <button
-            className="scene-toolbar-toggle"
+            className="scene-toolbar-toggle touch-target"
             type="button"
             aria-expanded={controlsExpanded}
             onClick={() => setControlsExpanded((value) => !value)}

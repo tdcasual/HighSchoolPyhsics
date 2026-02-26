@@ -36,5 +36,9 @@ describe('SceneActions', () => {
 
     expect(screen.getByRole('button', { name: '暂停' })).toHaveClass('active')
     expect(screen.getByRole('button', { name: '重置' })).not.toHaveClass('active')
+    expect(screen.getByRole('button', { name: '暂停' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: '重置' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: '暂停' })).toHaveClass('touch-target')
+    expect(screen.getByRole('button', { name: '重置' })).toHaveClass('touch-target')
   })
 })

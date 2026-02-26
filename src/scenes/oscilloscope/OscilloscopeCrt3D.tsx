@@ -127,7 +127,10 @@ function CtrModel({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps)
 
 export function OscilloscopeCrt3D({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps) {
   return (
-    <InteractiveCanvas camera={{ position: [0, 1.25, 7.2], fov: 34 }}>
+    <InteractiveCanvas
+      camera={{ position: [0, 1.25, 7.2], fov: 34 }}
+      frameloop={running ? 'always' : 'demand'}
+    >
       <CtrModel beamX={beamX} beamY={beamY} timeCursor={timeCursor} running={running} />
     </InteractiveCanvas>
   )

@@ -9,6 +9,7 @@ describe('demo route conformance', () => {
 
   it('declares the enhanced touch gesture package with minimum 44px target', () => {
     for (const route of DEMO_ROUTES) {
+      expect(route.touchProfile.pageScroll).toBe('vertical-outside-canvas')
       expect(route.touchProfile.minTouchTargetPx).toBeGreaterThanOrEqual(44)
       expect(route.touchProfile.gestureMatrix.singleFingerRotate).toBe(true)
       expect(route.touchProfile.gestureMatrix.twoFingerZoom).toBe(true)

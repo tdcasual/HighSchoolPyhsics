@@ -538,7 +538,7 @@ export function CyclotronScene() {
           onReset={reset}
           modeText={simulation.mode === 'worker' ? 'Worker' : 'Local fallback'}
           cyclotronPeriodS={cyclotronPeriodS}
-          launchPositionX={launchState.position.x}
+          launchPositionY={launchState.position.y}
           voltageDirectionText={voltageDirectionText}
           currentVoltageV={currentVoltageV}
           currentEnergyJ={currentEnergyJ}
@@ -567,7 +567,11 @@ export function CyclotronScene() {
         />
       }
       viewport={
-        <InteractiveCanvas camera={CYCLOTRON_CAMERA} controls={CYCLOTRON_CONTROLS}>
+        <InteractiveCanvas
+          camera={CYCLOTRON_CAMERA}
+          controls={CYCLOTRON_CONTROLS}
+          frameloop={simulation.running ? 'always' : 'demand'}
+        >
           <CyclotronChamber3D
             trailPoints={trailPoints}
             particlePoint={particlePoint}
