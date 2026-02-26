@@ -1,16 +1,12 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { SceneActions } from '../../ui/controls/SceneActions'
+import { useState } from 'react'
 
 type OerstedPresetButton = {
   id: string
   label: string
   active: boolean
   onClick: () => void
-}
-
-type NeedlePlacement = {
-  x: number
-  z: number
 }
 
 type NeedlePreviewState = {
@@ -33,7 +29,6 @@ type OerstedControlsProps = {
   onWireHeightChange: (value: number) => void
   initialHeadingDeg: number
   onInitialHeadingChange: (value: number) => void
-  needlePlacements: NeedlePlacement[]
   running: boolean
   onToggleRunning: () => void
   onReset: () => void
@@ -59,7 +54,6 @@ export function OerstedControls({
   onWireHeightChange,
   initialHeadingDeg,
   onInitialHeadingChange,
-  needlePlacements,
   running,
   onToggleRunning,
   onReset,
@@ -69,6 +63,8 @@ export function OerstedControls({
   maxSwing,
   discoveryText,
 }: OerstedControlsProps) {
+  const [advancedVisible, setAdvancedVisible] = useState(false)
+
   return (
     <>
       <h2>奥斯特电流磁效应</h2>
@@ -77,7 +73,12 @@ export function OerstedControls({
         <h3>课堂预设位</h3>
         <div className="oersted-preset-grid">
           {presetButtons.map((preset) => (
-            <button key={preset.id} className={preset.active ? 'active' : ''} onClick={preset.onClick}>
+            <button
+              key={preset.id}
+              className={`touch-target ${preset.active ? 'active' : ''}`.trim()}
+              aria-pressed={preset.active}
+              onClick={preset.onClick}
+            >
               {preset.label}
             </button>
           ))}
@@ -95,38 +96,8 @@ export function OerstedControls({
         onChange={onCurrentChange}
       />
 
-      <RangeField
-        id="oersted-earth"
-        label="地磁场 B0 (μT)"
-        min={20}
-        max={70}
-        step={1}
-        value={earthFieldMicroT}
-        onChange={onEarthFieldChange}
-      />
-
       <div className="subsection">
         <h3>导线姿态（3D）</h3>
-
-        <RangeField
-          id="oersted-wire-azimuth"
-          label="导线方位角 ψ (°)"
-          min={0}
-          max={360}
-          step={1}
-          value={wireAzimuthDeg}
-          onChange={onWireAzimuthChange}
-        />
-
-        <RangeField
-          id="oersted-wire-pitch"
-          label="导线俯仰角 β (°)"
-          min={-50}
-          max={50}
-          step={1}
-          value={wirePitchDeg}
-          onChange={onWirePitchChange}
-        />
 
         <RangeField
           id="oersted-wire-height"
@@ -139,25 +110,61 @@ export function OerstedControls({
         />
       </div>
 
-      <RangeField
-        id="oersted-heading"
-        label="磁针初始方向 θ0 (°)"
-        min={0}
-        max={360}
-        step={1}
-        value={initialHeadingDeg}
-        onChange={onInitialHeadingChange}
-      />
-
       <div className="subsection">
-        <h3>三枚小磁针位置（鼠标拖拽）</h3>
-        <p className="oersted-preset-tip">在右侧 3D 视图中按住磁针并拖动，即可自由放置。</p>
-        {needlePlacements.map((needle, index) => (
-          <p key={`needle-position-${index}`} data-testid={`oersted-pos-${index + 1}`}>
-            磁针{index + 1}: X {needle.x.toFixed(3)} m · Z {needle.z.toFixed(3)} m
-          </p>
-        ))}
+        <button
+          type="button"
+          className="touch-target oersted-advanced-toggle"
+          aria-expanded={advancedVisible}
+          onClick={() => setAdvancedVisible((value) => !value)}
+        >
+          {advancedVisible ? '收起高级参数' : '显示高级参数'}
+        </button>
       </div>
+
+      {advancedVisible ? (
+        <div className="subsection oersted-advanced-panel">
+          <h3>高级参数</h3>
+          <RangeField
+            id="oersted-earth"
+            label="地磁场 B0 (μT)"
+            min={20}
+            max={70}
+            step={1}
+            value={earthFieldMicroT}
+            onChange={onEarthFieldChange}
+          />
+
+          <RangeField
+            id="oersted-wire-azimuth"
+            label="导线方位角 ψ (°)"
+            min={0}
+            max={360}
+            step={1}
+            value={wireAzimuthDeg}
+            onChange={onWireAzimuthChange}
+          />
+
+          <RangeField
+            id="oersted-wire-pitch"
+            label="导线俯仰角 β (°)"
+            min={-50}
+            max={50}
+            step={1}
+            value={wirePitchDeg}
+            onChange={onWirePitchChange}
+          />
+
+          <RangeField
+            id="oersted-heading"
+            label="磁针初始方向 θ0 (°)"
+            min={0}
+            max={360}
+            step={1}
+            value={initialHeadingDeg}
+            onChange={onInitialHeadingChange}
+          />
+        </div>
+      ) : null}
 
       <SceneActions
         actions={[

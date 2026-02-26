@@ -626,12 +626,21 @@ function OerstedRig3D({
         )
       })}
 
-      <Line points={[[1.45, 0.04, -0.5], [1.45, 0.04, 0.45]]} color="#2d3748" lineWidth={1.9} />
-      <mesh position={[1.45, 0.04, 0.53]} rotation={[-Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[0.04, 0.12, 12]} />
-        <meshBasicMaterial color="#2d3748" />
-      </mesh>
-      <Text position={[1.45, 0.13, 0.66]} color="#2d3748" fontSize={0.09} anchorX="center" anchorY="middle">
+      <group position={[1.45, 0.04, 0.52]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.1, 0.125, 28]} />
+          <meshBasicMaterial color="#2d3748" transparent opacity={0.48} />
+        </mesh>
+        <Line points={[[0, 0, -0.18], [0, 0, 0.1]]} color="#2d3748" lineWidth={2.2} />
+        <mesh position={[0, 0, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.045, 0.1, 14]} />
+          <meshBasicMaterial color="#2d3748" />
+        </mesh>
+        <Text position={[0, 0.09, 0.24]} color="#2d3748" fontSize={0.07} anchorX="center" anchorY="middle">
+          N
+        </Text>
+      </group>
+      <Text position={[1.45, 0.15, 0.78]} color="#2d3748" fontSize={0.08} anchorX="center" anchorY="middle">
         地磁北向
       </Text>
       {showFieldLines ? (
@@ -857,7 +866,6 @@ export function OerstedScene() {
               setAllNeedleHeadings(nextValue)
             }
           }}
-          needlePlacements={needlePlacements}
           running={running}
           onToggleRunning={() => setRunning((value) => !value)}
           onReset={resetNeedles}
@@ -871,6 +879,7 @@ export function OerstedScene() {
       viewport={
         <InteractiveCanvas
           camera={{ position: [3.8, 2.3, 5.6], fov: 42 }}
+          frameloop={running || draggingNeedleIndex !== null ? 'always' : 'demand'}
           controlsEnabled={draggingNeedleIndex === null}
         >
           <OerstedRig3D

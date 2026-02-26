@@ -45,6 +45,30 @@
   color: #66401f;
 }
 
+.oersted-advanced-toggle {
+  width: 100%;
+  border: 1px dashed #9f7a57;
+  border-radius: 10px;
+  background: #fff7eb;
+  color: #55371f;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oersted-advanced-panel {
+  border: 1px solid #d8bb9f;
+  border-radius: 10px;
+  background: rgba(255, 244, 228, 0.74);
+  padding: 0.5rem 0.55rem;
+}
+
+.oersted-advanced-panel h3 {
+  margin-top: 0.1rem;
+}
+
 .app-shell.theme-night .oersted-card {
   border-color: #70553a;
   background: linear-gradient(165deg, #312319 0%, #21180f 100%);
@@ -72,6 +96,17 @@
 
 .app-shell.theme-night .oersted-preset-tip {
   color: #ecd6bf;
+}
+
+.app-shell.theme-night .oersted-advanced-toggle {
+  border-color: #71573f;
+  background: #261d15;
+  color: #f6e3cd;
+}
+
+.app-shell.theme-night .oersted-advanced-panel {
+  border-color: #70553a;
+  background: rgba(49, 35, 25, 0.7);
 }
 
 @media (max-width: 900px) {
