@@ -57,6 +57,48 @@ function normalizeSource(source: string): string {
   return trimmed.replaceAll('π', 'pi')
 }
 
+function isScientificExponentIdentifier(source: string, startIndex: number, identifier: string): boolean {
+  if (!identifier.toLowerCase().startsWith('e')) {
+    return false
+  }
+
+  const previousChar = source[startIndex - 1] ?? ''
+  if (!/[0-9.]/.test(previousChar)) {
+    return false
+  }
+
+  if (/^[eE]\d+$/.test(identifier)) {
+    return true
+  }
+
+  if (!/^[eE]$/.test(identifier)) {
+    return false
+  }
+
+  const sign = source[startIndex + 1] ?? ''
+  const digit =
+    sign === '+' || sign === '-'
+      ? source[startIndex + 2] ?? ''
+      : sign
+
+  return /\d/.test(digit)
+}
+
+function collectIdentifierTokens(source: string): string[] {
+  const identifiers: string[] = []
+
+  for (const match of source.matchAll(IDENTIFIER_PATTERN)) {
+    const identifier = match[0]
+    const startIndex = match.index ?? 0
+    if (isScientificExponentIdentifier(source, startIndex, identifier)) {
+      continue
+    }
+    identifiers.push(identifier)
+  }
+
+  return identifiers
+}
+
 function toJavaScriptSource(source: string): { code: string; error: string | null } {
   if (ILLEGAL_CHAR_PATTERN.test(source)) {
     return {
@@ -65,7 +107,7 @@ function toJavaScriptSource(source: string): { code: string; error: string | nul
     }
   }
 
-  const identifiers = source.match(IDENTIFIER_PATTERN) ?? []
+  const identifiers = collectIdentifierTokens(source)
   for (const identifier of identifiers) {
     const token = identifier.toLowerCase()
     if (!Object.prototype.hasOwnProperty.call(JS_IDENTIFIER_MAP, token)) {
@@ -77,7 +119,12 @@ function toJavaScriptSource(source: string): { code: string; error: string | nul
   }
 
   const replaced = source
-    .replace(IDENTIFIER_PATTERN, (identifier) => JS_IDENTIFIER_MAP[identifier.toLowerCase()] ?? identifier)
+    .replace(IDENTIFIER_PATTERN, (identifier, offset, fullSource) => {
+      if (isScientificExponentIdentifier(fullSource, offset, identifier)) {
+        return identifier
+      }
+      return JS_IDENTIFIER_MAP[identifier.toLowerCase()] ?? identifier
+    })
     .replaceAll('^', '**')
 
   return { code: replaced, error: null }
