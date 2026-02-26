@@ -10,29 +10,33 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:touch": "node scripts/playwright/touch-regression.mjs"
+    "test:roundtrip": "node scripts/playwright/desktop-roundtrip.mjs",
+    "test:e2e": "npm run test:roundtrip && npm run test:touch",
+    "test:touch": "node scripts/playwright/touch-regression.mjs",
+    "check:homepage-preload": "node scripts/perf/assert-homepage-preload.mjs",
+    "test:perf": "npm run build && npm run check:homepage-preload"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "three": "0.182.0",
+    "three": "0.183.1",
     "zustand": "^5.0.11"
   },
   "overrides": {
     "stats-gl": {
-      "three": "0.182.0"
+      "three": "0.183.1"
     }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.10.14",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@types/three": "0.182.0",
+    "@types/three": "0.183.1",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
