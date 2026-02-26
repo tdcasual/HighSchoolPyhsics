@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# 高中电磁学 3D 课堂演示平台
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这是一套面向课堂的 3D 物理演示工具。  
+核心目标很简单: 让老师在一块屏幕里，直观展示电磁学中的“结构 + 过程 + 结果”。
 
-Currently, two official plugins are available:
+## 你能直接演示什么
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 示波器: 电子束偏转、荧光屏轨迹、常见波形（正弦/方波/锯齿/三角）与自定义函数。
+- 回旋加速器: 带电粒子轨道、交变电场加速、`U-t` 和 `Ek-t` 曲线联动。
+- 磁流体发电机: 磁场中流体发电过程，参数变化与两端电压实时对应。
+- 奥斯特实验: 电流磁效应、导线姿态变化、三枚磁针偏转和磁感线观察。
 
-## React Compiler
+## 课堂上手（3 分钟）
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. 安装 Node.js（建议 20+ 版本）。
+2. 在项目目录执行:
+```bash
+npm install
+npm run dev
+```
+3. 浏览器打开终端显示的本地地址（通常是 `http://localhost:5173`）。
+4. 进入“演示导航”，选择要讲的实验。
 
-## Expanding the ESLint configuration
+## 操作方式（全场景统一）
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 左侧是参数面板，右侧是 3D 演示区。
+- 动画默认是暂停状态，点击“播放”开始演示。
+- 鼠标:
+  - 左键拖拽: 旋转
+  - 滚轮: 缩放
+  - 右键拖拽: 平移
+- 触控:
+  - 单指旋转
+  - 双指缩放/平移
+  - 双击重置视角
+- 顶部可切换“白天模式 / 夜间模式”。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 适合课堂的讲解节奏（建议）
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. 先展示结构（静态暂停，旋转观察器件）。
+2. 再单独改一个参数，观察现象变化。
+3. 最后切换到典型函数或预设，对比不同结果。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 给技术支持同事（可选）
+
+```bash
+npm test        # 运行测试
+npm run test:touch # 触屏回归（输出到 output/playwright/touch-regression）
+npm run build   # 打包检查
+npm run preview # 本地预览打包结果
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+首次运行触屏回归前建议执行：
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npx playwright install chromium
 ```
+
+---
+
+如果你是任课老师，只需要记住两件事:  
+先选实验，再改参数。其余交给 3D 场景本身去“说话”。

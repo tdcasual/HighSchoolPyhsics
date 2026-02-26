@@ -15,6 +15,7 @@ build
 coverage
 playwright-report
 test-results
+output/
 tmp/
 .tmp_research/
 .playwright-cli/

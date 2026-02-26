@@ -1,3 +1,5 @@
+import { MOUSE, TOUCH } from 'three'
+
 export const DEMO_ORBIT_CONTROLS = {
   enableRotate: true,
   enableZoom: true,
@@ -11,4 +13,13 @@ export const DEMO_ORBIT_CONTROLS = {
   maxDistance: 16,
   minPolarAngle: 0.2,
   maxPolarAngle: Math.PI - 0.2,
+  mouseButtons: {
+    LEFT: MOUSE.ROTATE,
+    MIDDLE: MOUSE.DOLLY,
+    RIGHT: MOUSE.PAN,
+  },
+  touches: {
+    ONE: TOUCH.ROTATE,
+    TWO: TOUCH.DOLLY_PAN,
+  },
 } as const

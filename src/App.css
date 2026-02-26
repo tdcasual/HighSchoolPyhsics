@@ -327,9 +327,33 @@ body {
 
 .scene-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) 1fr;
   gap: 1rem;
+}
+
+.scene-layout--desktop {
+  grid-template-columns: minmax(240px, 320px) 1fr;
   min-height: calc(100vh - 130px);
+}
+
+.scene-layout--tablet,
+.scene-layout--mobile {
+  grid-template-columns: 1fr;
+  min-height: auto;
+}
+
+.scene-toolbar {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.scene-toolbar-toggle {
+  border: 1px solid #1d3557;
+  background: #ffffff;
+  color: #14213d;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .control-panel {
@@ -340,6 +364,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.control-panel--compact {
+  width: 100%;
 }
 
 .control-panel h2 {
@@ -454,6 +482,16 @@ body {
   height: 100%;
 }
 
+.interactive-canvas-surface {
+  min-height: 0;
+  height: 100%;
+  touch-action: none;
+}
+
+.interactive-canvas-surface canvas {
+  touch-action: none;
+}
+
 .interaction-hint {
   margin: 0;
   padding: 0.35rem 0.6rem;
@@ -461,6 +499,11 @@ body {
   color: #284b63;
   background: rgba(232, 245, 255, 0.9);
   border-top: 1px solid #c7d7e7;
+}
+
+.interaction-feedback {
+  color: #0b6e4f;
+  font-weight: 700;
 }
 
 .scene-missing {
@@ -512,6 +555,12 @@ body {
   background: #43c4d4;
   border-color: #43c4d4;
   color: #06131f;
+}
+
+.app-shell.theme-night .scene-toolbar-toggle {
+  border-color: #5f7d99;
+  background: #122235;
+  color: #d9e7f5;
 }
 
 .app-shell.theme-night .control-panel {
@@ -602,6 +651,10 @@ body {
   border-top-color: #2f4863;
 }
 
+.app-shell.theme-night .interaction-feedback {
+  color: #8de0bf;
+}
+
 .app-shell.theme-night .canvas-fallback {
   color: #b8d4ec;
 }
@@ -634,7 +687,13 @@ body {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1199px) {
+  .viewport-panel {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 767px) {
   .overview-page {
     padding: 0.8rem 0.25rem 1rem;
   }
@@ -647,12 +706,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .scene-layout {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
   .viewport-panel {
-    min-height: 340px;
+    min-height: 300px;
   }
 }

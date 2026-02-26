@@ -14,21 +14,29 @@ describe('3d interaction policy', () => {
 
     expect(await screen.findByText(/拖拽旋转/)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/)).toBeInTheDocument()
+    expect(await screen.findByText(/双击重置/)).toBeInTheDocument()
+    expect(await screen.findByText(/三指切换模式/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
     fireEvent.click(screen.getByRole('button', { name: '进入回旋加速器' }))
 
     expect(await screen.findByText(/拖拽旋转/)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/)).toBeInTheDocument()
+    expect(await screen.findByText(/双击重置/)).toBeInTheDocument()
+    expect(await screen.findByText(/三指切换模式/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
     fireEvent.click(screen.getByRole('button', { name: '进入磁流体发电机' }))
     expect(await screen.findByText(/拖拽旋转/)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/)).toBeInTheDocument()
+    expect(await screen.findByText(/双击重置/)).toBeInTheDocument()
+    expect(await screen.findByText(/三指切换模式/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
     fireEvent.click(screen.getByRole('button', { name: '进入奥斯特实验' }))
     expect(await screen.findByText(/拖拽旋转/)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/)).toBeInTheDocument()
+    expect(await screen.findByText(/双击重置/)).toBeInTheDocument()
+    expect(await screen.findByText(/三指切换模式/)).toBeInTheDocument()
   })
 })

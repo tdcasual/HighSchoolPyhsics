@@ -1,45 +1,8 @@
-type NavigationRoute = {
-  path: string
-  label: string
-}
+import type { DemoRoute } from '../app/demoRoutes'
 
 type NavigationPageProps = {
-  routes: NavigationRoute[]
+  routes: DemoRoute[]
   onOpenRoute: (path: string) => void
-}
-
-type RouteMeta = {
-  tag: string
-  summary: string
-  highlights: [string, string]
-  tone: 'scope' | 'cyclotron' | 'mhd' | 'oersted'
-}
-
-const ROUTE_META: Record<string, RouteMeta> = {
-  '/oscilloscope': {
-    tag: '波形合成',
-    summary: '双通道电压驱动 + 李萨如图形',
-    highlights: ['函数编辑与预设切换', '荧光屏轨迹实时更新'],
-    tone: 'scope',
-  },
-  '/cyclotron': {
-    tag: '粒子动力学',
-    summary: '交变电场加速 + 磁场轨道约束',
-    highlights: ['U-t / Ek-t 双曲线', '可切换加速时间模型'],
-    tone: 'cyclotron',
-  },
-  '/mhd': {
-    tag: '能量转换',
-    summary: '等离子体通道中的感应电势演示',
-    highlights: ['磁场/流速/导电率联动', '端电压实时读数'],
-    tone: 'mhd',
-  },
-  '/oersted': {
-    tag: '课堂观察',
-    summary: '三磁针偏转与导线姿态联动',
-    highlights: ['拖拽磁针自由摆位', '磁感线可显隐对比'],
-    tone: 'oersted',
-  },
 }
 
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
@@ -53,7 +16,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
 
       <div className="overview-grid">
         {routes.map((route, index) => {
-          const meta = ROUTE_META[route.path]
+          const meta = route.meta
 
           return (
             <article key={route.path} className={`overview-card tone-${meta.tone}`}>

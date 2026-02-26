@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:touch": "node scripts/playwright/touch-regression.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -38,6 +39,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "jsdom": "^28.1.0",
+    "playwright": "^1.58.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^7.3.1",
