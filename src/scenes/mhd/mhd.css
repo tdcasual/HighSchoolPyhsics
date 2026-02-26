@@ -1,0 +1,36 @@
+.mhd-voltage-card {
+  margin-top: 0.25rem;
+  border: 1px solid #4a7c59;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #071c22 0%, #0b1114 100%);
+  padding: 0.7rem 0.8rem;
+}
+
+.mhd-voltage-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cdeffd;
+}
+
+.mhd-voltage-value {
+  margin: 0.2rem 0 0;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #c8ffad;
+  text-shadow: 0 0 10px rgba(140, 255, 171, 0.35);
+}
+
+.app-shell.theme-night .mhd-voltage-card {
+  border-color: #3f8ca8;
+  background: linear-gradient(160deg, #081720 0%, #04090f 100%);
+}
+
+.app-shell.theme-night .mhd-voltage-label {
+  color: #d4ecff;
+}
+
+.app-shell.theme-night .mhd-voltage-value {
+  color: #dbffb7;
+}

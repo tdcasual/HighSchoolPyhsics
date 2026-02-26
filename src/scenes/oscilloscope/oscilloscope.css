@@ -1,0 +1,71 @@
+.scope-card {
+  margin-top: 0.3rem;
+  border-radius: 10px;
+  border: 1px solid #335c67;
+  background: linear-gradient(180deg, #0a1117 0%, #03070b 100%);
+  padding: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.scope-card h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #d9f7e4;
+}
+
+.scope-screen {
+  border: 1px solid #2f4552;
+  border-radius: 8px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #0d3a25 0%, #03140d 74%);
+}
+
+.scope-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.scope-grid line {
+  stroke: rgba(94, 216, 168, 0.2);
+  stroke-width: 0.8;
+}
+
+.scope-axis {
+  stroke: rgba(176, 250, 212, 0.38);
+  stroke-width: 1.2;
+}
+
+.scope-trace-halo {
+  fill: none;
+  stroke: rgba(149, 255, 185, 0.34);
+  stroke-width: 5.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scope-trace-core {
+  fill: none;
+  stroke: #d7ffad;
+  stroke-width: 2.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scope-cursor {
+  fill: #e9ffca;
+  filter: url(#scopeGlow);
+}
+
+.scope-status {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #a7ccb4;
+  text-align: right;
+}
+
+.app-shell.theme-night .scope-card {
+  border-color: #4a6986;
+}

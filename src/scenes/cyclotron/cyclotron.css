@@ -1,0 +1,121 @@
+.cyclotron-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.cyclotron-mode-switch button {
+  border: 1px solid #8ca8be;
+  border-radius: 999px;
+  padding: 0.38rem 0.55rem;
+  background: #ffffff;
+  color: #2b4f6d;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.cyclotron-mode-switch button.active {
+  background: #264f72;
+  border-color: #264f72;
+  color: #ffffff;
+}
+
+.cyclotron-plot-card {
+  margin-top: 0.25rem;
+  border-radius: 10px;
+  border: 1px solid #9fc2db;
+  background: linear-gradient(180deg, #f7fcff 0%, #edf6fe 100%);
+  padding: 0.52rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+
+.cyclotron-plot-card h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #22445f;
+}
+
+.cyclotron-plot-screen {
+  border: 1px solid #a6c4da;
+  border-radius: 8px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #ffffff 0%, #ebf4fb 78%);
+}
+
+.cyclotron-plot-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cyclotron-plot-grid line {
+  stroke: rgba(89, 125, 153, 0.25);
+  stroke-width: 0.8;
+}
+
+.cyclotron-plot-axis {
+  stroke: rgba(60, 91, 114, 0.42);
+  stroke-width: 1.2;
+}
+
+.cyclotron-plot-line {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cyclotron-plot-line.voltage-line {
+  stroke: #d14f57;
+}
+
+.cyclotron-plot-line.energy-line {
+  stroke: #2f6996;
+}
+
+.cyclotron-plot-status {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #35586f;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+.app-shell.theme-night .cyclotron-mode-switch button {
+  background: #0f2336;
+  border-color: #3f6584;
+  color: #d4e8fb;
+}
+
+.app-shell.theme-night .cyclotron-mode-switch button.active {
+  background: #43c4d4;
+  border-color: #43c4d4;
+  color: #06131f;
+}
+
+.app-shell.theme-night .cyclotron-plot-card {
+  border-color: #3f6584;
+  background: linear-gradient(180deg, #12283d 0%, #0f2032 100%);
+}
+
+.app-shell.theme-night .cyclotron-plot-card h3 {
+  color: #deedff;
+}
+
+.app-shell.theme-night .cyclotron-plot-screen {
+  border-color: #3f6584;
+  background: radial-gradient(circle at center, #1a3349 0%, #111f30 78%);
+}
+
+.app-shell.theme-night .cyclotron-plot-grid line {
+  stroke: rgba(127, 168, 196, 0.25);
+}
+
+.app-shell.theme-night .cyclotron-plot-axis {
+  stroke: rgba(179, 210, 232, 0.48);
+}
+
+.app-shell.theme-night .cyclotron-plot-status {
+  color: #bad6ef;
+}
