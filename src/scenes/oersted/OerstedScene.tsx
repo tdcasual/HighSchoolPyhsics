@@ -825,6 +825,14 @@ export function OerstedScene() {
   return (
     <SceneLayout
       presentationSignals={['interactive-readout']}
+      coreSummary={
+        <div className="scene-core-summary-stack">
+          <p>状态: {running ? '通电演示中' : '待机观察'}</p>
+          <p>电流 I: {currentA.toFixed(1)} A</p>
+          <p>最大可见摆动: {maxSwing.toFixed(1)}°</p>
+          <p>可观察性: {discoveryText}</p>
+        </div>
+      }
       controls={
         <OerstedControls
           presetButtons={OERSTED_PRESETS.map((preset) => ({

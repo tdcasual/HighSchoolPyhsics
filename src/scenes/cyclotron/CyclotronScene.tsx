@@ -446,43 +446,27 @@ export function CyclotronScene() {
     crossingDurationS,
   })
 
-  const voltageSeries = useMemo(
-    () =>
-      buildTimeSeries({
-        endTimeS: simulationTimeS,
-        windowS: adaptiveWindowS,
-        samples: 260,
-        evaluate: (timeS) => evaluateGapVoltageAtTime(timeS, voltageAmplitudeV, cyclotronPeriodS),
-      }),
-    [adaptiveWindowS, cyclotronPeriodS, simulationTimeS, voltageAmplitudeV],
-  )
+  const voltageSeries = buildTimeSeries({
+    endTimeS: simulationTimeS,
+    windowS: adaptiveWindowS,
+    samples: 260,
+    evaluate: (timeS) => evaluateGapVoltageAtTime(timeS, voltageAmplitudeV, cyclotronPeriodS),
+  })
 
-  const energySeries = useMemo(
-    () =>
-      buildTimeSeries({
-        endTimeS: simulationTimeS,
-        windowS: adaptiveWindowS,
-        samples: 260,
-        evaluate: (timeS) =>
-          evaluateKineticEnergyAtTime({
-            mode: energyMode,
-            timeS,
-            periodS: cyclotronPeriodS,
-            initialEnergyJ,
-            deltaEnergyJ,
-            crossingDurationS,
-          }),
+  const energySeries = buildTimeSeries({
+    endTimeS: simulationTimeS,
+    windowS: adaptiveWindowS,
+    samples: 260,
+    evaluate: (timeS) =>
+      evaluateKineticEnergyAtTime({
+        mode: energyMode,
+        timeS,
+        periodS: cyclotronPeriodS,
+        initialEnergyJ,
+        deltaEnergyJ,
+        crossingDurationS,
       }),
-    [
-      adaptiveWindowS,
-      crossingDurationS,
-      cyclotronPeriodS,
-      deltaEnergyJ,
-      energyMode,
-      initialEnergyJ,
-      simulationTimeS,
-    ],
-  )
+  })
 
   const voltageRange = useMemo<[number, number]>(() => {
     const bound = Math.max(1, Math.abs(voltageAmplitudeV) * 1.1)
@@ -524,6 +508,14 @@ export function CyclotronScene() {
   return (
     <SceneLayout
       presentationSignals={['chart', 'time-series', 'live-metric']}
+      coreSummary={
+        <div className="scene-core-summary-stack">
+          <p>状态: {simulation.running ? '运行中' : '已暂停'}</p>
+          <p>电压方向: {voltageDirectionText}</p>
+          <p>U: {currentVoltageV.toExponential(2)} V</p>
+          <p>Ek: {currentEnergyJ.toExponential(2)} J</p>
+        </div>
+      }
       controls={
         <CyclotronControls
           magneticFieldT={magneticFieldT}

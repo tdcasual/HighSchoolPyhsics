@@ -59,6 +59,13 @@ export function OscilloscopeScene() {
   return (
     <SceneLayout
       presentationSignals={['chart', 'live-metric']}
+      coreSummary={
+        <div className="scene-core-summary-stack">
+          <p>状态: {simulation.running ? '运行中' : '已暂停'}</p>
+          <p>Ux(t): {xExpression}</p>
+          <p>Uy(t): {yExpression}</p>
+        </div>
+      }
       controls={
         <>
         <h2>示波器控制</h2>

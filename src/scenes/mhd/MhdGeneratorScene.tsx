@@ -483,6 +483,13 @@ export function MhdGeneratorScene() {
   return (
     <SceneLayout
       presentationSignals={['live-metric']}
+      coreSummary={
+        <div className="scene-core-summary-stack">
+          <p>状态: {running ? '运行中' : '已暂停'}</p>
+          <p>输出电压 U_AB: {voltageDisplayV.toFixed(1)} V</p>
+          <p>B: {magneticFieldT.toFixed(1)} T · v: {plasmaVelocityMps.toFixed(0)} m/s</p>
+        </div>
+      }
       controls={
         <MhdControls
           magneticFieldT={magneticFieldT}

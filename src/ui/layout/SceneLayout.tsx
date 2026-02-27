@@ -15,6 +15,7 @@ type SceneLayoutProps = {
   controls: ReactNode
   viewport: ReactNode
   presentationSignals?: PresentationSignal[]
+  coreSummary?: ReactNode
 }
 
 function resolveLayoutTier(width: number): LayoutTier {
@@ -80,6 +81,7 @@ export function SceneLayout({
   controls,
   viewport,
   presentationSignals = [],
+  coreSummary,
 }: SceneLayoutProps) {
   const presentationMode = useAppStore((state) => state.presentationMode)
   const activeScenePath = useAppStore((state) => state.activeScenePath)
@@ -177,6 +179,11 @@ export function SceneLayout({
             {toggleLabel}
           </button>
         </div>
+      ) : null}
+      {presentationMode && compact && coreSummary ? (
+        <section className="scene-core-summary" aria-label="课堂核心信息">
+          {coreSummary}
+        </section>
       ) : null}
       {compact ? (
         <>

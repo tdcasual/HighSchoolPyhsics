@@ -84,10 +84,12 @@ describe('App shell', () => {
     fireEvent.click(presentationButton)
     expect(presentationButton).toHaveAttribute('aria-pressed', 'true')
     expect(shell).toHaveClass('presentation-mode')
+    expect(screen.getByText(/课堂展示中/)).toBeInTheDocument()
 
     fireEvent.keyDown(window, { key: 'p' })
     expect(presentationButton).toHaveAttribute('aria-pressed', 'false')
     expect(shell).not.toHaveClass('presentation-mode')
+    expect(screen.queryByText(/课堂展示中/)).not.toBeInTheDocument()
   })
 
   it('keeps root path on overview navigation page', async () => {

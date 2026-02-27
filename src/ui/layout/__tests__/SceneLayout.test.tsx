@@ -103,4 +103,27 @@ describe('SceneLayout', () => {
     expect(document.querySelector('.scene-layout--presentation-split')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
   })
+
+  it('keeps core summary visible when controls are collapsed in presentation viewport mode', () => {
+    setViewportWidth(1366)
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: { '/test-scene': 'viewport' },
+    })
+
+    render(
+      <SceneLayout
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+        coreSummary={<p>核心信息: U=12.5V</p>}
+      />,
+    )
+
+    expect(screen.getByText('核心信息: U=12.5V')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
+    expect((screen.getByText('控制区').closest('.control-panel') as HTMLElement)).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+  })
 })

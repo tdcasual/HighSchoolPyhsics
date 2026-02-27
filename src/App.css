@@ -121,6 +121,18 @@ body {
   padding: 0.42rem 0.72rem;
 }
 
+.presentation-indicator {
+  margin: 0;
+  padding: 0.36rem 0.68rem;
+  border-radius: 999px;
+  border: 1px solid rgba(37, 108, 167, 0.35);
+  background: rgba(226, 245, 255, 0.82);
+  color: #10466b;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .night-tone-switch {
   display: inline-flex;
   gap: 0.4rem;
@@ -494,6 +506,25 @@ body {
   cursor: pointer;
 }
 
+.scene-core-summary {
+  border: 1px solid #bcd4ea;
+  border-radius: 12px;
+  background: rgba(247, 252, 255, 0.92);
+  padding: 0.64rem 0.78rem;
+}
+
+.scene-core-summary-stack {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.scene-core-summary-stack p {
+  margin: 0;
+  color: #1d4d72;
+  font-size: 0.84rem;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
 .control-panel {
   background: rgba(255, 255, 255, 0.86);
   border: 1px solid #c7d7e7;
@@ -704,6 +735,21 @@ body {
   border-color: #4f6f98;
   background: #101c30;
   color: #dcecff;
+}
+
+.app-shell.theme-night .presentation-indicator {
+  border-color: #4f6f98;
+  background: rgba(17, 34, 54, 0.92);
+  color: #dcecff;
+}
+
+.app-shell.theme-night .scene-core-summary {
+  border-color: #3f6285;
+  background: rgba(14, 29, 45, 0.9);
+}
+
+.app-shell.theme-night .scene-core-summary-stack p {
+  color: #d8ebff;
 }
 
 .app-shell.theme-night .night-tone-switch button {
@@ -1031,13 +1077,34 @@ body {
   background: rgba(37, 24, 62, 0.9);
 }
 
+.app-shell.theme-night.night-tone-neon .presentation-indicator {
+  border-color: #9158d8;
+  background: rgba(45, 25, 71, 0.95);
+  color: #f3dbff;
+}
+
+.app-shell.theme-night.night-tone-neon .scene-core-summary {
+  border-color: #7d63b5;
+  background: rgba(52, 30, 81, 0.9);
+}
+
+.app-shell.theme-night.night-tone-neon .scene-core-summary-stack p {
+  color: #f2e5ff;
+}
+
 .app-shell.theme-night.night-tone-neon .scene-missing h2,
 .app-shell.theme-night.night-tone-neon .scene-missing p {
   color: #f4e7ff;
 }
 
 .app-shell.presentation-mode .app-header h1 {
-  font-size: 1.76rem;
+  font-size: 2.02rem;
+}
+
+.app-shell.presentation-mode .app-controls button {
+  font-size: 0.94rem;
+  padding-top: 0.56rem;
+  padding-bottom: 0.56rem;
 }
 
 .app-shell.presentation-mode .scene-layout {
@@ -1054,12 +1121,12 @@ body {
 }
 
 .app-shell.presentation-mode .control-panel h2 {
-  font-size: 1.3rem;
+  font-size: 1.42rem;
 }
 
 .app-shell.presentation-mode .control-panel label,
 .app-shell.presentation-mode .subsection h3 {
-  font-size: 1.04rem;
+  font-size: 1.1rem;
 }
 
 .app-shell.presentation-mode .formula-input,
@@ -1067,16 +1134,20 @@ body {
 .app-shell.presentation-mode .formula-help,
 .app-shell.presentation-mode .formula-error,
 .app-shell.presentation-mode .interaction-hint {
-  font-size: 0.96rem;
+  font-size: 1.02rem;
 }
 
 .app-shell.presentation-mode .structure-card h3 {
-  font-size: 1.08rem;
+  font-size: 1.14rem;
 }
 
 .app-shell.presentation-mode .structure-card li,
 .app-shell.presentation-mode .readings p {
-  font-size: 0.98rem;
+  font-size: 1.02rem;
+}
+
+.app-shell.presentation-mode .scene-core-summary-stack p {
+  font-size: 0.95rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

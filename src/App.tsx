@@ -88,6 +88,8 @@ function App() {
 
   const isOverviewPage = pathname === '/'
   const presentationLayoutMode = presentationRouteModes[pathname] ?? 'auto'
+  const presentationLayoutLabel =
+    PRESENTATION_LAYOUT_OPTIONS.find((option) => option.value === presentationLayoutMode)?.label ?? '自动'
   const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const ActiveScene = activeRoute?.Component
@@ -161,6 +163,11 @@ function App() {
           >
             课堂展示
           </button>
+          {presentationMode ? (
+            <p className="presentation-indicator" aria-live="polite">
+              课堂展示中 · {presentationLayoutLabel}
+            </p>
+          ) : null}
           {canConfigurePresentationLayout ? (
             <div className="presentation-layout-switch" role="group" aria-label="课堂展示布局">
               {PRESENTATION_LAYOUT_OPTIONS.map((option) => (

@@ -76,6 +76,8 @@ npx playwright install chromium
 新增演示页时可参考课堂展示接入模板：
 
 - `docs/presentation-signal-playbook.md`
+- `docs/classroom-presentation-principles.md`
+- `AGENTS.md`（仓库级课堂模式原则）
 
 ---
 
