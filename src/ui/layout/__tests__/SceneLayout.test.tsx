@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { SceneLayout } from '../SceneLayout'
+import { useAppStore } from '../../../store/useAppStore'
 
 function setViewportWidth(width: number) {
   Object.defineProperty(window, 'innerWidth', {
@@ -12,7 +13,12 @@ function setViewportWidth(width: number) {
 }
 
 describe('SceneLayout', () => {
+  beforeEach(() => {
+    useAppStore.setState({ presentationMode: false })
+  })
+
   afterEach(() => {
+    useAppStore.setState({ presentationMode: false })
     setViewportWidth(1024)
   })
 
@@ -49,5 +55,26 @@ describe('SceneLayout', () => {
     fireEvent.click(screen.getByRole('button', { name: '展开参数面板' }))
     expect(panel).toHaveAttribute('aria-hidden', 'false')
     expect(screen.getByRole('button', { name: '收起参数面板' })).toBeInTheDocument()
+  })
+
+  it('defaults to viewport-priority layout in presentation mode on desktop', () => {
+    setViewportWidth(1366)
+    useAppStore.setState({ presentationMode: true })
+
+    render(
+      <SceneLayout
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    const panel = screen.getByText('控制区').closest('.control-panel') as HTMLElement
+    expect(document.querySelector('.scene-layout--presentation')).toBeInTheDocument()
+    expect(panel).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '显示控制面板' }))
+    expect(panel).toHaveAttribute('aria-hidden', 'false')
+    expect(screen.getByRole('button', { name: '隐藏控制面板' })).toBeInTheDocument()
   })
 })

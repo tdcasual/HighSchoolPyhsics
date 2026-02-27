@@ -13,8 +13,10 @@ import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 function App() {
   const theme = useAppStore((state) => state.theme)
   const nightTone = useAppStore((state) => state.nightTone)
+  const presentationMode = useAppStore((state) => state.presentationMode)
   const setTheme = useAppStore((state) => state.setTheme)
   const setNightTone = useAppStore((state) => state.setNightTone)
+  const setPresentationMode = useAppStore((state) => state.setPresentationMode)
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -64,8 +66,10 @@ function App() {
     routes: DEMO_ROUTES,
     pathname,
     theme,
+    presentationMode,
     setTheme,
     setNightTone,
+    setPresentationMode,
     navigateTo,
   })
 
@@ -75,6 +79,7 @@ function App() {
   const shellClassName = [
     'app-shell',
     `theme-${theme}`,
+    presentationMode ? 'presentation-mode' : '',
     theme === 'night' ? `night-tone-${nightTone}` : '',
   ]
     .filter(Boolean)
@@ -132,6 +137,15 @@ function App() {
               </button>
             </div>
           ) : null}
+          <button
+            className={`touch-target presentation-toggle ${presentationMode ? 'active' : ''}`.trim()}
+            aria-pressed={presentationMode}
+            aria-keyshortcuts="P"
+            title="快捷键 P"
+            onClick={() => setPresentationMode(!presentationMode)}
+          >
+            课堂展示
+          </button>
         </div>
       </header>
       <section className="scene-container">

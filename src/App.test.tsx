@@ -6,7 +6,7 @@ import { useAppStore } from './store/useAppStore'
 describe('App shell', () => {
   beforeEach(() => {
     useAppStore.persist.clearStorage()
-    useAppStore.setState({ theme: 'day', nightTone: 'minimal' })
+    useAppStore.setState({ theme: 'day', nightTone: 'minimal', presentationMode: false })
     window.history.replaceState(null, '', '/')
   })
 
@@ -64,6 +64,24 @@ describe('App shell', () => {
 
     expect(screen.queryByRole('button', { name: '夜间极简' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '夜间霓虹' })).not.toBeInTheDocument()
+  })
+
+  it('toggles classroom presentation mode from button and keyboard shortcut', () => {
+    const { container } = render(<App />)
+
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    const presentationButton = screen.getByRole('button', { name: '课堂展示' })
+
+    expect(presentationButton).toHaveAttribute('aria-pressed', 'false')
+    expect(shell).not.toHaveClass('presentation-mode')
+
+    fireEvent.click(presentationButton)
+    expect(presentationButton).toHaveAttribute('aria-pressed', 'true')
+    expect(shell).toHaveClass('presentation-mode')
+
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(presentationButton).toHaveAttribute('aria-pressed', 'false')
+    expect(shell).not.toHaveClass('presentation-mode')
   })
 
   it('keeps root path on overview navigation page', async () => {
@@ -125,5 +143,8 @@ describe('App shell', () => {
 
     fireEvent.keyDown(formulaInput, { key: 'n' })
     expect(shell).toHaveClass('theme-day')
+
+    fireEvent.keyDown(formulaInput, { key: 'p' })
+    expect(shell).not.toHaveClass('presentation-mode')
   })
 })

@@ -76,6 +76,7 @@ body {
 
 .scene-actions button,
 .theme-switch button,
+.presentation-toggle,
 .overview-link,
 .overview-card button {
   border: 1px solid #3d5f8d;
@@ -89,6 +90,7 @@ body {
 
 .scene-actions button:hover,
 .theme-switch button:hover,
+.presentation-toggle:hover,
 .overview-link:hover {
   transform: translateY(-1px);
   border-color: #2f95d5;
@@ -128,7 +130,8 @@ body {
 }
 
 .scene-actions button.active,
-.theme-switch button.active {
+.theme-switch button.active,
+.presentation-toggle.active {
   background: linear-gradient(135deg, #3ea8ff 0%, #36d6b1 100%);
   border-color: #36d6b1;
   color: #062235;
@@ -449,6 +452,10 @@ body {
   min-height: auto;
 }
 
+.scene-layout--presentation {
+  grid-template-columns: 1fr;
+}
+
 .scene-toolbar {
   display: flex;
   justify-content: flex-start;
@@ -652,6 +659,7 @@ body {
 
 .app-shell.theme-night .scene-actions button,
 .app-shell.theme-night .theme-switch button,
+.app-shell.theme-night .presentation-toggle,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
   border-color: #4f6f98;
@@ -660,7 +668,8 @@ body {
 }
 
 .app-shell.theme-night .scene-actions button.active,
-.app-shell.theme-night .theme-switch button.active {
+.app-shell.theme-night .theme-switch button.active,
+.app-shell.theme-night .presentation-toggle.active {
   background: #2d5277;
   border-color: #6e95bf;
   color: #eef6ff;
@@ -843,6 +852,7 @@ body {
 
 .app-shell.theme-night.night-tone-neon .scene-actions button,
 .app-shell.theme-night.night-tone-neon .theme-switch button,
+.app-shell.theme-night.night-tone-neon .presentation-toggle,
 .app-shell.theme-night.night-tone-neon .overview-link,
 .app-shell.theme-night.night-tone-neon .overview-card button,
 .app-shell.theme-night.night-tone-neon .scene-toolbar-toggle,
@@ -855,6 +865,7 @@ body {
 
 .app-shell.theme-night.night-tone-neon .scene-actions button.active,
 .app-shell.theme-night.night-tone-neon .theme-switch button.active,
+.app-shell.theme-night.night-tone-neon .presentation-toggle.active,
 .app-shell.theme-night.night-tone-neon .night-tone-switch button.active {
   background: #6a46a3;
   border-color: #ff67b2;
@@ -996,6 +1007,49 @@ body {
 .app-shell.theme-night.night-tone-neon .scene-missing h2,
 .app-shell.theme-night.night-tone-neon .scene-missing p {
   color: #f4e7ff;
+}
+
+.app-shell.presentation-mode .app-header h1 {
+  font-size: 1.76rem;
+}
+
+.app-shell.presentation-mode .scene-layout {
+  gap: 0.75rem;
+}
+
+.app-shell.presentation-mode .viewport-panel {
+  min-height: 560px;
+}
+
+.app-shell.presentation-mode .control-panel {
+  padding: 1.08rem;
+  gap: 0.95rem;
+}
+
+.app-shell.presentation-mode .control-panel h2 {
+  font-size: 1.3rem;
+}
+
+.app-shell.presentation-mode .control-panel label,
+.app-shell.presentation-mode .subsection h3 {
+  font-size: 1.04rem;
+}
+
+.app-shell.presentation-mode .formula-input,
+.app-shell.presentation-mode .preset-select,
+.app-shell.presentation-mode .formula-help,
+.app-shell.presentation-mode .formula-error,
+.app-shell.presentation-mode .interaction-hint {
+  font-size: 0.96rem;
+}
+
+.app-shell.presentation-mode .structure-card h3 {
+  font-size: 1.08rem;
+}
+
+.app-shell.presentation-mode .structure-card li,
+.app-shell.presentation-mode .readings p {
+  font-size: 0.98rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

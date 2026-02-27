@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useAppStore } from '../../store/useAppStore'
 
 type LayoutTier = 'desktop' | 'tablet' | 'mobile'
 
@@ -25,8 +26,12 @@ function readViewportWidth(): number {
 }
 
 export function SceneLayout({ controls, viewport }: SceneLayoutProps) {
+  const presentationMode = useAppStore((state) => state.presentationMode)
   const [tier, setTier] = useState<LayoutTier>(() => resolveLayoutTier(readViewportWidth()))
-  const [controlsExpanded, setControlsExpanded] = useState<boolean>(() => resolveLayoutTier(readViewportWidth()) !== 'mobile')
+  const [controlsExpanded, setControlsExpanded] = useState<boolean>(() => {
+    const initialTier = resolveLayoutTier(readViewportWidth())
+    return initialTier !== 'mobile' && !presentationMode
+  })
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -42,11 +47,21 @@ export function SceneLayout({ controls, viewport }: SceneLayoutProps) {
   }, [])
 
   useEffect(() => {
-    setControlsExpanded(tier !== 'mobile')
-  }, [tier])
+    const rafId = window.requestAnimationFrame(() => {
+      setControlsExpanded(tier !== 'mobile' && !presentationMode)
+    })
 
-  const compact = tier !== 'desktop'
-  const toggleLabel = controlsExpanded ? '收起参数面板' : '展开参数面板'
+    return () => window.cancelAnimationFrame(rafId)
+  }, [tier, presentationMode])
+
+  const compact = tier !== 'desktop' || presentationMode
+  const toggleLabel = presentationMode
+    ? controlsExpanded
+      ? '隐藏控制面板'
+      : '显示控制面板'
+    : controlsExpanded
+      ? '收起参数面板'
+      : '展开参数面板'
   const controlsPanel = (
     <aside
       className={`control-panel ${compact ? 'control-panel--compact' : ''} ${controlsExpanded ? 'control-panel--expanded' : 'control-panel--collapsed'}`}
@@ -59,7 +74,10 @@ export function SceneLayout({ controls, viewport }: SceneLayoutProps) {
   )
 
   const viewportPanel = <section className="viewport-panel">{viewport}</section>
-  const scaffoldClassName = useMemo(() => `scene-layout scene-layout--${tier}`, [tier])
+  const scaffoldClassName = useMemo(
+    () => `scene-layout scene-layout--${tier} ${presentationMode ? 'scene-layout--presentation' : ''}`.trim(),
+    [presentationMode, tier],
+  )
 
   return (
     <div className={scaffoldClassName}>

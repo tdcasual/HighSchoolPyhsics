@@ -7,8 +7,10 @@ export type NightTone = 'minimal' | 'neon'
 type AppState = {
   theme: ThemeMode
   nightTone: NightTone
+  presentationMode: boolean
   setTheme: (theme: ThemeMode) => void
   setNightTone: (nightTone: NightTone) => void
+  setPresentationMode: (presentationMode: boolean) => void
 }
 
 type BasicStorage = {
@@ -57,8 +59,10 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: 'day',
       nightTone: 'minimal',
+      presentationMode: false,
       setTheme: (theme) => set({ theme }),
       setNightTone: (nightTone) => set({ nightTone }),
+      setPresentationMode: (presentationMode) => set({ presentationMode }),
     }),
     {
       name: 'electromagnetics-lab-ui',
@@ -66,6 +70,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         theme: state.theme,
         nightTone: state.nightTone,
+        presentationMode: state.presentationMode,
       }),
     },
   ),

@@ -6,8 +6,10 @@ type UseGlobalShortcutsOptions = {
   routes: DemoRoute[]
   pathname: string
   theme: ThemeMode
+  presentationMode: boolean
   setTheme: (theme: ThemeMode) => void
   setNightTone: (nightTone: NightTone) => void
+  setPresentationMode: (presentationMode: boolean) => void
   navigateTo: (path: string) => void
 }
 
@@ -28,8 +30,10 @@ export function useGlobalShortcuts({
   routes,
   pathname,
   theme,
+  presentationMode,
   setTheme,
   setNightTone,
+  setPresentationMode,
   navigateTo,
 }: UseGlobalShortcutsOptions): void {
   useEffect(() => {
@@ -73,6 +77,12 @@ export function useGlobalShortcuts({
         return
       }
 
+      if (key === 'p') {
+        event.preventDefault()
+        setPresentationMode(!presentationMode)
+        return
+      }
+
       if (pathname === '/' && /^[1-9]$/.test(key)) {
         const nextRoute = routes[Number(key) - 1]
         if (nextRoute) {
@@ -85,5 +95,14 @@ export function useGlobalShortcuts({
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [navigateTo, pathname, routes, setNightTone, setTheme, theme])
+  }, [
+    navigateTo,
+    pathname,
+    presentationMode,
+    routes,
+    setNightTone,
+    setPresentationMode,
+    setTheme,
+    theme,
+  ])
 }
