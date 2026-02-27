@@ -46,6 +46,28 @@ describe('SceneLayout', () => {
     expect(screen.queryByRole('button', { name: '展开参数面板' })).not.toBeInTheDocument()
   })
 
+  it('supports pointer drag resizing on desktop split layout', () => {
+    setViewportWidth(1366)
+
+    render(
+      <SceneLayout
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    const layout = document.querySelector('.scene-layout--desktop') as HTMLElement
+    const divider = screen.getByRole('separator', { name: '调整左右面板宽度' })
+
+    expect(layout.style.gridTemplateColumns).toContain('320px')
+
+    fireEvent.pointerDown(divider, { pointerId: 1, clientX: 420 })
+    fireEvent.pointerMove(divider, { pointerId: 1, clientX: 540 })
+    fireEvent.pointerUp(divider, { pointerId: 1, clientX: 540 })
+
+    expect(layout.style.gridTemplateColumns).toContain('440px')
+  })
+
   it('renders mobile layout with collapsed controls and touch toggle', () => {
     setViewportWidth(390)
 

@@ -506,6 +506,35 @@ body {
   cursor: pointer;
 }
 
+.scene-layout-divider {
+  width: 24px;
+  min-width: 24px;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+  position: relative;
+  padding: 0;
+}
+
+.scene-layout-divider span {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(61, 95, 141, 0.28);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.scene-layout-divider:hover span,
+.scene-layout-divider:focus-visible span {
+  background: rgba(47, 149, 213, 0.8);
+  box-shadow: 0 0 0 4px rgba(47, 149, 213, 0.16);
+}
+
 .scene-core-summary {
   border: 1px solid #bcd4ea;
   border-radius: 12px;
@@ -735,6 +764,16 @@ body {
   border-color: #4f6f98;
   background: #101c30;
   color: #dcecff;
+}
+
+.app-shell.theme-night .scene-layout-divider span {
+  background: rgba(111, 149, 188, 0.42);
+}
+
+.app-shell.theme-night .scene-layout-divider:hover span,
+.app-shell.theme-night .scene-layout-divider:focus-visible span {
+  background: rgba(122, 201, 255, 0.86);
+  box-shadow: 0 0 0 4px rgba(122, 201, 255, 0.2);
 }
 
 .app-shell.theme-night .presentation-indicator {
@@ -1081,6 +1120,16 @@ body {
   border-color: #9158d8;
   background: rgba(45, 25, 71, 0.95);
   color: #f3dbff;
+}
+
+.app-shell.theme-night.night-tone-neon .scene-layout-divider span {
+  background: rgba(174, 122, 236, 0.48);
+}
+
+.app-shell.theme-night.night-tone-neon .scene-layout-divider:hover span,
+.app-shell.theme-night.night-tone-neon .scene-layout-divider:focus-visible span {
+  background: rgba(235, 154, 255, 0.86);
+  box-shadow: 0 0 0 4px rgba(235, 154, 255, 0.2);
 }
 
 .app-shell.theme-night.night-tone-neon .scene-core-summary {
