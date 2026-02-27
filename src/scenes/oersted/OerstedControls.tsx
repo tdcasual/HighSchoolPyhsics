@@ -186,7 +186,7 @@ export function OerstedControls({
         ]}
       />
 
-      <div className="oersted-card">
+      <div className="oersted-card" data-presentation-signal="interactive-readout live-metric">
         {previewNeedleStates.map((state, index) => (
           <p key={`needle-reading-${index}`} data-testid={`oersted-swing-${index + 1}`}>
             磁针{index + 1}: 摆动 <strong>{state.observedSwingDeg.toFixed(1)}°</strong> · Bwire{' '}

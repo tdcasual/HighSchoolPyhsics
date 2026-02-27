@@ -106,7 +106,7 @@ function TraceChart({ title, series, running, valueLabel, unit, tone, fixedRange
   const latest = series[series.length - 1]
 
   return (
-    <div className={`cyclotron-plot-card ${tone}`}>
+    <div className={`cyclotron-plot-card ${tone}`} data-presentation-signal="chart time-series">
       <h3>{title}</h3>
       <div className="cyclotron-plot-screen">
         <svg
@@ -523,6 +523,7 @@ export function CyclotronScene() {
 
   return (
     <SceneLayout
+      presentationSignals={['chart', 'time-series', 'live-metric']}
       controls={
         <CyclotronControls
           magneticFieldT={magneticFieldT}

@@ -482,6 +482,7 @@ export function MhdGeneratorScene() {
 
   return (
     <SceneLayout
+      presentationSignals={['live-metric']}
       controls={
         <MhdControls
           magneticFieldT={magneticFieldT}

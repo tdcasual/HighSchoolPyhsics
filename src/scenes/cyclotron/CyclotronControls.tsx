@@ -112,7 +112,7 @@ export function CyclotronControls({
         ]}
       />
 
-      <div className="readings">
+      <div className="readings" data-presentation-signal="live-metric">
         <p>模式: {modeText}</p>
         <p>自适应周期 T: {cyclotronPeriodS.toExponential(2)} s</p>
         <p>自适应出发 y0: {launchPositionY.toExponential(2)} m</p>

@@ -58,6 +58,7 @@ export function OscilloscopeScene() {
 
   return (
     <SceneLayout
+      presentationSignals={['chart', 'live-metric']}
       controls={
         <>
         <h2>示波器控制</h2>

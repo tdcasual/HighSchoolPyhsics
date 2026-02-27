@@ -10,13 +10,22 @@ import { NavigationPage } from './pages/NavigationPage'
 import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 
+const PRESENTATION_LAYOUT_OPTIONS = [
+  { value: 'auto', label: '自动' },
+  { value: 'split', label: '双核心' },
+  { value: 'viewport', label: '视口优先' },
+] as const
+
 function App() {
   const theme = useAppStore((state) => state.theme)
   const nightTone = useAppStore((state) => state.nightTone)
   const presentationMode = useAppStore((state) => state.presentationMode)
+  const presentationRouteModes = useAppStore((state) => state.presentationRouteModes)
   const setTheme = useAppStore((state) => state.setTheme)
   const setNightTone = useAppStore((state) => state.setNightTone)
   const setPresentationMode = useAppStore((state) => state.setPresentationMode)
+  const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
+  const setPresentationRouteMode = useAppStore((state) => state.setPresentationRouteMode)
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -62,6 +71,10 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  useEffect(() => {
+    setActiveScenePath(pathname)
+  }, [pathname, setActiveScenePath])
+
   useGlobalShortcuts({
     routes: DEMO_ROUTES,
     pathname,
@@ -74,6 +87,8 @@ function App() {
   })
 
   const isOverviewPage = pathname === '/'
+  const presentationLayoutMode = presentationRouteModes[pathname] ?? 'auto'
+  const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const ActiveScene = activeRoute?.Component
   const shellClassName = [
@@ -146,6 +161,20 @@ function App() {
           >
             课堂展示
           </button>
+          {canConfigurePresentationLayout ? (
+            <div className="presentation-layout-switch" role="group" aria-label="课堂展示布局">
+              {PRESENTATION_LAYOUT_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  className={`touch-target ${presentationLayoutMode === option.value ? 'active' : ''}`.trim()}
+                  aria-pressed={presentationLayoutMode === option.value}
+                  onClick={() => setPresentationRouteMode(pathname, option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </header>
       <section className="scene-container">

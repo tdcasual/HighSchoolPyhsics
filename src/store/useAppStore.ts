@@ -3,14 +3,19 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type ThemeMode = 'day' | 'night'
 export type NightTone = 'minimal' | 'neon'
+export type PresentationLayoutMode = 'auto' | 'split' | 'viewport'
 
 type AppState = {
   theme: ThemeMode
   nightTone: NightTone
   presentationMode: boolean
+  activeScenePath: string
+  presentationRouteModes: Partial<Record<string, Exclude<PresentationLayoutMode, 'auto'>>>
   setTheme: (theme: ThemeMode) => void
   setNightTone: (nightTone: NightTone) => void
   setPresentationMode: (presentationMode: boolean) => void
+  setActiveScenePath: (path: string) => void
+  setPresentationRouteMode: (path: string, mode: PresentationLayoutMode) => void
 }
 
 type BasicStorage = {
@@ -60,9 +65,23 @@ export const useAppStore = create<AppState>()(
       theme: 'day',
       nightTone: 'minimal',
       presentationMode: false,
+      activeScenePath: '/',
+      presentationRouteModes: {},
       setTheme: (theme) => set({ theme }),
       setNightTone: (nightTone) => set({ nightTone }),
       setPresentationMode: (presentationMode) => set({ presentationMode }),
+      setActiveScenePath: (path) => set({ activeScenePath: path }),
+      setPresentationRouteMode: (path, mode) =>
+        set((state) => {
+          const normalized = path || '/'
+          const nextModes = { ...state.presentationRouteModes }
+          if (mode === 'auto') {
+            delete nextModes[normalized]
+          } else {
+            nextModes[normalized] = mode
+          }
+          return { presentationRouteModes: nextModes }
+        }),
     }),
     {
       name: 'electromagnetics-lab-ui',
@@ -71,6 +90,7 @@ export const useAppStore = create<AppState>()(
         theme: state.theme,
         nightTone: state.nightTone,
         presentationMode: state.presentationMode,
+        presentationRouteModes: state.presentationRouteModes,
       }),
     },
   ),

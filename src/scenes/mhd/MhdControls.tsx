@@ -103,7 +103,7 @@ export function MhdControls({
         ]}
       />
 
-      <div className="mhd-voltage-card">
+      <div className="mhd-voltage-card" data-presentation-signal="live-metric">
         <p className="mhd-voltage-label">两端电压 U_AB</p>
         <p className="mhd-voltage-value" data-testid="mhd-voltage-display">
           {voltageDisplayV.toFixed(1)} V

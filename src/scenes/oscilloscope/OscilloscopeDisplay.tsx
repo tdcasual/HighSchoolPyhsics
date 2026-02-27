@@ -38,7 +38,7 @@ export function OscilloscopeDisplay({ beamX, beamY, traceSegments, running }: Os
   const [cursorX, cursorY] = toScreenPoint(beamX, beamY)
 
   return (
-    <div className="scope-card">
+    <div className="scope-card" data-presentation-signal="chart live-metric">
       <h3>荧光屏显示</h3>
       <div className="scope-screen">
         <svg

@@ -76,6 +76,7 @@ body {
 
 .scene-actions button,
 .theme-switch button,
+.presentation-layout-switch button,
 .presentation-toggle,
 .overview-link,
 .overview-card button {
@@ -90,6 +91,7 @@ body {
 
 .scene-actions button:hover,
 .theme-switch button:hover,
+.presentation-layout-switch button:hover,
 .presentation-toggle:hover,
 .overview-link:hover {
   transform: translateY(-1px);
@@ -105,6 +107,18 @@ body {
 .theme-switch {
   display: flex;
   gap: 0.5rem;
+}
+
+.presentation-layout-switch {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.presentation-layout-switch button {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.42rem 0.72rem;
 }
 
 .night-tone-switch {
@@ -131,6 +145,7 @@ body {
 
 .scene-actions button.active,
 .theme-switch button.active,
+.presentation-layout-switch button.active,
 .presentation-toggle.active {
   background: linear-gradient(135deg, #3ea8ff 0%, #36d6b1 100%);
   border-color: #36d6b1;
@@ -446,6 +461,10 @@ body {
   min-height: calc(100vh - 130px);
 }
 
+.scene-layout--desktop.scene-layout--presentation-split {
+  grid-template-columns: minmax(360px, 44vw) minmax(0, 1fr);
+}
+
 .scene-layout--tablet,
 .scene-layout--mobile {
   grid-template-columns: 1fr;
@@ -453,6 +472,10 @@ body {
 }
 
 .scene-layout--presentation {
+  grid-template-columns: 1fr;
+}
+
+.scene-layout--presentation-viewport {
   grid-template-columns: 1fr;
 }
 
@@ -659,6 +682,7 @@ body {
 
 .app-shell.theme-night .scene-actions button,
 .app-shell.theme-night .theme-switch button,
+.app-shell.theme-night .presentation-layout-switch button,
 .app-shell.theme-night .presentation-toggle,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
@@ -669,6 +693,7 @@ body {
 
 .app-shell.theme-night .scene-actions button.active,
 .app-shell.theme-night .theme-switch button.active,
+.app-shell.theme-night .presentation-layout-switch button.active,
 .app-shell.theme-night .presentation-toggle.active {
   background: #2d5277;
   border-color: #6e95bf;
@@ -852,6 +877,7 @@ body {
 
 .app-shell.theme-night.night-tone-neon .scene-actions button,
 .app-shell.theme-night.night-tone-neon .theme-switch button,
+.app-shell.theme-night.night-tone-neon .presentation-layout-switch button,
 .app-shell.theme-night.night-tone-neon .presentation-toggle,
 .app-shell.theme-night.night-tone-neon .overview-link,
 .app-shell.theme-night.night-tone-neon .overview-card button,
@@ -865,6 +891,7 @@ body {
 
 .app-shell.theme-night.night-tone-neon .scene-actions button.active,
 .app-shell.theme-night.night-tone-neon .theme-switch button.active,
+.app-shell.theme-night.night-tone-neon .presentation-layout-switch button.active,
 .app-shell.theme-night.night-tone-neon .presentation-toggle.active,
 .app-shell.theme-night.night-tone-neon .night-tone-switch button.active {
   background: #6a46a3;

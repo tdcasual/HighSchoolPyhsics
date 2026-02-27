@@ -14,11 +14,19 @@ function setViewportWidth(width: number) {
 
 describe('SceneLayout', () => {
   beforeEach(() => {
-    useAppStore.setState({ presentationMode: false })
+    useAppStore.setState({
+      presentationMode: false,
+      presentationRouteModes: {},
+      activeScenePath: '/test-scene',
+    })
   })
 
   afterEach(() => {
-    useAppStore.setState({ presentationMode: false })
+    useAppStore.setState({
+      presentationMode: false,
+      presentationRouteModes: {},
+      activeScenePath: '/test-scene',
+    })
     setViewportWidth(1024)
   })
 
@@ -76,5 +84,23 @@ describe('SceneLayout', () => {
     fireEvent.click(screen.getByRole('button', { name: '显示控制面板' }))
     expect(panel).toHaveAttribute('aria-hidden', 'false')
     expect(screen.getByRole('button', { name: '隐藏控制面板' })).toBeInTheDocument()
+  })
+
+  it('keeps side-by-side layout in presentation mode when auto-detected signal marks core chart', () => {
+    setViewportWidth(1366)
+    useAppStore.setState({ presentationMode: true })
+
+    render(
+      <SceneLayout
+        presentationSignals={['chart']}
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    const panel = screen.getByText('控制区').closest('.control-panel') as HTMLElement
+    expect(panel).toHaveAttribute('aria-hidden', 'false')
+    expect(document.querySelector('.scene-layout--presentation-split')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
   })
 })

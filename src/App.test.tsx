@@ -6,7 +6,13 @@ import { useAppStore } from './store/useAppStore'
 describe('App shell', () => {
   beforeEach(() => {
     useAppStore.persist.clearStorage()
-    useAppStore.setState({ theme: 'day', nightTone: 'minimal', presentationMode: false })
+    useAppStore.setState({
+      theme: 'day',
+      nightTone: 'minimal',
+      presentationMode: false,
+      presentationRouteModes: {},
+      activeScenePath: '/',
+    })
     window.history.replaceState(null, '', '/')
   })
 
@@ -146,5 +152,30 @@ describe('App shell', () => {
 
     fireEvent.keyDown(formulaInput, { key: 'p' })
     expect(shell).not.toHaveClass('presentation-mode')
+  })
+
+  it('supports route-level presentation layout override in classroom mode', async () => {
+    window.history.replaceState(null, '', '/cyclotron')
+
+    render(<App />)
+
+    expect(await screen.findByText('回旋加速器控制', {}, { timeout: 3000 })).toBeInTheDocument()
+
+    const presentationButton = screen.getByRole('button', { name: '课堂展示' })
+    fireEvent.click(presentationButton)
+
+    const autoButton = screen.getByRole('button', { name: '自动' })
+    const splitButton = screen.getByRole('button', { name: '双核心' })
+    const viewportButton = screen.getByRole('button', { name: '视口优先' })
+
+    expect(autoButton).toHaveAttribute('aria-pressed', 'true')
+    expect(splitButton).toHaveAttribute('aria-pressed', 'false')
+    expect(viewportButton).toHaveAttribute('aria-pressed', 'false')
+
+    fireEvent.click(viewportButton)
+
+    expect(autoButton).toHaveAttribute('aria-pressed', 'false')
+    expect(viewportButton).toHaveAttribute('aria-pressed', 'true')
+    expect(useAppStore.getState().presentationRouteModes['/cyclotron']).toBe('viewport')
   })
 })

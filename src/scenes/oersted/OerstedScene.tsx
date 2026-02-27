@@ -824,6 +824,7 @@ export function OerstedScene() {
 
   return (
     <SceneLayout
+      presentationSignals={['interactive-readout']}
       controls={
         <OerstedControls
           presetButtons={OERSTED_PRESETS.map((preset) => ({
