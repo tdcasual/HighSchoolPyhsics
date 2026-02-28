@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { DemoRoute } from './demoRoutes'
 import type { NightTone, ThemeMode } from '../store/useAppStore'
+import { safePreload } from './safePreload'
 
 type UseGlobalShortcutsOptions = {
   routes: DemoRoute[]
@@ -87,7 +88,7 @@ export function useGlobalShortcuts({
         const nextRoute = routes[Number(key) - 1]
         if (nextRoute) {
           event.preventDefault()
-          void nextRoute.preload()
+          safePreload(nextRoute.preload)
           navigateTo(nextRoute.path)
         }
       }

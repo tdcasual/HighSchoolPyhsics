@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  CHAMBER_BASE_RADIUS,
-  CYCLOTRON_CAMERA,
-  CYCLOTRON_CONTROLS,
-  POWER_FEED_TERMINALS,
-} from './view'
+import { CHAMBER_BASE_RADIUS, CYCLOTRON_CAMERA, CYCLOTRON_CONTROLS, POWER_FEED_TERMINALS } from './view'
 
 describe('cyclotron scene view constraints', () => {
   it('keeps orbit controls above chamber plane to avoid underside clipping', () => {
@@ -23,5 +18,10 @@ describe('cyclotron scene view constraints', () => {
     for (const [x, , z] of POWER_FEED_TERMINALS) {
       expect(Math.hypot(x, z)).toBeLessThanOrEqual(CHAMBER_BASE_RADIUS)
     }
+  })
+
+  it('keeps max zoom-out distance bounded for classroom readability', () => {
+    expect(CYCLOTRON_CONTROLS.maxDistance).toBeLessThanOrEqual(12)
+    expect(CYCLOTRON_CONTROLS.maxDistance).toBeGreaterThan(CYCLOTRON_CONTROLS.minDistance)
   })
 })

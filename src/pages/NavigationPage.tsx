@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
+import { safePreload } from '../app/safePreload'
 
 type NavigationPageProps = {
   routes: DemoRoute[]
@@ -32,7 +33,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
       return
     }
 
-    void route.preload()
+    safePreload(route.preload)
   }
 
   const scheduleWarmRoute = (route: DemoRoute) => {
@@ -43,7 +44,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     clearWarmupTimer()
     warmupTimerRef.current = window.setTimeout(() => {
       warmupTimerRef.current = null
-      void route.preload()
+      safePreload(route.preload)
     }, WARMUP_HOVER_DELAY_MS)
   }
 

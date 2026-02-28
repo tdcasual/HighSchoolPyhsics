@@ -1,6 +1,8 @@
 type NetworkInformationLike = {
   saveData?: boolean
   effectiveType?: string
+  downlink?: number
+  rtt?: number
 }
 
 type NavigatorPerformanceLike = {
@@ -8,9 +10,11 @@ type NavigatorPerformanceLike = {
   hardwareConcurrency?: number
 }
 
-const DISABLED_EFFECTIVE_TYPES = new Set(['slow-2g', '2g'])
+const DISABLED_EFFECTIVE_TYPES = new Set(['slow-2g', '2g', '3g'])
 const MIN_DEVICE_MEMORY_GB = 4
 const MIN_HARDWARE_CONCURRENCY = 4
+const MIN_DOWNLINK_MBPS = 1.5
+const MAX_RTT_MS = 300
 
 function hasFinePointer(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -30,7 +34,27 @@ function hasConstrainedConnection(connection: NetworkInformationLike | undefined
   }
 
   const effectiveType = connection.effectiveType?.toLowerCase()
-  return effectiveType ? DISABLED_EFFECTIVE_TYPES.has(effectiveType) : false
+  if (effectiveType && DISABLED_EFFECTIVE_TYPES.has(effectiveType)) {
+    return true
+  }
+
+  if (
+    typeof connection.downlink === 'number' &&
+    connection.downlink > 0 &&
+    connection.downlink < MIN_DOWNLINK_MBPS
+  ) {
+    return true
+  }
+
+  if (
+    typeof connection.rtt === 'number' &&
+    connection.rtt > 0 &&
+    connection.rtt > MAX_RTT_MS
+  ) {
+    return true
+  }
+
+  return false
 }
 
 function hasEnoughDeviceProfile(navigatorLike: NavigatorPerformanceLike): boolean {

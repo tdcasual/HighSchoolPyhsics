@@ -8,6 +8,16 @@ const IGNORED_THREE_MESSAGES = [
 
 let installed = false
 
+type ConsoleMethodName = 'warn' | 'error' | 'log' | 'info' | 'debug'
+
+function resolveConsoleMethod(type: string): ConsoleMethodName {
+  const method = type.toLowerCase()
+  if (method === 'warn' || method === 'error' || method === 'info' || method === 'debug') {
+    return method
+  }
+  return 'log'
+}
+
 export function installThreeConsoleFilter(): void {
   if (installed) {
     return
@@ -17,9 +27,16 @@ export function installThreeConsoleFilter(): void {
   const originalConsole = getConsoleFunction()
 
   setConsoleFunction((type, message, ...params) => {
-    if (IGNORED_THREE_MESSAGES.some((entry) => message.includes(entry))) {
+    const messageText = typeof message === 'string' ? message : String(message)
+    if (IGNORED_THREE_MESSAGES.some((entry) => messageText.includes(entry))) {
       return
     }
-    originalConsole(type, message, ...params)
+    if (typeof originalConsole === 'function') {
+      originalConsole(type, messageText, ...params)
+      return
+    }
+
+    const consoleMethod = resolveConsoleMethod(type)
+    console[consoleMethod](messageText, ...params)
   })
 }

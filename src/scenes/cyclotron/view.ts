@@ -1,6 +1,7 @@
 import { DEE_TOP_Y, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
 
 export const CHAMBER_BASE_RADIUS = 2.72
+const CYCLOTRON_BASE_TARGET_Y = SCENE_Y - 0.9
 
 export const CYCLOTRON_CAMERA = {
   position: [0, 4.9, 8.8] as [number, number, number],
@@ -8,9 +9,9 @@ export const CYCLOTRON_CAMERA = {
 }
 
 export const CYCLOTRON_CONTROLS = {
-  target: [0, SCENE_Y - 0.9, 0] as [number, number, number],
+  target: [0, CYCLOTRON_BASE_TARGET_Y, 0] as [number, number, number],
   minDistance: 5.8,
-  maxDistance: 13,
+  maxDistance: 11.5,
   minPolarAngle: 0.28,
   maxPolarAngle: 1.2,
 }

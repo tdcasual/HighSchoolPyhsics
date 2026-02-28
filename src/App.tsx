@@ -9,6 +9,7 @@ import { SceneRuntimeBoundary } from './app/SceneRuntimeBoundary'
 import { NavigationPage } from './pages/NavigationPage'
 import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
+import { safePreload } from './app/safePreload'
 
 const PRESENTATION_LAYOUT_OPTIONS = [
   { value: 'auto', label: '自动' },
@@ -47,7 +48,7 @@ function App() {
 
     const route = findDemoRoute(targetPath)
     if (route) {
-      void route.preload()
+      safePreload(route.preload)
     }
 
     if (replace) {

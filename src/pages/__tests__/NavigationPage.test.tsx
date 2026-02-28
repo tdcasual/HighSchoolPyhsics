@@ -97,4 +97,15 @@ describe('NavigationPage warmup behavior', () => {
 
     expect(preload).toHaveBeenCalledTimes(1)
   })
+
+  it('swallows warmup preload rejection to avoid unhandled errors', async () => {
+    const preload = vi.fn().mockRejectedValue(new Error('transient warmup failure'))
+    const route = buildRoute({ preload })
+
+    render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
+    fireEvent.focus(screen.getByRole('button', { name: '进入示波器' }))
+
+    await Promise.resolve()
+    expect(preload).toHaveBeenCalledTimes(1)
+  })
 })

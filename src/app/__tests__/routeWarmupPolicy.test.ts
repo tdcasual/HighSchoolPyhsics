@@ -23,7 +23,9 @@ function mockMatchMedia(matches: boolean): void {
   })
 }
 
-function mockConnection(value: { saveData?: boolean; effectiveType?: string } | undefined): void {
+function mockConnection(
+  value: { saveData?: boolean; effectiveType?: string; downlink?: number; rtt?: number } | undefined,
+): void {
   Object.defineProperty(window.navigator, 'connection', {
     configurable: true,
     value,
@@ -97,6 +99,29 @@ describe('route warmup policy', () => {
   it('disables route warmup on slow network types', () => {
     mockMatchMedia(true)
     mockConnection({ saveData: false, effectiveType: '2g' })
+
+    expect(shouldWarmRouteOnOverview()).toBe(false)
+  })
+
+  it('disables route warmup on 3g network type', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: '3g' })
+
+    expect(shouldWarmRouteOnOverview()).toBe(false)
+  })
+
+  it('disables route warmup when downlink bandwidth is low', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: '4g', downlink: 0.8 })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 8 })
+
+    expect(shouldWarmRouteOnOverview()).toBe(false)
+  })
+
+  it('disables route warmup when network latency is high', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: '4g', rtt: 450 })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 8 })
 
     expect(shouldWarmRouteOnOverview()).toBe(false)
   })
