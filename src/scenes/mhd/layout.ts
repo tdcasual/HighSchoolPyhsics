@@ -1,35 +1,5 @@
 type Vec3 = [number, number, number]
 
-export function dot(a: Vec3, b: Vec3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-}
-
-export function cross(a: Vec3, b: Vec3): Vec3 {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
-}
-
-function magnitude(vector: Vec3): number {
-  return Math.hypot(vector[0], vector[1], vector[2])
-}
-
-export function normalize(vector: Vec3): Vec3 {
-  const length = magnitude(vector)
-  if (length < 1e-8) {
-    return [0, 0, 0]
-  }
-  return [vector[0] / length, vector[1] / length, vector[2] / length]
-}
-
-export function areVectorsPerpendicular(a: Vec3, b: Vec3, tolerance = 1e-6): boolean {
-  const normalA = normalize(a)
-  const normalB = normalize(b)
-  return Math.abs(dot(normalA, normalB)) <= tolerance
-}
-
 const topElectrodeCenter: Vec3 = [0, 0.35, 0]
 const bottomElectrodeCenter: Vec3 = [0, -0.35, 0]
 const electrodeHalfLengthX = 0.95
