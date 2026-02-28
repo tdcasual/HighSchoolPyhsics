@@ -11,15 +11,10 @@ import {
 } from './model'
 import { OerstedControls } from './OerstedControls'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { add, cross, normalize, scale, type Vec3 } from './vectorMath'
 import './oersted.css'
 
 type Point3 = [number, number, number]
-
-type Vec3 = {
-  x: number
-  y: number
-  z: number
-}
 
 type NeedlePlacement = {
   x: number
@@ -123,38 +118,6 @@ function wrapPhase(value: number): number {
 function headingToYawRad(headingDeg: number): number {
   // heading: 0°=北(+z), 90°=东(+x); mesh forward: +x
   return toRadians(90 - headingDeg)
-}
-
-function cross(a: Vec3, b: Vec3): Vec3 {
-  return {
-    x: a.y * b.z - a.z * b.y,
-    y: a.z * b.x - a.x * b.z,
-    z: a.x * b.y - a.y * b.x,
-  }
-}
-
-function length(v: Vec3): number {
-  return Math.hypot(v.x, v.y, v.z)
-}
-
-function normalize(v: Vec3): Vec3 {
-  const size = length(v)
-  if (size < 1e-12) {
-    return { x: 0, y: 0, z: 1 }
-  }
-  return {
-    x: v.x / size,
-    y: v.y / size,
-    z: v.z / size,
-  }
-}
-
-function add(a: Vec3, b: Vec3): Vec3 {
-  return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }
-}
-
-function scale(v: Vec3, scalar: number): Vec3 {
-  return { x: v.x * scalar, y: v.y * scalar, z: v.z * scalar }
 }
 
 function clamp(value: number, min: number, max: number): number {
