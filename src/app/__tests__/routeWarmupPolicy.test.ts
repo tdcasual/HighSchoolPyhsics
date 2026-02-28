@@ -3,6 +3,8 @@ import { shouldWarmRouteOnOverview } from '../routeWarmupPolicy'
 
 const originalMatchMedia = window.matchMedia
 const originalConnection = Object.getOwnPropertyDescriptor(window.navigator, 'connection')
+const originalDeviceMemory = Object.getOwnPropertyDescriptor(window.navigator, 'deviceMemory')
+const originalHardwareConcurrency = Object.getOwnPropertyDescriptor(window.navigator, 'hardwareConcurrency')
 
 function mockMatchMedia(matches: boolean): void {
   Object.defineProperty(window, 'matchMedia', {
@@ -28,6 +30,28 @@ function mockConnection(value: { saveData?: boolean; effectiveType?: string } | 
   })
 }
 
+function mockDeviceProfile({
+  deviceMemory,
+  hardwareConcurrency,
+}: {
+  deviceMemory?: number
+  hardwareConcurrency?: number
+}): void {
+  if (typeof deviceMemory === 'number') {
+    Object.defineProperty(window.navigator, 'deviceMemory', {
+      configurable: true,
+      value: deviceMemory,
+    })
+  }
+
+  if (typeof hardwareConcurrency === 'number') {
+    Object.defineProperty(window.navigator, 'hardwareConcurrency', {
+      configurable: true,
+      value: hardwareConcurrency,
+    })
+  }
+}
+
 afterEach(() => {
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
@@ -40,12 +64,25 @@ afterEach(() => {
   } else {
     Reflect.deleteProperty(window.navigator, 'connection')
   }
+
+  if (originalDeviceMemory) {
+    Object.defineProperty(window.navigator, 'deviceMemory', originalDeviceMemory)
+  } else {
+    Reflect.deleteProperty(window.navigator, 'deviceMemory')
+  }
+
+  if (originalHardwareConcurrency) {
+    Object.defineProperty(window.navigator, 'hardwareConcurrency', originalHardwareConcurrency)
+  } else {
+    Reflect.deleteProperty(window.navigator, 'hardwareConcurrency')
+  }
 })
 
 describe('route warmup policy', () => {
   it('allows route warmup for fine pointer and normal network', () => {
     mockMatchMedia(true)
     mockConnection({ saveData: false, effectiveType: '4g' })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 8 })
 
     expect(shouldWarmRouteOnOverview()).toBe(true)
   })
@@ -67,6 +104,23 @@ describe('route warmup policy', () => {
   it('disables route warmup for coarse pointer devices', () => {
     mockMatchMedia(false)
     mockConnection({ saveData: false, effectiveType: '4g' })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 8 })
+
+    expect(shouldWarmRouteOnOverview()).toBe(false)
+  })
+
+  it('disables route warmup for low-memory devices', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: '4g' })
+    mockDeviceProfile({ deviceMemory: 2, hardwareConcurrency: 8 })
+
+    expect(shouldWarmRouteOnOverview()).toBe(false)
+  })
+
+  it('disables route warmup for low-core devices', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: '4g' })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 2 })
 
     expect(shouldWarmRouteOnOverview()).toBe(false)
   })

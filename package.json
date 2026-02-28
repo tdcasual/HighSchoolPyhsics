@@ -12,7 +12,11 @@
     "test:watch": "vitest",
     "test:roundtrip": "node scripts/playwright/desktop-roundtrip.mjs",
     "test:e2e": "npm run test:roundtrip && npm run test:touch",
+    "test:e2e:ci": "BASE_URL=${BASE_URL:-http://127.0.0.1:4180} npm run test:e2e",
     "test:touch": "node scripts/playwright/touch-regression.mjs",
+    "verify:ci": "npm run lint && npm test && npm run build && npm run check:homepage-preload",
+    "verify:full": "npm run verify:ci && npm run test:e2e",
+    "scaffold:scene": "node scripts/scaffold/new-scene.mjs",
     "check:homepage-preload": "node scripts/perf/assert-homepage-preload.mjs",
     "test:perf": "npm run build && npm run check:homepage-preload"
   },

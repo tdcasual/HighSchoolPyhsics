@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEMO_ROUTES } from '../demoRoutes'
+import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
 
 describe('demo route conformance', () => {
@@ -16,6 +17,17 @@ describe('demo route conformance', () => {
       expect(route.touchProfile.gestureMatrix.twoFingerPan).toBe(true)
       expect(route.touchProfile.gestureMatrix.doubleTapReset).toBe(true)
       expect(route.touchProfile.gestureMatrix.threeFingerModeSwitch).toBe(true)
+    }
+  })
+
+  it('declares classroom contract for every route with teach-critical fallback size', () => {
+    for (const route of DEMO_ROUTES) {
+      expect(route.pageId).toMatch(/^[a-z][a-z0-9-]*$/)
+      expect(route.path).toBe(`/${route.pageId}`)
+      expect(route.classroom.presentationSignals.length).toBeGreaterThan(0)
+      expect(scorePresentationSignals(route.classroom.presentationSignals)).toBeGreaterThanOrEqual(1)
+      expect(route.classroom.coreSummaryLineCount).toBeGreaterThanOrEqual(3)
+      expect(route.classroom.coreSummaryLineCount).toBeLessThanOrEqual(5)
     }
   })
 })

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 
@@ -6,15 +7,44 @@ type NavigationPageProps = {
   onOpenRoute: (path: string) => void
 }
 
+const WARMUP_HOVER_DELAY_MS = 120
+
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const canWarmRoutes = shouldWarmRouteOnOverview()
+  const warmupTimerRef = useRef<number | null>(null)
 
-  const warmRoute = (route: DemoRoute) => {
+  const clearWarmupTimer = () => {
+    if (warmupTimerRef.current === null) {
+      return
+    }
+    window.clearTimeout(warmupTimerRef.current)
+    warmupTimerRef.current = null
+  }
+
+  useEffect(() => {
+    return () => {
+      clearWarmupTimer()
+    }
+  }, [])
+
+  const warmRouteNow = (route: DemoRoute) => {
     if (!canWarmRoutes) {
       return
     }
 
     void route.preload()
+  }
+
+  const scheduleWarmRoute = (route: DemoRoute) => {
+    if (!canWarmRoutes) {
+      return
+    }
+
+    clearWarmupTimer()
+    warmupTimerRef.current = window.setTimeout(() => {
+      warmupTimerRef.current = null
+      void route.preload()
+    }, WARMUP_HOVER_DELAY_MS)
   }
 
   return (
@@ -54,9 +84,14 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                   className="touch-target overview-enter"
                   aria-keyshortcuts={String(index + 1)}
                   title={`快捷键 ${index + 1}`}
-                  onPointerEnter={() => warmRoute(route)}
-                  onFocus={() => warmRoute(route)}
-                  onClick={() => onOpenRoute(route.path)}
+                  onPointerEnter={() => scheduleWarmRoute(route)}
+                  onPointerLeave={clearWarmupTimer}
+                  onBlur={clearWarmupTimer}
+                  onFocus={() => warmRouteNow(route)}
+                  onClick={() => {
+                    clearWarmupTimer()
+                    onOpenRoute(route.path)
+                  }}
                 >
                   <span>进入{route.label}</span>
                   <span aria-hidden="true">↗</span>

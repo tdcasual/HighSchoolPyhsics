@@ -1,4 +1,5 @@
 import type { DemoRoute } from './demoRoutes'
+import { scorePresentationSignals } from '../ui/layout/presentationSignals'
 
 export type RouteConformanceIssue = {
   path: string
@@ -83,9 +84,107 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
   return issues
 }
 
+function validateClassroomContract(route: DemoRoute): RouteConformanceIssue[] {
+  const issues: RouteConformanceIssue[] = []
+  const { classroom } = route
+  const signals = classroom.presentationSignals
+
+  if (signals.length === 0) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.presentationSignals must declare at least one signal',
+    })
+  }
+
+  if (new Set(signals).size !== signals.length) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.presentationSignals cannot contain duplicates',
+    })
+  }
+
+  if (scorePresentationSignals(signals) < 1) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.presentationSignals score must be >= 1',
+    })
+  }
+
+  if (classroom.coreSummaryLineCount < 3 || classroom.coreSummaryLineCount > 5) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.coreSummaryLineCount must be between 3 and 5',
+    })
+  }
+
+  return issues
+}
+
+function validateRouteIdentity(routes: DemoRoute[]): RouteConformanceIssue[] {
+  const issues: RouteConformanceIssue[] = []
+  const seenPageIds = new Set<string>()
+  const seenPaths = new Set<string>()
+  const seenLabels = new Set<string>()
+  const pageIdPattern = /^[a-z][a-z0-9-]*$/
+  const pathPattern = /^\/[a-z][a-z0-9-]*$/
+
+  for (const route of routes) {
+    if (!pageIdPattern.test(route.pageId)) {
+      issues.push({
+        path: route.path,
+        message: 'pageId must match ^[a-z][a-z0-9-]*$',
+      })
+    }
+
+    if (!pathPattern.test(route.path)) {
+      issues.push({
+        path: route.path,
+        message: 'path must match ^/[a-z][a-z0-9-]*$',
+      })
+    }
+
+    if (route.path !== `/${route.pageId}`) {
+      issues.push({
+        path: route.path,
+        message: 'path must be derived from pageId ("/" + pageId)',
+      })
+    }
+
+    if (seenPageIds.has(route.pageId)) {
+      issues.push({
+        path: route.path,
+        message: `duplicate pageId detected: ${route.pageId}`,
+      })
+    }
+    seenPageIds.add(route.pageId)
+
+    if (seenPaths.has(route.path)) {
+      issues.push({
+        path: route.path,
+        message: `duplicate path detected: ${route.path}`,
+      })
+    }
+    seenPaths.add(route.path)
+
+    if (seenLabels.has(route.label)) {
+      issues.push({
+        path: route.path,
+        message: `duplicate label detected: ${route.label}`,
+      })
+    }
+    seenLabels.add(route.label)
+  }
+
+  return issues
+}
+
 export function collectRouteConformanceIssues(routes: DemoRoute[]): RouteConformanceIssue[] {
-  return routes.flatMap((route) => [
-    ...validateRouteMetadata(route),
-    ...validateTouchProfile(route),
-  ])
+  return [
+    ...validateRouteIdentity(routes),
+    ...routes.flatMap((route) => [
+      ...validateRouteMetadata(route),
+      ...validateTouchProfile(route),
+      ...validateClassroomContract(route),
+    ]),
+  ]
 }

@@ -3,7 +3,14 @@ type NetworkInformationLike = {
   effectiveType?: string
 }
 
+type NavigatorPerformanceLike = {
+  deviceMemory?: number
+  hardwareConcurrency?: number
+}
+
 const DISABLED_EFFECTIVE_TYPES = new Set(['slow-2g', '2g'])
+const MIN_DEVICE_MEMORY_GB = 4
+const MIN_HARDWARE_CONCURRENCY = 4
 
 function hasFinePointer(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -26,6 +33,26 @@ function hasConstrainedConnection(connection: NetworkInformationLike | undefined
   return effectiveType ? DISABLED_EFFECTIVE_TYPES.has(effectiveType) : false
 }
 
+function hasEnoughDeviceProfile(navigatorLike: NavigatorPerformanceLike): boolean {
+  if (
+    typeof navigatorLike.deviceMemory === 'number' &&
+    navigatorLike.deviceMemory > 0 &&
+    navigatorLike.deviceMemory < MIN_DEVICE_MEMORY_GB
+  ) {
+    return false
+  }
+
+  if (
+    typeof navigatorLike.hardwareConcurrency === 'number' &&
+    navigatorLike.hardwareConcurrency > 0 &&
+    navigatorLike.hardwareConcurrency < MIN_HARDWARE_CONCURRENCY
+  ) {
+    return false
+  }
+
+  return true
+}
+
 export function shouldWarmRouteOnOverview(): boolean {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
     return false
@@ -36,5 +63,9 @@ export function shouldWarmRouteOnOverview(): boolean {
   }
 
   const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection
-  return !hasConstrainedConnection(connection)
+  if (hasConstrainedConnection(connection)) {
+    return false
+  }
+
+  return hasEnoughDeviceProfile(navigator as Navigator & NavigatorPerformanceLike)
 }

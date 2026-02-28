@@ -7,33 +7,34 @@ import {
   type PointerEvent,
   type ReactNode,
 } from 'react'
-import { useAppStore, type PresentationLayoutMode } from '../../store/useAppStore'
-
-type LayoutTier = 'desktop' | 'tablet' | 'mobile'
-type PresentationSignal = 'chart' | 'live-metric' | 'time-series' | 'interactive-readout'
-type PresentationStrategy = Exclude<PresentationLayoutMode, 'auto'>
+import { useAppStore } from '../../store/useAppStore'
+import {
+  parsePresentationSignals,
+  scorePresentationSignals,
+  type PresentationSignal,
+} from './presentationSignals'
+import {
+  clamp,
+  isPresentationSplit,
+  resolveLayoutTier,
+  resolveLeftPanelBounds,
+  resolvePreferredLeftWidthPx,
+  SPLIT_DIVIDER_WIDTH_PX,
+  type LayoutTier,
+  type PresentationStrategy,
+} from './layoutPolicy'
 
 type SceneLayoutProps = {
   controls: ReactNode
   viewport: ReactNode
-  presentationSignals?: PresentationSignal[]
-  coreSummary?: ReactNode
+  presentationSignals: PresentationSignal[]
+  coreSummary: ReactNode
 }
 
 type ResizeDragState = {
   pointerId: number
   startX: number
   startWidth: number
-}
-
-function resolveLayoutTier(width: number): LayoutTier {
-  if (width < 768) {
-    return 'mobile'
-  }
-  if (width < 1200) {
-    return 'tablet'
-  }
-  return 'desktop'
 }
 
 function readViewportWidth(): number {
@@ -52,47 +53,10 @@ function readCurrentPathname(): string {
   return normalized || '/'
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value))
-}
-
-const PRESENTATION_SIGNAL_WEIGHTS: Record<PresentationSignal, number> = {
-  chart: 2,
-  'live-metric': 1,
-  'time-series': 1,
-  'interactive-readout': 1,
-}
-
-const KNOWN_PRESENTATION_SIGNALS = new Set<PresentationSignal>([
-  'chart',
-  'live-metric',
-  'time-series',
-  'interactive-readout',
-])
-
-function parsePresentationSignals(raw: string | null): PresentationSignal[] {
-  if (!raw) {
-    return []
-  }
-
-  return raw
-    .split(/\s+/)
-    .map((token) => token.trim())
-    .filter((token): token is PresentationSignal => KNOWN_PRESENTATION_SIGNALS.has(token as PresentationSignal))
-}
-
-function scorePresentationSignals(signals: Iterable<PresentationSignal>): number {
-  let score = 0
-  for (const signal of signals) {
-    score += PRESENTATION_SIGNAL_WEIGHTS[signal]
-  }
-  return score
-}
-
 export function SceneLayout({
   controls,
   viewport,
-  presentationSignals = [],
+  presentationSignals,
   coreSummary,
 }: SceneLayoutProps) {
   const presentationMode = useAppStore((state) => state.presentationMode)
@@ -110,22 +74,19 @@ export function SceneLayout({
   const compact =
     tier !== 'desktop' || (presentationMode && presentationStrategy === 'viewport')
   const resizeStateRef = useRef<ResizeDragState | null>(null)
+  const splitDefaultsAppliedRef = useRef<boolean>(false)
   const [controlsExpanded, setControlsExpanded] = useState<boolean>(() => {
     const initialTier = resolveLayoutTier(readViewportWidth())
     return initialTier !== 'mobile' && (!presentationMode || presentationStrategy === 'split')
   })
   const [leftPanelWidthPx, setLeftPanelWidthPx] = useState<number>(() => {
     const viewportWidth = readViewportWidth()
-    const preferred = presentationMode && presentationStrategy === 'split'
-      ? Math.round(viewportWidth * 0.42)
-      : 320
-    const minLeft = presentationMode && presentationStrategy === 'split' ? 320 : 240
-    const maxLeft = Math.max(minLeft + 80, viewportWidth - 320)
-    return clamp(preferred, minLeft, maxLeft)
+    return resolveLeftPanelBounds(viewportWidth, presentationMode, presentationStrategy).preferred
   })
 
-  const minLeftWidthPx = presentationMode && presentationStrategy === 'split' ? 320 : 240
-  const maxLeftWidthPx = Math.max(minLeftWidthPx + 80, readViewportWidth() - 320)
+  const bounds = resolveLeftPanelBounds(readViewportWidth(), presentationMode, presentationStrategy)
+  const minLeftWidthPx = bounds.min
+  const maxLeftWidthPx = bounds.max
   const resolvedLeftPanelWidthPx = clamp(leftPanelWidthPx, minLeftWidthPx, maxLeftWidthPx)
 
   useEffect(() => {
@@ -167,6 +128,26 @@ export function SceneLayout({
   }, [presentationMode, presentationStrategy, tier])
 
   useEffect(() => {
+    const splitDesktop = tier === 'desktop' && isPresentationSplit(presentationMode, presentationStrategy)
+    if (!splitDesktop) {
+      splitDefaultsAppliedRef.current = false
+      return
+    }
+    if (splitDefaultsAppliedRef.current) {
+      return
+    }
+
+    splitDefaultsAppliedRef.current = true
+    const rafId = window.requestAnimationFrame(() => {
+      const viewportWidth = readViewportWidth()
+      const preferred = resolvePreferredLeftWidthPx(viewportWidth, presentationMode, presentationStrategy)
+      setLeftPanelWidthPx(clamp(preferred, minLeftWidthPx, maxLeftWidthPx))
+    })
+
+    return () => window.cancelAnimationFrame(rafId)
+  }, [maxLeftWidthPx, minLeftWidthPx, presentationMode, presentationStrategy, tier])
+
+  useEffect(() => {
     if (!compact) {
       return
     }
@@ -196,7 +177,7 @@ export function SceneLayout({
   const layoutStyle =
     !compact
       ? {
-          gridTemplateColumns: `${resolvedLeftPanelWidthPx}px 24px minmax(0, 1fr)`,
+          gridTemplateColumns: `${resolvedLeftPanelWidthPx}px ${SPLIT_DIVIDER_WIDTH_PX}px minmax(0, 1fr)`,
         }
       : undefined
 

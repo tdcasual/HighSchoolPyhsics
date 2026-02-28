@@ -474,7 +474,7 @@ body {
 }
 
 .scene-layout--desktop.scene-layout--presentation-split {
-  grid-template-columns: minmax(360px, 44vw) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 33.333vw) minmax(0, 1fr);
 }
 
 .scene-layout--tablet,
@@ -539,7 +539,7 @@ body {
   border: 1px solid #bcd4ea;
   border-radius: 12px;
   background: rgba(247, 252, 255, 0.92);
-  padding: 0.64rem 0.78rem;
+  padding: 0.68rem 0.82rem;
 }
 
 .scene-core-summary-stack {
@@ -550,8 +550,9 @@ body {
 .scene-core-summary-stack p {
   margin: 0;
   color: #1d4d72;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   font-family: 'SF Mono', Menlo, monospace;
+  line-height: 1.42;
 }
 
 .control-panel {
@@ -1196,7 +1197,16 @@ body {
 }
 
 .app-shell.presentation-mode .scene-core-summary-stack p {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.app-shell.presentation-mode .scene-core-summary {
+  padding: 0.9rem 1rem;
+}
+
+.app-shell.presentation-mode .scene-core-summary-stack {
+  gap: 0.34rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

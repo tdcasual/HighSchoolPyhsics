@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { SceneLayout } from '../SceneLayout'
 import { useAppStore } from '../../../store/useAppStore'
@@ -14,6 +14,7 @@ function setViewportWidth(width: number) {
 
 describe('SceneLayout', () => {
   beforeEach(() => {
+    window.history.replaceState(null, '', '/test-scene')
     useAppStore.setState({
       presentationMode: false,
       presentationRouteModes: {},
@@ -22,6 +23,7 @@ describe('SceneLayout', () => {
   })
 
   afterEach(() => {
+    window.history.replaceState(null, '', '/')
     useAppStore.setState({
       presentationMode: false,
       presentationRouteModes: {},
@@ -35,6 +37,8 @@ describe('SceneLayout', () => {
 
     render(
       <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
       />,
@@ -51,6 +55,8 @@ describe('SceneLayout', () => {
 
     render(
       <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
       />,
@@ -73,6 +79,8 @@ describe('SceneLayout', () => {
 
     render(
       <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
       />,
@@ -93,6 +101,8 @@ describe('SceneLayout', () => {
 
     render(
       <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
       />,
@@ -115,14 +125,17 @@ describe('SceneLayout', () => {
     render(
       <SceneLayout
         presentationSignals={['chart']}
+        coreSummary={<p>核心信息</p>}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
       />,
     )
 
+    const layout = document.querySelector('.scene-layout--desktop') as HTMLElement
     const panel = screen.getByText('控制区').closest('.control-panel') as HTMLElement
     expect(panel).toHaveAttribute('aria-hidden', 'false')
     expect(document.querySelector('.scene-layout--presentation-split')).toBeInTheDocument()
+    expect(layout.style.gridTemplateColumns).toContain('447px')
     expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
   })
 
@@ -135,6 +148,7 @@ describe('SceneLayout', () => {
 
     render(
       <SceneLayout
+        presentationSignals={[]}
         controls={<h2>控制区</h2>}
         viewport={<div>三维视图</div>}
         coreSummary={<p>核心信息: U=12.5V</p>}
@@ -147,5 +161,57 @@ describe('SceneLayout', () => {
       'aria-hidden',
       'true',
     )
+  })
+
+  it('keeps core summary visible on mobile in presentation mode while controls stay collapsed by default', () => {
+    setViewportWidth(390)
+    useAppStore.setState({ presentationMode: true })
+
+    render(
+      <SceneLayout
+        presentationSignals={[]}
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+        coreSummary={<p>核心信息: 课堂保底摘要</p>}
+      />,
+    )
+
+    expect(screen.getByText('核心信息: 课堂保底摘要')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
+    expect((screen.getByText('控制区').closest('.control-panel') as HTMLElement)).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+  })
+
+  it('restores split default width when route override changes from viewport to split in presentation mode', async () => {
+    setViewportWidth(1366)
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: { '/test-scene': 'viewport' },
+    })
+
+    render(
+      <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    const layout = document.querySelector('.scene-layout') as HTMLElement
+    expect(layout.style.gridTemplateColumns).toBe('')
+    expect(screen.getByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
+
+    useAppStore.setState({
+      presentationRouteModes: { '/test-scene': 'split' },
+    })
+
+    await waitFor(() => {
+      expect(document.querySelector('.scene-layout--presentation-split')).toBeInTheDocument()
+      expect(layout.style.gridTemplateColumns).toContain('447px')
+    })
+    expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
   })
 })

@@ -62,7 +62,10 @@ npm test        # 运行测试
 npm run test:roundtrip # 桌面端导航往返回归（进入各演示并返回）
 npm run test:touch # 触屏回归（输出到 output/playwright/touch-regression）
 npm run test:e2e # 一次执行桌面往返 + 触屏手势回归
+npm run test:e2e:ci # CI 推荐入口（默认 BASE_URL=http://127.0.0.1:4180）
 npm run test:perf # 构建并校验首页未预加载 three/r3f 重依赖
+npm run verify:ci # lint + 单测 + 构建 + 首页预加载守卫
+npm run verify:full # verify:ci + e2e
 npm run build   # 打包检查
 npm run preview # 本地预览打包结果
 ```
@@ -78,6 +81,24 @@ npx playwright install chromium
 - `docs/presentation-signal-playbook.md`
 - `docs/classroom-presentation-principles.md`
 - `AGENTS.md`（仓库级课堂模式原则）
+
+也可以直接用脚手架命令快速生成新场景（含课堂契约模板和路由定义）：
+
+```bash
+npm run scaffold:scene -- \
+  --id hall-effect \
+  --label 霍尔效应 \
+  --tone mhd \
+  --signals live-metric,interactive-readout \
+  --core-lines 4
+```
+
+该命令会自动创建：
+- `src/scenes/<id>/<PascalCase>Scene.tsx`
+- `src/scenes/<id>/<PascalCase>Controls.tsx`
+- `src/scenes/<id>/<id>.css`
+- `src/scenes/<id>/<PascalCase>Scene.test.tsx`
+- 并把场景定义追加到 `src/app/demoRoutes.ts` 的 `DEMO_SCENE_DEFINITIONS`
 
 ---
 
