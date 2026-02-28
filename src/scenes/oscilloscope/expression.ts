@@ -1,4 +1,4 @@
-export type CompiledVoltageExpression = {
+type CompiledVoltageExpression = {
   source: string
   error: string | null
   evaluate: (timeS: number) => number

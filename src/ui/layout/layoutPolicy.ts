@@ -3,12 +3,12 @@ import type { PresentationLayoutMode } from '../../store/useAppStore'
 export type LayoutTier = 'desktop' | 'tablet' | 'mobile'
 export type PresentationStrategy = Exclude<PresentationLayoutMode, 'auto'>
 
-export const DEFAULT_LEFT_PANEL_WIDTH_PX = 320
-export const DEFAULT_PRESENTATION_SPLIT_RATIO = 1 / 3
+const DEFAULT_LEFT_PANEL_WIDTH_PX = 320
+const DEFAULT_PRESENTATION_SPLIT_RATIO = 1 / 3
 export const SPLIT_DIVIDER_WIDTH_PX = 24
-export const MIN_LEFT_PANEL_WIDTH_PX = 240
-export const MIN_SPLIT_LEFT_PANEL_WIDTH_PX = 320
-export const MIN_VIEWPORT_WIDTH_PX = 320
+const MIN_LEFT_PANEL_WIDTH_PX = 240
+const MIN_SPLIT_LEFT_PANEL_WIDTH_PX = 320
+const MIN_VIEWPORT_WIDTH_PX = 320
 
 export function resolveLayoutTier(width: number): LayoutTier {
   if (width < 768) {

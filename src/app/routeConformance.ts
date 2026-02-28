@@ -1,7 +1,7 @@
 import type { DemoRoute } from './demoRoutes'
 import { scorePresentationSignals } from '../ui/layout/presentationSignals'
 
-export type RouteConformanceIssue = {
+type RouteConformanceIssue = {
   path: string
   message: string
 }

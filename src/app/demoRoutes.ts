@@ -3,7 +3,7 @@ import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
 import type { PresentationSignal } from '../ui/layout/presentationSignals'
 
-export type TouchGestureMatrix = {
+type TouchGestureMatrix = {
   singleFingerRotate: boolean
   twoFingerZoom: boolean
   twoFingerPan: boolean
@@ -11,23 +11,23 @@ export type TouchGestureMatrix = {
   threeFingerModeSwitch: boolean
 }
 
-export type TouchProfile = {
+type TouchProfile = {
   pageScroll: 'vertical-outside-canvas'
   canvasGestureScope: 'interactive-canvas'
   minTouchTargetPx: number
   gestureMatrix: TouchGestureMatrix
 }
 
-export type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
+type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
 
-export type DemoRouteMeta = {
+type DemoRouteMeta = {
   tag: string
   summary: string
   highlights: [string, string]
   tone: DemoTone
 }
 
-export type ClassroomContract = {
+type ClassroomContract = {
   presentationSignals: readonly PresentationSignal[]
   coreSummaryLineCount: number
 }
@@ -47,7 +47,7 @@ type SceneModule = {
   default: ComponentType
 }
 
-export type DemoSceneDefinition = {
+type DemoSceneDefinition = {
   pageId: string
   path: string
   label: string
@@ -79,7 +79,7 @@ function createWrappedScene(definition: DemoSceneDefinition) {
   })
 }
 
-export const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = [
+const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = [
   {
     pageId: 'oscilloscope',
     path: '/oscilloscope',

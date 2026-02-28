@@ -1,4 +1,4 @@
-export const PRESENTATION_SIGNALS = [
+const PRESENTATION_SIGNALS = [
   'chart',
   'live-metric',
   'time-series',
@@ -34,4 +34,3 @@ export function scorePresentationSignals(signals: Iterable<PresentationSignal>):
   }
   return score
 }
-

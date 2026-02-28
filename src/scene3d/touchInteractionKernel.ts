@@ -31,7 +31,7 @@ type TouchInteractionKernelOptions = {
   onAction: (action: TouchGestureAction) => void
 }
 
-export type TouchInteractionKernel = {
+type TouchInteractionKernel = {
   onPointerDown: (event: TouchPointerEventLike) => void
   onPointerMove: (event: TouchPointerEventLike) => void
   onPointerUp: (event: TouchPointerEventLike) => void

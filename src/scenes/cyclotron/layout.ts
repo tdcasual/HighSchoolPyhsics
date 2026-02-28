@@ -1,6 +1,6 @@
 export type Point3 = [number, number, number]
 
-export const SCENE_SCALE = 3200
+const SCENE_SCALE = 3200
 export const SCENE_Y = 0.24
 export const DEE_THICKNESS = 0.14
 export const DEE_TOP_Y = SCENE_Y + DEE_THICKNESS / 2
@@ -18,7 +18,7 @@ export function deriveGapWidthScene(gapHalfWidthM: number): number {
   return clamp(width, MIN_GAP_WIDTH_SCENE, MAX_GAP_WIDTH_SCENE)
 }
 
-export function clampPointToChamber(x: number, z: number, maxRadius = MAX_VISUAL_RADIUS): Point3 {
+function clampPointToChamber(x: number, z: number, maxRadius = MAX_VISUAL_RADIUS): Point3 {
   const radius = Math.hypot(x, z)
   if (radius <= maxRadius) {
     return [x, TRAJECTORY_Y, z]

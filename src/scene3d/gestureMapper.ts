@@ -1,6 +1,6 @@
 export type TouchMode = 'inspect' | 'focus'
 
-export type TapGestureSample = {
+type TapGestureSample = {
   durationMs: number
   travelPx: number
 }
@@ -11,7 +11,7 @@ export type TapPoint = {
   y: number
 }
 
-export type DoubleTapSample = {
+type DoubleTapSample = {
   previous: TapPoint
   current: TapPoint
 }
@@ -26,7 +26,7 @@ export const TOUCH_MODE_LABELS: Record<TouchMode, string> = {
   focus: '精细模式',
 }
 
-export function distancePx(a: { x: number; y: number }, b: { x: number; y: number }): number {
+function distancePx(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
 

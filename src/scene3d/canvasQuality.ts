@@ -1,4 +1,4 @@
-export type CanvasQualityProfile = {
+type CanvasQualityProfile = {
   dpr: [number, number]
   antialias: boolean
 }

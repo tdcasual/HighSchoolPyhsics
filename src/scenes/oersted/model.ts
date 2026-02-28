@@ -1,6 +1,6 @@
-export type DiscoveryLevel = 'low' | 'medium' | 'high'
+type DiscoveryLevel = 'low' | 'medium' | 'high'
 
-export type OerstedNeedleConfig = {
+type OerstedNeedleConfig = {
   currentA: number
   needlePositionM: {
     x: number
@@ -18,7 +18,7 @@ export type OerstedNeedleConfig = {
   }
 }
 
-export type OerstedNeedleState = {
+type OerstedNeedleState = {
   radiusM: number
   wireFieldMicroT: number
   wireFieldVectorMicroT: {

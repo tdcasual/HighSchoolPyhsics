@@ -1,4 +1,4 @@
-export type Vec3 = [number, number, number]
+type Vec3 = [number, number, number]
 
 export function dot(a: Vec3, b: Vec3): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
@@ -12,7 +12,7 @@ export function cross(a: Vec3, b: Vec3): Vec3 {
   ]
 }
 
-export function magnitude(vector: Vec3): number {
+function magnitude(vector: Vec3): number {
   return Math.hypot(vector[0], vector[1], vector[2])
 }
 

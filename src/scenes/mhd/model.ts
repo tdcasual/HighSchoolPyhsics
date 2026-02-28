@@ -1,4 +1,4 @@
-export type MhdConfig = {
+type MhdConfig = {
   magneticFieldT: number
   plasmaVelocityMps: number
   electrodeGapM: number
@@ -6,7 +6,7 @@ export type MhdConfig = {
   channelAreaM2?: number
 }
 
-export type ChargeSeparationStep = {
+type ChargeSeparationStep = {
   previous: number
   deltaS: number
   running: boolean
@@ -14,13 +14,13 @@ export type ChargeSeparationStep = {
   targetWhenRunning?: number
 }
 
-export type PolarizationTargetConfig = {
+type PolarizationTargetConfig = {
   magneticFieldT: number
   plasmaVelocityMps: number
   saturationInducedFieldVPerM?: number
 }
 
-export type ChannelVisibilityConfig = {
+type ChannelVisibilityConfig = {
   fluidOpacity: number
   wireframeOpacity: number
   depthWrite: boolean
@@ -28,7 +28,7 @@ export type ChannelVisibilityConfig = {
   particleRenderOrder: number
 }
 
-export type MhdReadings = {
+type MhdReadings = {
   inducedElectricFieldVPerM: number
   outputVoltageV: number
   currentDensityApm2: number

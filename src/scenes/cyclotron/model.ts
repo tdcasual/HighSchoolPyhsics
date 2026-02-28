@@ -10,7 +10,7 @@ export type CyclotronConfig = {
   gapHalfWidthM: number
 }
 
-export type CyclotronReadings = {
+type CyclotronReadings = {
   speed: number
   periodS: number
   radiusM: number

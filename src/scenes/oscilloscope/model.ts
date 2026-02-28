@@ -1,4 +1,4 @@
-export type Waveform = 'sine' | 'square' | 'triangle' | 'sawtooth'
+type Waveform = 'sine' | 'square' | 'triangle' | 'sawtooth'
 
 export type SignalConfig = {
   waveform: Waveform
@@ -20,7 +20,7 @@ type SignalReadings = {
   vrms: number
 }
 
-export type OscilloscopeReadings = {
+type OscilloscopeReadings = {
   x: SignalReadings
   y: SignalReadings
 }

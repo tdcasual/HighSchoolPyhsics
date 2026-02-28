@@ -1,4 +1,4 @@
-export type ElectricFieldPreset = {
+type ElectricFieldPreset = {
   label: string
   value: string
 }
