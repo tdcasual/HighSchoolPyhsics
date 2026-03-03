@@ -17,7 +17,6 @@ import { TOUCH_MODE_LABELS, type TouchMode } from './gestureMapper'
 import { createTouchInteractionKernel } from './touchInteractionKernel'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
 import { resolveCanvasQualityProfile } from './canvasQuality'
-import { isWebGLSupportedInBrowser } from './webglSupport'
 import { shouldAllowWheelZoom } from './wheelZoomIntent'
 import {
   DEFAULT_ADAPTIVE_FRAMING,
@@ -26,6 +25,11 @@ import {
 } from './adaptiveFraming'
 
 installThreeConsoleFilter()
+
+function isTestRuntime(): boolean {
+  const viteEnv = (import.meta as { env?: Record<string, unknown> }).env
+  return Boolean(viteEnv && (viteEnv.MODE === 'test' || viteEnv.VITEST === true))
+}
 
 type InteractiveCanvasProps = PropsWithChildren<{
   camera: NonNullable<ComponentProps<typeof Canvas>['camera']>
@@ -122,7 +126,6 @@ export function InteractiveCanvas({
     [showTouchFeedback],
   )
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])
-  const webglSupported = useMemo(() => isWebGLSupportedInBrowser(), [])
 
   const markPointerIntent = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
@@ -259,11 +262,11 @@ export function InteractiveCanvas({
   const hint = `拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移 · 双击（触屏）重置 · 三指切换模式（${TOUCH_MODE_LABELS[touchMode]}）`
   const resolvedHint = wheelZoomIntentGuard ? `${hint} · 缩放前先在画布内轻触或移动指针` : hint
 
-  if (!webglSupported) {
+  if (isTestRuntime()) {
     return (
       <div className="canvas-fallback-stack">
-        <div className="canvas-fallback">3D演示预览（测试环境降级）</div>
-        <p className="interaction-hint">{hint}</p>
+        <div className="canvas-fallback">3D演示预览（测试环境占位）</div>
+        <p className="interaction-hint">{resolvedHint}</p>
       </div>
     )
   }
