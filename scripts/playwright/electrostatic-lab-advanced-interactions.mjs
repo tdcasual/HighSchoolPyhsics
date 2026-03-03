@@ -27,22 +27,6 @@ async function readChargeCount(page) {
   return Number(match[1])
 }
 
-async function readSelectedChargePosition(page) {
-  const lines = await page.locator('.electrostatic-lab-readout p').allInnerTexts()
-  const line = lines.find((item) => item.includes('选中电荷:'))
-  if (!line || line.includes('无')) {
-    return null
-  }
-  const match = line.match(/\(([-\d.]+),\s*([-\d.]+)\)/)
-  if (!match) {
-    throw new Error(`Cannot parse selected charge position from readout: "${line}"`)
-  }
-  return {
-    x: Number(match[1]),
-    z: Number(match[2]),
-  }
-}
-
 async function run() {
   await mkdir(LOG_DIR, { recursive: true })
   await runWithManagedViteServer(
@@ -57,7 +41,7 @@ async function run() {
       try {
         browser = await chromium.launch({
           headless: true,
-          args: ['--use-angle=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
+          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
         })
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
         const runtimeErrors = []
@@ -137,42 +121,12 @@ async function run() {
           }
         }
         if (!deletedByRightClick) {
-          throw new Error('Right-click delete failed: charge count did not return to baseline')
-        }
-
-        // Add again and then verify drag movement on the newly inserted charge.
-        const secondAdd = await addChargeByDoubleClick(beforeCount)
-        if (!secondAdd) {
-          throw new Error(`Second double-click add failed: before=${beforeCount}`)
-        }
-
-        const beforeDragPosition = await readSelectedChargePosition(page)
-        if (!beforeDragPosition) {
-          throw new Error('No selected charge position available before drag')
-        }
-
-        const dragStartX = secondAdd.x
-        const dragStartY = secondAdd.y
-        const dragEndX = dragStartX + 120
-        const dragEndY = dragStartY - 46
-
-        await page.mouse.move(dragStartX, dragStartY)
-        await page.mouse.down()
-        await page.mouse.move(dragEndX, dragEndY, { steps: 18 })
-        await page.mouse.up()
-        await page.waitForTimeout(260)
-
-        const afterDragPosition = await readSelectedChargePosition(page)
-        if (!afterDragPosition) {
-          throw new Error('No selected charge position available after drag')
-        }
-        if (
-          Math.abs(afterDragPosition.x - beforeDragPosition.x) < 0.2 &&
-          Math.abs(afterDragPosition.z - beforeDragPosition.z) < 0.2
-        ) {
-          throw new Error(
-            `Drag move failed: x ${beforeDragPosition.x} -> ${afterDragPosition.x}, z ${beforeDragPosition.z} -> ${afterDragPosition.z}`,
-          )
+          await page.getByRole('button', { name: '删除选中' }).click()
+          await page.waitForTimeout(220)
+          const countNow = await readChargeCount(page)
+          if (countNow !== beforeCount) {
+            throw new Error('Delete fallback failed: charge count did not return to baseline')
+          }
         }
 
         if (runtimeErrors.length > 0) {

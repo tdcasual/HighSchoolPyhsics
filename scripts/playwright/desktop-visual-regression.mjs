@@ -119,19 +119,13 @@ async function run() {
       let browser = null
       const failures = []
       try {
-        browser = await chromium.launch({ headless: true })
+        browser = await chromium.launch({
+          headless: true,
+          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+        })
         const context = await browser.newContext({
           viewport: { width: 1440, height: 900 },
           reducedMotion: 'reduce',
-        })
-        await context.addInitScript(() => {
-          const originalGetContext = HTMLCanvasElement.prototype.getContext
-          HTMLCanvasElement.prototype.getContext = function patchedGetContext(type, ...args) {
-            if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
-              return null
-            }
-            return originalGetContext.call(this, type, ...args)
-          }
         })
 
         const page = await context.newPage()

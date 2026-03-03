@@ -30,10 +30,22 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({ headless: true })
+        browser = await chromium.launch({
+          headless: true,
+          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+        })
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
 
         await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
+        const runtimeBlocked = await page
+          .getByRole('heading', { name: '运行环境不支持' })
+          .isVisible()
+          .catch(() => false)
+        if (runtimeBlocked) {
+          throw new Error(
+            'Runtime capability gate blocked desktop-roundtrip in headless browser; verify WebGL2 flags are enabled for Playwright Chromium.',
+          )
+        }
         await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
 
         for (const demo of DEMO_CATALOG) {

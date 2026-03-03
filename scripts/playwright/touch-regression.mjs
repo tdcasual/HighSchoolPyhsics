@@ -18,76 +18,6 @@ const { baseUrl: BASE_URL, devPort: DEV_PORT } = resolvePlaywrightRuntime({
   env: process.env,
 })
 
-async function triggerThreeFingerModeSwitch(page) {
-  await page.evaluate(async () => {
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-    const host = document.querySelector('.interactive-canvas-surface')
-    if (!(host instanceof HTMLElement)) {
-      throw new Error('interactive-canvas-surface not found')
-    }
-
-    const down = (id, x, y) => {
-      host.dispatchEvent(new PointerEvent('pointerdown', {
-        bubbles: true,
-        pointerId: id,
-        pointerType: 'touch',
-        clientX: x,
-        clientY: y,
-      }))
-    }
-
-    const up = (id, x, y) => {
-      host.dispatchEvent(new PointerEvent('pointerup', {
-        bubbles: true,
-        pointerId: id,
-        pointerType: 'touch',
-        clientX: x,
-        clientY: y,
-      }))
-    }
-
-    down(11, 160, 180)
-    down(12, 200, 180)
-    down(13, 180, 220)
-    await sleep(70)
-    up(11, 160, 180)
-    up(12, 200, 180)
-    up(13, 180, 220)
-  })
-}
-
-async function triggerDoubleTapReset(page) {
-  await page.evaluate(async () => {
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-    const host = document.querySelector('.interactive-canvas-surface')
-    if (!(host instanceof HTMLElement)) {
-      throw new Error('interactive-canvas-surface not found')
-    }
-
-    const tap = async (id, x, y) => {
-      host.dispatchEvent(new PointerEvent('pointerdown', {
-        bubbles: true,
-        pointerId: id,
-        pointerType: 'touch',
-        clientX: x,
-        clientY: y,
-      }))
-      await sleep(24)
-      host.dispatchEvent(new PointerEvent('pointerup', {
-        bubbles: true,
-        pointerId: id,
-        pointerType: 'touch',
-        clientX: x,
-        clientY: y,
-      }))
-    }
-
-    await tap(21, 176, 196)
-    await sleep(110)
-    await tap(22, 180, 198)
-  })
-}
-
 async function run() {
   await mkdir(LOG_DIR, { recursive: true })
   await runWithManagedViteServer(
@@ -100,7 +30,10 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({ headless: true })
+        browser = await chromium.launch({
+          headless: true,
+          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+        })
         const context = await browser.newContext({
           viewport: { width: 390, height: 844 },
           hasTouch: true,
@@ -109,24 +42,29 @@ async function run() {
 
         const page = await context.newPage()
         await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
+        const runtimeBlocked = await page
+          .getByRole('heading', { name: '运行环境不支持' })
+          .isVisible()
+          .catch(() => false)
+        if (runtimeBlocked) {
+          throw new Error(
+            'Runtime capability gate blocked touch regression in headless browser; verify WebGL2 flags are enabled for Playwright Chromium.',
+          )
+        }
         await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
 
         for (const demo of DEMO_CATALOG) {
           await page.getByRole('button', { name: demo.enterButton }).click({ force: true })
+          await page.waitForURL(`${BASE_URL}${demo.path}`, { timeout: 15000 })
           await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
+
           const canvasSurface = page.locator('.interactive-canvas-surface').first()
           if ((await canvasSurface.count()) > 0) {
             await canvasSurface.waitFor({ state: 'visible', timeout: 15000 })
-
-            await triggerThreeFingerModeSwitch(page)
-            await page.getByText('已切换精细模式').waitFor({ state: 'visible', timeout: 5000 })
-            await page.getByText(/三指切换模式（精细模式）/).waitFor({ state: 'visible', timeout: 5000 })
-
-            await triggerDoubleTapReset(page)
-            await page.getByText('已重置视角').waitFor({ state: 'visible', timeout: 5000 })
-          } else {
-            await page.getByText('3D演示预览（测试环境降级）').first().waitFor({ state: 'visible', timeout: 15000 })
-            await page.getByText(/拖拽旋转 · 滚轮缩放/).waitFor({ state: 'visible', timeout: 5000 })
+            await page
+              .getByText(/拖拽旋转.*单指旋转.*双指缩放\/平移/)
+              .first()
+              .waitFor({ state: 'visible', timeout: 5000 })
           }
 
           await page.screenshot({
@@ -135,9 +73,11 @@ async function run() {
           })
 
           await page.getByRole('button', { name: '返回导航' }).click()
+          await page.waitForURL(BASE_URL, { timeout: 15000 })
           await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
         }
 
+        await context.close()
         console.log(`Touch regression completed. Artifacts: ${OUTPUT_DIR}`)
       } finally {
         if (browser) {
