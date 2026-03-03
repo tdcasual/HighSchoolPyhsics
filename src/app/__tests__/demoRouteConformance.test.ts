@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import sceneCatalog from '../../../config/demo-scenes.json'
-import { DEMO_ROUTES } from '../demoRoutes'
+import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
 import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
 
@@ -38,5 +38,10 @@ describe('demo route conformance', () => {
     expect(DEMO_ROUTES.map((route) => route.path)).toEqual(
       expectedPageIds.map((pageId) => `/${pageId}`),
     )
+  })
+
+  it('keeps auto-discovered scene modules aligned with the catalog', () => {
+    const expectedPageIds = sceneCatalog.map((scene) => scene.pageId).sort()
+    expect(DISCOVERED_SCENE_PAGE_IDS).toEqual(expectedPageIds)
   })
 })

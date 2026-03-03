@@ -98,7 +98,7 @@ npm run scaffold:scene -- \
 - `src/scenes/<id>/<PascalCase>Controls.tsx`
 - `src/scenes/<id>/<id>.css`
 - `src/scenes/<id>/<PascalCase>Scene.test.tsx`
-- 并把场景定义追加到 `src/app/demoRoutes.ts` 的 `DEMO_SCENE_DEFINITIONS`
+- 并把场景定义追加到 `config/demo-scenes.json`（路由会自动发现 `src/scenes/<id>/*Scene.tsx`）
 
 ---
 

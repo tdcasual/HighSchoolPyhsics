@@ -125,6 +125,8 @@ ${coreSummaryLines}
     />
   )
 }
+
+export default ${sceneName}
 `
 }
 
@@ -326,6 +328,7 @@ async function main() {
   console.log(`- src/scenes/${id}/${id}.css`)
   console.log(`- src/scenes/${id}/${sceneName}.test.tsx`)
   console.log('- config/demo-scenes.json (catalog entry appended)')
+  console.log('- 自动场景发现将按 src/scenes/<id>/*Scene.tsx + *Scene 导出接入路由，无需手改 demoRoutes')
   console.log('\nNext steps:')
   console.log('1) Fill in 3D content + domain model logic.')
   console.log('2) Update generated metadata/highlights to classroom-ready copy.')
