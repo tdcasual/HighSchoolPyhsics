@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process'
-import { copyFile, mkdtemp, mkdir, rm } from 'node:fs/promises'
+import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -22,58 +22,65 @@ function run(command, args, cwd) {
   })
 }
 
-function runCapture(command, args, cwd) {
+function extractHeadArchive(repoRoot, destinationDir) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd,
+    const archive = spawn('git', ['archive', '--format=tar', 'HEAD'], {
+      cwd: repoRoot,
       stdio: ['ignore', 'pipe', 'inherit'],
     })
-
-    let stdout = ''
-    child.stdout.setEncoding('utf8')
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk
+    const unpack = spawn('tar', ['-x', '-C', destinationDir], {
+      stdio: ['pipe', 'inherit', 'inherit'],
     })
 
-    child.on('error', reject)
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve(stdout)
+    let archiveExitCode = null
+    let unpackExitCode = null
+    let settled = false
+
+    const finish = () => {
+      if (settled || archiveExitCode === null || unpackExitCode === null) {
         return
       }
-      reject(new Error(`${command} ${args.join(' ')} exited with code ${code ?? 'null'}`))
+      settled = true
+      if (archiveExitCode === 0 && unpackExitCode === 0) {
+        resolve()
+        return
+      }
+      reject(
+        new Error(
+          `git archive/tar extraction failed (git=${archiveExitCode}, tar=${unpackExitCode})`,
+        ),
+      )
+    }
+
+    archive.stdout.pipe(unpack.stdin)
+    archive.on('error', reject)
+    unpack.on('error', reject)
+    archive.on('close', (code) => {
+      archiveExitCode = code ?? 1
+      finish()
+    })
+    unpack.on('close', (code) => {
+      unpackExitCode = code ?? 1
+      finish()
     })
   })
 }
 
 async function main() {
   const repoRoot = process.cwd()
-  const tmpRoot = await mkdtemp(path.join(tmpdir(), '3dmotion-clean-build-'))
+  const archiveRoot = await mkdtemp(path.join(tmpdir(), '3dmotion-clean-build-'))
 
   try {
-    const filesRaw = await runCapture(
-      'git',
-      ['ls-files', '--cached', '--modified', '--others', '--exclude-standard', '-z'],
-      repoRoot,
-    )
-    const files = filesRaw.split('\0').filter((file) => file.length > 0)
-
-    for (const relativeFile of files) {
-      const sourcePath = path.join(repoRoot, relativeFile)
-      const targetPath = path.join(tmpRoot, relativeFile)
-      await mkdir(path.dirname(targetPath), { recursive: true })
-      await copyFile(sourcePath, targetPath)
-    }
-
-    await run('npm', ['ci', '--silent'], tmpRoot)
-    await run('npm', ['run', 'build'], tmpRoot)
+    await extractHeadArchive(repoRoot, archiveRoot)
+    await run('npm', ['ci', '--silent'], archiveRoot)
+    await run('npm', ['run', 'build'], archiveRoot)
     console.log('[check-clean-build] Clean archive build passed.')
   } finally {
     if (process.env.KEEP_CLEAN_BUILD_TMP === '1') {
-      console.log(`[check-clean-build] Kept temp workspace: ${tmpRoot}`)
+      console.log(`[check-clean-build] Kept temp workspace: ${archiveRoot}`)
       return
     }
-    await rm(tmpRoot, { recursive: true, force: true })
+    await rm(archiveRoot, { recursive: true, force: true })
   }
 }
 
