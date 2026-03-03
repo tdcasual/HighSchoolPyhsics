@@ -1,29 +1,17 @@
-export type ElectrostaticCharge = {
-  id: string
-  x: number
-  z: number
-  magnitude: number
-}
+import { sampleElectricField2D } from '../../domains/electrostatics/field'
+import { cloneElectrostaticPresetCharges, ELECTROSTATIC_LAB_PRESET_CONFIGS } from '../../domains/electrostatics/presets'
+import { samplePotential2D } from '../../domains/electrostatics/potential'
+import { summarizeChargeMagnitudes } from '../../domains/electrostatics/charges'
+import type {
+  ElectrostaticCharge2D,
+  ElectrostaticPresetDefinition,
+  ElectrostaticPresetKey,
+  PotentialSampleOptions,
+  Vector2,
+} from '../../domains/electrostatics/types'
 
-export type PresetKey =
-  | 'single'
-  | 'dipole'
-  | 'same'
-  | 'opposite'
-  | 'three-linear'
-  | 'three-triangle'
-  | 'quadrupole'
-
-type Vector2 = {
-  x: number
-  z: number
-}
-
-type PotentialSampleOptions = {
-  kScale?: number
-  softening?: number
-  potentialClamp?: number
-}
+export type ElectrostaticCharge = ElectrostaticCharge2D
+export type PresetKey = ElectrostaticPresetKey
 
 export type PotentialTerrainStats = {
   minPotential: number
@@ -65,15 +53,6 @@ type BuildFieldLinesOptions = {
   sample?: PotentialSampleOptions
 }
 
-type PresetDefinition = {
-  label: string
-  charges: ElectrostaticCharge[]
-}
-
-const DEFAULT_SOFTENING = 0.24
-const DEFAULT_POTENTIAL_CLAMP = 6.5
-const DEFAULT_K_SCALE = 1
-
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
@@ -83,20 +62,7 @@ export function samplePotentialAt(
   point: Vector2,
   options: PotentialSampleOptions = {},
 ): number {
-  const softening = Math.max(1e-3, options.softening ?? DEFAULT_SOFTENING)
-  const potentialClamp = Math.max(1e-2, options.potentialClamp ?? DEFAULT_POTENTIAL_CLAMP)
-  const kScale = options.kScale ?? DEFAULT_K_SCALE
-  const epsilonSquared = softening * softening
-  let potential = 0
-
-  for (const charge of charges) {
-    const dx = point.x - charge.x
-    const dz = point.z - charge.z
-    const r = Math.sqrt(dx * dx + dz * dz + epsilonSquared)
-    potential += (kScale * charge.magnitude) / r
-  }
-
-  return clamp(potential, -potentialClamp, potentialClamp)
+  return samplePotential2D(charges, point, options)
 }
 
 export function sampleElectricFieldAt(
@@ -104,23 +70,7 @@ export function sampleElectricFieldAt(
   point: Vector2,
   options: PotentialSampleOptions = {},
 ): { ex: number; ez: number; magnitude: number } {
-  const softening = Math.max(1e-3, options.softening ?? DEFAULT_SOFTENING)
-  const kScale = options.kScale ?? DEFAULT_K_SCALE
-  const epsilonSquared = softening * softening
-  let ex = 0
-  let ez = 0
-
-  for (const charge of charges) {
-    const dx = point.x - charge.x
-    const dz = point.z - charge.z
-    const rSquared = dx * dx + dz * dz + epsilonSquared
-    const r = Math.sqrt(rSquared)
-    const factor = (kScale * charge.magnitude) / (rSquared * r)
-    ex += factor * dx
-    ez += factor * dz
-  }
-
-  return { ex, ez, magnitude: Math.hypot(ex, ez) }
+  return sampleElectricField2D(charges, point, options)
 }
 
 function mapPotentialToColor(potential: number, maxAbsPotential: number): [number, number, number] {
@@ -429,75 +379,12 @@ export function summarizeChargeSet(charges: ReadonlyArray<ElectrostaticCharge>):
   negativeCount: number
   netCharge: number
 } {
-  let positiveCount = 0
-  let negativeCount = 0
-  let netCharge = 0
-
-  for (const charge of charges) {
-    if (charge.magnitude > 0) {
-      positiveCount += 1
-    } else if (charge.magnitude < 0) {
-      negativeCount += 1
-    }
-    netCharge += charge.magnitude
-  }
-
-  return { positiveCount, negativeCount, netCharge }
+  return summarizeChargeMagnitudes(charges)
 }
 
-export const PRESET_CONFIGS: Record<PresetKey, PresetDefinition> = {
-  single: {
-    label: '单点电荷',
-    charges: [{ id: 'C1', x: 0, z: 0, magnitude: 3.2 }],
-  },
-  dipole: {
-    label: '电偶极子',
-    charges: [
-      { id: 'C1', x: -2.4, z: 0, magnitude: 3.2 },
-      { id: 'C2', x: 2.4, z: 0, magnitude: -3.2 },
-    ],
-  },
-  same: {
-    label: '等量同号',
-    charges: [
-      { id: 'C1', x: -2.3, z: 0, magnitude: 2.8 },
-      { id: 'C2', x: 2.3, z: 0, magnitude: 2.8 },
-    ],
-  },
-  opposite: {
-    label: '等量异号',
-    charges: [
-      { id: 'C1', x: -3, z: 0, magnitude: 2.8 },
-      { id: 'C2', x: 3, z: 0, magnitude: -2.8 },
-    ],
-  },
-  'three-linear': {
-    label: '三电荷线性',
-    charges: [
-      { id: 'C1', x: -3.6, z: 0, magnitude: 2.2 },
-      { id: 'C2', x: 0, z: 0, magnitude: -1.3 },
-      { id: 'C3', x: 3.6, z: 0, magnitude: 2.2 },
-    ],
-  },
-  'three-triangle': {
-    label: '三电荷三角',
-    charges: [
-      { id: 'C1', x: 0, z: 2.8, magnitude: 2.1 },
-      { id: 'C2', x: -2.4, z: -1.4, magnitude: 2.1 },
-      { id: 'C3', x: 2.4, z: -1.4, magnitude: 2.1 },
-    ],
-  },
-  quadrupole: {
-    label: '电四极子',
-    charges: [
-      { id: 'C1', x: -2.2, z: -2.2, magnitude: 2.2 },
-      { id: 'C2', x: 2.2, z: -2.2, magnitude: -2.2 },
-      { id: 'C3', x: -2.2, z: 2.2, magnitude: -2.2 },
-      { id: 'C4', x: 2.2, z: 2.2, magnitude: 2.2 },
-    ],
-  },
-}
+export const PRESET_CONFIGS: Record<PresetKey, ElectrostaticPresetDefinition> =
+  ELECTROSTATIC_LAB_PRESET_CONFIGS
 
 export function clonePresetCharges(preset: PresetKey): ElectrostaticCharge[] {
-  return PRESET_CONFIGS[preset].charges.map((charge) => ({ ...charge }))
+  return cloneElectrostaticPresetCharges(preset, PRESET_CONFIGS)
 }
