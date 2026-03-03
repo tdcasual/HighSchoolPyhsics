@@ -396,7 +396,6 @@ export function ElectrostaticLabScene() {
             controls={{ target: [0, 0.4, 0], minDistance: 6, maxDistance: 30 }}
             adaptiveFraming={false}
             frameloop="demand"
-            wheelZoomIntentGuard
           >
             <ElectrostaticLabRig3D
               bounds={SCENE_BOUNDS}

@@ -16,8 +16,6 @@ describe('demo route conformance', () => {
       expect(route.touchProfile.gestureMatrix.singleFingerRotate).toBe(true)
       expect(route.touchProfile.gestureMatrix.twoFingerZoom).toBe(true)
       expect(route.touchProfile.gestureMatrix.twoFingerPan).toBe(true)
-      expect(route.touchProfile.gestureMatrix.doubleTapReset).toBe(true)
-      expect(route.touchProfile.gestureMatrix.threeFingerModeSwitch).toBe(true)
     }
   })
 

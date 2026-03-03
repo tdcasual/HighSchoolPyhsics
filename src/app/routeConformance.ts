@@ -73,14 +73,6 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
     issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.twoFingerPan must be true' })
   }
 
-  if (!profile.gestureMatrix.doubleTapReset) {
-    issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.doubleTapReset must be true' })
-  }
-
-  if (!profile.gestureMatrix.threeFingerModeSwitch) {
-    issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.threeFingerModeSwitch must be true' })
-  }
-
   return issues
 }
 

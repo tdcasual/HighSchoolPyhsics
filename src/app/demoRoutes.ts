@@ -8,8 +8,6 @@ type TouchGestureMatrix = {
   singleFingerRotate: boolean
   twoFingerZoom: boolean
   twoFingerPan: boolean
-  doubleTapReset: boolean
-  threeFingerModeSwitch: boolean
 }
 
 type TouchProfile = {
@@ -81,8 +79,6 @@ const ENHANCED_TOUCH_PROFILE: TouchProfile = {
     singleFingerRotate: true,
     twoFingerZoom: true,
     twoFingerPan: true,
-    doubleTapReset: true,
-    threeFingerModeSwitch: true,
   },
 }
 

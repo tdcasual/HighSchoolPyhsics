@@ -182,7 +182,6 @@ export function EquipotentialScene() {
             }}
             adaptiveFraming={false}
             frameloop="demand"
-            wheelZoomIntentGuard
           >
             <EquipotentialRig3D
               bounds={SCENE_BOUNDS}
