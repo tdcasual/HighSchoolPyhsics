@@ -1,4 +1,5 @@
 import { createElement, type ComponentType } from 'react'
+import sceneCatalog from '../../config/demo-scenes.json'
 import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
 import type { PresentationSignal } from '../ui/layout/presentationSignals'
@@ -23,13 +24,24 @@ type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
 type DemoRouteMeta = {
   tag: string
   summary: string
-  highlights: [string, string]
+  highlights: string[]
   tone: DemoTone
 }
 
 type ClassroomContract = {
   presentationSignals: readonly PresentationSignal[]
   coreSummaryLineCount: number
+}
+
+type SceneCatalogEntry = {
+  pageId: string
+  label: string
+  meta: DemoRouteMeta
+  classroom: ClassroomContract
+  playwright: {
+    readyText: string
+    screenshotName: string
+  }
 }
 
 export type DemoRoute = {
@@ -79,80 +91,47 @@ function createWrappedScene(definition: DemoSceneDefinition) {
   })
 }
 
-const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = [
-  {
-    pageId: 'oscilloscope',
-    path: '/oscilloscope',
-    label: '示波器',
-    meta: {
-      tag: '波形合成',
-      summary: '双通道电压驱动 + 李萨如图形',
-      highlights: ['函数编辑与预设切换', '荧光屏轨迹实时更新'],
-      tone: 'scope',
-    },
-    classroom: {
-      presentationSignals: ['chart', 'live-metric'],
-      coreSummaryLineCount: 3,
-    },
-    loadScene: async () => ({
-      default: (await import('../scenes/oscilloscope/OscilloscopeScene')).OscilloscopeScene,
-    }),
-  },
-  {
-    pageId: 'cyclotron',
-    path: '/cyclotron',
-    label: '回旋加速器',
-    meta: {
-      tag: '粒子动力学',
-      summary: '交变电场加速 + 磁场轨道约束',
-      highlights: ['U-t / Ek-t 双曲线', '可切换加速时间模型'],
-      tone: 'cyclotron',
-    },
-    classroom: {
-      presentationSignals: ['chart', 'time-series', 'live-metric'],
-      coreSummaryLineCount: 4,
-    },
-    loadScene: async () => ({
-      default: (await import('../scenes/cyclotron/CyclotronScene')).CyclotronScene,
-    }),
-  },
-  {
-    pageId: 'mhd',
-    path: '/mhd',
-    label: '磁流体发电机',
-    meta: {
-      tag: '能量转换',
-      summary: '等离子体通道中的感应电势演示',
-      highlights: ['磁场/流速/导电率联动', '端电压实时读数'],
-      tone: 'mhd',
-    },
-    classroom: {
-      presentationSignals: ['live-metric'],
-      coreSummaryLineCount: 3,
-    },
-    loadScene: async () => ({
-      default: (await import('../scenes/mhd/MhdGeneratorScene')).MhdGeneratorScene,
-    }),
-  },
-  {
-    pageId: 'oersted',
-    path: '/oersted',
-    label: '奥斯特实验',
-    meta: {
-      tag: '课堂观察',
-      summary: '三磁针偏转与导线姿态联动',
-      highlights: ['拖拽磁针自由摆位', '磁感线可显隐对比'],
-      tone: 'oersted',
-    },
-    classroom: {
-      presentationSignals: ['interactive-readout'],
-      coreSummaryLineCount: 4,
-    },
-    loadScene: async () => ({
-      default: (await import('../scenes/oersted/OerstedScene')).OerstedScene,
-    }),
-  },
-]
+const SCENE_LOADERS: Record<string, () => Promise<SceneModule>> = {
+  oscilloscope: async () => ({
+    default: (await import('../scenes/oscilloscope/OscilloscopeScene')).OscilloscopeScene,
+  }),
+  cyclotron: async () => ({
+    default: (await import('../scenes/cyclotron/CyclotronScene')).CyclotronScene,
+  }),
+  mhd: async () => ({
+    default: (await import('../scenes/mhd/MhdGeneratorScene')).MhdGeneratorScene,
+  }),
+  oersted: async () => ({
+    default: (await import('../scenes/oersted/OerstedScene')).OerstedScene,
+  }),
+  equipotential: async () => ({
+    default: (await import('../scenes/equipotential/EquipotentialScene')).EquipotentialScene,
+  }),
+  'potential-energy': async () => ({
+    default: (await import('../scenes/potential-energy/PotentialEnergyScene')).PotentialEnergyScene,
+  }),
+  'electrostatic-lab': async () => ({
+    default: (await import('../scenes/electrostatic-lab/ElectrostaticLabScene')).ElectrostaticLabScene,
+  }),
+}
+
+export const DEMO_SCENE_CATALOG: SceneCatalogEntry[] = sceneCatalog as SceneCatalogEntry[]
+
+const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((entry) => {
+  const loadScene = SCENE_LOADERS[entry.pageId]
+  if (!loadScene) {
+    throw new Error(`Missing scene loader for pageId "${entry.pageId}"`)
+  }
+
+  return {
+    pageId: entry.pageId,
+    path: `/${entry.pageId}`,
+    label: entry.label,
+    meta: entry.meta,
+    classroom: entry.classroom,
+    loadScene,
+  }
+})
 
 export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) => {
   const preloadable = createWrappedScene(definition)

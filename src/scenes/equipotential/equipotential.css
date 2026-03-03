@@ -1,0 +1,39 @@
+.equipotential-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.46rem;
+}
+
+.equipotential-preset-btn {
+  border: 1px solid #83acd1;
+  border-radius: 10px;
+  background: rgba(235, 247, 255, 0.88);
+  color: #1a4b71;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.equipotential-readout {
+  padding: 0.58rem 0.7rem;
+  border: 1px solid #b6d3ea;
+  border-radius: 10px;
+  background: rgba(231, 247, 255, 0.85);
+  display: grid;
+  gap: 0.2rem;
+}
+
+.equipotential-readout p {
+  margin: 0;
+  color: #1c4f74;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+.equipotential-viewport-note {
+  margin: 0;
+  padding: 0.4rem 0.62rem;
+  border-top: 1px solid #c7d7e7;
+  background: rgba(237, 247, 255, 0.9);
+  color: #1f4f72;
+  font-size: 0.84rem;
+  line-height: 1.34;
+}

@@ -1,0 +1,105 @@
+.electrostatic-lab-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.electrostatic-lab-preset-btn {
+  border: 1px solid #83acd1;
+  border-radius: 10px;
+  background: rgba(236, 247, 255, 0.9);
+  color: #17486d;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.electrostatic-lab-preset-btn.active {
+  border-color: #4f8bc2;
+  background: rgba(200, 233, 255, 0.96);
+  color: #0c3f63;
+}
+
+.electrostatic-lab-mode-card {
+  padding: 0.6rem 0.72rem;
+  border: 1px solid #b6d3ea;
+  border-radius: 10px;
+  background: rgba(231, 246, 255, 0.88);
+  display: grid;
+  gap: 0.36rem;
+}
+
+.electrostatic-lab-mode-card p {
+  margin: 0;
+  color: #1c4e74;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+.electrostatic-lab-mode-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.electrostatic-lab-mode-btn {
+  border: 1px solid #7daed8;
+  border-radius: 10px;
+  background: rgba(242, 250, 255, 0.94);
+  color: #154e77;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.electrostatic-lab-mode-btn.active {
+  border-color: #508fc8;
+  background: rgba(203, 234, 255, 0.94);
+  color: #0d4067;
+}
+
+.electrostatic-lab-checkline {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  color: #1e4f74;
+  font-size: 0.88rem;
+}
+
+.electrostatic-lab-advanced-toggle {
+  border: 1px solid #79acd7;
+  border-radius: 10px;
+  background: rgba(242, 250, 255, 0.94);
+  color: #13486f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.electrostatic-lab-advanced-hint {
+  margin: 0;
+  color: #1d5074;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.electrostatic-lab-readout {
+  padding: 0.58rem 0.72rem;
+  border: 1px solid #b6d3ea;
+  border-radius: 10px;
+  background: rgba(231, 247, 255, 0.86);
+  display: grid;
+  gap: 0.2rem;
+}
+
+.electrostatic-lab-readout p {
+  margin: 0;
+  color: #1c4f74;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+.electrostatic-lab-viewport-note {
+  margin: 0;
+  padding: 0.4rem 0.62rem;
+  border-top: 1px solid #c7d7e7;
+  background: rgba(237, 247, 255, 0.9);
+  color: #1f4f72;
+  font-size: 0.84rem;
+  line-height: 1.34;
+}

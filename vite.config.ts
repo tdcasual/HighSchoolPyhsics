@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import { resolveManualChunk } from './build/chunking'
+import { resolveManualChunk } from './scripts/chunking/chunking'
 
 // https://vite.dev/config/
 export default defineConfig({

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_CATALOG } from '../shared/demoCatalog.mjs'
 
 describe('playwright demo catalog', () => {
-  it('defines four classroom demos', () => {
-    expect(DEMO_CATALOG).toHaveLength(4)
+  it('stays aligned with shared scene catalog length', () => {
+    expect(DEMO_CATALOG).toHaveLength(sceneCatalog.length)
   })
 
   it('keeps unique path and screenshot identifiers', () => {

@@ -1,0 +1,17 @@
+:root {
+  font-family: 'Avenir Next', 'Helvetica Neue', sans-serif;
+  --focus-ring: #2f95d5;
+  --shell-ink-day: #102a43;
+  --shell-bg-day:
+    radial-gradient(circle at 8% -12%, rgba(255, 175, 123, 0.28) 0%, rgba(255, 175, 123, 0) 42%),
+    radial-gradient(circle at 92% -10%, rgba(96, 205, 255, 0.24) 0%, rgba(96, 205, 255, 0) 44%),
+    linear-gradient(145deg, #fff7ef 0%, #f2fffb 55%, #eef5ff 100%);
+  --action-border: #3d5f8d;
+  --action-bg: #ffffff;
+  --action-ink: #133d66;
+  --action-hover-border: #2f95d5;
+  --action-hover-shadow: 0 8px 16px rgba(47, 149, 213, 0.16);
+  --action-active-bg: linear-gradient(135deg, #3ea8ff 0%, #36d6b1 100%);
+  --action-active-border: #36d6b1;
+  --action-active-ink: #062235;
+}

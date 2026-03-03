@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_ROUTES } from '../demoRoutes'
 import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
@@ -29,5 +30,13 @@ describe('demo route conformance', () => {
       expect(route.classroom.coreSummaryLineCount).toBeGreaterThanOrEqual(3)
       expect(route.classroom.coreSummaryLineCount).toBeLessThanOrEqual(5)
     }
+  })
+
+  it('stays aligned with the shared scene catalog source', () => {
+    const expectedPageIds = sceneCatalog.map((scene) => scene.pageId)
+    expect(DEMO_ROUTES.map((route) => route.pageId)).toEqual(expectedPageIds)
+    expect(DEMO_ROUTES.map((route) => route.path)).toEqual(
+      expectedPageIds.map((pageId) => `/${pageId}`),
+    )
   })
 })

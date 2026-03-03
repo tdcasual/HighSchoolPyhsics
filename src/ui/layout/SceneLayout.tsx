@@ -3,26 +3,13 @@ import {
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent,
-  type PointerEvent,
   type ReactNode,
 } from 'react'
 import { useAppStore } from '../../store/useAppStore'
-import {
-  parsePresentationSignals,
-  scorePresentationSignals,
-  type PresentationSignal,
-} from './presentationSignals'
-import {
-  clamp,
-  isPresentationSplit,
-  resolveLayoutTier,
-  resolveLeftPanelBounds,
-  resolvePreferredLeftWidthPx,
-  SPLIT_DIVIDER_WIDTH_PX,
-  type LayoutTier,
-  type PresentationStrategy,
-} from './layoutPolicy'
+import { resolveLayoutTier, type LayoutTier } from './layoutPolicy'
+import type { PresentationSignal } from './presentationSignals'
+import { usePresentationStrategy } from './usePresentationStrategy'
+import { useResizableSplitPanel } from './useResizableSplitPanel'
 
 type SceneLayoutProps = {
   controls: ReactNode
@@ -31,26 +18,11 @@ type SceneLayoutProps = {
   coreSummary: ReactNode
 }
 
-type ResizeDragState = {
-  pointerId: number
-  startX: number
-  startWidth: number
-}
-
 function readViewportWidth(): number {
   if (typeof window === 'undefined') {
     return 1280
   }
   return window.innerWidth
-}
-
-function readCurrentPathname(): string {
-  if (typeof window === 'undefined') {
-    return '/'
-  }
-
-  const normalized = window.location.pathname.replace(/\/+$/, '')
-  return normalized || '/'
 }
 
 export function SceneLayout({
@@ -64,30 +36,38 @@ export function SceneLayout({
   const presentationRouteModes = useAppStore((state) => state.presentationRouteModes)
   const controlsRef = useRef<HTMLElement | null>(null)
   const [tier, setTier] = useState<LayoutTier>(() => resolveLayoutTier(readViewportWidth()))
-  const [autoSignalScore, setAutoSignalScore] = useState<number>(() =>
-    scorePresentationSignals(new Set(presentationSignals)),
-  )
-  const routePathKey = typeof window === 'undefined' ? activeScenePath || '/' : readCurrentPathname()
-  const routeMode = presentationRouteModes[routePathKey] ?? 'auto'
-  const presentationStrategy: PresentationStrategy =
-    routeMode === 'auto' ? (autoSignalScore >= 2 ? 'split' : 'viewport') : routeMode
-  const compact =
-    tier !== 'desktop' || (presentationMode && presentationStrategy === 'viewport')
-  const resizeStateRef = useRef<ResizeDragState | null>(null)
-  const splitDefaultsAppliedRef = useRef<boolean>(false)
+
+  const { presentationStrategy } = usePresentationStrategy({
+    presentationSignals,
+    controls,
+    controlsRef,
+    activeScenePath,
+    presentationRouteModes,
+  })
+
+  const compact = tier !== 'desktop' || (presentationMode && presentationStrategy === 'viewport')
+
+  const {
+    minLeftWidthPx,
+    maxLeftWidthPx,
+    resolvedLeftPanelWidthPx,
+    layoutStyle,
+    onDividerPointerDown,
+    onDividerPointerMove,
+    onDividerPointerUp,
+    onDividerPointerCancel,
+    onDividerKeyDown,
+  } = useResizableSplitPanel({
+    compact,
+    tier,
+    presentationMode,
+    presentationStrategy,
+  })
+
   const [controlsExpanded, setControlsExpanded] = useState<boolean>(() => {
     const initialTier = resolveLayoutTier(readViewportWidth())
     return initialTier !== 'mobile' && (!presentationMode || presentationStrategy === 'split')
   })
-  const [leftPanelWidthPx, setLeftPanelWidthPx] = useState<number>(() => {
-    const viewportWidth = readViewportWidth()
-    return resolveLeftPanelBounds(viewportWidth, presentationMode, presentationStrategy).preferred
-  })
-
-  const bounds = resolveLeftPanelBounds(readViewportWidth(), presentationMode, presentationStrategy)
-  const minLeftWidthPx = bounds.min
-  const maxLeftWidthPx = bounds.max
-  const resolvedLeftPanelWidthPx = clamp(leftPanelWidthPx, minLeftWidthPx, maxLeftWidthPx)
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -104,21 +84,6 @@ export function SceneLayout({
 
   useEffect(() => {
     const rafId = window.requestAnimationFrame(() => {
-      const nextSignals = new Set<PresentationSignal>(presentationSignals)
-      const signalNodes = controlsRef.current?.querySelectorAll('[data-presentation-signal]') ?? []
-      signalNodes.forEach((node) => {
-        parsePresentationSignals(node.getAttribute('data-presentation-signal')).forEach((signal) => {
-          nextSignals.add(signal)
-        })
-      })
-      setAutoSignalScore(scorePresentationSignals(nextSignals))
-    })
-
-    return () => window.cancelAnimationFrame(rafId)
-  }, [controls, presentationSignals])
-
-  useEffect(() => {
-    const rafId = window.requestAnimationFrame(() => {
       setControlsExpanded(
         tier !== 'mobile' && (!presentationMode || presentationStrategy === 'split'),
       )
@@ -127,33 +92,6 @@ export function SceneLayout({
     return () => window.cancelAnimationFrame(rafId)
   }, [presentationMode, presentationStrategy, tier])
 
-  useEffect(() => {
-    const splitDesktop = tier === 'desktop' && isPresentationSplit(presentationMode, presentationStrategy)
-    if (!splitDesktop) {
-      splitDefaultsAppliedRef.current = false
-      return
-    }
-    if (splitDefaultsAppliedRef.current) {
-      return
-    }
-
-    splitDefaultsAppliedRef.current = true
-    const rafId = window.requestAnimationFrame(() => {
-      const viewportWidth = readViewportWidth()
-      const preferred = resolvePreferredLeftWidthPx(viewportWidth, presentationMode, presentationStrategy)
-      setLeftPanelWidthPx(clamp(preferred, minLeftWidthPx, maxLeftWidthPx))
-    })
-
-    return () => window.cancelAnimationFrame(rafId)
-  }, [maxLeftWidthPx, minLeftWidthPx, presentationMode, presentationStrategy, tier])
-
-  useEffect(() => {
-    if (!compact) {
-      return
-    }
-    resizeStateRef.current = null
-  }, [compact])
-
   const toggleLabel = presentationMode
     ? controlsExpanded
       ? '隐藏控制面板'
@@ -161,6 +99,7 @@ export function SceneLayout({
     : controlsExpanded
       ? '收起参数面板'
       : '展开参数面板'
+
   const controlsPanel = (
     <aside
       ref={controlsRef}
@@ -174,79 +113,6 @@ export function SceneLayout({
   )
 
   const viewportPanel = <section className="viewport-panel">{viewport}</section>
-  const layoutStyle =
-    !compact
-      ? {
-          gridTemplateColumns: `${resolvedLeftPanelWidthPx}px ${SPLIT_DIVIDER_WIDTH_PX}px minmax(0, 1fr)`,
-        }
-      : undefined
-
-  const stopResize = (event: PointerEvent<HTMLButtonElement>) => {
-    const state = resizeStateRef.current
-    if (!state || state.pointerId !== event.pointerId) {
-      return
-    }
-    resizeStateRef.current = null
-    if (
-      typeof event.currentTarget.hasPointerCapture === 'function' &&
-      typeof event.currentTarget.releasePointerCapture === 'function' &&
-      event.currentTarget.hasPointerCapture(event.pointerId)
-    ) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    }
-  }
-
-  const onDividerPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-    if (compact) {
-      return
-    }
-
-    event.preventDefault()
-    resizeStateRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startWidth: resolvedLeftPanelWidthPx,
-    }
-    if (typeof event.currentTarget.setPointerCapture === 'function') {
-      event.currentTarget.setPointerCapture(event.pointerId)
-    }
-  }
-
-  const onDividerPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-    const state = resizeStateRef.current
-    if (!state || state.pointerId !== event.pointerId || compact) {
-      return
-    }
-
-    event.preventDefault()
-    const delta = event.clientX - state.startX
-    setLeftPanelWidthPx(clamp(state.startWidth + delta, minLeftWidthPx, maxLeftWidthPx))
-  }
-
-  const onDividerPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
-    stopResize(event)
-  }
-
-  const onDividerPointerCancel = (event: PointerEvent<HTMLButtonElement>) => {
-    stopResize(event)
-  }
-
-  const onDividerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (compact) {
-      return
-    }
-
-    const step = event.shiftKey ? 64 : 24
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault()
-      setLeftPanelWidthPx((value) => clamp(value - step, minLeftWidthPx, maxLeftWidthPx))
-      return
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault()
-      setLeftPanelWidthPx((value) => clamp(value + step, minLeftWidthPx, maxLeftWidthPx))
-    }
-  }
 
   const scaffoldClassName = useMemo(
     () =>

@@ -30,10 +30,6 @@ function ensure(value, message) {
   }
 }
 
-function escapeSingleQuote(value) {
-  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-}
-
 function toPascalCase(id) {
   return id
     .split('-')
@@ -231,39 +227,6 @@ describe('${id} structure', () => {
 `
 }
 
-function buildDefinitionSnippet({
-  id,
-  label,
-  tone,
-  tag,
-  summary,
-  highlightA,
-  highlightB,
-  coreLines,
-  sceneName,
-  signalsLiteral,
-}) {
-  return `  {
-    pageId: '${escapeSingleQuote(id)}',
-    path: '/${escapeSingleQuote(id)}',
-    label: '${escapeSingleQuote(label)}',
-    meta: {
-      tag: '${escapeSingleQuote(tag)}',
-      summary: '${escapeSingleQuote(summary)}',
-      highlights: ['${escapeSingleQuote(highlightA)}', '${escapeSingleQuote(highlightB)}'],
-      tone: '${tone}',
-    },
-    classroom: {
-      presentationSignals: ${signalsLiteral},
-      coreSummaryLineCount: ${coreLines},
-    },
-    loadScene: async () => ({
-      default: (await import('../scenes/${escapeSingleQuote(id)}/${sceneName}')).${sceneName},
-    }),
-  },
-`
-}
-
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const id = args.get('id')
@@ -310,7 +273,7 @@ async function main() {
   const controlsFile = resolve(sceneDir, `${controlsName}.tsx`)
   const cssFile = resolve(sceneDir, `${id}.css`)
   const testFile = resolve(sceneDir, `${sceneName}.test.tsx`)
-  const routesFile = resolve(rootDir, 'src/app/demoRoutes.ts')
+  const catalogFile = resolve(rootDir, 'config/demo-scenes.json')
 
   await ensurePathMissing(sceneDir, `Scene directory already exists: src/scenes/${id}`)
   await mkdir(sceneDir, { recursive: false })
@@ -329,38 +292,40 @@ async function main() {
   await writeFile(cssFile, buildCssTemplate(id), 'utf8')
   await writeFile(testFile, buildTestTemplate({ id, sceneName, label }), 'utf8')
 
-  const routesContent = await readFile(routesFile, 'utf8')
+  const catalogContent = await readFile(catalogFile, 'utf8')
+  const catalog = JSON.parse(catalogContent)
+  ensure(Array.isArray(catalog), 'config/demo-scenes.json must be an array')
   ensure(
-    !routesContent.includes(`pageId: '${id}'`),
-    `Route definition for pageId "${id}" already exists in src/app/demoRoutes.ts`,
+    !catalog.some((entry) => entry.pageId === id),
+    `Catalog entry for pageId "${id}" already exists in config/demo-scenes.json`,
   )
 
-  const marker = '\n]\n\nexport const DEMO_ROUTES'
-  const markerIndex = routesContent.indexOf(marker)
-  ensure(markerIndex >= 0, 'Unable to locate DEMO_SCENE_DEFINITIONS array boundary in demoRoutes.ts')
-
-  const definitionSnippet = buildDefinitionSnippet({
-    id,
+  catalog.push({
+    pageId: id,
     label,
-    tone,
-    tag,
-    summary,
-    highlightA,
-    highlightB,
-    coreLines,
-    sceneName,
-    signalsLiteral,
+    meta: {
+      tag,
+      summary,
+      highlights: [highlightA, highlightB],
+      tone,
+    },
+    classroom: {
+      presentationSignals: signals,
+      coreSummaryLineCount: coreLines,
+    },
+    playwright: {
+      readyText: `${label}控制`,
+      screenshotName: id,
+    },
   })
-  const nextRoutesContent =
-    routesContent.slice(0, markerIndex) + definitionSnippet + routesContent.slice(markerIndex)
-  await writeFile(routesFile, nextRoutesContent, 'utf8')
+  await writeFile(catalogFile, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8')
 
   console.log('New scene scaffold created:')
   console.log(`- src/scenes/${id}/${sceneName}.tsx`)
   console.log(`- src/scenes/${id}/${controlsName}.tsx`)
   console.log(`- src/scenes/${id}/${id}.css`)
   console.log(`- src/scenes/${id}/${sceneName}.test.tsx`)
-  console.log('- src/app/demoRoutes.ts (definition appended)')
+  console.log('- config/demo-scenes.json (catalog entry appended)')
   console.log('\nNext steps:')
   console.log('1) Fill in 3D content + domain model logic.')
   console.log('2) Update generated metadata/highlights to classroom-ready copy.')
@@ -371,4 +336,3 @@ main().catch((error) => {
   console.error('[scaffold:scene] failed:', error instanceof Error ? error.message : String(error))
   process.exit(1)
 })
-
