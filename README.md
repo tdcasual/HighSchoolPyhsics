@@ -82,7 +82,7 @@ npx playwright install chromium
 - `docs/classroom-presentation-principles.md`
 - `AGENTS.md`（仓库级课堂模式原则）
 
-也可以直接用脚手架命令快速生成新场景（含课堂契约模板和路由定义）：
+也可以直接用脚手架命令快速生成新场景（默认分层结构，含课堂契约模板和路由定义）：
 
 ```bash
 npm run scaffold:scene -- \
@@ -95,7 +95,9 @@ npm run scaffold:scene -- \
 
 该命令会自动创建：
 - `src/scenes/<id>/<PascalCase>Scene.tsx`
+- `src/scenes/<id>/use<PascalCase>SceneState.ts`
 - `src/scenes/<id>/<PascalCase>Controls.tsx`
+- `src/scenes/<id>/<PascalCase>Rig3D.tsx`
 - `src/scenes/<id>/<id>.css`
 - `src/scenes/<id>/<PascalCase>Scene.test.tsx`
 - 并把场景定义追加到 `config/demo-scenes.json`（路由会自动发现 `src/scenes/<id>/*Scene.tsx`）
