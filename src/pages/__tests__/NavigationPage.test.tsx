@@ -31,8 +31,6 @@ function buildRoute(overrides: Partial<DemoRoute> = {}): DemoRoute {
         singleFingerRotate: true,
         twoFingerZoom: true,
         twoFingerPan: true,
-        doubleTapReset: true,
-        threeFingerModeSwitch: true,
       },
     },
     classroom: {

@@ -1,5 +1,5 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { constants } from 'node:fs'
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 const VALID_TONES = new Set(['scope', 'cyclotron', 'mhd', 'oersted'])
@@ -12,12 +12,14 @@ function parseArgs(argv) {
     if (!raw.startsWith('--')) {
       continue
     }
+
     const key = raw.slice(2)
     const next = argv[index + 1]
     if (!next || next.startsWith('--')) {
       args.set(key, 'true')
       continue
     }
+
     args.set(key, next)
     index += 1
   }
@@ -52,8 +54,8 @@ async function ensurePathMissing(pathname, message) {
 
 function buildCoreSummaryLines(coreLines) {
   const templates = [
-    "          <p>状态: {running ? '运行中' : '已暂停'}</p>",
-    '          <p>核心量: {intensity.toFixed(1)}</p>',
+    "          <p>状态: {state.running ? '运行中' : '已暂停'}</p>",
+    '          <p>核心量: {state.intensity.toFixed(1)}</p>',
     '          <p>观察结论: 待补充</p>',
     '          <p>对比点: 待补充</p>',
     '          <p>课堂提示: 待补充</p>',
@@ -62,42 +64,24 @@ function buildCoreSummaryLines(coreLines) {
   return templates.slice(0, coreLines).join('\n')
 }
 
-function buildSceneTemplate({ id, sceneName, controlsName, signalsLiteral, coreSummaryLines }) {
-  return `import { useState } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+function buildSceneTemplate({
+  id,
+  sceneName,
+  controlsName,
+  rigName,
+  stateHookName,
+  signalsLiteral,
+  coreSummaryLines,
+}) {
+  return `import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ${controlsName} } from './${controlsName}'
+import { ${rigName} } from './${rigName}'
+import { ${stateHookName} } from './${stateHookName}'
 import './${id}.css'
 
-type ${sceneName}RigProps = {
-  running: boolean
-  intensity: number
-}
-
-function ${sceneName}Rig({ running, intensity }: ${sceneName}RigProps) {
-  return (
-    <group>
-      <ambientLight intensity={0.82} />
-      <directionalLight position={[3.6, 4.8, 2.8]} intensity={0.95} />
-      <mesh>
-        <sphereGeometry args={[0.8 + intensity * 0.03, 32, 24]} />
-        <meshStandardMaterial color={running ? '#2f95d5' : '#8aa7bf'} roughness={0.35} metalness={0.2} />
-      </mesh>
-    </group>
-  )
-}
-
-const INITIAL_INTENSITY = 1
-
 export function ${sceneName}() {
-  const [running, setRunning] = useState(false)
-  const [intensity, setIntensity] = useState(INITIAL_INTENSITY)
-  const readoutText = intensity.toFixed(1)
-
-  const reset = () => {
-    setRunning(false)
-    setIntensity(INITIAL_INTENSITY)
-  }
+  const state = ${stateHookName}()
 
   return (
     <SceneLayout
@@ -107,19 +91,13 @@ export function ${sceneName}() {
 ${coreSummaryLines}
         </div>
       }
-      controls={
-        <${controlsName}
-          intensity={intensity}
-          onIntensityChange={setIntensity}
-          running={running}
-          onToggleRunning={() => setRunning((value) => !value)}
-          onReset={reset}
-          readoutText={readoutText}
-        />
-      }
+      controls={<${controlsName} state={state} />}
       viewport={
-        <InteractiveCanvas camera={{ position: [0, 1.8, 5.2], fov: 42 }} frameloop={running ? 'always' : 'demand'}>
-          <${sceneName}Rig running={running} intensity={intensity} />
+        <InteractiveCanvas
+          camera={{ position: [0, 1.8, 5.2], fov: 42 }}
+          frameloop={state.running ? 'always' : 'demand'}
+        >
+          <${rigName} running={state.running} intensity={state.intensity} />
         </InteractiveCanvas>
       }
     />
@@ -130,27 +108,78 @@ export default ${sceneName}
 `
 }
 
-function buildControlsTemplate({ id, label, controlsName, signalString }) {
-  return `import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
+function buildStateTemplate({ stateHookName, stateTypeName }) {
+  return `import { useMemo, useState } from 'react'
 
-type ${controlsName}Props = {
-  intensity: number
-  onIntensityChange: (value: number) => void
+const INITIAL_INTENSITY = 1
+
+export type ${stateTypeName} = {
   running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
+  intensity: number
   readoutText: string
+  setIntensity: (value: number) => void
+  toggleRunning: () => void
+  reset: () => void
 }
 
-export function ${controlsName}({
-  intensity,
-  onIntensityChange,
-  running,
-  onToggleRunning,
-  onReset,
-  readoutText,
-}: ${controlsName}Props) {
+export function ${stateHookName}(): ${stateTypeName} {
+  const [running, setRunning] = useState(false)
+  const [intensity, setIntensity] = useState(INITIAL_INTENSITY)
+
+  const readoutText = useMemo(() => intensity.toFixed(1), [intensity])
+
+  const reset = () => {
+    setRunning(false)
+    setIntensity(INITIAL_INTENSITY)
+  }
+
+  return {
+    running,
+    intensity,
+    readoutText,
+    setIntensity,
+    toggleRunning: () => setRunning((value) => !value),
+    reset,
+  }
+}
+`
+}
+
+function buildRigTemplate({ rigName }) {
+  return `type ${rigName}Props = {
+  running: boolean
+  intensity: number
+}
+
+export function ${rigName}({ running, intensity }: ${rigName}Props) {
+  return (
+    <group>
+      <ambientLight intensity={0.82} />
+      <directionalLight position={[3.6, 4.8, 2.8]} intensity={0.95} />
+      <mesh>
+        <sphereGeometry args={[0.8 + intensity * 0.03, 32, 24]} />
+        <meshStandardMaterial
+          color={running ? '#2f95d5' : '#8aa7bf'}
+          roughness={0.35}
+          metalness={0.2}
+        />
+      </mesh>
+    </group>
+  )
+}
+`
+}
+
+function buildControlsTemplate({ id, label, controlsName, signalString, stateTypeName, stateHookName }) {
+  return `import { RangeField } from '../../ui/controls/RangeField'
+import { SceneActions } from '../../ui/controls/SceneActions'
+import type { ${stateTypeName} } from './${stateHookName}'
+
+type ${controlsName}Props = {
+  state: ${stateTypeName}
+}
+
+export function ${controlsName}({ state }: ${controlsName}Props) {
   return (
     <>
       <h2>${label}控制</h2>
@@ -161,27 +190,27 @@ export function ${controlsName}({
         min={0}
         max={10}
         step={0.1}
-        value={intensity}
-        onChange={onIntensityChange}
+        value={state.intensity}
+        onChange={state.setIntensity}
       />
 
       <SceneActions
         actions={[
           {
             key: 'toggle-running',
-            label: running ? '暂停' : '播放',
-            onClick: onToggleRunning,
+            label: state.running ? '暂停' : '播放',
+            onClick: state.toggleRunning,
           },
           {
             key: 'reset',
             label: '重置',
-            onClick: onReset,
+            onClick: state.reset,
           },
         ]}
       />
 
       <div className="${id}-readout" data-presentation-signal="${signalString}">
-        <p>当前读数: {readoutText}</p>
+        <p>当前读数: {state.readoutText}</p>
       </div>
 
       <div className="structure-card">
@@ -264,8 +293,12 @@ async function main() {
 
   const sceneNameBase = toPascalCase(id)
   ensure(sceneNameBase.length > 0, 'Unable to derive scene name from --id')
+
   const sceneName = `${sceneNameBase}Scene`
   const controlsName = `${sceneNameBase}Controls`
+  const rigName = `${sceneNameBase}Rig3D`
+  const stateHookName = `use${sceneNameBase}SceneState`
+  const stateTypeName = `${sceneNameBase}SceneState`
   const signalsLiteral = `[${signals.map((signal) => `'${signal}'`).join(', ')}]`
   const signalString = signals.join(' ')
 
@@ -273,24 +306,36 @@ async function main() {
   const sceneDir = resolve(rootDir, `src/scenes/${id}`)
   const sceneFile = resolve(sceneDir, `${sceneName}.tsx`)
   const controlsFile = resolve(sceneDir, `${controlsName}.tsx`)
+  const stateFile = resolve(sceneDir, `${stateHookName}.ts`)
+  const rigFile = resolve(sceneDir, `${rigName}.tsx`)
   const cssFile = resolve(sceneDir, `${id}.css`)
   const testFile = resolve(sceneDir, `${sceneName}.test.tsx`)
   const catalogFile = resolve(rootDir, 'config/demo-scenes.json')
 
   await ensurePathMissing(sceneDir, `Scene directory already exists: src/scenes/${id}`)
-  await mkdir(sceneDir, { recursive: false })
+  await mkdir(sceneDir, { recursive: true })
 
   const coreSummaryLines = buildCoreSummaryLines(coreLines)
   await writeFile(
     sceneFile,
-    buildSceneTemplate({ id, sceneName, controlsName, signalsLiteral, coreSummaryLines }),
+    buildSceneTemplate({
+      id,
+      sceneName,
+      controlsName,
+      rigName,
+      stateHookName,
+      signalsLiteral,
+      coreSummaryLines,
+    }),
     'utf8',
   )
   await writeFile(
     controlsFile,
-    buildControlsTemplate({ id, label, controlsName, signalString }),
+    buildControlsTemplate({ id, label, controlsName, signalString, stateTypeName, stateHookName }),
     'utf8',
   )
+  await writeFile(stateFile, buildStateTemplate({ stateHookName, stateTypeName }), 'utf8')
+  await writeFile(rigFile, buildRigTemplate({ rigName }), 'utf8')
   await writeFile(cssFile, buildCssTemplate(id), 'utf8')
   await writeFile(testFile, buildTestTemplate({ id, sceneName, label }), 'utf8')
 
@@ -324,13 +369,15 @@ async function main() {
 
   console.log('New scene scaffold created:')
   console.log(`- src/scenes/${id}/${sceneName}.tsx`)
+  console.log(`- src/scenes/${id}/${stateHookName}.ts`)
   console.log(`- src/scenes/${id}/${controlsName}.tsx`)
+  console.log(`- src/scenes/${id}/${rigName}.tsx`)
   console.log(`- src/scenes/${id}/${id}.css`)
   console.log(`- src/scenes/${id}/${sceneName}.test.tsx`)
   console.log('- config/demo-scenes.json (catalog entry appended)')
   console.log('- 自动场景发现将按 src/scenes/<id>/*Scene.tsx + *Scene 导出接入路由，无需手改 demoRoutes')
   console.log('\nNext steps:')
-  console.log('1) Fill in 3D content + domain model logic.')
+  console.log('1) Fill in useXxxSceneState domain logic and rig rendering details.')
   console.log('2) Update generated metadata/highlights to classroom-ready copy.')
   console.log('3) Run: npm test && npm run build')
 }

@@ -1,10 +1,7 @@
-export type EquipotentialCharge = {
-  id: string
-  x: number
-  y: number
-  z: number
-  magnitude: number
-}
+import { mapPotentialNonLinear as mapPotentialNonLinearDomain, samplePotential3D } from '../../domains/electrostatics/potential'
+import type { ElectrostaticCharge3D } from '../../domains/electrostatics/types'
+
+export type EquipotentialCharge = ElectrostaticCharge3D
 
 type FieldSample = {
   x: number
@@ -108,13 +105,7 @@ function collectSurfacePoints(
   return downsamplePoints(points, maxPointsPerSurface)
 }
 
-export function mapPotentialNonLinear(value: number, softPotentialLimit: number): number {
-  const safeLimit = Math.max(1e-4, Math.abs(softPotentialLimit))
-  if (!Number.isFinite(value)) {
-    return 0
-  }
-  return safeLimit * Math.tanh(value / safeLimit)
-}
+export const mapPotentialNonLinear = mapPotentialNonLinearDomain
 
 export function samplePotentialAtPoint(
   charges: ReadonlyArray<EquipotentialCharge>,
@@ -122,16 +113,10 @@ export function samplePotentialAtPoint(
   softeningEpsilon: number,
   softPotentialLimit: number,
 ): number {
-  const epsilonSquared = Math.max(1e-6, softeningEpsilon * softeningEpsilon)
-  let rawPotential = 0
-  for (const charge of charges) {
-    const dx = point.x - charge.x
-    const dy = point.y - charge.y
-    const dz = point.z - charge.z
-    rawPotential += charge.magnitude / Math.sqrt(dx * dx + dy * dy + dz * dz + epsilonSquared)
-  }
-
-  return mapPotentialNonLinear(rawPotential, softPotentialLimit)
+  return samplePotential3D(charges, point, {
+    softening: softeningEpsilon,
+    nonLinearLimit: softPotentialLimit,
+  })
 }
 
 export function buildEquipotentialClouds(options: BuildEquipotentialCloudsOptions): EquipotentialCloudResult {

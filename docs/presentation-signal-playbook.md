@@ -7,6 +7,7 @@
 - 让新页面在 `自动` 模式下，尽量准确判断“左侧信息区是否为课堂核心”。
 - 保证误判时可通过顶部布局切换器手动覆盖。
 - 保持不同页面的信号标注一致，避免后续维护漂移。
+- 统一假设现代 Chromium 运行环境，不引入弱环境兼容分支。
 
 ## 2. 自动识别规则
 
@@ -34,34 +35,41 @@
 ## 4. 新页面接入步骤
 
 1. 在场景页面给 `SceneLayout` 传 `presentationSignals`（静态先验）。
-2. 在左侧关键组件节点加 `data-presentation-signal`（运行时补充识别）。
-3. 默认不改全局布局逻辑，由混合模式自动判断。
-4. 用课堂展示开关和布局切换器做一次人工验收（自动是否合理、手动是否可兜底）。
+2. 提供 `coreSummary`（3~5 行课堂关键读数），保证 `viewport` 折叠态仍可读。
+3. 在左侧关键组件节点加 `data-presentation-signal`（运行时补充识别）。
+4. 保持分层结构：`useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene` 壳层。
+5. 默认不改全局布局逻辑，由混合模式自动判断。
+6. 用课堂展示开关和布局切换器做一次人工验收（自动是否合理、手动是否可兜底）。
 
 ## 5. 最小模板（可直接复制）
 
 ```tsx
+import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { NewDemoControls } from './NewDemoControls'
+import { NewDemoRig3D } from './NewDemoRig3D'
+import { useNewDemoSceneState } from './useNewDemoSceneState'
 
 export function NewDemoScene() {
+  const state = useNewDemoSceneState()
+
   return (
     <SceneLayout
       presentationSignals={['chart', 'live-metric']}
+      coreSummary={
+        <div className="scene-core-summary-stack">
+          <p>状态: {state.running ? '运行中' : '已暂停'}</p>
+          <p>核心量: {state.intensity.toFixed(1)}</p>
+          <p>课堂提示: 待补充</p>
+        </div>
+      }
       controls={
-        <>
-          <h2>新演示控制</h2>
-
-          <div data-presentation-signal="chart time-series">
-            {/* 图表组件 */}
-          </div>
-
-          <div data-presentation-signal="live-metric">
-            {/* 实时读数 */}
-          </div>
-        </>
+        <NewDemoControls state={state} />
       }
       viewport={
-        <>{/* 3D 视口 */}</>
+        <InteractiveCanvas frameloop={state.running ? 'always' : 'demand'}>
+          <NewDemoRig3D running={state.running} intensity={state.intensity} />
+        </InteractiveCanvas>
       }
     />
   )

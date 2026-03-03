@@ -224,3 +224,18 @@
 3. 最后集中删除兼容分支并做领域收敛
 
 这条路线在 4-6 周内可把项目从“可维护”推进到“可演化”。
+
+---
+
+## 10. 执行回写（2026-03-03）
+
+本轮去债执行已按“去兼容优先”完成关键闭环：
+
+1. 运行时能力改为硬门禁（`Worker` + `WebGL2`），不再软降级。
+2. 交互层移除 wheel 意图守卫与三指模式切换，仅保留基础触控契约。
+3. 仿真链路收敛为 Worker-only，删除 local fallback。
+4. `electrostatic-lab` 拆为 `state + controls + rig + shell`，并移除场景长度 allowlist。
+5. 抽出 `domains/electrostatics` 共享领域模块，统一电荷/势场采样能力。
+6. `scaffold:scene` 默认输出分层模板，降低新增债务概率。
+7. CI 强制 archive-only clean-build 与全路由加载预算检查。
+8. 文档同步为“现代运行环境硬门禁 + 课堂契约独立保留”。

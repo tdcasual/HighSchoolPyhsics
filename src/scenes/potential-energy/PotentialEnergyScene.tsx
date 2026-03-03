@@ -123,7 +123,6 @@ export function PotentialEnergyScene() {
             controls={{ target: [0, 5, 0], minDistance: 8, maxDistance: 45 }}
             adaptiveFraming={false}
             frameloop={rotationInProgress ? 'always' : 'demand'}
-            wheelZoomIntentGuard
           >
             <PotentialEnergyRig3D
               chargeSign={chargeSign}

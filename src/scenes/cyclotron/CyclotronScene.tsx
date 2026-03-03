@@ -34,7 +34,7 @@ export function CyclotronScene() {
           running={state.simulation.running}
           onToggleRunning={state.simulation.toggleRunning}
           onReset={state.reset}
-          modeText={state.simulation.mode === 'worker' ? 'Worker' : 'Local fallback'}
+          modeText="Worker"
           cyclotronPeriodS={state.cyclotronPeriodS}
           launchPositionY={state.launchPositionY}
           voltageDirectionText={state.voltageDirectionText}

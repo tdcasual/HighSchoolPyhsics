@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { useAppStore } from './store/useAppStore'
+import * as runtimeCapabilities from './app/runtimeCapabilities'
 
 describe('App shell', () => {
   beforeEach(() => {
@@ -14,6 +15,10 @@ describe('App shell', () => {
       activeScenePath: '/',
     })
     window.history.replaceState(null, '', '/')
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('renders the product title and overview navigation entries', () => {
@@ -179,5 +184,25 @@ describe('App shell', () => {
     expect(autoButton).toHaveAttribute('aria-pressed', 'false')
     expect(viewportButton).toHaveAttribute('aria-pressed', 'true')
     expect(useAppStore.getState().presentationRouteModes['/cyclotron']).toBe('viewport')
+  })
+
+  it('renders runtime capability blocking card when required features are unavailable', () => {
+    vi
+      .spyOn(runtimeCapabilities, 'getRuntimeCapabilities')
+      .mockReturnValue({
+        hasWorker: false,
+        hasPointerEvents: true,
+        hasWebGL2: false,
+        supported: false,
+        missing: ['Worker', 'WebGL2'],
+      })
+
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: '运行环境不支持' })).toBeInTheDocument()
+    expect(screen.getByText('当前浏览器不满足 3D 演示运行要求。')).toBeInTheDocument()
+    expect(screen.getByText('Worker')).toBeInTheDocument()
+    expect(screen.getByText('WebGL2')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '3D Electromagnetics Lab' })).not.toBeInTheDocument()
   })
 })

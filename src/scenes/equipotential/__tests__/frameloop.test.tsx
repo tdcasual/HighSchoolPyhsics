@@ -5,18 +5,12 @@ import type { ReactNode } from 'react'
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({
     frameloop,
-    wheelZoomIntentGuard,
     children,
   }: {
     frameloop?: 'always' | 'demand'
-    wheelZoomIntentGuard?: boolean
     children: ReactNode
   }) => (
-    <div
-      data-testid="interactive-canvas"
-      data-frameloop={frameloop ?? 'always'}
-      data-wheel-guard={wheelZoomIntentGuard ? 'on' : 'off'}
-    >
+    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
       {children}
     </div>
   ),
@@ -33,6 +27,5 @@ describe('equipotential frameloop policy', () => {
     render(<EquipotentialScene />)
 
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
-    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-wheel-guard', 'on')
   })
 })

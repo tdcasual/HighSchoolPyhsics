@@ -29,8 +29,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Check Clean Build Reproducibility
-        run: npm run check:clean-build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Verify CI Gate
         run: npm run verify:ci
@@ -58,9 +58,6 @@ jobs:
 
       - name: End-to-End Tests
         run: npm run test:e2e:ci
-
-      - name: Route Load Budget
-        run: npm run check:route-load-budget
 
       - name: Upload Playwright Artifacts
         if: always()

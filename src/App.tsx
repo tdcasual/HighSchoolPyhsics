@@ -10,6 +10,7 @@ import { NavigationPage } from './pages/NavigationPage'
 import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
+import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 
 const PRESENTATION_LAYOUT_OPTIONS = [
   { value: 'auto', label: '自动' },
@@ -94,6 +95,7 @@ function App() {
   const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const ActiveScene = activeRoute?.Component
+  const runtimeCapabilities = useMemo(() => getRuntimeCapabilities(), [])
   const shellClassName = [
     'app-shell',
     `theme-${theme}`,
@@ -102,6 +104,23 @@ function App() {
   ]
     .filter(Boolean)
     .join(' ')
+
+  if (!runtimeCapabilities.supported) {
+    return (
+      <main className="app-shell">
+        <section className="scene-missing scene-runtime-fallback" role="alert">
+          <h1>运行环境不支持</h1>
+          <p>当前浏览器不满足 3D 演示运行要求。</p>
+          <p>请使用支持以下能力的 Chromium 桌面浏览器：</p>
+          <ul>
+            {runtimeCapabilities.missing.map((capability) => (
+              <li key={capability}>{capability}</li>
+            ))}
+          </ul>
+        </section>
+      </main>
+    )
+  }
 
   return (
     <main className={shellClassName}>

@@ -1,26 +1,147 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import type { ReactNode } from 'react'
+import { render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useAppStore } from '../../../store/useAppStore'
+
+const { mockUseElectrostaticLabState, mockControls, mockRig } = vi.hoisted(() => ({
+  mockUseElectrostaticLabState: vi.fn(),
+  mockControls: vi.fn(),
+  mockRig: vi.fn(),
+}))
+
+vi.mock('../../../scene3d/InteractiveCanvas', () => ({
+  InteractiveCanvas: ({ children }: { children: ReactNode }) => (
+    <div data-testid="interactive-canvas">{children}</div>
+  ),
+}))
+
+vi.mock('../ElectrostaticLabControls', () => ({
+  ElectrostaticLabControls: ({ state }: { state: unknown }) => {
+    mockControls(state)
+    return <div data-testid="electrostatic-lab-controls" />
+  },
+}))
+
+vi.mock('../ElectrostaticLabRig3D', () => ({
+  ElectrostaticLabRig3D: (props: unknown) => {
+    mockRig(props)
+    return <div data-testid="electrostatic-lab-rig" />
+  },
+}))
+
+vi.mock('../useElectrostaticLabState', () => ({
+  ELECTROSTATIC_LAB_SCENE_BOUNDS: 7,
+  useElectrostaticLabState: () => mockUseElectrostaticLabState(),
+}))
+
 import { ElectrostaticLabScene } from '../ElectrostaticLabScene'
 
-describe('electrostatic-lab structure', () => {
-  it('renders core teaching controls and readout', async () => {
-    render(<ElectrostaticLabScene />)
+function createMockState(overrides: Record<string, unknown> = {}) {
+  return {
+    presetLabel: '电偶极子',
+    chargeSummary: {
+      positiveCount: 2,
+      negativeCount: 1,
+      netCharge: 1.2,
+    },
+    terrain: {
+      stats: {
+        minPotential: -2.4,
+        maxPotential: 3.1,
+      },
+    },
+    modeLabel: '电势地形',
+    probeReadout: null,
+    charges: [],
+    fieldLines: [],
+    displayMode: 'potential',
+    overlayFieldLines: true,
+    showContourLines: true,
+    selectedChargeId: 'C1',
+    probeMode: false,
+    probePoint: null,
+    advancedInteractionsEnabled: false,
+    selectCharge: vi.fn(),
+    setProbePoint: vi.fn(),
+    setChargePosition: vi.fn(),
+    addChargeAtPoint: vi.fn(),
+    deleteChargeById: vi.fn(),
+    ...overrides,
+  }
+}
 
-    expect(await screen.findByText('3D等势面实验台控制')).toBeInTheDocument()
-    expect(await screen.findByText('课堂预设')).toBeInTheDocument()
-    expect(await screen.findByText(/显示模式:/)).toBeInTheDocument()
-    expect(await screen.findByText(/探针电势:/)).toBeInTheDocument()
+describe('electrostatic-lab structure', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/electrostatic-lab')
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: { '/electrostatic-lab': 'viewport' },
+      activeScenePath: '/electrostatic-lab',
+    })
+    mockUseElectrostaticLabState.mockReset()
+    mockControls.mockReset()
+    mockRig.mockReset()
+    mockUseElectrostaticLabState.mockReturnValue(createMockState())
   })
 
-  it('supports enabling advanced interaction mode from controls', async () => {
+  afterEach(() => {
+    window.history.replaceState(null, '', '/')
+    useAppStore.setState({
+      presentationMode: false,
+      presentationRouteModes: {},
+      activeScenePath: '/',
+    })
+  })
+
+  it('keeps scene shell focused on composing controls and viewport', () => {
     render(<ElectrostaticLabScene />)
 
-    const toggleButton = await screen.findByRole('button', { name: '开启进阶交互' })
-    fireEvent.click(toggleButton)
+    const state = mockUseElectrostaticLabState.mock.results[0]?.value
 
-    expect(await screen.findByRole('button', { name: '关闭进阶交互' })).toBeInTheDocument()
-    expect(
-      await screen.findByText(/拖拽电荷移动、双击地面添加电荷、右键点击电荷删除/),
-    ).toBeInTheDocument()
+    expect(mockUseElectrostaticLabState).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('interactive-canvas')).toBeInTheDocument()
+    expect(screen.getByTestId('electrostatic-lab-controls')).toBeInTheDocument()
+    expect(screen.getByTestId('electrostatic-lab-rig')).toBeInTheDocument()
+    expect(mockControls).toHaveBeenCalledWith(state)
+    expect(mockRig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bounds: 7,
+        charges: state.charges,
+        terrain: state.terrain,
+        fieldLines: state.fieldLines,
+        displayMode: state.displayMode,
+        overlayFieldLines: state.overlayFieldLines,
+        showContourLines: state.showContourLines,
+        selectedChargeId: state.selectedChargeId,
+        probeMode: state.probeMode,
+        probePoint: state.probePoint,
+        advancedInteractionsEnabled: state.advancedInteractionsEnabled,
+        onSelectCharge: state.selectCharge,
+        onProbePointChange: state.setProbePoint,
+        onChargePositionChange: state.setChargePosition,
+        onAddChargeAt: state.addChargeAtPoint,
+        onDeleteCharge: state.deleteChargeById,
+      }),
+    )
+  })
+
+  it('renders core summary from hook state for classroom fallback', () => {
+    mockUseElectrostaticLabState.mockReturnValue(
+      createMockState({
+        presetLabel: '双极子基线',
+        chargeSummary: { positiveCount: 1, negativeCount: 1, netCharge: 0 },
+        terrain: { stats: { minPotential: -3.1, maxPotential: 2.6 } },
+        modeLabel: '电场线',
+        probeReadout: { potential: 1.2345, field: { ex: 0, ez: 0, magnitude: 2.3456 } },
+      }),
+    )
+
+    render(<ElectrostaticLabScene />)
+
+    const summary = screen.getByRole('region', { name: '课堂核心信息' })
+    expect(summary).toHaveTextContent('电荷方案: 双极子基线（+1 / -1）')
+    expect(summary).toHaveTextContent('势场范围: -3.10 ~ 2.60')
+    expect(summary).toHaveTextContent('当前模式: 电场线')
+    expect(summary).toHaveTextContent('探针读数: V=1.23, |E|=2.35')
   })
 })

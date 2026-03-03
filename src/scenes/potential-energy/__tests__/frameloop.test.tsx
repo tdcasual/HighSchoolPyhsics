@@ -6,17 +6,11 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({
     frameloop,
     children,
-    wheelZoomIntentGuard,
   }: {
     frameloop?: 'always' | 'demand'
-    wheelZoomIntentGuard?: boolean
     children: ReactNode
   }) => (
-    <div
-      data-testid="interactive-canvas"
-      data-frameloop={frameloop ?? 'always'}
-      data-wheel-guard={wheelZoomIntentGuard ? 'on' : 'off'}
-    >
+    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
       {children}
     </div>
   ),
@@ -34,7 +28,6 @@ describe('potential-energy frameloop policy', () => {
 
     const canvas = screen.getByTestId('interactive-canvas')
     expect(canvas).toHaveAttribute('data-frameloop', 'demand')
-    expect(canvas).toHaveAttribute('data-wheel-guard', 'on')
 
     fireEvent.click(screen.getByRole('button', { name: '1. 显示电势切片' }))
     fireEvent.click(screen.getByRole('button', { name: '2. 开始旋转' }))
