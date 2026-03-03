@@ -21,6 +21,12 @@ npm run dev
 3. 浏览器打开终端显示的本地地址（通常是 `http://localhost:5173`）。
 4. 进入“演示导航”，选择要讲的实验。
 
+## 运行环境要求（硬门禁）
+
+- 推荐浏览器：现代 Chromium（教学机统一环境）。
+- 必需能力：`Worker`、`WebGL2`、`Pointer Events`。
+- 不满足时会显示“运行环境不支持”阻断页；项目不再提供弱环境软降级或 local fallback。
+
 ## 操作方式（全场景统一）
 
 - 左侧是参数面板，右侧是 3D 演示区。
@@ -39,7 +45,7 @@ npm run dev
   - `自动`: 系统按左侧信息密度自动判断是否保留双核心布局
   - `双核心`: 强制保留“信息区 + 3D 视口”并排
   - `视口优先`: 强制 3D 视口优先，参数区可按需展开
-- 如果某个演示运行异常，会显示降级卡片，可直接“重试场景”或“返回导航”。
+- 如果某个演示运行异常，会显示错误卡片，可直接“重试场景”或“返回导航”。
 - 常用快捷键:
   - `1-4`: 从导航页快速进入对应实验
   - `D / N`: 白天 / 夜间模式
@@ -64,7 +70,7 @@ npm run test:touch # 触屏回归（输出到 output/playwright/touch-regression
 npm run test:e2e # 一次执行桌面往返 + 触屏手势回归
 npm run test:e2e:ci # CI 推荐入口（默认 BASE_URL=http://127.0.0.1:4180）
 npm run test:perf # 构建并校验首页未预加载 three/r3f 重依赖
-npm run verify:ci # lint + 单测 + 构建 + 首页预加载守卫
+npm run verify:ci # lint + 单测 + 构建 + 预加载预算 + clean-build + 全路由加载预算
 npm run verify:full # verify:ci + e2e
 npm run build   # 打包检查
 npm run preview # 本地预览打包结果
