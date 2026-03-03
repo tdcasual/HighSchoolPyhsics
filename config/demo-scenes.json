@@ -143,5 +143,23 @@
       "readyText": "3D等势面实验台控制",
       "screenshotName": "electrostatic-lab"
     }
+  },
+  {
+    "pageId": "induction-current",
+    "label": "感应电流方向",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "磁铁穿过线圈引发电流表偏转",
+      "highlights": ["磁极方向与运动方向双因素联动", "实验记录表逐条累积便于课堂归纳"],
+      "tone": "mhd"
+    },
+    "classroom": {
+      "presentationSignals": ["interactive-readout", "live-metric"],
+      "coreSummaryLineCount": 4
+    },
+    "playwright": {
+      "readyText": "实验控制台",
+      "screenshotName": "induction-current"
+    }
   }
 ]

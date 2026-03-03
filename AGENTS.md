@@ -28,3 +28,4 @@ When designing or modifying animations/scenes, follow these rules by default.
 
 - `docs/classroom-presentation-principles.md`
 - `docs/presentation-signal-playbook.md`
+- `docs/reference-page-remake-spec.md`

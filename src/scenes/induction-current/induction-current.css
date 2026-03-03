@@ -1,0 +1,222 @@
+.induction-current-controls {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.induction-current-controls h2 {
+  margin-bottom: 0.1rem;
+  padding-bottom: 0.62rem;
+  border-bottom: 1px solid #c8d9ea;
+}
+
+.induction-current-btn-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.induction-current-action,
+.induction-current-reset,
+.induction-current-conclusion-toggle {
+  border: 1px solid #94b7d8;
+  border-radius: 10px;
+  background: #eef7ff;
+  color: #144a72;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.induction-current-action.active {
+  border-color: #2f95d5;
+  background: #2f95d5;
+  color: #f7fcff;
+}
+
+.induction-current-action:disabled,
+.induction-current-reset:disabled,
+.induction-current-conclusion-toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.induction-current-reset {
+  width: 100%;
+  min-height: 44px;
+}
+
+.induction-current-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: -0.1rem;
+  padding: 0.5rem 0.64rem;
+  border-radius: 10px;
+  border: 1px solid #bfd6ea;
+  background: rgba(235, 247, 255, 0.82);
+}
+
+.induction-current-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #245273;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.induction-current-dot {
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.induction-current-dot.north {
+  background: #ff2f2f;
+}
+
+.induction-current-dot.south {
+  background: #1f3cff;
+}
+
+.induction-current-dot.current {
+  background: #ffe431;
+}
+
+.induction-current-readout,
+.induction-current-records {
+  padding: 0.62rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid #bfd6ea;
+  background: rgba(235, 247, 255, 0.82);
+}
+
+.induction-current-readout p {
+  margin: 0;
+  color: #245273;
+  font-family: 'SF Mono', Menlo, monospace;
+  line-height: 1.42;
+}
+
+.induction-current-records h3 {
+  margin: 0 0 0.52rem;
+  color: #1e4f72;
+  font-size: 1.02rem;
+}
+
+.induction-current-record-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.induction-current-record-table th,
+.induction-current-record-table td {
+  border: 1px solid #bfd6ea;
+  text-align: center;
+  padding: 0.42rem 0.22rem;
+  font-size: 0.84rem;
+}
+
+.induction-current-record-table th {
+  color: #1f89c8;
+  background: #f3fafe;
+  font-weight: 800;
+}
+
+.induction-current-record-table td {
+  color: #255374;
+}
+
+.induction-current-record-table td.ccw {
+  color: #0f9f4f;
+  font-weight: 800;
+}
+
+.induction-current-record-table td.cw {
+  color: #d1841d;
+  font-weight: 800;
+}
+
+.induction-current-conclusion-toggle {
+  justify-self: start;
+  padding: 0.52rem 0.9rem;
+  min-height: 44px;
+}
+
+.induction-current-viewport-stack {
+  position: relative;
+  height: 100%;
+}
+
+.induction-current-scene-title {
+  position: absolute;
+  z-index: 1;
+  top: 0.9rem;
+  left: 1rem;
+  margin: 0;
+  font-size: clamp(1.25rem, 2.1vw, 2rem);
+  font-weight: 800;
+  color: #f7fbff;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.app-shell.theme-night .induction-current-controls h2 {
+  border-bottom-color: #3f6285;
+}
+
+.app-shell.theme-night .induction-current-action,
+.app-shell.theme-night .induction-current-reset,
+.app-shell.theme-night .induction-current-conclusion-toggle {
+  border-color: #4c7199;
+  background: #13253a;
+  color: #dcecff;
+}
+
+.app-shell.theme-night .induction-current-action.active {
+  border-color: #6fb5ed;
+  background: #2f95d5;
+  color: #f7fcff;
+}
+
+.app-shell.theme-night .induction-current-legend,
+.app-shell.theme-night .induction-current-readout,
+.app-shell.theme-night .induction-current-records {
+  border-color: #3f6285;
+  background: rgba(16, 33, 50, 0.88);
+}
+
+.app-shell.theme-night .induction-current-legend-item,
+.app-shell.theme-night .induction-current-readout p,
+.app-shell.theme-night .induction-current-records h3,
+.app-shell.theme-night .induction-current-record-table td {
+  color: #d7ebff;
+}
+
+.app-shell.theme-night .induction-current-record-table th,
+.app-shell.theme-night .induction-current-record-table td {
+  border-color: #3f6285;
+}
+
+.app-shell.theme-night .induction-current-record-table th {
+  color: #7ad2ff;
+  background: rgba(27, 50, 73, 0.88);
+}
+
+.app-shell.theme-night .induction-current-record-table td.ccw {
+  color: #7dff70;
+}
+
+.app-shell.theme-night .induction-current-record-table td.cw {
+  color: #ffc55d;
+}
+
+@media (max-width: 980px) {
+  .induction-current-btn-row {
+    grid-template-columns: 1fr;
+  }
+}
