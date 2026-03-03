@@ -1,5 +1,3 @@
-import { semiImplicitEulerStep } from '../core/integrators/semiImplicitEuler'
-import { createSimController } from '../core/simController'
 import type { ParticleState } from '../core/types'
 import {
   assertValidStepPayload,
@@ -10,7 +8,7 @@ import {
 } from './protocol'
 
 export type SimulationStepper = {
-  mode: 'worker' | 'local'
+  mode: 'worker'
   step: (payload: StepPayload) => Promise<ParticleState>
   terminate: () => void
 }
@@ -40,21 +38,6 @@ type PendingStepRequest = {
 }
 
 const WORKER_STEP_TIMEOUT_MS = 4000
-
-export function createLocalSimulationStepper(): SimulationStepper {
-  const controller = createSimController(semiImplicitEulerStep)
-
-  return {
-    mode: 'local',
-    async step(payload) {
-      assertValidStepPayload(payload)
-      return controller.tick(payload.state, payload.acceleration, payload.dt)
-    },
-    terminate() {
-      // No resources to free in local mode.
-    },
-  }
-}
 
 export function createWorkerSimulationStepper(worker: WorkerLike): SimulationStepper {
   let requestSeq = 0
@@ -156,23 +139,20 @@ export function createWorkerSimulationStepper(worker: WorkerLike): SimulationSte
 export function createDefaultSimulationStepper(
   workerFactory?: () => WorkerLike,
 ): SimulationStepper {
-  const local = createLocalSimulationStepper()
-  const createWorker = workerFactory
-    ? workerFactory
-    : () =>
-        new Worker(new URL('./sim.worker.ts', import.meta.url), {
-          type: 'module',
-        })
-
-  if (typeof Worker === 'undefined') {
-    return local
+  if (!workerFactory && typeof Worker === 'undefined') {
+    throw new Error('Worker API is unavailable in current runtime')
   }
 
+  const createWorker =
+    workerFactory ??
+    (() =>
+      new Worker(new URL('./sim.worker.ts', import.meta.url), {
+        type: 'module',
+      }))
+
   try {
-    const workerStepper = createWorkerSimulationStepper(createWorker())
-    local.terminate()
-    return workerStepper
-  } catch {
-    return local
+    return createWorkerSimulationStepper(createWorker())
+  } catch (error) {
+    throw error instanceof Error ? error : new Error('Failed to create simulation worker')
   }
 }

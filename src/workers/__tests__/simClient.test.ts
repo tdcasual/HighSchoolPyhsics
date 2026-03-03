@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createLocalSimulationStepper, createWorkerSimulationStepper } from '../simClient'
+import { createDefaultSimulationStepper, createWorkerSimulationStepper } from '../simClient'
 
 type MessageListener = (event: MessageEvent<unknown>) => void
 type ErrorListener = (event: ErrorEvent) => void
@@ -43,22 +43,37 @@ class FakeWorker {
   }
 }
 
-describe('local simulation stepper', () => {
-  it('returns next state asynchronously', async () => {
-    const stepper = createLocalSimulationStepper()
+describe('default simulation stepper', () => {
+  it('creates a worker stepper when worker factory succeeds', () => {
+    const stepper = createDefaultSimulationStepper(() => new FakeWorker())
+    expect(stepper.mode).toBe('worker')
+    stepper.terminate()
+  })
 
-    const next = await stepper.step({
-      state: {
-        position: { x: 0, y: 0, z: 0 },
-        velocity: { x: 1, y: 0, z: 0 },
-      },
-      acceleration: { x: 1, y: 0, z: 0 },
-      dt: 1,
+  it('throws when Worker API is unavailable and no factory override is provided', () => {
+    const originalWorkerDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'Worker')
+    Object.defineProperty(globalThis, 'Worker', {
+      configurable: true,
+      value: undefined,
     })
 
-    expect(next.velocity.x).toBeCloseTo(2)
-    expect(next.position.x).toBeCloseTo(2)
-    stepper.terminate()
+    try {
+      expect(() => createDefaultSimulationStepper()).toThrow(/worker api is unavailable/i)
+    } finally {
+      if (originalWorkerDescriptor) {
+        Object.defineProperty(globalThis, 'Worker', originalWorkerDescriptor)
+      } else {
+        Reflect.deleteProperty(globalThis, 'Worker')
+      }
+    }
+  })
+
+  it('throws when worker factory fails', () => {
+    expect(() =>
+      createDefaultSimulationStepper(() => {
+        throw new Error('factory boom')
+      }),
+    ).toThrow(/factory boom/i)
   })
 })
 

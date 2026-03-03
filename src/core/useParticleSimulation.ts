@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createDefaultSimulationStepper, type SimulationStepper } from '../workers/simClient'
 import type { ParticleState, Vector3Like } from './types'
 
-type Mode = 'worker' | 'local'
+type Mode = 'worker'
 
 type Status = {
   mode: Mode
@@ -43,7 +43,7 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
 
   const [state, setState] = useState<ParticleState>(() => cloneState(initialStateRef.current))
   const [status, setStatus] = useState<Status>({
-    mode: 'local',
+    mode: 'worker',
     error: null,
     running: runningByDefault,
   })
@@ -71,13 +71,22 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
   }, [state])
 
   useEffect(() => {
-    const stepper = createDefaultSimulationStepper()
-    stepperRef.current = stepper
-    setStatus((prev) => ({ ...prev, mode: stepper.mode }))
+    try {
+      const stepper = createDefaultSimulationStepper()
+      stepperRef.current = stepper
+      setStatus((prev) => ({ ...prev, mode: stepper.mode, error: null }))
 
-    return () => {
-      stepper.terminate()
-      stepperRef.current = null
+      return () => {
+        stepper.terminate()
+        stepperRef.current = null
+      }
+    } catch (error) {
+      setStatus((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'worker initialization error',
+        running: false,
+      }))
+      return
     }
   }, [])
 
