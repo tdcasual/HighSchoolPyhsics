@@ -9,6 +9,7 @@ import {
   type ComponentProps,
   type PointerEvent,
   type PropsWithChildren,
+  type WheelEvent,
 } from 'react'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
@@ -17,6 +18,7 @@ import { createTouchInteractionKernel } from './touchInteractionKernel'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
 import { resolveCanvasQualityProfile } from './canvasQuality'
 import { isWebGLSupportedInBrowser } from './webglSupport'
+import { shouldAllowWheelZoom } from './wheelZoomIntent'
 import {
   DEFAULT_ADAPTIVE_FRAMING,
   resolveAdaptiveFramingTarget,
@@ -31,6 +33,7 @@ type InteractiveCanvasProps = PropsWithChildren<{
   controlsEnabled?: boolean
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
   adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
+  wheelZoomIntentGuard?: boolean
 }>
 
 export function InteractiveCanvas({
@@ -39,6 +42,7 @@ export function InteractiveCanvas({
   controlsEnabled = true,
   controls,
   adaptiveFraming = true,
+  wheelZoomIntentGuard = false,
   children,
 }: InteractiveCanvasProps) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
@@ -46,6 +50,7 @@ export function InteractiveCanvas({
   const adaptiveZoomStartDistanceRef = useRef<number | null>(null)
   const previousDistanceRef = useRef<number | null>(null)
   const adaptiveInternalChangeRef = useRef(false)
+  const lastPointerIntentAtRef = useRef<number | null>(null)
   const [touchMode, setTouchMode] = useState<TouchMode>('inspect')
   const [resetVersion, setResetVersion] = useState(0)
   const [touchFeedback, setTouchFeedback] = useState('')
@@ -119,20 +124,65 @@ export function InteractiveCanvas({
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])
   const webglSupported = useMemo(() => isWebGLSupportedInBrowser(), [])
 
+  const markPointerIntent = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (!wheelZoomIntentGuard || !event.nativeEvent.isTrusted) {
+        return
+      }
+      lastPointerIntentAtRef.current = performance.now()
+    },
+    [wheelZoomIntentGuard],
+  )
+
+  const handlePointerEnter = (event: PointerEvent<HTMLDivElement>) => {
+    markPointerIntent(event)
+  }
+
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    markPointerIntent(event)
     touchKernel.onPointerDown(event.nativeEvent)
   }
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    markPointerIntent(event)
     touchKernel.onPointerMove(event.nativeEvent)
   }
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    markPointerIntent(event)
     touchKernel.onPointerUp(event.nativeEvent)
   }
 
   const handlePointerCancel = (event: PointerEvent<HTMLDivElement>) => {
+    markPointerIntent(event)
     touchKernel.onPointerCancel(event.nativeEvent)
+  }
+
+  const handleWheelCapture = (event: WheelEvent<HTMLDivElement>) => {
+    if (!wheelZoomIntentGuard) {
+      return
+    }
+
+    if (!event.nativeEvent.isTrusted) {
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+
+    const lastPointerIntentAt = lastPointerIntentAtRef.current
+    const now = performance.now()
+    const allowWheelZoom = shouldAllowWheelZoom({
+      wheelZoomIntentGuard,
+      eventTrusted: event.nativeEvent.isTrusted,
+      lastPointerIntentAtMs: lastPointerIntentAt,
+      nowMs: now,
+    })
+    if (allowWheelZoom) {
+      return
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   const handleOrbitControlsChange = useCallback(
@@ -207,6 +257,7 @@ export function InteractiveCanvas({
   )
 
   const hint = `拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移 · 双击（触屏）重置 · 三指切换模式（${TOUCH_MODE_LABELS[touchMode]}）`
+  const resolvedHint = wheelZoomIntentGuard ? `${hint} · 缩放前先在画布内轻触或移动指针` : hint
 
   if (!webglSupported) {
     return (
@@ -221,10 +272,12 @@ export function InteractiveCanvas({
     <div className="interactive-canvas">
       <div
         className="interactive-canvas-surface"
+        onPointerEnter={handlePointerEnter}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
+        onWheelCapture={handleWheelCapture}
       >
         <Canvas
           camera={camera}
@@ -246,7 +299,7 @@ export function InteractiveCanvas({
         </Canvas>
       </div>
       <p className="interaction-hint" aria-live="polite">
-        {hint}
+        {resolvedHint}
         {touchFeedback ? <span className="interaction-feedback"> · {touchFeedback}</span> : null}
       </p>
     </div>

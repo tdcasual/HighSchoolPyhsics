@@ -451,6 +451,16 @@ body {
 .scene-layout--desktop {
   grid-template-columns: minmax(240px, 320px) 1fr;
   min-height: calc(100vh - 130px);
+  height: calc(100vh - 130px);
+}
+
+.scene-layout--desktop .control-panel {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.scene-layout--desktop .viewport-panel {
+  min-height: 0;
 }
 
 .scene-layout--desktop.scene-layout--presentation-split {

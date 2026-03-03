@@ -180,7 +180,9 @@ export function EquipotentialScene() {
               minDistance: 4,
               maxDistance: 28,
             }}
-            frameloop="always"
+            adaptiveFraming={false}
+            frameloop="demand"
+            wheelZoomIntentGuard
           >
             <EquipotentialRig3D
               bounds={SCENE_BOUNDS}

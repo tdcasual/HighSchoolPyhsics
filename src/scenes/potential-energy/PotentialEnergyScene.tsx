@@ -121,7 +121,9 @@ export function PotentialEnergyScene() {
           <InteractiveCanvas
             camera={{ position: [10, 15, 20], fov: 58 }}
             controls={{ target: [0, 5, 0], minDistance: 8, maxDistance: 45 }}
-            frameloop="always"
+            adaptiveFraming={false}
+            frameloop={rotationInProgress ? 'always' : 'demand'}
+            wheelZoomIntentGuard
           >
             <PotentialEnergyRig3D
               chargeSign={chargeSign}

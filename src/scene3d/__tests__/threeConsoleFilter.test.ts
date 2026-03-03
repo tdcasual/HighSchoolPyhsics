@@ -67,6 +67,18 @@ describe('threeConsoleFilter', () => {
     })
   })
 
+  it('suppresses clock deprecation warnings in development environment', async () => {
+    const originalConsole = vi.fn<ThreeConsoleHandler>()
+    const { module, handler } = await installFilter('development', originalConsole)
+
+    handler('warn', 'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.')
+
+    expect(originalConsole).not.toHaveBeenCalled()
+    expect(module.getThreeConsoleFilterPolicy().suppressedPatterns).toContain(
+      'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
+    )
+  })
+
   it('keeps deprecation warnings visible in production environment', async () => {
     const originalConsole = vi.fn<ThreeConsoleHandler>()
     const { handler } = await installFilter('production', originalConsole)

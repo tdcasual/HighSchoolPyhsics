@@ -15,9 +15,6 @@ const ALWAYS_SUPPRESSED_THREE_MESSAGES = [
 
 const DEVELOPMENT_AND_TEST_SUPPRESSED_THREE_MESSAGES = [
   'THREE.WebGLRenderer: Context Lost.',
-] as const
-
-const TEST_ONLY_SUPPRESSED_THREE_MESSAGES = [
   'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
 ] as const
 
@@ -26,7 +23,6 @@ const SUPPRESSED_THREE_MESSAGE_POLICY: ThreeConsoleFilterPolicy = {
   test: [
     ...ALWAYS_SUPPRESSED_THREE_MESSAGES,
     ...DEVELOPMENT_AND_TEST_SUPPRESSED_THREE_MESSAGES,
-    ...TEST_ONLY_SUPPRESSED_THREE_MESSAGES,
   ],
   production: [...ALWAYS_SUPPRESSED_THREE_MESSAGES],
 }

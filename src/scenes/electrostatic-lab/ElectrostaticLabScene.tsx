@@ -394,7 +394,9 @@ export function ElectrostaticLabScene() {
           <InteractiveCanvas
             camera={{ position: [10, 10, 11], fov: 52 }}
             controls={{ target: [0, 0.4, 0], minDistance: 6, maxDistance: 30 }}
-            frameloop="always"
+            adaptiveFraming={false}
+            frameloop="demand"
+            wheelZoomIntentGuard
           >
             <ElectrostaticLabRig3D
               bounds={SCENE_BOUNDS}
