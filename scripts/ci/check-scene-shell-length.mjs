@@ -23,10 +23,6 @@ const MAX_SCENE_SHELL_LINES = parsePositiveInteger(
   DEFAULT_MAX_LINES,
 )
 
-const BASELINE_ALLOWLIST_MAX_LINES = new Map([
-  ['src/scenes/electrostatic-lab/ElectrostaticLabScene.tsx', 520],
-])
-
 function walkFiles(dirPath) {
   const entries = readdirSync(dirPath)
   const files = []
@@ -74,20 +70,14 @@ const failures = []
 for (const relativePath of sceneShellFiles) {
   const absolutePath = path.join(ROOT_DIR, relativePath)
   const lineCount = countLines(readFileSync(absolutePath, 'utf8'))
-  const overrideMaxLines = BASELINE_ALLOWLIST_MAX_LINES.get(relativePath)
-  const maxLines = overrideMaxLines ?? MAX_SCENE_SHELL_LINES
-  const allowlistLabel = overrideMaxLines ? 'allowlist' : 'default'
+  const maxLines = MAX_SCENE_SHELL_LINES
 
   if (lineCount > maxLines) {
-    failures.push(
-      `${relativePath} = ${lineCount} lines (max ${maxLines}, budget ${allowlistLabel})`,
-    )
+    failures.push(`${relativePath} = ${lineCount} lines (max ${maxLines})`)
     continue
   }
 
-  console.log(
-    `[ok] ${relativePath} = ${lineCount} lines (max ${maxLines}, budget ${allowlistLabel})`,
-  )
+  console.log(`[ok] ${relativePath} = ${lineCount} lines (max ${maxLines})`)
 }
 
 if (failures.length > 0) {
