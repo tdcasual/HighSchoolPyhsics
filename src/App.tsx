@@ -12,6 +12,8 @@ import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 
+const APP_BRAND_NAME = '教学动画演示'
+
 const PRESENTATION_LAYOUT_OPTIONS = [
   { value: 'auto', label: '自动' },
   { value: 'split', label: '双核心' },
@@ -77,6 +79,12 @@ function App() {
     setActiveScenePath(pathname)
   }, [pathname, setActiveScenePath])
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.title = APP_BRAND_NAME
+    }
+  }, [])
+
   useGlobalShortcuts({
     routes: DEMO_ROUTES,
     pathname,
@@ -125,7 +133,7 @@ function App() {
   return (
     <main className={shellClassName}>
       <header className="app-header">
-        <h1>3D Electromagnetics Lab</h1>
+        <h1>{APP_BRAND_NAME}</h1>
         <div className="app-controls">
           {!isOverviewPage ? (
             <button className="overview-link touch-target" onClick={() => navigateTo('/')}>

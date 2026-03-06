@@ -96,6 +96,33 @@ describe('NavigationPage warmup behavior', () => {
     expect(preload).toHaveBeenCalledTimes(1)
   })
 
+  it('shows shortcut hint aligned with the number of available routes', () => {
+    const routes = Array.from({ length: 8 }, (_, index) =>
+      buildRoute({
+        pageId: `demo-${index + 1}`,
+        path: `/demo-${index + 1}`,
+        label: `演示 ${index + 1}`,
+      }),
+    )
+
+    render(<NavigationPage routes={routes} onOpenRoute={vi.fn()} />)
+
+    expect(screen.getByText('快捷键: 1-8 进入演示, D/N 切换昼夜。')).toBeInTheDocument()
+  })
+
+  it('warms route immediately on touch pointer down for touch-first navigation', () => {
+    const preload = vi.fn().mockResolvedValue(undefined)
+    const route = buildRoute({ preload })
+
+    render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: '进入示波器' }), {
+      pointerType: 'touch',
+    })
+
+    expect(preload).toHaveBeenCalledTimes(1)
+  })
+
   it('swallows warmup preload rejection to avoid unhandled errors', async () => {
     const preload = vi.fn().mockRejectedValue(new Error('transient warmup failure'))
     const route = buildRoute({ preload })

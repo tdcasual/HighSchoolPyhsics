@@ -5,7 +5,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { DEMO_CATALOG } from './shared/demoCatalog.mjs'
-import { resolvePlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
+import { resolveManagedPlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -13,18 +13,18 @@ const ROOT_DIR = path.resolve(__dirname, '../..')
 const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/touch-regression')
 const LOG_DIR = path.join(OUTPUT_DIR, 'logs')
 const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
-const { baseUrl: BASE_URL, devPort: DEV_PORT } = resolvePlaywrightRuntime({
-  defaultBaseUrl: 'http://127.0.0.1:4173',
-  env: process.env,
-})
 
 async function run() {
   await mkdir(LOG_DIR, { recursive: true })
+  const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({
+    defaultBaseUrl: 'http://127.0.0.1:4173',
+    env: process.env,
+  })
   await runWithManagedViteServer(
     {
       rootDir: ROOT_DIR,
-      baseUrl: BASE_URL,
-      devPort: DEV_PORT,
+      baseUrl,
+      devPort,
       logPath: DEV_SERVER_LOG,
     },
     async () => {
@@ -41,7 +41,7 @@ async function run() {
         })
 
         const page = await context.newPage()
-        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
+        await page.goto(baseUrl, { waitUntil: 'domcontentloaded' })
         const runtimeBlocked = await page
           .getByRole('heading', { name: '运行环境不支持' })
           .isVisible()
@@ -55,7 +55,7 @@ async function run() {
 
         for (const demo of DEMO_CATALOG) {
           await page.getByRole('button', { name: demo.enterButton }).click({ force: true })
-          await page.waitForURL(`${BASE_URL}${demo.path}`, { timeout: 15000 })
+          await page.waitForURL(`${baseUrl}${demo.path}`, { timeout: 15000 })
           await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
 
           const canvasSurface = page.locator('.interactive-canvas-surface').first()
@@ -73,7 +73,7 @@ async function run() {
           })
 
           await page.getByRole('button', { name: '返回导航' }).click()
-          await page.waitForURL(BASE_URL, { timeout: 15000 })
+          await page.waitForURL(baseUrl, { timeout: 15000 })
           await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
         }
 

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  resolveManagedPlaywrightRuntime,
   resolvePlaywrightRuntime,
   runWithManagedViteServer,
 } from '../shared/runtime.mjs'
@@ -25,6 +26,46 @@ describe('playwright runtime resolution', () => {
 
     expect(runtime.baseUrl).toBe('http://127.0.0.1:4199')
     expect(runtime.devPort).toBe('4199')
+  })
+
+  it('keeps explicit BASE_URL override without probing alternate ports', async () => {
+    const isPortAvailable = vi.fn(async () => false)
+
+    await expect(
+      resolveManagedPlaywrightRuntime({
+        defaultBaseUrl: 'http://127.0.0.1:4174',
+        env: { BASE_URL: 'http://127.0.0.1:4199/' },
+        isPortAvailable,
+      }),
+    ).resolves.toEqual({
+      baseUrl: 'http://127.0.0.1:4199',
+      devPort: '4199',
+    })
+
+    expect(isPortAvailable).not.toHaveBeenCalled()
+  })
+
+  it('moves to the next available local port when default dev port is occupied', async () => {
+    const isPortAvailable = vi
+      .fn()
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
+
+    await expect(
+      resolveManagedPlaywrightRuntime({
+        defaultBaseUrl: 'http://127.0.0.1:4174',
+        env: {},
+        isPortAvailable,
+      }),
+    ).resolves.toEqual({
+      baseUrl: 'http://127.0.0.1:4176',
+      devPort: '4176',
+    })
+
+    expect(isPortAvailable).toHaveBeenNthCalledWith(1, { host: '127.0.0.1', port: 4174 })
+    expect(isPortAvailable).toHaveBeenNthCalledWith(2, { host: '127.0.0.1', port: 4175 })
+    expect(isPortAvailable).toHaveBeenNthCalledWith(3, { host: '127.0.0.1', port: 4176 })
   })
 
   it('rejects non-http url protocol', () => {

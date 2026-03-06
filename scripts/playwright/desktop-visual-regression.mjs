@@ -7,7 +7,7 @@ import { chromium } from 'playwright'
 import pixelmatch from 'pixelmatch'
 import { PNG } from 'pngjs'
 import { DEMO_CATALOG } from './shared/demoCatalog.mjs'
-import { resolvePlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
+import { resolveManagedPlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -30,10 +30,6 @@ if (!Number.isFinite(VISUAL_MAX_MISMATCH_RATIO) || VISUAL_MAX_MISMATCH_RATIO < 0
   throw new Error(`Invalid VISUAL_MAX_MISMATCH_RATIO: ${process.env.VISUAL_MAX_MISMATCH_RATIO}`)
 }
 
-const { baseUrl: BASE_URL, devPort: DEV_PORT } = resolvePlaywrightRuntime({
-  defaultBaseUrl: 'http://127.0.0.1:4175',
-  env: process.env,
-})
 
 const SCENARIOS = [
   {
@@ -105,14 +101,18 @@ async function compareScreenshot(id, actualPath, baselinePath, diffPath) {
 
 async function run() {
   await mkdir(LOG_DIR, { recursive: true })
+  const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({
+    defaultBaseUrl: 'http://127.0.0.1:4175',
+    env: process.env,
+  })
   await mkdir(CURRENT_DIR, { recursive: true })
   await mkdir(DIFF_DIR, { recursive: true })
 
   await runWithManagedViteServer(
     {
       rootDir: ROOT_DIR,
-      baseUrl: BASE_URL,
-      devPort: DEV_PORT,
+      baseUrl,
+      devPort,
       logPath: DEV_SERVER_LOG,
     },
     async () => {
@@ -131,7 +131,7 @@ async function run() {
         const page = await context.newPage()
 
         for (const scenario of SCENARIOS) {
-          const url = `${BASE_URL}${scenario.path === '/' ? '' : scenario.path}`
+          const url = `${baseUrl}${scenario.path === '/' ? '' : scenario.path}`
           await page.goto(url, { waitUntil: 'domcontentloaded' })
           await scenario.ready(page)
           await stabilizePage(page)

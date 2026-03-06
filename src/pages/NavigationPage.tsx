@@ -9,6 +9,25 @@ type NavigationPageProps = {
 }
 
 const WARMUP_HOVER_DELAY_MS = 120
+const MAX_SHORTCUT_ROUTE_COUNT = 9
+
+function formatShortcutTip(routeCount: number): string {
+  const shortcutCount = Math.min(routeCount, MAX_SHORTCUT_ROUTE_COUNT)
+
+  if (shortcutCount <= 0) {
+    return '快捷键: D/N 切换昼夜。'
+  }
+
+  if (shortcutCount === 1) {
+    return '快捷键: 1 进入演示, D/N 切换昼夜。'
+  }
+
+  if (routeCount > MAX_SHORTCUT_ROUTE_COUNT) {
+    return '快捷键: 1-9 进入前 9 个演示, D/N 切换昼夜。'
+  }
+
+  return `快捷键: 1-${shortcutCount} 进入演示, D/N 切换昼夜。`
+}
 
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const canWarmRoutes = shouldWarmRouteOnOverview()
@@ -60,7 +79,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
           <div className="overview-hero-note">
             <p className="overview-note-title">课堂建议</p>
             <p className="overview-note-text">先看结构，再调参数，最后做对比。</p>
-            <p className="overview-shortcut-tip">快捷键: 1-4 进入演示, D/N 切换昼夜。</p>
+            <p className="overview-shortcut-tip">{formatShortcutTip(routes.length)}</p>
           </div>
         </div>
 
@@ -85,6 +104,11 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                   className="touch-target overview-enter"
                   aria-keyshortcuts={String(index + 1)}
                   title={`快捷键 ${index + 1}`}
+                  onPointerDown={(event) => {
+                    if (event.pointerType !== 'mouse') {
+                      warmRouteNow(route)
+                    }
+                  }}
                   onPointerEnter={() => scheduleWarmRoute(route)}
                   onPointerLeave={clearWarmupTimer}
                   onBlur={clearWarmupTimer}

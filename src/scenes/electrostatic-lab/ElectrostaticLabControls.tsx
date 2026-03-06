@@ -34,6 +34,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
             <button
               key={option.value}
               className={`touch-target electrostatic-lab-preset-btn ${state.presetKey === option.value ? 'active' : ''}`.trim()}
+              aria-pressed={state.presetKey === option.value}
               onClick={() => state.applyPreset(option.value)}
             >
               {option.label}
@@ -47,12 +48,14 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         <div className="electrostatic-lab-mode-row">
           <button
             className={`touch-target electrostatic-lab-mode-btn ${state.displayMode === 'potential' ? 'active' : ''}`.trim()}
+            aria-pressed={state.displayMode === 'potential'}
             onClick={() => state.setDisplayMode('potential')}
           >
             电势地形
           </button>
           <button
             className={`touch-target electrostatic-lab-mode-btn ${state.displayMode === 'field' ? 'active' : ''}`.trim()}
+            aria-pressed={state.displayMode === 'field'}
             onClick={() => state.setDisplayMode('field')}
           >
             电场线
@@ -84,6 +87,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         </label>
         <button
           className="touch-target electrostatic-lab-advanced-toggle"
+          aria-pressed={state.advancedInteractionsEnabled}
           onClick={state.toggleAdvancedInteractions}
         >
           {state.advancedInteractionsEnabled ? '关闭进阶交互' : '开启进阶交互'}

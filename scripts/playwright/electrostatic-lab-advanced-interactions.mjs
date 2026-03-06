@@ -4,7 +4,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
-import { resolvePlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
+import { resolveManagedPlaywrightRuntime, runWithManagedViteServer } from './shared/runtime.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -13,10 +13,6 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/electrostatic-lab-adva
 const LOG_DIR = path.join(OUTPUT_DIR, 'logs')
 const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
 
-const { baseUrl: BASE_URL, devPort: DEV_PORT } = resolvePlaywrightRuntime({
-  defaultBaseUrl: 'http://127.0.0.1:4176',
-  env: process.env,
-})
 
 async function readChargeCount(page) {
   const text = await page.locator('.electrostatic-lab-readout p').first().innerText()
@@ -29,11 +25,15 @@ async function readChargeCount(page) {
 
 async function run() {
   await mkdir(LOG_DIR, { recursive: true })
+  const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({
+    defaultBaseUrl: 'http://127.0.0.1:4176',
+    env: process.env,
+  })
   await runWithManagedViteServer(
     {
       rootDir: ROOT_DIR,
-      baseUrl: BASE_URL,
-      devPort: DEV_PORT,
+      baseUrl,
+      devPort,
       logPath: DEV_SERVER_LOG,
     },
     async () => {
@@ -53,10 +53,10 @@ async function run() {
           }
         })
 
-        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
+        await page.goto(baseUrl, { waitUntil: 'domcontentloaded' })
         await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
         await page.getByRole('button', { name: '进入3D等势面' }).click()
-        await page.waitForURL(`${BASE_URL}/electrostatic-lab`, { timeout: 15000 })
+        await page.waitForURL(`${baseUrl}/electrostatic-lab`, { timeout: 15000 })
         await page.getByText('3D等势面实验台控制').first().waitFor({ state: 'visible', timeout: 15000 })
 
         const canvasSurface = page.locator('.interactive-canvas-surface').first()
