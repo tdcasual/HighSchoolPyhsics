@@ -1,20 +1,8 @@
 import { createElement, type ComponentType } from 'react'
 import { SCENE_CATALOG, type ClassroomContract, type DemoRouteMeta, type SceneCatalogEntry } from './sceneCatalog'
+import { ENHANCED_TOUCH_PROFILE, type TouchProfile } from './touchProfile'
 import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
-
-type TouchGestureMatrix = {
-  singleFingerRotate: boolean
-  twoFingerZoom: boolean
-  twoFingerPan: boolean
-}
-
-type TouchProfile = {
-  pageScroll: 'vertical-outside-canvas'
-  canvasGestureScope: 'interactive-canvas'
-  minTouchTargetPx: number
-  gestureMatrix: TouchGestureMatrix
-}
 
 export type DemoRoute = {
   pageId: string
@@ -43,17 +31,6 @@ type DemoSceneDefinition = {
   meta: DemoRouteMeta
   classroom: ClassroomContract
   loadScene: () => Promise<SceneModule>
-}
-
-const ENHANCED_TOUCH_PROFILE: TouchProfile = {
-  pageScroll: 'vertical-outside-canvas',
-  canvasGestureScope: 'interactive-canvas',
-  minTouchTargetPx: 44,
-  gestureMatrix: {
-    singleFingerRotate: true,
-    twoFingerZoom: true,
-    twoFingerPan: true,
-  },
 }
 
 function createWrappedScene(definition: DemoSceneDefinition) {

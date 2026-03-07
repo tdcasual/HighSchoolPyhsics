@@ -61,4 +61,17 @@ describe('InteractiveCanvas classroom contract', () => {
 
     expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
   })
+
+
+  it('renders the current route touch-profile hint in the canvas fallback', () => {
+    setScenePath('/oscilloscope')
+
+    render(
+      <InteractiveCanvas camera={{ position: [0, 2, 6], fov: 42 }}>
+        <mesh />
+      </InteractiveCanvas>,
+    )
+
+    expect(screen.getByText('拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移')).toBeInTheDocument()
+  })
 })

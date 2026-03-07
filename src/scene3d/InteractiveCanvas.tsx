@@ -2,6 +2,8 @@ import { OrbitControls } from '@react-three/drei/core/OrbitControls'
 import { Canvas } from '@react-three/fiber'
 import { useAppStore } from '../store/useAppStore'
 import { findRuntimeSceneCatalogEntry, resolveSmartFocusEnabled } from '../app/sceneCatalog'
+import { findDemoRoute } from '../app/demoRoutes'
+import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE } from '../app/touchProfile'
 import {
   useCallback,
   useEffect,
@@ -73,6 +75,10 @@ export function InteractiveCanvas({
       : 'default'
   const smartFocusEnabled = useMemo(
     () => resolveSmartFocusEnabled(findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.smartPresentation),
+    [activeScenePath],
+  )
+  const touchProfile = useMemo(
+    () => findDemoRoute(typeof window === 'undefined' ? activeScenePath : window.location.pathname)?.touchProfile ?? ENHANCED_TOUCH_PROFILE,
     [activeScenePath],
   )
   const resolvedPresentationFocus = smartFocusEnabled ? presentationFocus : OVERVIEW_PRESENTATION_FOCUS
@@ -245,7 +251,7 @@ export function InteractiveCanvas({
     [adaptiveFramingOptions, controlsOnChange, resolvedPresentationFocus],
   )
 
-  const hint = '拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移'
+  const hint = useMemo(() => buildTouchProfileHint(touchProfile), [touchProfile])
 
   if (isTestRuntime()) {
     return (
