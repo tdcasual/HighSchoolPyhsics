@@ -1,11 +1,50 @@
-import { describe, expect, it } from 'vitest'
+import { Suspense, createElement } from 'react'
+import { render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
 import { findSceneCatalogEntryByPath } from '../sceneCatalog'
 import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
+import { useAppStore } from '../../store/useAppStore'
+
+function setViewportSize(width: number, height: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  })
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    writable: true,
+    value: height,
+  })
+  window.dispatchEvent(new Event('resize'))
+}
+
+function countRenderedCoreSummaryLines(summary: HTMLElement): number {
+  const summaryLines = summary.querySelectorAll('.scene-core-summary-stack > p')
+  if (summaryLines.length > 0) {
+    return summaryLines.length
+  }
+
+  return summary.querySelectorAll('p').length
+}
 
 describe('demo route conformance', () => {
+  beforeEach(() => {
+    setViewportSize(1920, 1080)
+  })
+
+  afterEach(() => {
+    window.history.replaceState(null, '', '/')
+    useAppStore.setState({
+      presentationMode: false,
+      presentationRouteModes: {},
+      activeScenePath: '/',
+    })
+  })
+
   it('enforces complete navigation and touch profile metadata for every demo route', () => {
     expect(collectRouteConformanceIssues(DEMO_ROUTES)).toEqual([])
   })
@@ -35,6 +74,35 @@ describe('demo route conformance', () => {
     }
   })
 
+  it('matches each catalog core summary line count to the rendered classroom summary', async () => {
+    for (const route of DEMO_ROUTES) {
+      window.history.replaceState(null, '', route.path)
+      useAppStore.setState({
+        presentationMode: true,
+        presentationRouteModes: { [route.path]: 'viewport' },
+        activeScenePath: route.path,
+      })
+
+      await route.preload()
+
+      const { unmount } = render(
+        createElement(
+          Suspense,
+          { fallback: createElement('p', null, 'loading') },
+          createElement(route.Component),
+        ),
+      )
+
+      const summary = await screen.findByRole('region', { name: '课堂核心信息' })
+      expect(
+        countRenderedCoreSummaryLines(summary),
+        `${route.pageId} rendered coreSummary should match catalog line count`,
+      ).toBe(route.classroom.coreSummaryLineCount)
+
+      unmount()
+    }
+  })
+
   it('stays aligned with the shared scene catalog source', () => {
     const expectedPageIds = sceneCatalog.map((scene) => scene.pageId)
     expect(DEMO_ROUTES.map((route) => route.pageId)).toEqual(expectedPageIds)
@@ -42,7 +110,6 @@ describe('demo route conformance', () => {
       expectedPageIds.map((pageId) => `/${pageId}`),
     )
   })
-
 
   it('exposes shared classroom contract lookup by normalized route path', () => {
     const potential = findSceneCatalogEntryByPath('/potential-energy/')
