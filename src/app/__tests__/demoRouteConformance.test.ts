@@ -131,6 +131,15 @@ describe('demo route conformance', () => {
     }
   })
 
+
+  it('keeps route touch profiles aligned with the shared catalog source', () => {
+    for (const route of DEMO_ROUTES) {
+      const catalogEntry = findSceneCatalogEntryByPath(route.path)
+
+      expect(route.touchProfile).toEqual(catalogEntry?.touchProfile)
+    }
+  })
+
   it('stays aligned with the shared scene catalog source', () => {
     const expectedPageIds = sceneCatalog.map((scene) => scene.pageId)
     expect(DEMO_ROUTES.map((route) => route.pageId)).toEqual(expectedPageIds)

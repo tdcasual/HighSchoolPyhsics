@@ -50,7 +50,7 @@ export function resolveTouchTargetMinSize(profile: TouchProfile): string {
 }
 
 export function findTouchProfileByPath(pathname: string): TouchProfile | null {
-  return findSceneCatalogEntryByPath(pathname) ? ENHANCED_TOUCH_PROFILE : null
+  return findSceneCatalogEntryByPath(pathname)?.touchProfile ?? null
 }
 
 export function findRuntimeTouchProfile(activeScenePath: string): TouchProfile | null {

@@ -1,5 +1,6 @@
 import sceneCatalog from '../../config/demo-scenes.json'
 import type { PresentationSignal } from '../ui/layout/presentationSignals'
+import type { TouchProfile } from './touchProfile'
 
 export type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
 
@@ -29,6 +30,7 @@ export type SceneCatalogEntry = {
   pageId: string
   label: string
   meta: DemoRouteMeta
+  touchProfile: TouchProfile
   classroom: ClassroomContract
   playwright: {
     readyText: string

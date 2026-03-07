@@ -356,6 +356,16 @@ async function main() {
       highlights: [highlightA, highlightB],
       tone,
     },
+    touchProfile: {
+      pageScroll: 'vertical-outside-canvas',
+      canvasGestureScope: 'interactive-canvas',
+      minTouchTargetPx: 44,
+      gestureMatrix: {
+        singleFingerRotate: true,
+        twoFingerZoom: true,
+        twoFingerPan: true,
+      },
+    },
     classroom: {
       presentationSignals: signals,
       coreSummaryLineCount: coreLines,

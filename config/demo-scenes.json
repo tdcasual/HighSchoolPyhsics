@@ -11,6 +11,16 @@
       ],
       "tone": "scope"
     },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
     "classroom": {
       "presentationSignals": [
         "chart",
@@ -40,6 +50,16 @@
         "可切换加速时间模型"
       ],
       "tone": "cyclotron"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
     },
     "classroom": {
       "presentationSignals": [
@@ -72,6 +92,16 @@
       ],
       "tone": "mhd"
     },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
     "classroom": {
       "presentationSignals": [
         "live-metric"
@@ -101,6 +131,16 @@
       ],
       "tone": "oersted"
     },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
     "classroom": {
       "presentationSignals": [
         "interactive-readout"
@@ -129,6 +169,16 @@
         "正负势面分层对比观察"
       ],
       "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
     },
     "classroom": {
       "presentationSignals": [
@@ -160,6 +210,16 @@
       ],
       "tone": "scope"
     },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
     "classroom": {
       "presentationSignals": [
         "chart",
@@ -189,6 +249,16 @@
         "探针读数与选中电荷编辑"
       ],
       "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
     },
     "classroom": {
       "presentationSignals": [
@@ -220,6 +290,16 @@
         "实验记录表逐条累积便于课堂归纳"
       ],
       "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
     },
     "classroom": {
       "presentationSignals": [

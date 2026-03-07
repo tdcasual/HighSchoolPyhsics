@@ -1,6 +1,6 @@
 import { createElement, type ComponentType } from 'react'
 import { SCENE_CATALOG, type ClassroomContract, type DemoRouteMeta, type SceneCatalogEntry } from './sceneCatalog'
-import { findTouchProfileByPath, type TouchProfile } from './touchProfile'
+import type { TouchProfile } from './touchProfile'
 import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
 
@@ -29,6 +29,7 @@ type DemoSceneDefinition = {
   path: string
   label: string
   meta: DemoRouteMeta
+  touchProfile: TouchProfile
   classroom: ClassroomContract
   loadScene: () => Promise<SceneModule>
 }
@@ -118,6 +119,7 @@ const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((en
     path: `/${entry.pageId}`,
     label: entry.label,
     meta: entry.meta,
+    touchProfile: entry.touchProfile,
     classroom: entry.classroom,
     loadScene,
   }
@@ -125,11 +127,6 @@ const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((en
 
 export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) => {
   const preloadable = createWrappedScene(definition)
-  const touchProfile = findTouchProfileByPath(definition.path)
-
-  if (!touchProfile) {
-    throw new Error(`Missing touch profile for path "${definition.path}"`)
-  }
 
   return {
     pageId: definition.pageId,
@@ -138,7 +135,7 @@ export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) 
     Component: preloadable.Component,
     preload: preloadable.preload,
     meta: definition.meta,
-    touchProfile,
+    touchProfile: definition.touchProfile,
     classroom: definition.classroom,
   }
 })

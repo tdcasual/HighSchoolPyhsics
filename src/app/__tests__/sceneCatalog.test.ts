@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   canUseRuntimePreferredLayout,
   findRuntimeSceneCatalogEntry,
+  findSceneCatalogEntryByPath,
   resolveSceneKindMinimumAutoSignalScore,
   resolveSmartFocusEnabled,
   resolveSmartStickySummaryPreference,
@@ -28,6 +29,15 @@ describe('sceneCatalog classroom semantics', () => {
     expect(resolveSceneKindMinimumAutoSignalScore('structure')).toBe(1)
     expect(resolveSceneKindMinimumAutoSignalScore('process')).toBe(1)
     expect(resolveSceneKindMinimumAutoSignalScore(undefined)).toBe(0)
+  })
+
+
+  it('exposes touch profile metadata from the shared catalog lookup', () => {
+    const entry = findSceneCatalogEntryByPath('/oscilloscope')
+
+    expect(entry?.touchProfile.pageScroll).toBe('vertical-outside-canvas')
+    expect(entry?.touchProfile.canvasGestureScope).toBe('interactive-canvas')
+    expect(entry?.touchProfile.minTouchTargetPx).toBeGreaterThanOrEqual(44)
   })
 
   it('prefers current browser path over stale activeScenePath when resolving runtime contract', () => {
