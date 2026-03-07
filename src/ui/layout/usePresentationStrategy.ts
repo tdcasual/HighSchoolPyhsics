@@ -30,6 +30,7 @@ type UsePresentationStrategyOptions = {
   presentationSignals: PresentationSignal[]
   controls: ReactNode
   controlsRef: RefObject<HTMLElement | null>
+  viewportRef: RefObject<HTMLElement | null>
   activeScenePath: string
   presentationRouteModes: Partial<Record<string, Exclude<PresentationLayoutMode, 'auto'>>>
 }
@@ -40,10 +41,24 @@ type UsePresentationStrategyResult = {
   autoSignalScore: number
 }
 
+function collectSignalsFromHost(host: HTMLElement, nextSignals: Set<PresentationSignal>) {
+  parsePresentationSignals(host.getAttribute('data-presentation-signal')).forEach((signal) => {
+    nextSignals.add(signal)
+  })
+
+  const signalNodes = host.querySelectorAll('[data-presentation-signal]')
+  signalNodes.forEach((node) => {
+    parsePresentationSignals(node.getAttribute('data-presentation-signal')).forEach((signal) => {
+      nextSignals.add(signal)
+    })
+  })
+}
+
 export function usePresentationStrategy({
   presentationSignals,
   controls,
   controlsRef,
+  viewportRef,
   activeScenePath,
   presentationRouteModes,
 }: UsePresentationStrategyOptions): UsePresentationStrategyResult {
@@ -57,17 +72,19 @@ export function usePresentationStrategy({
   useEffect(() => {
     const rafId = window.requestAnimationFrame(() => {
       const nextSignals = new Set<PresentationSignal>(presentationSignals)
-      const signalNodes = controlsRef.current?.querySelectorAll('[data-presentation-signal]') ?? []
-      signalNodes.forEach((node) => {
-        parsePresentationSignals(node.getAttribute('data-presentation-signal')).forEach((signal) => {
-          nextSignals.add(signal)
-        })
+      const signalHosts = [controlsRef.current, viewportRef.current].filter(
+        (host): host is HTMLElement => host instanceof HTMLElement,
+      )
+
+      signalHosts.forEach((host) => {
+        collectSignalsFromHost(host, nextSignals)
       })
+
       setAutoSignalScore(scorePresentationSignals(nextSignals))
     })
 
     return () => window.cancelAnimationFrame(rafId)
-  }, [controls, controlsRef, presentationSignals])
+  }, [controls, controlsRef, presentationSignals, viewportRef])
 
   const presentationStrategy = useMemo(
     () => resolvePresentationStrategy(routeMode, autoSignalScore),

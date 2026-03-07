@@ -149,6 +149,26 @@ describe('SceneLayout', () => {
     expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
   })
 
+
+  it('uses viewport runtime presentation signals for auto split decisions', async () => {
+    setViewportWidth(1366)
+    useAppStore.setState({ presentationMode: true })
+
+    render(
+      <SceneLayout
+        presentationSignals={[]}
+        coreSummary={<p>核心信息</p>}
+        controls={<h2>控制区</h2>}
+        viewport={<div data-presentation-signal="chart live-metric">三维视图</div>}
+      />,
+    )
+
+    await waitFor(() => {
+      expect(document.querySelector('.scene-layout--presentation-split')).toBeInTheDocument()
+    })
+    expect(screen.queryByRole('button', { name: '显示控制面板' })).not.toBeInTheDocument()
+  })
+
   it('keeps core summary visible when controls are collapsed in presentation viewport mode', () => {
     setViewportWidth(1366)
     useAppStore.setState({

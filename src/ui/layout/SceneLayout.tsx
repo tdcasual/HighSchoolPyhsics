@@ -39,6 +39,7 @@ export function SceneLayout({
   const activeScenePath = useAppStore((state) => state.activeScenePath)
   const presentationRouteModes = useAppStore((state) => state.presentationRouteModes)
   const controlsRef = useRef<HTMLElement | null>(null)
+  const viewportRef = useRef<HTMLElement | null>(null)
   const [tier, setTier] = useState<LayoutTier>(() => resolveLayoutTier(readViewportWidth()))
   const smartPresentation = useMemo(
     () => findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.smartPresentation ?? null,
@@ -49,6 +50,7 @@ export function SceneLayout({
     presentationSignals,
     controls,
     controlsRef,
+    viewportRef,
     activeScenePath,
     presentationRouteModes,
   })
@@ -130,7 +132,7 @@ export function SceneLayout({
     </aside>
   )
 
-  const viewportPanel = <section className="viewport-panel">{viewport}</section>
+  const viewportPanel = <section ref={viewportRef} className="viewport-panel">{viewport}</section>
   const desktopSummaryVisible = presentationMode && !compact && summaryMode !== 'hidden'
   const compactSummaryVisible = presentationMode && compact && coreSummary
   const summaryClassName = `scene-core-summary ${summaryMode === 'sticky' ? 'scene-core-summary--sticky' : ''} ${summaryMode === 'emphasis' ? 'scene-core-summary--emphasis' : ''}`.trim()
