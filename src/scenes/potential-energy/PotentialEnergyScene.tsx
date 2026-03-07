@@ -51,10 +51,20 @@ export function PotentialEnergyScene() {
 
   const chargeTypeLabel = resolveChargeLabel(chargeSign)
   const sweepProgress = Math.min(100, (sweepAngle / POTENTIAL_SURFACE_FULL_ANGLE) * 100)
+  const presentationIntent = {
+    moment: rotationInProgress ? 'focus' : surfaceVisible ? 'result' : sliceVisible ? 'compare' : 'overview',
+    preferredLayout: rotationInProgress ? 'viewport' : 'split',
+  } as const
+  const presentationFocus = rotationInProgress
+    ? { mode: 'focus' as const, primary: [0, 5, 0] as [number, number, number] }
+    : surfaceVisible
+      ? { mode: 'compare' as const, primary: [0, 5, 0] as [number, number, number], secondary: [0, 0, 0] as [number, number, number] }
+      : { mode: 'overview' as const }
 
   return (
     <SceneLayout
       presentationSignals={['chart', 'live-metric']}
+      presentationIntent={presentationIntent}
       coreSummary={
         <div className="scene-core-summary-stack">
           <p>当前电荷: {chargeTypeLabel}</p>
@@ -121,6 +131,7 @@ export function PotentialEnergyScene() {
           <InteractiveCanvas
             camera={{ position: [10, 15, 20], fov: 58 }}
             controls={{ target: [0, 5, 0], minDistance: 8, maxDistance: 45 }}
+            presentationFocus={presentationFocus}
             adaptiveFraming={false}
             frameloop={rotationInProgress ? 'always' : 'demand'}
           >

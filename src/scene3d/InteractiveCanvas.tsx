@@ -1,5 +1,7 @@
 import { OrbitControls } from '@react-three/drei/core/OrbitControls'
 import { Canvas } from '@react-three/fiber'
+import { useAppStore } from '../store/useAppStore'
+import { findRuntimeSceneCatalogEntry, resolveSmartFocusEnabled } from '../app/sceneCatalog'
 import {
   useCallback,
   useEffect,
@@ -17,8 +19,15 @@ import {
   resolveAdaptiveFramingTarget,
   type AdaptiveFramingOptions,
 } from './adaptiveFraming'
+import {
+  resolvePresentationCameraDistanceHint,
+  resolvePresentationCameraTarget,
+  type PresentationFocus,
+} from './presentationCamera'
 
 installThreeConsoleFilter()
+
+const OVERVIEW_PRESENTATION_FOCUS: PresentationFocus = { mode: 'overview' }
 
 function isTestRuntime(): boolean {
   const viteEnv = (import.meta as { env?: Record<string, unknown> }).env
@@ -31,6 +40,8 @@ type InteractiveCanvasProps = PropsWithChildren<{
   controlsEnabled?: boolean
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
   adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
+  presentationFocus?: PresentationFocus
+  presentationLockMs?: number
 }>
 
 export function InteractiveCanvas({
@@ -39,19 +50,35 @@ export function InteractiveCanvas({
   controlsEnabled = true,
   controls,
   adaptiveFraming = true,
+  presentationFocus,
+  presentationLockMs = 4500,
   children,
 }: InteractiveCanvasProps) {
+  const activeScenePath = useAppStore((state) => state.activeScenePath)
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
   const adaptiveBaseTargetRef = useRef<{ x: number; y: number; z: number } | null>(null)
   const adaptiveZoomStartDistanceRef = useRef<number | null>(null)
   const previousDistanceRef = useRef<number | null>(null)
   const adaptiveInternalChangeRef = useRef(false)
-  const { onChange: controlsOnChange, ...controlsProps } = controls ?? {}
+  const presentationLockUntilRef = useRef(0)
+  const {
+    onChange: controlsOnChange,
+    onStart: controlsOnStart,
+    ...controlsProps
+  } = controls ?? {}
   const targetProp = controls?.target
   const targetKey =
     Array.isArray(targetProp) && targetProp.length === 3
       ? targetProp.map((value) => Number(value).toFixed(4)).join(',')
       : 'default'
+  const smartFocusEnabled = useMemo(
+    () => resolveSmartFocusEnabled(findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.smartPresentation),
+    [activeScenePath],
+  )
+  const resolvedPresentationFocus = smartFocusEnabled ? presentationFocus : OVERVIEW_PRESENTATION_FOCUS
+  const presentationFocusKey = resolvedPresentationFocus
+    ? `${resolvedPresentationFocus.mode}:${resolvedPresentationFocus.primary?.join(',') ?? 'none'}:${resolvedPresentationFocus.secondary?.join(',') ?? 'none'}`
+    : 'none'
   const adaptiveFramingOptions = useMemo(() => {
     if (adaptiveFraming === false) {
       return null
@@ -70,9 +97,61 @@ export function InteractiveCanvas({
     adaptiveZoomStartDistanceRef.current = null
     previousDistanceRef.current = null
     adaptiveInternalChangeRef.current = false
-  }, [targetKey])
+  }, [presentationFocusKey, targetKey])
+
+  useEffect(() => {
+    if (!resolvedPresentationFocus || isTestRuntime()) {
+      return
+    }
+
+    const rafId = window.requestAnimationFrame(() => {
+      if (Date.now() < presentationLockUntilRef.current) {
+        return
+      }
+
+      const orbit = controlsRef.current
+      if (!orbit) {
+        return
+      }
+
+      const baseTarget = {
+        x: orbit.target.x,
+        y: orbit.target.y,
+        z: orbit.target.z,
+      }
+      const nextTarget = resolvePresentationCameraTarget({
+        baseTarget,
+        mode: resolvedPresentationFocus.mode,
+        primary: resolvedPresentationFocus.primary,
+        secondary: resolvedPresentationFocus.secondary,
+      })
+
+      const changed =
+        Math.abs(orbit.target.x - nextTarget.x) > 1e-4 ||
+        Math.abs(orbit.target.y - nextTarget.y) > 1e-4 ||
+        Math.abs(orbit.target.z - nextTarget.z) > 1e-4
+
+      if (!changed) {
+        return
+      }
+
+      adaptiveInternalChangeRef.current = true
+      orbit.target.set(nextTarget.x, nextTarget.y, nextTarget.z)
+      orbit.update()
+    })
+
+    return () => window.cancelAnimationFrame(rafId)
+  }, [presentationFocusKey, resolvedPresentationFocus])
 
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])
+
+  const handleOrbitControlsStart = useCallback(
+    (event?: Parameters<NonNullable<typeof controlsOnStart>>[0]) => {
+      presentationLockUntilRef.current = Date.now() + presentationLockMs
+      controlsOnStart?.(event)
+    },
+    [controlsOnStart, presentationLockMs],
+  )
 
   const handleOrbitControlsChange = useCallback(
     (event?: Parameters<NonNullable<typeof controlsOnChange>>[0]) => {
@@ -118,8 +197,16 @@ export function InteractiveCanvas({
         return
       }
 
+      const baseTarget = resolvedPresentationFocus
+        ? resolvePresentationCameraTarget({
+            baseTarget: adaptiveBaseTargetRef.current,
+            mode: resolvedPresentationFocus.mode,
+            primary: resolvedPresentationFocus.primary,
+            secondary: resolvedPresentationFocus.secondary,
+          })
+        : adaptiveBaseTargetRef.current
       const nextTarget = resolveAdaptiveFramingTarget({
-        baseTarget: adaptiveBaseTargetRef.current,
+        baseTarget,
         distance,
         zoomStartDistance,
         zoomEndDistance,
@@ -129,27 +216,40 @@ export function InteractiveCanvas({
         zoomInShiftX: adaptiveFramingOptions.zoomInShiftX,
         zoomInShiftY: adaptiveFramingOptions.zoomInShiftY,
       })
+      const hintedDistance = resolvedPresentationFocus
+        ? resolvePresentationCameraDistanceHint({
+            baseDistance: distance,
+            mode: resolvedPresentationFocus.mode,
+          })
+        : distance
 
       if (
         Math.abs(orbit.target.x - nextTarget.x) <= 1e-4 &&
         Math.abs(orbit.target.y - nextTarget.y) <= 1e-4 &&
-        Math.abs(orbit.target.z - nextTarget.z) <= 1e-4
+        Math.abs(orbit.target.z - nextTarget.z) <= 1e-4 &&
+        Math.abs(hintedDistance - distance) <= 1e-3
       ) {
         return
       }
 
       adaptiveInternalChangeRef.current = true
       orbit.target.set(nextTarget.x, nextTarget.y, nextTarget.z)
+      if (Math.abs(hintedDistance - distance) > 1e-3) {
+        const zoomRatio = hintedDistance / distance
+        if (Number.isFinite(zoomRatio) && zoomRatio > 0) {
+          orbit.object.position.sub(orbit.target).multiplyScalar(zoomRatio).add(orbit.target)
+        }
+      }
       orbit.update()
     },
-    [adaptiveFramingOptions, controlsOnChange],
+    [adaptiveFramingOptions, controlsOnChange, resolvedPresentationFocus],
   )
 
   const hint = '拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移'
 
   if (isTestRuntime()) {
     return (
-      <div className="canvas-fallback-stack">
+      <div className="canvas-fallback-stack" data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}>
         <div className="canvas-fallback">3D演示预览（测试环境占位）</div>
         <p className="interaction-hint">{hint}</p>
       </div>
@@ -157,7 +257,7 @@ export function InteractiveCanvas({
   }
 
   return (
-    <div className="interactive-canvas">
+    <div className="interactive-canvas" data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}>
       <div className="interactive-canvas-surface">
         <Canvas
           camera={camera}
@@ -173,6 +273,7 @@ export function InteractiveCanvas({
             enabled={controlsEnabled}
             {...DEMO_ORBIT_CONTROLS}
             {...controlsProps}
+            onStart={handleOrbitControlsStart}
             onChange={handleOrbitControlsChange}
           />
         </Canvas>

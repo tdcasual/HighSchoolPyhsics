@@ -11,6 +11,13 @@ import './induction-current.css'
 
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
+  const presentationIntent = {
+    moment: state.lastOutcome ? 'result' : state.motionDirection ? 'focus' : 'overview',
+    preferredLayout: state.motionDirection ? 'viewport' : 'split',
+  } as const
+  const presentationFocus = state.motionDirection || state.lastOutcome
+    ? { mode: 'focus' as const, primary: [20, -4, 0] as [number, number, number] }
+    : { mode: 'overview' as const }
   const currentDirectionText = state.lastOutcome
     ? formatCurrentDirection(state.lastOutcome.inducedCurrentDirection)
     : '无'
@@ -25,6 +32,7 @@ export function InductionCurrentScene() {
   return (
     <SceneLayout
       presentationSignals={['interactive-readout', 'live-metric']}
+      presentationIntent={presentationIntent}
       coreSummary={
         <div className="scene-core-summary-stack">
           <p>磁极朝向: {formatPoleSetting(state.poleSetting)}</p>
@@ -40,6 +48,7 @@ export function InductionCurrentScene() {
           <InteractiveCanvas
             camera={{ position: [25, 5, 65], fov: 40 }}
             controls={{ target: [20, -4, 0], minDistance: 24, maxDistance: 120 }}
+            presentationFocus={presentationFocus}
             adaptiveFraming={false}
             frameloop={state.motionDirection ? 'always' : 'demand'}
           >

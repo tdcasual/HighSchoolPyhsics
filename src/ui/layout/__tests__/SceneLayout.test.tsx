@@ -12,6 +12,15 @@ function setViewportWidth(width: number) {
   window.dispatchEvent(new Event('resize'))
 }
 
+function setViewportHeight(height: number) {
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    writable: true,
+    value: height,
+  })
+  window.dispatchEvent(new Event('resize'))
+}
+
 describe('SceneLayout', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/test-scene')
@@ -30,6 +39,7 @@ describe('SceneLayout', () => {
       activeScenePath: '/test-scene',
     })
     setViewportWidth(1024)
+    setViewportHeight(768)
   })
 
   it('renders desktop layout with side-by-side control and viewport containers', () => {
@@ -182,6 +192,129 @@ describe('SceneLayout', () => {
       'aria-hidden',
       'true',
     )
+  })
+
+
+  it('renders sticky summary in desktop split presentation when director prefers summary pinning', async () => {
+    setViewportWidth(1920)
+    setViewportHeight(1080)
+    useAppStore.setState({ presentationMode: true })
+
+    render(
+      <SceneLayout
+        presentationSignals={['chart']}
+        presentationIntent={{ stickySummaryPreferred: true }}
+        coreSummary={<p>核心信息: sticky</p>}
+        controls={<div><h2>控制区</h2><div data-presentation-signal="chart live-metric">图表读数</div></div>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('核心信息: sticky')).toBeInTheDocument()
+      expect(document.querySelector('.scene-core-summary--sticky')).toBeInTheDocument()
+      expect(document.querySelector('[data-presentation-layout-decision="split-sticky-summary"]')).toBeInTheDocument()
+    })
+  })
+
+  it('renders emphasis summary in viewport presentation result moment', () => {
+    setViewportWidth(1366)
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: { '/test-scene': 'viewport' },
+    })
+
+    render(
+      <SceneLayout
+        presentationSignals={['interactive-readout']}
+        presentationIntent={{ moment: 'result' }}
+        controls={<h2>控制区</h2>}
+        viewport={<div>三维视图</div>}
+        coreSummary={<p>核心信息: 强调结果</p>}
+      />,
+    )
+
+    expect(document.querySelector('.scene-core-summary--emphasis')).toBeInTheDocument()
+    expect(document.querySelector('.scene-layout')?.getAttribute('data-presentation-layout-decision')).toBe('viewport')
+  })
+
+
+  it('ignores sticky summary hints when the scene contract disables sticky summary', async () => {
+    setViewportWidth(1920)
+    setViewportHeight(1080)
+    window.history.replaceState(null, '', '/oscilloscope')
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: {},
+      activeScenePath: '/oscilloscope',
+    })
+
+    const { container } = render(
+      <SceneLayout
+        presentationSignals={['chart', 'live-metric']}
+        presentationIntent={{ stickySummaryPreferred: true }}
+        coreSummary={<p>核心信息: 不应黏附</p>}
+        controls={<div><h2>控制区</h2><div data-presentation-signal="chart live-metric">图表读数</div></div>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    await waitFor(() => {
+      expect(container.firstElementChild).toHaveAttribute('data-presentation-layout-decision', 'split')
+    })
+    expect(screen.queryByRole('region', { name: '课堂核心信息' })).not.toBeInTheDocument()
+  })
+
+  it('ignores preferred viewport layout hints when the scene contract is not staged', async () => {
+    setViewportWidth(1920)
+    setViewportHeight(1080)
+    window.history.replaceState(null, '', '/oscilloscope')
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: {},
+      activeScenePath: '/oscilloscope',
+    })
+
+    const { container } = render(
+      <SceneLayout
+        presentationSignals={['chart', 'live-metric']}
+        presentationIntent={{ preferredLayout: 'viewport' }}
+        coreSummary={<p>核心信息: 仍应分栏</p>}
+        controls={<div><h2>控制区</h2><div data-presentation-signal="chart live-metric">图表读数</div></div>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    await waitFor(() => {
+      expect(container.firstElementChild).toHaveAttribute('data-presentation-layout-decision', 'split')
+    })
+  })
+
+
+  it('applies scene contract from current browser path before store sync catches up', async () => {
+    setViewportWidth(1920)
+    setViewportHeight(1080)
+    window.history.replaceState(null, '', '/oscilloscope')
+    useAppStore.setState({
+      presentationMode: true,
+      presentationRouteModes: {},
+      activeScenePath: '/',
+    })
+
+    const { container } = render(
+      <SceneLayout
+        presentationSignals={['chart', 'live-metric']}
+        presentationIntent={{ stickySummaryPreferred: true, preferredLayout: 'viewport' }}
+        coreSummary={<p>核心信息: 当前路径优先</p>}
+        controls={<div><h2>控制区</h2><div data-presentation-signal="chart live-metric">图表读数</div></div>}
+        viewport={<div>三维视图</div>}
+      />,
+    )
+
+    await waitFor(() => {
+      expect(container.firstElementChild).toHaveAttribute('data-presentation-layout-decision', 'split')
+    })
+    expect(screen.queryByRole('region', { name: '课堂核心信息' })).not.toBeInTheDocument()
   })
 
   it('restores split default width when route override changes from viewport to split in presentation mode', async () => {

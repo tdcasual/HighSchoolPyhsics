@@ -43,7 +43,6 @@ export function OscilloscopeScene() {
   const traceSegments = useMemo(() => buildDisplayTraceSegments(trace), [trace])
   const xPreset = useMemo(() => derivePresetValue(xExpression), [xExpression])
   const yPreset = useMemo(() => derivePresetValue(yExpression), [yExpression])
-
   const applyPreset = (axis: 'x' | 'y', value: string) => {
     if (value === CUSTOM_PRESET_VALUE) {
       return

@@ -32,6 +32,14 @@
 - `live-metric`: 实时数值读数（电压、能量、频率等）
 - `interactive-readout`: 互动观察结果（例如可见摆动、状态等级）
 
+### 3.1 smartPresentation 契约补充
+
+- `layout = never`：场景不得依赖运行时布局阶段切换；`preferredLayout` 在课堂模式下会被忽略。
+- `layout = enter-only`：场景允许声明课堂默认摘要/焦点能力，但布局仍视为静态；`preferredLayout` 同样被忽略。
+- `layout = staged`：场景可以在教学流程推进时通过 `presentationIntent.preferredLayout` 驱动 `split` / `viewport` 切换。
+- `focus = false`：即使场景传入 `presentationFocus`，课堂模式也会回退到 `overview`。
+- `stickySummary = false`：即使场景传入黏附摘要偏好，1080P 课堂模式也不会进入 `split-sticky-summary`。
+
 ## 4. 新页面接入步骤
 
 1. 在场景页面给 `SceneLayout` 传 `presentationSignals`（静态先验）。

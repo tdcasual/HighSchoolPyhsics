@@ -109,6 +109,34 @@ function validateClassroomContract(route: DemoRoute): RouteConformanceIssue[] {
     })
   }
 
+  if (!['trajectory', 'field', 'structure', 'process'].includes(classroom.sceneKind)) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.sceneKind must be one of trajectory|field|structure|process',
+    })
+  }
+
+  if (!['never', 'enter-only', 'staged'].includes(classroom.smartPresentation.layout)) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.smartPresentation.layout must be one of never|enter-only|staged',
+    })
+  }
+
+  if (typeof classroom.smartPresentation.focus !== 'boolean') {
+    issues.push({
+      path: route.path,
+      message: 'classroom.smartPresentation.focus must be boolean',
+    })
+  }
+
+  if (typeof classroom.smartPresentation.stickySummary !== 'boolean') {
+    issues.push({
+      path: route.path,
+      message: 'classroom.smartPresentation.stickySummary must be boolean',
+    })
+  }
+
   return issues
 }
 

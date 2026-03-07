@@ -8,10 +8,19 @@ import './oersted.css'
 
 export function OerstedScene() {
   const state = useOerstedSceneState()
+  const focusedNeedle = state.draggingNeedleIndex !== null ? state.visualNeedles[state.draggingNeedleIndex] ?? null : null
+  const presentationIntent = {
+    moment: state.draggingNeedleIndex !== null ? 'interact' : state.maxSwing >= 16 ? 'result' : 'overview',
+    userInteracting: state.draggingNeedleIndex !== null,
+  } as const
+  const presentationFocus = focusedNeedle
+    ? { mode: 'focus' as const, primary: [focusedNeedle.x, 0, focusedNeedle.z] as [number, number, number] }
+    : { mode: 'overview' as const }
 
   return (
     <SceneLayout
       presentationSignals={['interactive-readout']}
+      presentationIntent={presentationIntent}
       coreSummary={
         <div className="scene-core-summary-stack">
           <p>状态: {state.running ? '通电演示中' : '待机观察'}</p>
@@ -54,6 +63,7 @@ export function OerstedScene() {
       viewport={
         <InteractiveCanvas
           camera={{ position: [3.8, 2.3, 5.6], fov: 42 }}
+          presentationFocus={presentationFocus}
           frameloop={state.running || state.draggingNeedleIndex !== null ? 'always' : 'demand'}
           controlsEnabled={state.draggingNeedleIndex === null}
         >

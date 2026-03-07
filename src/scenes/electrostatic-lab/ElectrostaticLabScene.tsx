@@ -10,10 +10,20 @@ import './electrostatic-lab.css'
 
 export function ElectrostaticLabScene() {
   const state = useElectrostaticLabState()
+  const focusTarget = state.probePoint
+    ? ([state.probePoint.x, 0.24, state.probePoint.z] as [number, number, number])
+    : state.selectedCharge
+      ? ([state.selectedCharge.x, 0.24, state.selectedCharge.z] as [number, number, number])
+      : null
+  const presentationIntent = {
+    moment: focusTarget ? 'focus' : 'overview',
+  } as const
+  const presentationFocus = focusTarget ? { mode: 'focus' as const, primary: focusTarget } : { mode: 'overview' as const }
 
   return (
     <SceneLayout
       presentationSignals={['chart', 'live-metric', 'interactive-readout']}
+      presentationIntent={presentationIntent}
       coreSummary={
         <div className="scene-core-summary-stack">
           <p>
@@ -39,6 +49,7 @@ export function ElectrostaticLabScene() {
           <InteractiveCanvas
             camera={{ position: [10, 10, 11], fov: 52 }}
             controls={{ target: [0, 0.4, 0], minDistance: 6, maxDistance: 30 }}
+            presentationFocus={presentationFocus}
             adaptiveFraming={false}
             frameloop="demand"
           >

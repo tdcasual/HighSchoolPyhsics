@@ -32,7 +32,7 @@ describe('induction-current classroom mode', () => {
     })
   })
 
-  it('keeps core summary visible and exposes presentation signal markers', async () => {
+  it('keeps core summary visible, exposes signal markers, and stays in overview focus mode before motion', async () => {
     render(<InductionCurrentScene />)
 
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
@@ -44,5 +44,6 @@ describe('induction-current classroom mode', () => {
       '.induction-current-records[data-presentation-signal~="interactive-readout"][data-presentation-signal~="live-metric"]',
     )
     expect(signalNode).toBeInTheDocument()
+    expect(document.querySelector('[data-presentation-focus-mode="overview"]')).toBeInTheDocument()
   })
 })

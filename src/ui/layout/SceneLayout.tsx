@@ -10,12 +10,15 @@ import { resolveLayoutTier, type LayoutTier } from './layoutPolicy'
 import type { PresentationSignal } from './presentationSignals'
 import { usePresentationStrategy } from './usePresentationStrategy'
 import { useResizableSplitPanel } from './useResizableSplitPanel'
+import { usePresentationDirector, type PresentationIntent } from './usePresentationDirector'
+import { findRuntimeSceneCatalogEntry } from '../../app/sceneCatalog'
 
 type SceneLayoutProps = {
   controls: ReactNode
   viewport: ReactNode
   presentationSignals: PresentationSignal[]
   coreSummary: ReactNode
+  presentationIntent?: PresentationIntent
 }
 
 function readViewportWidth(): number {
@@ -30,19 +33,34 @@ export function SceneLayout({
   viewport,
   presentationSignals,
   coreSummary,
+  presentationIntent,
 }: SceneLayoutProps) {
   const presentationMode = useAppStore((state) => state.presentationMode)
   const activeScenePath = useAppStore((state) => state.activeScenePath)
   const presentationRouteModes = useAppStore((state) => state.presentationRouteModes)
   const controlsRef = useRef<HTMLElement | null>(null)
   const [tier, setTier] = useState<LayoutTier>(() => resolveLayoutTier(readViewportWidth()))
+  const smartPresentation = useMemo(
+    () => findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.smartPresentation ?? null,
+    [activeScenePath],
+  )
 
-  const { presentationStrategy } = usePresentationStrategy({
+  const { routeMode, presentationStrategy, autoSignalScore } = usePresentationStrategy({
     presentationSignals,
     controls,
     controlsRef,
     activeScenePath,
     presentationRouteModes,
+  })
+
+  const { layoutDecision, summaryMode } = usePresentationDirector({
+    presentationMode,
+    routeMode,
+    autoSignalScore,
+    presentationSignals,
+    controlsRef,
+    presentationIntent,
+    smartPresentation,
   })
 
   const compact = tier !== 'desktop' || (presentationMode && presentationStrategy === 'viewport')
@@ -113,15 +131,18 @@ export function SceneLayout({
   )
 
   const viewportPanel = <section className="viewport-panel">{viewport}</section>
+  const desktopSummaryVisible = presentationMode && !compact && summaryMode !== 'hidden'
+  const compactSummaryVisible = presentationMode && compact && coreSummary
+  const summaryClassName = `scene-core-summary ${summaryMode === 'sticky' ? 'scene-core-summary--sticky' : ''} ${summaryMode === 'emphasis' ? 'scene-core-summary--emphasis' : ''}`.trim()
 
   const scaffoldClassName = useMemo(
     () =>
-      `scene-layout scene-layout--${tier} ${presentationMode ? `scene-layout--presentation scene-layout--presentation-${presentationStrategy}` : ''}`.trim(),
-    [presentationMode, presentationStrategy, tier],
+      `scene-layout scene-layout--${tier} ${presentationMode ? `scene-layout--presentation scene-layout--presentation-${presentationStrategy} scene-layout--presentation-${layoutDecision}` : ''}`.trim(),
+    [layoutDecision, presentationMode, presentationStrategy, tier],
   )
 
   return (
-    <div className={scaffoldClassName} style={layoutStyle}>
+    <div className={scaffoldClassName} style={layoutStyle} data-presentation-layout-decision={layoutDecision}>
       {compact ? (
         <div className="scene-toolbar" role="toolbar" aria-label="场景参数工具条">
           <button
@@ -134,8 +155,13 @@ export function SceneLayout({
           </button>
         </div>
       ) : null}
-      {presentationMode && compact && coreSummary ? (
-        <section className="scene-core-summary" aria-label="课堂核心信息">
+      {compactSummaryVisible ? (
+        <section className={summaryClassName} aria-label="课堂核心信息">
+          {coreSummary}
+        </section>
+      ) : null}
+      {desktopSummaryVisible ? (
+        <section className={summaryClassName} aria-label="课堂核心信息">
           {coreSummary}
         </section>
       ) : null}

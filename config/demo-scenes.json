@@ -5,12 +5,24 @@
     "meta": {
       "tag": "波形合成",
       "summary": "双通道电压驱动 + 李萨如图形",
-      "highlights": ["函数编辑与预设切换", "荧光屏轨迹实时更新"],
+      "highlights": [
+        "函数编辑与预设切换",
+        "荧光屏轨迹实时更新"
+      ],
       "tone": "scope"
     },
     "classroom": {
-      "presentationSignals": ["chart", "live-metric"],
-      "coreSummaryLineCount": 3
+      "presentationSignals": [
+        "chart",
+        "live-metric"
+      ],
+      "coreSummaryLineCount": 3,
+      "sceneKind": "trajectory",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": false,
+        "stickySummary": false
+      }
     },
     "playwright": {
       "readyText": "示波器控制",
@@ -23,12 +35,25 @@
     "meta": {
       "tag": "粒子动力学",
       "summary": "交变电场加速 + 磁场轨道约束",
-      "highlights": ["U-t / Ek-t 双曲线", "可切换加速时间模型"],
+      "highlights": [
+        "U-t / Ek-t 双曲线",
+        "可切换加速时间模型"
+      ],
       "tone": "cyclotron"
     },
     "classroom": {
-      "presentationSignals": ["chart", "time-series", "live-metric"],
-      "coreSummaryLineCount": 4
+      "presentationSignals": [
+        "chart",
+        "time-series",
+        "live-metric"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "trajectory",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": true,
+        "stickySummary": true
+      }
     },
     "playwright": {
       "readyText": "磁场 B (T)",
@@ -41,12 +66,23 @@
     "meta": {
       "tag": "能量转换",
       "summary": "等离子体通道中的感应电势演示",
-      "highlights": ["磁场/流速/导电率联动", "端电压实时读数"],
+      "highlights": [
+        "磁场/流速/导电率联动",
+        "端电压实时读数"
+      ],
       "tone": "mhd"
     },
     "classroom": {
-      "presentationSignals": ["live-metric"],
-      "coreSummaryLineCount": 3
+      "presentationSignals": [
+        "live-metric"
+      ],
+      "coreSummaryLineCount": 3,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "never",
+        "focus": false,
+        "stickySummary": false
+      }
     },
     "playwright": {
       "readyText": "磁流体发电机控制",
@@ -59,12 +95,23 @@
     "meta": {
       "tag": "课堂观察",
       "summary": "三磁针偏转与导线姿态联动",
-      "highlights": ["拖拽磁针自由摆位", "磁感线可显隐对比"],
+      "highlights": [
+        "拖拽磁针自由摆位",
+        "磁感线可显隐对比"
+      ],
       "tone": "oersted"
     },
     "classroom": {
-      "presentationSignals": ["interactive-readout"],
-      "coreSummaryLineCount": 4
+      "presentationSignals": [
+        "interactive-readout"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "structure",
+      "smartPresentation": {
+        "layout": "never",
+        "focus": true,
+        "stickySummary": false
+      }
     },
     "playwright": {
       "readyText": "奥斯特电流磁效应",
@@ -88,7 +135,13 @@
         "chart",
         "live-metric"
       ],
-      "coreSummaryLineCount": 4
+      "coreSummaryLineCount": 4,
+      "sceneKind": "field",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": false,
+        "stickySummary": true
+      }
     },
     "playwright": {
       "readyText": "电荷等势面控制",
@@ -112,7 +165,13 @@
         "chart",
         "live-metric"
       ],
-      "coreSummaryLineCount": 4
+      "coreSummaryLineCount": 4,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "staged",
+        "focus": true,
+        "stickySummary": false
+      }
     },
     "playwright": {
       "readyText": "电势图构建控制",
@@ -137,7 +196,13 @@
         "live-metric",
         "interactive-readout"
       ],
-      "coreSummaryLineCount": 4
+      "coreSummaryLineCount": 4,
+      "sceneKind": "field",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": true,
+        "stickySummary": true
+      }
     },
     "playwright": {
       "readyText": "3D等势面实验台控制",
@@ -150,12 +215,24 @@
     "meta": {
       "tag": "电磁感应",
       "summary": "磁铁穿过线圈引发电流表偏转",
-      "highlights": ["磁极方向与运动方向双因素联动", "实验记录表逐条累积便于课堂归纳"],
+      "highlights": [
+        "磁极方向与运动方向双因素联动",
+        "实验记录表逐条累积便于课堂归纳"
+      ],
       "tone": "mhd"
     },
     "classroom": {
-      "presentationSignals": ["interactive-readout", "live-metric"],
-      "coreSummaryLineCount": 4
+      "presentationSignals": [
+        "interactive-readout",
+        "live-metric"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "staged",
+        "focus": true,
+        "stickySummary": true
+      }
     },
     "playwright": {
       "readyText": "实验控制台",

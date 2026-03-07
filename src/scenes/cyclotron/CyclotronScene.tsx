@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import type { PresentationFocus } from '../../scene3d/presentationCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
 import { CyclotronRig3D } from './CyclotronRig3D'
@@ -9,10 +10,19 @@ import './cyclotron.css'
 
 export function CyclotronScene() {
   const state = useCyclotronSceneState()
+  const presentationIntent = {
+    moment: state.particleInGap ? 'focus' : state.simulation.running ? 'compare' : 'overview',
+  } as const
+  const presentationFocus: PresentationFocus = state.particleInGap
+    ? { mode: 'focus', primary: state.particlePoint }
+    : state.simulation.running
+      ? { mode: 'compare', primary: state.particlePoint, secondary: [0, state.particlePoint[1], 0] }
+      : { mode: 'overview' }
 
   return (
     <SceneLayout
       presentationSignals={['chart', 'time-series', 'live-metric']}
+      presentationIntent={presentationIntent}
       coreSummary={
         <div className="scene-core-summary-stack">
           <p>状态: {state.simulation.running ? '运行中' : '已暂停'}</p>
@@ -68,6 +78,7 @@ export function CyclotronScene() {
         <InteractiveCanvas
           camera={CYCLOTRON_CAMERA}
           controls={CYCLOTRON_CONTROLS}
+          presentationFocus={presentationFocus}
           frameloop={state.simulation.running ? 'always' : 'demand'}
         >
           <CyclotronRig3D

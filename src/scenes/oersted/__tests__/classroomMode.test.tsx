@@ -32,7 +32,7 @@ describe('oersted classroom mode', () => {
     })
   })
 
-  it('keeps core summary visible and exposes presentation signal marker', async () => {
+  it('keeps core summary visible, exposes signal marker, and stays in overview focus mode by default', async () => {
     render(<OerstedScene />)
 
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
@@ -44,5 +44,6 @@ describe('oersted classroom mode', () => {
       '.oersted-card[data-presentation-signal~="interactive-readout"][data-presentation-signal~="live-metric"]',
     )
     expect(signalNode).toBeInTheDocument()
+    expect(document.querySelector('[data-presentation-focus-mode="overview"]')).toBeInTheDocument()
   })
 })

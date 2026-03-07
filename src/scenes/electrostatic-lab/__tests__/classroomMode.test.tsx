@@ -32,7 +32,7 @@ describe('electrostatic-lab classroom mode', () => {
     })
   })
 
-  it('keeps core summary visible and exposes presentation signal markers', async () => {
+  it('keeps core summary visible, exposes signal markers, and focuses the selected charge by default', async () => {
     render(<ElectrostaticLabScene />)
 
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
@@ -44,5 +44,6 @@ describe('electrostatic-lab classroom mode', () => {
       '.electrostatic-lab-readout[data-presentation-signal~="chart"][data-presentation-signal~="live-metric"]',
     )
     expect(signalNode).toBeInTheDocument()
+    expect(document.querySelector('[data-presentation-focus-mode="focus"]')).toBeInTheDocument()
   })
 })

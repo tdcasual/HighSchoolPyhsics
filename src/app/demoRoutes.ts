@@ -1,8 +1,7 @@
 import { createElement, type ComponentType } from 'react'
-import sceneCatalog from '../../config/demo-scenes.json'
+import { SCENE_CATALOG, type ClassroomContract, type DemoRouteMeta, type SceneCatalogEntry } from './sceneCatalog'
 import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
-import type { PresentationSignal } from '../ui/layout/presentationSignals'
 
 type TouchGestureMatrix = {
   singleFingerRotate: boolean
@@ -15,31 +14,6 @@ type TouchProfile = {
   canvasGestureScope: 'interactive-canvas'
   minTouchTargetPx: number
   gestureMatrix: TouchGestureMatrix
-}
-
-type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
-
-type DemoRouteMeta = {
-  tag: string
-  summary: string
-  highlights: string[]
-  tone: DemoTone
-}
-
-type ClassroomContract = {
-  presentationSignals: readonly PresentationSignal[]
-  coreSummaryLineCount: number
-}
-
-type SceneCatalogEntry = {
-  pageId: string
-  label: string
-  meta: DemoRouteMeta
-  classroom: ClassroomContract
-  playwright: {
-    readyText: string
-    screenshotName: string
-  }
 }
 
 export type DemoRoute = {
@@ -153,7 +127,8 @@ const SCENE_LOADERS = createSceneLoaders()
 
 export const DISCOVERED_SCENE_PAGE_IDS = Object.freeze(Object.keys(SCENE_LOADERS).sort())
 
-export const DEMO_SCENE_CATALOG: SceneCatalogEntry[] = sceneCatalog as SceneCatalogEntry[]
+export const DEMO_SCENE_CATALOG: SceneCatalogEntry[] = SCENE_CATALOG
+
 
 const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((entry) => {
   const loadScene = SCENE_LOADERS[entry.pageId]

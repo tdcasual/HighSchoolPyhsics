@@ -32,7 +32,7 @@ describe('cyclotron classroom mode', () => {
     })
   })
 
-  it('keeps core summary visible and exposes presentation signal markers', async () => {
+  it('keeps core summary visible, exposes signal markers, and publishes focus mode', async () => {
     render(<CyclotronScene />)
 
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
@@ -44,5 +44,6 @@ describe('cyclotron classroom mode', () => {
     const chartNode = document.querySelector('.cyclotron-plot-card[data-presentation-signal~="chart"]')
     expect(liveMetricNode).toBeInTheDocument()
     expect(chartNode).toBeInTheDocument()
+    expect(document.querySelector('[data-presentation-focus-mode="focus"]')).toBeInTheDocument()
   })
 })

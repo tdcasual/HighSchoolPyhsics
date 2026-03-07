@@ -15,6 +15,10 @@ const PRESENTATION_SIGNAL_WEIGHTS: Record<PresentationSignal, number> = {
 }
 
 const KNOWN_PRESENTATION_SIGNALS = new Set<PresentationSignal>(PRESENTATION_SIGNALS)
+const RESULT_LIKE_PRESENTATION_SIGNALS = new Set<PresentationSignal>([
+  'live-metric',
+  'interactive-readout',
+])
 
 export function parsePresentationSignals(raw: string | null): PresentationSignal[] {
   if (!raw) {
@@ -33,4 +37,26 @@ export function scorePresentationSignals(signals: Iterable<PresentationSignal>):
     score += PRESENTATION_SIGNAL_WEIGHTS[signal]
   }
   return score
+}
+
+export function hasChartLikeSignal(signals: Iterable<PresentationSignal>): boolean {
+  for (const signal of signals) {
+    if (signal === 'chart' || signal === 'time-series') {
+      return true
+    }
+  }
+  return false
+}
+
+export function hasResultLikeSignal(signals: Iterable<PresentationSignal>): boolean {
+  for (const signal of signals) {
+    if (RESULT_LIKE_PRESENTATION_SIGNALS.has(signal)) {
+      return true
+    }
+  }
+  return false
+}
+
+export function resolveBasePresentationScore(signals: Iterable<PresentationSignal>): number {
+  return scorePresentationSignals(signals)
 }

@@ -16,8 +16,10 @@ function parseSceneCatalog() {
 }
 
 export const DEMO_CATALOG = parseSceneCatalog().map((scene) => ({
+  pageId: scene.pageId,
   path: `/${scene.pageId}`,
   enterButton: `进入${scene.label}`,
   readyText: scene.playwright.readyText,
   screenshotName: scene.playwright.screenshotName,
+  classroom: scene.classroom,
 }))

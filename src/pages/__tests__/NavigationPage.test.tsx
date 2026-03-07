@@ -36,6 +36,12 @@ function buildRoute(overrides: Partial<DemoRoute> = {}): DemoRoute {
     classroom: {
       presentationSignals: ['chart', 'live-metric'],
       coreSummaryLineCount: 3,
+      sceneKind: 'trajectory',
+      smartPresentation: {
+        layout: 'enter-only',
+        focus: false,
+        stickySummary: false,
+      },
     },
     ...overrides,
   }

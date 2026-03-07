@@ -67,6 +67,7 @@ npm run dev
 npm test        # 运行测试
 npm run test:roundtrip # 桌面端导航往返回归（进入各演示并返回）
 npm run test:touch # 触屏回归（输出到 output/playwright/touch-regression）
+npm run test:1080p-presentation # 1080P 课堂演示导演回归（布局 + focus + 摘要状态）
 npm run test:e2e # 一次执行桌面往返 + 触屏手势回归
 npm run test:e2e:ci # CI 推荐入口（默认 BASE_URL=http://127.0.0.1:4180）
 npm run test:perf # 构建并校验首页未预加载 three/r3f 重依赖
@@ -81,6 +82,12 @@ npm run preview # 本地预览打包结果
 ```bash
 npx playwright install chromium
 ```
+
+
+新增的 1080P 导演能力包括：
+- sticky 核心摘要：在桌面课堂双核心布局下，把核心结论固定到首屏；
+- content focus：根据 3D 场景内容切换 focus/overview/compare；
+- staged layout：流程型场景可在课堂模式下按阶段偏向视口或双核心。
 
 新增演示页时可参考课堂展示接入模板：
 

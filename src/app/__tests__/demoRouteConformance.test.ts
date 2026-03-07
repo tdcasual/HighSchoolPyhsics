@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
+import { findSceneCatalogEntryByPath } from '../sceneCatalog'
 import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
 
@@ -27,6 +28,10 @@ describe('demo route conformance', () => {
       expect(scorePresentationSignals(route.classroom.presentationSignals)).toBeGreaterThanOrEqual(1)
       expect(route.classroom.coreSummaryLineCount).toBeGreaterThanOrEqual(3)
       expect(route.classroom.coreSummaryLineCount).toBeLessThanOrEqual(5)
+      expect(route.classroom.sceneKind).toMatch(/^(trajectory|field|structure|process)$/)
+      expect(route.classroom.smartPresentation.layout).toMatch(/^(never|enter-only|staged)$/)
+      expect(typeof route.classroom.smartPresentation.focus).toBe('boolean')
+      expect(typeof route.classroom.smartPresentation.stickySummary).toBe('boolean')
     }
   })
 
@@ -36,6 +41,16 @@ describe('demo route conformance', () => {
     expect(DEMO_ROUTES.map((route) => route.path)).toEqual(
       expectedPageIds.map((pageId) => `/${pageId}`),
     )
+  })
+
+
+  it('exposes shared classroom contract lookup by normalized route path', () => {
+    const potential = findSceneCatalogEntryByPath('/potential-energy/')
+    expect(potential?.classroom.smartPresentation.layout).toBe('staged')
+    expect(potential?.classroom.smartPresentation.focus).toBe(true)
+
+    const oscilloscope = findSceneCatalogEntryByPath('/oscilloscope')
+    expect(oscilloscope?.classroom.smartPresentation.stickySummary).toBe(false)
   })
 
   it('keeps auto-discovered scene modules aligned with the catalog', () => {
