@@ -405,6 +405,15 @@ async function main() {
   const catalogFile = resolve(rootDir, 'config/demo-scenes.json')
 
   await ensurePathMissing(sceneDir, `Scene directory already exists: src/scenes/${id}`)
+
+  const catalogContent = await readFile(catalogFile, 'utf8')
+  const catalog = JSON.parse(catalogContent)
+  ensure(Array.isArray(catalog), 'config/demo-scenes.json must be an array')
+  ensure(
+    !catalog.some((entry) => entry.pageId === id),
+    `Catalog entry for pageId "${id}" already exists in config/demo-scenes.json`,
+  )
+
   await mkdir(sceneDir, { recursive: true })
 
   const coreSummaryLines = buildCoreSummaryLines(coreLines)
@@ -430,14 +439,6 @@ async function main() {
   await writeFile(rigFile, buildRigTemplate({ rigName }), 'utf8')
   await writeFile(cssFile, buildCssTemplate(id), 'utf8')
   await writeFile(testFile, buildTestTemplate({ id, sceneName, label }), 'utf8')
-
-  const catalogContent = await readFile(catalogFile, 'utf8')
-  const catalog = JSON.parse(catalogContent)
-  ensure(Array.isArray(catalog), 'config/demo-scenes.json must be an array')
-  ensure(
-    !catalog.some((entry) => entry.pageId === id),
-    `Catalog entry for pageId "${id}" already exists in config/demo-scenes.json`,
-  )
 
   catalog.push({
     pageId: id,

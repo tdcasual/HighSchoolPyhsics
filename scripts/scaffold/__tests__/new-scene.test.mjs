@@ -121,6 +121,61 @@ describe('scene scaffold generator', () => {
     expect(stdout).not.toContain('If needed, regenerate with --scene-kind')
   })
 
+  it('does not leave a generated scene directory behind when catalog append fails', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(
+      path.join(rootDir, 'config/demo-scenes.json'),
+      `${JSON.stringify([
+        {
+          pageId: 'hall-effect',
+          label: '已存在的霍尔效应',
+          meta: {
+            tag: '课堂演示',
+            summary: 'existing',
+            highlights: ['a', 'b'],
+            tone: 'mhd',
+          },
+          touchProfile: {
+            pageScroll: 'vertical-outside-canvas',
+            canvasGestureScope: 'interactive-canvas',
+            minTouchTargetPx: 44,
+            gestureMatrix: {
+              singleFingerRotate: true,
+              twoFingerZoom: true,
+              twoFingerPan: true,
+            },
+          },
+          classroom: {
+            presentationSignals: ['chart'],
+            coreSummaryLineCount: 3,
+            sceneKind: 'field',
+            smartPresentation: {
+              layout: 'enter-only',
+              focus: false,
+              stickySummary: false,
+            },
+          },
+          playwright: {
+            readyText: '已存在的霍尔效应控制',
+            screenshotName: 'hall-effect',
+          },
+        },
+      ], null, 2)}\n`,
+      'utf8',
+    )
+
+    await expect(runScaffold(rootDir, ['--scene-kind', 'field'])).rejects.toThrow(
+      /Catalog entry for pageId "hall-effect" already exists/,
+    )
+    await expect(access(path.join(rootDir, 'src/scenes/hall-effect'), constants.F_OK)).rejects.toMatchObject({
+      code: 'ENOENT',
+    })
+  })
+
   it('generates layered scene modules by default', async () => {
     const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
     createdTempDirs.push(rootDir)
