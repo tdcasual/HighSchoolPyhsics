@@ -2,8 +2,7 @@ import { OrbitControls } from '@react-three/drei/core/OrbitControls'
 import { Canvas } from '@react-three/fiber'
 import { useAppStore } from '../store/useAppStore'
 import { findRuntimeSceneCatalogEntry, resolveSmartFocusEnabled } from '../app/sceneCatalog'
-import { findDemoRoute } from '../app/demoRoutes'
-import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE } from '../app/touchProfile'
+import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile } from '../app/touchProfile'
 import {
   useCallback,
   useEffect,
@@ -78,7 +77,7 @@ export function InteractiveCanvas({
     [activeScenePath],
   )
   const touchProfile = useMemo(
-    () => findDemoRoute(typeof window === 'undefined' ? activeScenePath : window.location.pathname)?.touchProfile ?? ENHANCED_TOUCH_PROFILE,
+    () => findRuntimeTouchProfile(activeScenePath) ?? ENHANCED_TOUCH_PROFILE,
     [activeScenePath],
   )
   const resolvedPresentationFocus = smartFocusEnabled ? presentationFocus : OVERVIEW_PRESENTATION_FOCUS

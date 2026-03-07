@@ -1,3 +1,5 @@
+import { findSceneCatalogEntryByPath } from './sceneCatalog'
+
 export type TouchGestureMatrix = {
   singleFingerRotate: boolean
   twoFingerZoom: boolean
@@ -45,4 +47,16 @@ export function buildTouchProfileHint(profile: TouchProfile): string {
 
 export function resolveTouchTargetMinSize(profile: TouchProfile): string {
   return `${profile.minTouchTargetPx}px`
+}
+
+export function findTouchProfileByPath(pathname: string): TouchProfile | null {
+  return findSceneCatalogEntryByPath(pathname) ? ENHANCED_TOUCH_PROFILE : null
+}
+
+export function findRuntimeTouchProfile(activeScenePath: string): TouchProfile | null {
+  if (typeof window !== 'undefined') {
+    return findTouchProfileByPath(window.location.pathname)
+  }
+
+  return findTouchProfileByPath(activeScenePath)
 }

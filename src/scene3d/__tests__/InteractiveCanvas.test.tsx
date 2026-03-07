@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { InteractiveCanvas } from '../InteractiveCanvas'
@@ -9,6 +11,13 @@ function setScenePath(path: string) {
 }
 
 describe('InteractiveCanvas classroom contract', () => {
+  it('avoids importing the heavy demo route registry for touch metadata', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/scene3d/InteractiveCanvas.tsx'), 'utf8')
+
+    expect(source).not.toMatch(/\.\.\/app\/demoRoutes/)
+    expect(source).toMatch(/findRuntimeTouchProfile/)
+  })
+
   beforeEach(() => {
     setScenePath('/oscilloscope')
   })
