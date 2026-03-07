@@ -483,9 +483,10 @@ async function main() {
   console.log('\nNext steps:')
   console.log('1) Fill in useXxxSceneState domain logic and rig rendering details.')
   console.log('2) Review generated sceneKind / smartPresentation values for the teaching flow.')
-  console.log('3) If needed, regenerate with --scene-kind / --smart-layout / --smart-focus / --smart-sticky-summary overrides.')
-  console.log('4) Update generated metadata/highlights to classroom-ready copy.')
-  console.log('5) Run: npm test && npm run build')
+  console.log('3) If classroom behavior needs tuning, edit the generated catalog entry/files directly.')
+  console.log(`4) Or delete src/scenes/${id} before rerunning with overrides.`)
+  console.log('5) Update generated metadata/highlights to classroom-ready copy.')
+  console.log('6) Run: npm test && npm run build')
 }
 
 main().catch((error) => {

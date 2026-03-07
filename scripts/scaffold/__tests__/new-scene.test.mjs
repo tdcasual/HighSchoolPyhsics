@@ -15,7 +15,7 @@ async function assertExists(filePath) {
 }
 
 async function runScaffold(cwd, extraArgs = []) {
-  await execFileAsync(
+  return execFileAsync(
     process.execPath,
     [
       SCRIPT_PATH,
@@ -103,6 +103,22 @@ describe('scene scaffold generator', () => {
       focus: true,
       stickySummary: true,
     })
+  })
+
+
+  it('reports follow-up guidance that matches the script workflow', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    const { stdout } = await runScaffold(rootDir, ['--scene-kind', 'field'])
+
+    expect(stdout).toContain('edit the generated catalog entry/files directly')
+    expect(stdout).toContain('delete src/scenes/hall-effect before rerunning with overrides')
+    expect(stdout).not.toContain('If needed, regenerate with --scene-kind')
   })
 
   it('generates layered scene modules by default', async () => {
