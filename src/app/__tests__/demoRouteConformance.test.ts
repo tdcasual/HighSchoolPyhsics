@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { Suspense, createElement } from 'react'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -29,6 +31,26 @@ function countRenderedCoreSummaryLines(summary: HTMLElement): number {
   }
 
   return summary.querySelectorAll('p').length
+}
+
+function readSceneDeclaredPresentationSignals(pageId: string): string[] {
+  const sceneDirectory = resolve(process.cwd(), 'src/scenes', pageId)
+  const sceneFiles = readdirSync(sceneDirectory).filter((fileName) => fileName.endsWith('Scene.tsx'))
+
+  if (sceneFiles.length !== 1) {
+    throw new Error(`Expected exactly one scene shell for ${pageId}, found ${sceneFiles.length}`)
+  }
+
+  const sceneSource = readFileSync(resolve(sceneDirectory, sceneFiles[0]), 'utf8')
+  const presentationSignalsMatch = sceneSource.match(/presentationSignals=\{\[([^\]]*)\]\}/s)
+  if (!presentationSignalsMatch) {
+    throw new Error(`Missing SceneLayout presentationSignals declaration for ${pageId}`)
+  }
+
+  return presentationSignalsMatch[1]
+    .split(',')
+    .map((token) => token.trim().replace(/^['"]|['"]$/g, ''))
+    .filter((token) => token.length > 0)
 }
 
 describe('demo route conformance', () => {
@@ -71,6 +93,12 @@ describe('demo route conformance', () => {
       expect(route.classroom.smartPresentation.layout).toMatch(/^(never|enter-only|staged)$/)
       expect(typeof route.classroom.smartPresentation.focus).toBe('boolean')
       expect(typeof route.classroom.smartPresentation.stickySummary).toBe('boolean')
+    }
+  })
+
+  it('keeps SceneLayout presentationSignals declarations aligned with the catalog', () => {
+    for (const route of DEMO_ROUTES) {
+      expect(readSceneDeclaredPresentationSignals(route.pageId)).toEqual(route.classroom.presentationSignals)
     }
   })
 

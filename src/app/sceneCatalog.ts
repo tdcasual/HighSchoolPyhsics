@@ -78,3 +78,17 @@ export function resolveSmartStickySummaryPreference(
 ): boolean {
   return smartPresentation?.stickySummary ?? fallback
 }
+
+
+export function resolveSceneKindMinimumAutoSignalScore(sceneKind: SceneKind | null | undefined): number {
+  switch (sceneKind) {
+    case 'trajectory':
+    case 'field':
+      return 2
+    case 'structure':
+    case 'process':
+      return 1
+    default:
+      return 0
+  }
+}

@@ -61,4 +61,49 @@ describe('usePresentationStrategy', () => {
       expect(result.current.presentationStrategy).toBe('split')
     })
   })
+
+
+  it('uses sceneKind fallback to keep trajectory scenes in split when explicit signals are sparse', async () => {
+    window.history.replaceState(null, '', '/cyclotron')
+    const controlsRef = { current: null }
+    const viewportRef = { current: null }
+
+    const { result } = renderHook(() =>
+      usePresentationStrategy({
+        presentationSignals: [],
+        controls: <div />,
+        controlsRef,
+        viewportRef,
+        activeScenePath: '/cyclotron',
+        presentationRouteModes: {},
+      }),
+    )
+
+    await waitFor(() => {
+      expect(result.current.autoSignalScore).toBeGreaterThanOrEqual(2)
+      expect(result.current.presentationStrategy).toBe('split')
+    })
+  })
+
+  it('uses sceneKind fallback to keep structure scenes in viewport when explicit signals are sparse', async () => {
+    window.history.replaceState(null, '', '/oersted')
+    const controlsRef = { current: null }
+    const viewportRef = { current: null }
+
+    const { result } = renderHook(() =>
+      usePresentationStrategy({
+        presentationSignals: [],
+        controls: <div />,
+        controlsRef,
+        viewportRef,
+        activeScenePath: '/oersted',
+        presentationRouteModes: {},
+      }),
+    )
+
+    await waitFor(() => {
+      expect(result.current.autoSignalScore).toBe(1)
+      expect(result.current.presentationStrategy).toBe('viewport')
+    })
+  })
 })

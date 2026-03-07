@@ -40,6 +40,7 @@
 
 - 图表主导场景（示波器/回旋加速器）应默认能进入双核心布局（`split`）。
 - 结构观察主导场景（奥斯特/MHD）可默认视口优先（`viewport`），但需保留摘要。
+- 当 `presentationSignals` 暂时不足以表达课堂主轴时，`sceneKind` 作为静态兜底：`trajectory` / `field` 至少保持 `split` 倾向，`structure` / `process` 至少保持 `viewport` 倾向。
 
 ### 3.3 smartPresentation.layout 运行时语义
 

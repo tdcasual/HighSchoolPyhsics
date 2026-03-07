@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   canUseRuntimePreferredLayout,
   findRuntimeSceneCatalogEntry,
+  resolveSceneKindMinimumAutoSignalScore,
   resolveSmartFocusEnabled,
   resolveSmartStickySummaryPreference,
 } from '../sceneCatalog'
@@ -18,6 +19,15 @@ describe('sceneCatalog classroom semantics', () => {
     expect(resolveSmartFocusEnabled(undefined)).toBe(true)
     expect(resolveSmartStickySummaryPreference({ layout: 'enter-only', focus: true, stickySummary: false }, true)).toBe(false)
     expect(resolveSmartStickySummaryPreference(undefined, true)).toBe(true)
+  })
+
+
+  it('resolves sceneKind fallback scores for classroom auto layout', () => {
+    expect(resolveSceneKindMinimumAutoSignalScore('trajectory')).toBe(2)
+    expect(resolveSceneKindMinimumAutoSignalScore('field')).toBe(2)
+    expect(resolveSceneKindMinimumAutoSignalScore('structure')).toBe(1)
+    expect(resolveSceneKindMinimumAutoSignalScore('process')).toBe(1)
+    expect(resolveSceneKindMinimumAutoSignalScore(undefined)).toBe(0)
   })
 
   it('prefers current browser path over stale activeScenePath when resolving runtime contract', () => {

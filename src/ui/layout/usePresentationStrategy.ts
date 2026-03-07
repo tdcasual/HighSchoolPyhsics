@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode, type RefObject } from 'react'
 import type { PresentationLayoutMode } from '../../store/useAppStore'
+import { findRuntimeSceneCatalogEntry, resolveSceneKindMinimumAutoSignalScore } from '../../app/sceneCatalog'
 import {
   parsePresentationSignals,
   scorePresentationSignals,
@@ -62,8 +63,11 @@ export function usePresentationStrategy({
   activeScenePath,
   presentationRouteModes,
 }: UsePresentationStrategyOptions): UsePresentationStrategyResult {
+  const sceneKindAutoSignalFloor = resolveSceneKindMinimumAutoSignalScore(
+    findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.sceneKind,
+  )
   const [autoSignalScore, setAutoSignalScore] = useState<number>(() =>
-    scorePresentationSignals(new Set(presentationSignals)),
+    Math.max(scorePresentationSignals(new Set(presentationSignals)), sceneKindAutoSignalFloor),
   )
 
   const routePathKey = typeof window === 'undefined' ? activeScenePath || '/' : readCurrentPathname()
@@ -80,11 +84,13 @@ export function usePresentationStrategy({
         collectSignalsFromHost(host, nextSignals)
       })
 
-      setAutoSignalScore(scorePresentationSignals(nextSignals))
+      setAutoSignalScore(
+        Math.max(scorePresentationSignals(nextSignals), sceneKindAutoSignalFloor),
+      )
     })
 
     return () => window.cancelAnimationFrame(rafId)
-  }, [controls, controlsRef, presentationSignals, viewportRef])
+  }, [activeScenePath, controls, controlsRef, presentationSignals, sceneKindAutoSignalFloor, viewportRef])
 
   const presentationStrategy = useMemo(
     () => resolvePresentationStrategy(routeMode, autoSignalScore),
