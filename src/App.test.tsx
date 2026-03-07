@@ -189,6 +189,18 @@ describe('App shell', () => {
     expect(useAppStore.getState().presentationRouteModes['/cyclotron']).toBe('viewport')
   })
 
+  it('applies the active route touch profile to shell interaction affordances', async () => {
+    window.history.replaceState(null, '', '/oscilloscope')
+
+    const { container } = render(<App />)
+
+    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
+
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    expect(shell).toHaveAttribute('data-page-scroll', 'vertical-outside-canvas')
+    expect(shell).toHaveStyle('--touch-target-min-size: 44px')
+  })
+
   it('renders runtime capability blocking card when required features are unavailable', () => {
     vi
       .spyOn(runtimeCapabilities, 'getRuntimeCapabilities')

@@ -42,3 +42,7 @@ export function buildTouchProfileHint(profile: TouchProfile): string {
 
   return ['拖拽旋转', '滚轮缩放', '右键平移', ...touchFragments].join(' · ')
 }
+
+export function resolveTouchTargetMinSize(profile: TouchProfile): string {
+  return `${profile.minTouchTargetPx}px`
+}

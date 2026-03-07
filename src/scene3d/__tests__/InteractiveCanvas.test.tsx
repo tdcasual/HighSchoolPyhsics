@@ -63,6 +63,18 @@ describe('InteractiveCanvas classroom contract', () => {
   })
 
 
+  it('exposes the current route canvas gesture scope on the fallback surface', () => {
+    setScenePath('/oscilloscope')
+
+    render(
+      <InteractiveCanvas camera={{ position: [0, 2, 6], fov: 42 }}>
+        <mesh />
+      </InteractiveCanvas>,
+    )
+
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-canvas-gesture-scope', 'interactive-canvas')
+  })
+
   it('renders the current route touch-profile hint in the canvas fallback', () => {
     setScenePath('/oscilloscope')
 

@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import './App.css'
 import {
   DEMO_ROUTES,
@@ -11,6 +11,7 @@ import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
+import { ENHANCED_TOUCH_PROFILE, resolveTouchTargetMinSize } from './app/touchProfile'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -102,8 +103,13 @@ function App() {
     PRESENTATION_LAYOUT_OPTIONS.find((option) => option.value === presentationLayoutMode)?.label ?? '自动'
   const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
+  const activeTouchProfile = activeRoute?.touchProfile ?? ENHANCED_TOUCH_PROFILE
   const ActiveScene = activeRoute?.Component
   const runtimeCapabilities = useMemo(() => getRuntimeCapabilities(), [])
+  const shellStyle = useMemo<CSSProperties>(
+    () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
+    [activeTouchProfile],
+  )
   const shellClassName = [
     'app-shell',
     `theme-${theme}`,
@@ -115,7 +121,7 @@ function App() {
 
   if (!runtimeCapabilities.supported) {
     return (
-      <main className="app-shell">
+      <main className="app-shell" data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
         <section className="scene-missing scene-runtime-fallback" role="alert">
           <h1>运行环境不支持</h1>
           <p>当前浏览器不满足 3D 演示运行要求。</p>
@@ -131,7 +137,11 @@ function App() {
   }
 
   return (
-    <main className={shellClassName}>
+    <main
+      className={shellClassName}
+      data-page-scroll={activeTouchProfile.pageScroll}
+      style={shellStyle}
+    >
       <header className="app-header">
         <h1>{APP_BRAND_NAME}</h1>
         <div className="app-controls">

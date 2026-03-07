@@ -29,6 +29,10 @@ body {
   background: var(--shell-bg-day);
 }
 
+.app-shell[data-page-scroll='vertical-outside-canvas'] {
+  touch-action: pan-y;
+}
+
 .app-header {
   display: flex;
   align-items: center;
@@ -80,8 +84,8 @@ body {
 }
 
 .touch-target {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: var(--touch-target-min-size, 44px);
+  min-height: var(--touch-target-min-size, 44px);
 }
 
 .theme-switch {
@@ -688,11 +692,14 @@ body {
 .interactive-canvas-surface {
   min-height: 0;
   height: 100%;
+}
+
+.interactive-canvas-surface[data-canvas-gesture-scope='interactive-canvas'] {
   /* Gesture-first in canvas; vertical page scroll is expected outside canvas only. */
   touch-action: none;
 }
 
-.interactive-canvas-surface canvas {
+.interactive-canvas-surface[data-canvas-gesture-scope='interactive-canvas'] canvas {
   touch-action: none;
 }
 

@@ -255,7 +255,11 @@ export function InteractiveCanvas({
 
   if (isTestRuntime()) {
     return (
-      <div className="canvas-fallback-stack" data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}>
+      <div
+        className="canvas-fallback-stack"
+        data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}
+        data-canvas-gesture-scope={touchProfile.canvasGestureScope}
+      >
         <div className="canvas-fallback">3D演示预览（测试环境占位）</div>
         <p className="interaction-hint">{hint}</p>
       </div>
@@ -263,8 +267,15 @@ export function InteractiveCanvas({
   }
 
   return (
-    <div className="interactive-canvas" data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}>
-      <div className="interactive-canvas-surface">
+    <div
+      className="interactive-canvas"
+      data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}
+      data-canvas-gesture-scope={touchProfile.canvasGestureScope}
+    >
+      <div
+        className="interactive-canvas-surface"
+        data-canvas-gesture-scope={touchProfile.canvasGestureScope}
+      >
         <Canvas
           camera={camera}
           frameloop={frameloop}
