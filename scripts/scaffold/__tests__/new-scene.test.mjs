@@ -14,7 +14,7 @@ async function assertExists(filePath) {
   await access(filePath, constants.F_OK)
 }
 
-async function runScaffold(cwd) {
+async function runScaffold(cwd, extraArgs = []) {
   await execFileAsync(
     process.execPath,
     [
@@ -29,12 +29,25 @@ async function runScaffold(cwd) {
       'chart,live-metric',
       '--core-lines',
       '4',
+      ...extraArgs,
     ],
     { cwd },
   )
 }
 
 describe('scene scaffold generator', () => {
+
+  it('rejects ambiguous classroom semantics without an explicit scene kind', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    await expect(runScaffold(rootDir)).rejects.toThrow(/--scene-kind/)
+  })
+
   afterEach(async () => {
     await Promise.all(createdTempDirs.map((dirPath) => rm(dirPath, { recursive: true, force: true })))
     createdTempDirs.length = 0
@@ -49,16 +62,46 @@ describe('scene scaffold generator', () => {
     await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
     await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
 
-    await runScaffold(rootDir)
+    await runScaffold(rootDir, ['--scene-kind', 'field'])
 
     const catalog = JSON.parse(await readFile(path.join(rootDir, 'config/demo-scenes.json'), 'utf8'))
     const entry = catalog[0]
 
-    expect(entry.classroom.sceneKind).toBe('process')
+    expect(entry.classroom.sceneKind).toBe('field')
     expect(entry.classroom.smartPresentation).toEqual({
-      layout: 'never',
+      layout: 'enter-only',
       focus: false,
       stickySummary: false,
+    })
+  })
+
+
+  it('allows explicit smart-presentation overrides', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    await runScaffold(rootDir, [
+      '--scene-kind',
+      'field',
+      '--smart-layout',
+      'staged',
+      '--smart-focus',
+      'true',
+      '--smart-sticky-summary',
+      'true',
+    ])
+
+    const catalog = JSON.parse(await readFile(path.join(rootDir, 'config/demo-scenes.json'), 'utf8'))
+    const entry = catalog[0]
+
+    expect(entry.classroom.smartPresentation).toEqual({
+      layout: 'staged',
+      focus: true,
+      stickySummary: true,
     })
   })
 
@@ -70,7 +113,7 @@ describe('scene scaffold generator', () => {
     await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
     await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
 
-    await runScaffold(rootDir)
+    await runScaffold(rootDir, ['--scene-kind', 'field'])
 
     const sceneDir = path.join(rootDir, 'src/scenes/hall-effect')
     const sceneFile = path.join(sceneDir, 'HallEffectScene.tsx')

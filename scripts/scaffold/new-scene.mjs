@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 
 const VALID_TONES = new Set(['scope', 'cyclotron', 'mhd', 'oersted'])
 const VALID_SIGNALS = new Set(['chart', 'live-metric', 'time-series', 'interactive-readout'])
+const VALID_SCENE_KINDS = new Set(['trajectory', 'field', 'structure', 'process'])
+const VALID_SMART_LAYOUTS = new Set(['never', 'enter-only', 'staged'])
 
 function parseArgs(argv) {
   const args = new Map()
@@ -50,6 +52,60 @@ async function ensurePathMissing(pathname, message) {
     }
     throw error
   }
+}
+
+function parseBooleanArg(value, flagName) {
+  if (value === undefined) {
+    return undefined
+  }
+
+  if (value === 'true') {
+    return true
+  }
+
+  if (value === 'false') {
+    return false
+  }
+
+  throw new Error(`${flagName} must be true or false`)
+}
+
+function hasChartLikeSignals(signals) {
+  return signals.includes('chart') || signals.includes('time-series')
+}
+
+function inferSceneKind(tone, signals) {
+  if (tone === 'cyclotron' || signals.includes('time-series')) {
+    return 'trajectory'
+  }
+
+  if (tone === 'oersted') {
+    return 'structure'
+  }
+
+  if (!hasChartLikeSignals(signals) && signals.includes('interactive-readout') && !signals.includes('live-metric')) {
+    return 'structure'
+  }
+
+  if (!hasChartLikeSignals(signals) && signals.includes('live-metric') && !signals.includes('interactive-readout')) {
+    return 'process'
+  }
+
+  return null
+}
+
+function resolveSceneKind(sceneKindArg, tone, signals) {
+  if (sceneKindArg !== undefined) {
+    ensure(VALID_SCENE_KINDS.has(sceneKindArg), `--scene-kind must be one of: ${[...VALID_SCENE_KINDS].join(', ')}`)
+    return sceneKindArg
+  }
+
+  const inferred = inferSceneKind(tone, signals)
+  ensure(
+    inferred !== null,
+    '--scene-kind is required when signals/tone do not allow a safe classroom default',
+  )
+  return inferred
 }
 
 function buildCoreSummaryLines(coreLines) {
@@ -226,20 +282,22 @@ export function ${controlsName}({ state }: ${controlsName}Props) {
 `
 }
 
-function buildDefaultSmartPresentation() {
+function buildDefaultSmartPresentation(sceneKind, signals) {
   return {
-    layout: 'never',
+    layout: hasChartLikeSignals(signals) && (sceneKind === 'trajectory' || sceneKind === 'field')
+      ? 'enter-only'
+      : 'never',
     focus: false,
     stickySummary: false,
   }
 }
 
-function buildDefaultClassroomContract(signals, coreLines) {
+function buildDefaultClassroomContract({ signals, coreLines, sceneKind, smartPresentation }) {
   return {
     presentationSignals: signals,
     coreSummaryLineCount: coreLines,
-    sceneKind: 'process',
-    smartPresentation: buildDefaultSmartPresentation(),
+    sceneKind,
+    smartPresentation,
   }
 }
 
@@ -286,6 +344,10 @@ async function main() {
   const highlightB = args.get('highlight-b') ?? '参数联动观察'
   const coreLinesRaw = args.get('core-lines') ?? '3'
   const signalsRaw = args.get('signals') ?? 'live-metric'
+  const sceneKindArg = args.get('scene-kind')
+  const smartLayoutArg = args.get('smart-layout')
+  const smartFocusArg = args.get('smart-focus')
+  const smartStickySummaryArg = args.get('smart-sticky-summary')
 
   ensure(id, 'Missing --id (example: --id hall-effect)')
   ensure(label, 'Missing --label (example: --label 霍尔效应)')
@@ -306,6 +368,19 @@ async function main() {
       VALID_SIGNALS.has(signal),
       `Invalid signal "${signal}". Allowed: ${[...VALID_SIGNALS].join(', ')}`,
     )
+  }
+
+  const sceneKind = resolveSceneKind(sceneKindArg, tone, signals)
+  if (smartLayoutArg !== undefined) {
+    ensure(VALID_SMART_LAYOUTS.has(smartLayoutArg), `--smart-layout must be one of: ${[...VALID_SMART_LAYOUTS].join(', ')}`)
+  }
+  const smartFocus = parseBooleanArg(smartFocusArg, '--smart-focus')
+  const smartStickySummary = parseBooleanArg(smartStickySummaryArg, '--smart-sticky-summary')
+  const defaultSmartPresentation = buildDefaultSmartPresentation(sceneKind, signals)
+  const smartPresentation = {
+    layout: smartLayoutArg ?? defaultSmartPresentation.layout,
+    focus: smartFocus ?? defaultSmartPresentation.focus,
+    stickySummary: smartStickySummary ?? defaultSmartPresentation.stickySummary,
   }
 
   const sceneNameBase = toPascalCase(id)
@@ -383,7 +458,12 @@ async function main() {
         twoFingerPan: true,
       },
     },
-    classroom: buildDefaultClassroomContract(signals, coreLines),
+    classroom: buildDefaultClassroomContract({
+      signals,
+      coreLines,
+      sceneKind,
+      smartPresentation,
+    }),
     playwright: {
       readyText: `${label}控制`,
       screenshotName: id,
@@ -402,9 +482,10 @@ async function main() {
   console.log('- 自动场景发现将按 src/scenes/<id>/*Scene.tsx + *Scene 导出接入路由，无需手改 demoRoutes')
   console.log('\nNext steps:')
   console.log('1) Fill in useXxxSceneState domain logic and rig rendering details.')
-  console.log('2) Review generated sceneKind / smartPresentation defaults for the teaching flow.')
-  console.log('3) Update generated metadata/highlights to classroom-ready copy.')
-  console.log('4) Run: npm test && npm run build')
+  console.log('2) Review generated sceneKind / smartPresentation values for the teaching flow.')
+  console.log('3) If needed, regenerate with --scene-kind / --smart-layout / --smart-focus / --smart-sticky-summary overrides.')
+  console.log('4) Update generated metadata/highlights to classroom-ready copy.')
+  console.log('5) Run: npm test && npm run build')
 }
 
 main().catch((error) => {
