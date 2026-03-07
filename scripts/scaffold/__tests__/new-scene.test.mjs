@@ -40,6 +40,28 @@ describe('scene scaffold generator', () => {
     createdTempDirs.length = 0
   })
 
+
+  it('writes a classroom-contract-complete catalog entry', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    await runScaffold(rootDir)
+
+    const catalog = JSON.parse(await readFile(path.join(rootDir, 'config/demo-scenes.json'), 'utf8'))
+    const entry = catalog[0]
+
+    expect(entry.classroom.sceneKind).toBe('process')
+    expect(entry.classroom.smartPresentation).toEqual({
+      layout: 'never',
+      focus: false,
+      stickySummary: false,
+    })
+  })
+
   it('generates layered scene modules by default', async () => {
     const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
     createdTempDirs.push(rootDir)

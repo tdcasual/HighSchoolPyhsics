@@ -226,6 +226,23 @@ export function ${controlsName}({ state }: ${controlsName}Props) {
 `
 }
 
+function buildDefaultSmartPresentation() {
+  return {
+    layout: 'never',
+    focus: false,
+    stickySummary: false,
+  }
+}
+
+function buildDefaultClassroomContract(signals, coreLines) {
+  return {
+    presentationSignals: signals,
+    coreSummaryLineCount: coreLines,
+    sceneKind: 'process',
+    smartPresentation: buildDefaultSmartPresentation(),
+  }
+}
+
 function buildCssTemplate(id) {
   return `.${id}-readout {
   padding: 0.56rem 0.64rem;
@@ -366,10 +383,7 @@ async function main() {
         twoFingerPan: true,
       },
     },
-    classroom: {
-      presentationSignals: signals,
-      coreSummaryLineCount: coreLines,
-    },
+    classroom: buildDefaultClassroomContract(signals, coreLines),
     playwright: {
       readyText: `${label}控制`,
       screenshotName: id,
@@ -388,8 +402,9 @@ async function main() {
   console.log('- 自动场景发现将按 src/scenes/<id>/*Scene.tsx + *Scene 导出接入路由，无需手改 demoRoutes')
   console.log('\nNext steps:')
   console.log('1) Fill in useXxxSceneState domain logic and rig rendering details.')
-  console.log('2) Update generated metadata/highlights to classroom-ready copy.')
-  console.log('3) Run: npm test && npm run build')
+  console.log('2) Review generated sceneKind / smartPresentation defaults for the teaching flow.')
+  console.log('3) Update generated metadata/highlights to classroom-ready copy.')
+  console.log('4) Run: npm test && npm run build')
 }
 
 main().catch((error) => {
