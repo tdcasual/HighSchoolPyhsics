@@ -21,27 +21,37 @@ function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
     issues.push({ path: route.path, message: 'label must be a non-blank string' })
   }
 
-  if (!isNonBlankText(route.meta.tag)) {
-    issues.push({ path: route.path, message: 'meta.tag must be a non-blank string' })
-  }
+  const meta = isRecord(route.meta) ? route.meta : null
 
-  if (!isNonBlankText(route.meta.summary)) {
-    issues.push({ path: route.path, message: 'meta.summary must be a non-blank string' })
-  }
-
-  const highlights = Array.isArray(route.meta.highlights) ? route.meta.highlights : null
-
-  if (!highlights) {
-    issues.push({ path: route.path, message: 'meta.highlights must be an array of non-blank strings' })
+  if (!meta) {
+    issues.push({ path: route.path, message: 'meta must be an object with tag, summary, highlights, and tone' })
   } else {
-    if (highlights.length < 2) {
-      issues.push({ path: route.path, message: 'meta.highlights must provide at least two items' })
+    if (!isNonBlankText(meta.tag)) {
+      issues.push({ path: route.path, message: 'meta.tag must be a non-blank string' })
     }
 
-    for (const [index, highlight] of highlights.entries()) {
-      if (!isNonBlankText(highlight)) {
-        issues.push({ path: route.path, message: `meta.highlights[${index}] must be a non-blank string` })
+    if (!isNonBlankText(meta.summary)) {
+      issues.push({ path: route.path, message: 'meta.summary must be a non-blank string' })
+    }
+
+    const highlights = Array.isArray(meta.highlights) ? meta.highlights : null
+
+    if (!highlights) {
+      issues.push({ path: route.path, message: 'meta.highlights must be an array of non-blank strings' })
+    } else {
+      if (highlights.length < 2) {
+        issues.push({ path: route.path, message: 'meta.highlights must provide at least two items' })
       }
+
+      for (const [index, highlight] of highlights.entries()) {
+        if (!isNonBlankText(highlight)) {
+          issues.push({ path: route.path, message: `meta.highlights[${index}] must be a non-blank string` })
+        }
+      }
+    }
+
+    if (typeof meta.tone !== 'string' || !['scope', 'cyclotron', 'mhd', 'oersted'].includes(meta.tone)) {
+      issues.push({ path: route.path, message: 'meta.tone must be one of scope|cyclotron|mhd|oersted' })
     }
   }
 

@@ -256,6 +256,7 @@ export function SampleScene() {
         tag: false as unknown as (typeof DEMO_ROUTES)[number]['meta']['tag'],
         summary: { text: 'bad' } as unknown as (typeof DEMO_ROUTES)[number]['meta']['summary'],
         highlights: [42, 'ok'] as unknown as (typeof DEMO_ROUTES)[number]['meta']['highlights'],
+        tone: false as unknown as (typeof DEMO_ROUTES)[number]['meta']['tone'],
       },
     }
 
@@ -277,8 +278,24 @@ export function SampleScene() {
           path: invalidRoute.path,
           message: 'meta.highlights[0] must be a non-blank string',
         },
+        {
+          path: invalidRoute.path,
+          message: 'meta.tone must be one of scope|cyclotron|mhd|oersted',
+        },
       ]),
     )
+  })
+
+  it('reports missing route meta objects as conformance issues instead of throwing', () => {
+    const invalidRoute = {
+      ...DEMO_ROUTES[0],
+      meta: null as unknown as (typeof DEMO_ROUTES)[number]['meta'],
+    }
+
+    expect(collectRouteConformanceIssues([invalidRoute])).toContainEqual({
+      path: invalidRoute.path,
+      message: 'meta must be an object with tag, summary, highlights, and tone',
+    })
   })
 
   it('reports malformed classroom metadata as conformance issues instead of throwing', () => {
