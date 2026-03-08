@@ -60,7 +60,7 @@ function findPresentationSignalsExpression(sourceFile: ts.SourceFile): ts.Expres
       return
     }
 
-    if (ts.isJsxAttribute(node) && node.name.text === 'presentationSignals') {
+    if (ts.isJsxAttribute(node) && ts.isIdentifier(node.name) && node.name.text === 'presentationSignals') {
       const initializer = node.initializer
       if (initializer && ts.isJsxExpression(initializer) && initializer.expression) {
         foundExpression = initializer.expression

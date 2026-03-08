@@ -3,6 +3,8 @@ import {
   canUseRuntimePreferredLayout,
   findRuntimeSceneCatalogEntry,
   findSceneCatalogEntryByPath,
+  resolveClassroomSceneKind,
+  resolveClassroomSmartPresentation,
   resolveSceneKindMinimumAutoSignalScore,
   resolveSmartFocusEnabled,
   resolveSmartStickySummaryPreference,
@@ -43,6 +45,24 @@ describe('sceneCatalog classroom semantics', () => {
     ).toBe(true)
   })
 
+
+  it('resolves classroom sceneKind and smart presentation only from valid classroom objects', () => {
+    expect(resolveClassroomSceneKind({ sceneKind: 'field' })).toBe('field')
+    expect(resolveClassroomSceneKind(null)).toBeNull()
+    expect(resolveClassroomSceneKind({ sceneKind: 'vector' })).toBeNull()
+
+    expect(
+      resolveClassroomSmartPresentation({
+        smartPresentation: { layout: 'staged', focus: true, stickySummary: false },
+      }),
+    ).toEqual({ layout: 'staged', focus: true, stickySummary: false })
+    expect(resolveClassroomSmartPresentation({ smartPresentation: null })).toBeNull()
+    expect(
+      resolveClassroomSmartPresentation({
+        smartPresentation: { layout: 'staged', focus: 'true', stickySummary: false },
+      }),
+    ).toBeNull()
+  })
 
   it('resolves sceneKind fallback scores for classroom auto layout', () => {
     expect(resolveSceneKindMinimumAutoSignalScore('trajectory')).toBe(2)

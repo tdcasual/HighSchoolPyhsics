@@ -38,6 +38,10 @@ export type SceneCatalogEntry = {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
 function normalizeScenePath(pathname: string): string {
   if (!pathname || pathname === '/') {
     return '/'
@@ -64,6 +68,45 @@ export function findRuntimeSceneCatalogEntry(activeScenePath: string): SceneCata
   }
 
   return findSceneCatalogEntryByPath(activeScenePath)
+}
+
+export function resolveClassroomSceneKind(classroom: unknown): SceneKind | null {
+  if (!isRecord(classroom)) {
+    return null
+  }
+
+  switch (classroom.sceneKind) {
+    case 'trajectory':
+    case 'field':
+    case 'structure':
+    case 'process':
+      return classroom.sceneKind
+    default:
+      return null
+  }
+}
+
+export function resolveClassroomSmartPresentation(classroom: unknown): SmartPresentationContract | null {
+  if (!isRecord(classroom) || !isRecord(classroom.smartPresentation)) {
+    return null
+  }
+
+  const smartPresentation = classroom.smartPresentation
+  const layout = smartPresentation.layout
+
+  if (layout !== 'never' && layout !== 'enter-only' && layout !== 'staged') {
+    return null
+  }
+
+  if (typeof smartPresentation.focus !== 'boolean' || typeof smartPresentation.stickySummary !== 'boolean') {
+    return null
+  }
+
+  return {
+    layout,
+    focus: smartPresentation.focus,
+    stickySummary: smartPresentation.stickySummary,
+  }
 }
 
 export function canUseRuntimePreferredLayout(smartPresentation: SmartPresentationContract | null | undefined): boolean {

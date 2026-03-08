@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode, type RefObject } from 'react'
 import type { PresentationLayoutMode } from '../../store/useAppStore'
-import { findRuntimeSceneCatalogEntry, resolveSceneKindMinimumAutoSignalScore } from '../../app/sceneCatalog'
+import { findRuntimeSceneCatalogEntry, resolveClassroomSceneKind, resolveSceneKindMinimumAutoSignalScore } from '../../app/sceneCatalog'
 import {
   parsePresentationSignals,
   scorePresentationSignals,
@@ -64,7 +64,7 @@ export function usePresentationStrategy({
   presentationRouteModes,
 }: UsePresentationStrategyOptions): UsePresentationStrategyResult {
   const sceneKindAutoSignalFloor = resolveSceneKindMinimumAutoSignalScore(
-    findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.sceneKind,
+    resolveClassroomSceneKind(findRuntimeSceneCatalogEntry(activeScenePath)?.classroom),
   )
   const [autoSignalScore, setAutoSignalScore] = useState<number>(() =>
     Math.max(scorePresentationSignals(new Set(presentationSignals)), sceneKindAutoSignalFloor),

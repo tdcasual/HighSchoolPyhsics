@@ -11,7 +11,7 @@ import type { PresentationSignal } from './presentationSignals'
 import { usePresentationStrategy } from './usePresentationStrategy'
 import { useResizableSplitPanel } from './useResizableSplitPanel'
 import { usePresentationDirector, type PresentationIntent } from './usePresentationDirector'
-import { findRuntimeSceneCatalogEntry } from '../../app/sceneCatalog'
+import { findRuntimeSceneCatalogEntry, resolveClassroomSmartPresentation } from '../../app/sceneCatalog'
 
 type SceneLayoutProps = {
   controls: ReactNode
@@ -42,7 +42,7 @@ export function SceneLayout({
   const viewportRef = useRef<HTMLElement | null>(null)
   const [tier, setTier] = useState<LayoutTier>(() => resolveLayoutTier(readViewportWidth()))
   const smartPresentation = useMemo(
-    () => findRuntimeSceneCatalogEntry(activeScenePath)?.classroom.smartPresentation ?? null,
+    () => resolveClassroomSmartPresentation(findRuntimeSceneCatalogEntry(activeScenePath)?.classroom),
     [activeScenePath],
   )
 
