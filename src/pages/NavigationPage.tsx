@@ -10,6 +10,51 @@ type NavigationPageProps = {
 
 const WARMUP_HOVER_DELAY_MS = 120
 const MAX_SHORTCUT_ROUTE_COUNT = 9
+const FALLBACK_OVERVIEW_LABEL = '演示'
+const FALLBACK_OVERVIEW_TAG = '课堂演示'
+const FALLBACK_OVERVIEW_SUMMARY = '课堂演示信息待补充'
+const FALLBACK_OVERVIEW_TONE = 'scope'
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isNonBlankText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function isOverviewTone(value: unknown): value is 'scope' | 'cyclotron' | 'mhd' | 'oersted' {
+  return value === 'scope' || value === 'cyclotron' || value === 'mhd' || value === 'oersted'
+}
+
+function resolveOverviewLabel(label: unknown): string {
+  return isNonBlankText(label) ? label : FALLBACK_OVERVIEW_LABEL
+}
+
+function resolveOverviewMeta(meta: unknown): {
+  tag: string
+  summary: string
+  highlights: string[]
+  tone: 'scope' | 'cyclotron' | 'mhd' | 'oersted'
+} {
+  if (!isRecord(meta)) {
+    return {
+      tag: FALLBACK_OVERVIEW_TAG,
+      summary: FALLBACK_OVERVIEW_SUMMARY,
+      highlights: [],
+      tone: FALLBACK_OVERVIEW_TONE,
+    }
+  }
+
+  const highlights = Array.isArray(meta.highlights) ? meta.highlights.filter(isNonBlankText) : []
+
+  return {
+    tag: isNonBlankText(meta.tag) ? meta.tag : FALLBACK_OVERVIEW_TAG,
+    summary: isNonBlankText(meta.summary) ? meta.summary : FALLBACK_OVERVIEW_SUMMARY,
+    highlights,
+    tone: isOverviewTone(meta.tone) ? meta.tone : FALLBACK_OVERVIEW_TONE,
+  }
+}
 
 function formatShortcutTip(routeCount: number): string {
   const shortcutCount = Math.min(routeCount, MAX_SHORTCUT_ROUTE_COUNT)
@@ -85,7 +130,8 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
 
         <div className="overview-grid">
           {routes.map((route, index) => {
-            const meta = route.meta
+            const label = resolveOverviewLabel(route.label)
+            const meta = resolveOverviewMeta(route.meta)
 
             return (
               <article key={route.path} className={`overview-card tone-${meta.tone}`}>
@@ -93,13 +139,15 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                   <p className="overview-card-index">{String(index + 1).padStart(2, '0')}</p>
                   <p className="overview-card-tag">{meta.tag}</p>
                 </div>
-                <h3>{route.label}</h3>
+                <h3>{label}</h3>
                 <p className="overview-card-summary">{meta.summary}</p>
-                <ul className="overview-points">
-                  {meta.highlights.map((item) => (
-                    <li key={`${route.path}-${item}`}>{item}</li>
-                  ))}
-                </ul>
+                {meta.highlights.length > 0 ? (
+                  <ul className="overview-points">
+                    {meta.highlights.map((item, itemIndex) => (
+                      <li key={`${route.path}-${itemIndex}-${item}`}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
                 <button
                   className="touch-target overview-enter"
                   aria-keyshortcuts={String(index + 1)}
@@ -118,7 +166,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                     onOpenRoute(route.path)
                   }}
                 >
-                  <span>进入{route.label}</span>
+                  <span>进入{label}</span>
                   <span aria-hidden="true">↗</span>
                 </button>
               </article>

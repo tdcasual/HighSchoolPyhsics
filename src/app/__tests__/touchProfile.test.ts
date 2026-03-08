@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile, findTouchProfileByPath } from '../touchProfile'
+import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile, findTouchProfileByPath, resolveTouchProfile } from '../touchProfile'
 import { findSceneCatalogEntryByPath } from '../sceneCatalog'
 
 describe('touchProfile helpers', () => {
@@ -24,6 +24,17 @@ describe('touchProfile helpers', () => {
 
     expect(findRuntimeTouchProfile('/')).toStrictEqual(ENHANCED_TOUCH_PROFILE)
     expect(findRuntimeTouchProfile('/')).not.toBe(ENHANCED_TOUCH_PROFILE)
+  })
+
+  it('falls back to the enhanced profile when touch metadata is malformed', () => {
+    expect(
+      resolveTouchProfile({
+        pageScroll: false,
+        canvasGestureScope: 'interactive-canvas',
+        minTouchTargetPx: '44',
+        gestureMatrix: null,
+      }),
+    ).toStrictEqual(ENHANCED_TOUCH_PROFILE)
   })
   it('omits unsupported touch gestures from the hint text', () => {
     expect(

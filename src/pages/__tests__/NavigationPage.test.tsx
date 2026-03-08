@@ -139,4 +139,23 @@ describe('NavigationPage warmup behavior', () => {
     await Promise.resolve()
     expect(preload).toHaveBeenCalledTimes(1)
   })
+
+  it('renders a safe overview card when route meta is malformed', () => {
+    const route = buildRoute({
+      label: null as unknown as DemoRoute['label'],
+      meta: {
+        tag: 42,
+        summary: null,
+        highlights: null,
+        tone: 'broken-tone',
+      } as unknown as DemoRoute['meta'],
+    })
+
+    render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
+
+    expect(screen.getByRole('heading', { name: '演示' })).toBeInTheDocument()
+    expect(screen.getByText('课堂演示')).toBeInTheDocument()
+    expect(screen.getByText('课堂演示信息待补充')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '进入演示' })).toBeInTheDocument()
+  })
 })
