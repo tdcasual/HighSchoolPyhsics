@@ -32,9 +32,13 @@ export class SceneRuntimeBoundary extends Component<
   }
 
   private handleRetry = (): void => {
-    const retryPromise = this.props.onRetryScene?.()
-    if (retryPromise) {
-      void Promise.resolve(retryPromise).catch(() => undefined)
+    try {
+      const retryPromise = this.props.onRetryScene?.()
+      if (retryPromise) {
+        void Promise.resolve(retryPromise).catch(() => undefined)
+      }
+    } catch {
+      // noop
     }
 
     this.setState((state) => ({

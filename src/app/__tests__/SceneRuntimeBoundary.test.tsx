@@ -74,6 +74,30 @@ describe('SceneRuntimeBoundary', () => {
     expect(onBackToOverview).toHaveBeenCalledTimes(1)
   })
 
+  it('swallows synchronous retry hook errors and still retries the scene', async () => {
+    const recoverableScene = createRecoverableScene()
+    const onRetryScene = vi.fn(() => {
+      throw new Error('retry-hook-crash')
+    })
+
+    render(
+      <SceneRuntimeBoundary
+        scenePath="/electrostatic-lab"
+        onBackToOverview={() => undefined}
+        onRetryScene={onRetryScene}
+      >
+        <recoverableScene.RecoverableScene />
+      </SceneRuntimeBoundary>,
+    )
+
+    expect(await screen.findByRole('heading', { name: '场景暂时不可用' })).toBeInTheDocument()
+
+    recoverableScene.recover()
+    expect(() => fireEvent.click(screen.getByRole('button', { name: '重试场景' }))).not.toThrow()
+    expect(onRetryScene).toHaveBeenCalledTimes(1)
+    expect(await screen.findByText('场景恢复成功')).toBeInTheDocument()
+  })
+
   it('clears error state after route path changes', async () => {
     const { rerender } = render(
       <SceneRuntimeBoundary scenePath="/mhd" onBackToOverview={() => undefined}>
