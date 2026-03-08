@@ -226,7 +226,36 @@ export function ${rigName}({ running, intensity }: ${rigName}Props) {
 `
 }
 
-function buildControlsTemplate({ id, label, controlsName, signalString, stateTypeName, stateHookName }) {
+function buildSignalPlaceholderBlocks(id, signals) {
+  const blocks = []
+
+  if (signals.includes('live-metric')) {
+    blocks.push(`      <div className="${id}-readout" data-presentation-signal="live-metric">
+        <p>当前读数: {state.readoutText}</p>
+      </div>`)
+  }
+
+  if (signals.includes('interactive-readout')) {
+    blocks.push(`      <div className="${id}-observation-card" data-presentation-signal="interactive-readout">
+        <p>课堂观察: 待补充</p>
+      </div>`)
+  }
+
+  const chartSignals = signals.filter((signal) => signal === 'chart' || signal === 'time-series')
+  if (chartSignals.length > 0) {
+    const chartLabel = chartSignals.includes('time-series') ? '时间序列趋势图占位' : '趋势图占位'
+    blocks.push(`      <div className="${id}-chart-card" data-presentation-signal="${chartSignals.join(' ')}">
+        <p>${chartLabel}</p>
+        <p>请将关键曲线 / 波形接到这里。</p>
+      </div>`)
+  }
+
+  return blocks.join('\n\n')
+}
+
+function buildControlsTemplate({ id, label, controlsName, signals, stateTypeName, stateHookName }) {
+  const signalBlocks = buildSignalPlaceholderBlocks(id, signals)
+
   return `import { RangeField } from '../../ui/controls/RangeField'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import type { ${stateTypeName} } from './${stateHookName}'
@@ -265,9 +294,7 @@ export function ${controlsName}({ state }: ${controlsName}Props) {
         ]}
       />
 
-      <div className="${id}-readout" data-presentation-signal="${signalString}">
-        <p>当前读数: {state.readoutText}</p>
-      </div>
+${signalBlocks}
 
       <div className="structure-card">
         <h3>演示要点</h3>
@@ -302,17 +329,30 @@ function buildDefaultClassroomContract({ signals, coreLines, sceneKind, smartPre
 }
 
 function buildCssTemplate(id) {
-  return `.${id}-readout {
+  return `.${id}-readout,
+.${id}-observation-card,
+.${id}-chart-card {
   padding: 0.56rem 0.64rem;
   border-radius: 10px;
   border: 1px solid #b4d0e8;
   background: rgba(231, 247, 255, 0.78);
 }
 
-.${id}-readout p {
+.${id}-chart-card {
+  min-height: 7.2rem;
+  background: linear-gradient(180deg, rgba(231, 247, 255, 0.9), rgba(214, 235, 250, 0.82));
+}
+
+.${id}-readout p,
+.${id}-observation-card p,
+.${id}-chart-card p {
   margin: 0;
   color: #1e4f72;
   font-family: 'SF Mono', Menlo, monospace;
+}
+
+.${id}-chart-card p + p {
+  margin-top: 0.4rem;
 }
 `
 }
@@ -392,8 +432,6 @@ async function main() {
   const stateHookName = `use${sceneNameBase}SceneState`
   const stateTypeName = `${sceneNameBase}SceneState`
   const signalsLiteral = `[${signals.map((signal) => `'${signal}'`).join(', ')}]`
-  const signalString = signals.join(' ')
-
   const rootDir = process.cwd()
   const sceneDir = resolve(rootDir, `src/scenes/${id}`)
   const sceneFile = resolve(sceneDir, `${sceneName}.tsx`)
@@ -432,7 +470,7 @@ async function main() {
   )
   await writeFile(
     controlsFile,
-    buildControlsTemplate({ id, label, controlsName, signalString, stateTypeName, stateHookName }),
+    buildControlsTemplate({ id, label, controlsName, signals, stateTypeName, stateHookName }),
     'utf8',
   )
   await writeFile(stateFile, buildStateTemplate({ stateHookName, stateTypeName }), 'utf8')

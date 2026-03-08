@@ -176,6 +176,25 @@ describe('scene scaffold generator', () => {
     })
   })
 
+  it('generates signal-specific placeholders for chart-centric scenes', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    await runScaffold(rootDir, ['--scene-kind', 'trajectory', '--signals', 'chart,time-series,live-metric'])
+
+    const controlsFile = path.join(rootDir, 'src/scenes/hall-effect/HallEffectControls.tsx')
+    const controlsSource = await readFile(controlsFile, 'utf8')
+
+    expect(controlsSource).toContain('data-presentation-signal="live-metric"')
+    expect(controlsSource).toContain('data-presentation-signal="chart time-series"')
+    expect(controlsSource).toContain('趋势图占位')
+    expect(controlsSource).not.toContain('data-presentation-signal="chart time-series live-metric"')
+  })
+
   it('generates layered scene modules by default', async () => {
     const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
     createdTempDirs.push(rootDir)
