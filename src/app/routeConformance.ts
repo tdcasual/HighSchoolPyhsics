@@ -1,5 +1,5 @@
 import type { DemoRoute } from './demoRoutes'
-import { scorePresentationSignals } from '../ui/layout/presentationSignals'
+import { isPresentationSignal, scorePresentationSignals } from '../ui/layout/presentationSignals'
 
 type RouteConformanceIssue = {
   path: string
@@ -87,6 +87,15 @@ function validateClassroomContract(route: DemoRoute): RouteConformanceIssue[] {
       message: 'classroom.presentationSignals must declare at least one signal',
     })
   }
+
+  signals.forEach((signal, index) => {
+    if (!isPresentationSignal(signal)) {
+      issues.push({
+        path: route.path,
+        message: `classroom.presentationSignals[${index}] must be one of chart|live-metric|time-series|interactive-readout`,
+      })
+    }
+  })
 
   if (new Set(signals).size !== signals.length) {
     issues.push({

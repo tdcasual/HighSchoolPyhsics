@@ -20,6 +20,10 @@ const RESULT_LIKE_PRESENTATION_SIGNALS = new Set<PresentationSignal>([
   'interactive-readout',
 ])
 
+export function isPresentationSignal(value: string): value is PresentationSignal {
+  return KNOWN_PRESENTATION_SIGNALS.has(value as PresentationSignal)
+}
+
 export function parsePresentationSignals(raw: string | null): PresentationSignal[] {
   if (!raw) {
     return []
@@ -31,9 +35,12 @@ export function parsePresentationSignals(raw: string | null): PresentationSignal
     .filter((token): token is PresentationSignal => KNOWN_PRESENTATION_SIGNALS.has(token as PresentationSignal))
 }
 
-export function scorePresentationSignals(signals: Iterable<PresentationSignal>): number {
+export function scorePresentationSignals(signals: Iterable<PresentationSignal | string>): number {
   let score = 0
   for (const signal of signals) {
+    if (!isPresentationSignal(signal)) {
+      continue
+    }
     score += PRESENTATION_SIGNAL_WEIGHTS[signal]
   }
   return score

@@ -232,6 +232,21 @@ export function SampleScene() {
     }
   })
 
+  it('rejects unsupported classroom presentation signals in route metadata', () => {
+    const invalidRoute = {
+      ...DEMO_ROUTES[0],
+      classroom: {
+        ...DEMO_ROUTES[0].classroom,
+        presentationSignals: ['live-mteric'] as unknown as (typeof DEMO_ROUTES)[number]['classroom']['presentationSignals'],
+      },
+    }
+
+    expect(collectRouteConformanceIssues([invalidRoute])).toContainEqual({
+      path: invalidRoute.path,
+      message: 'classroom.presentationSignals[0] must be one of chart|live-metric|time-series|interactive-readout',
+    })
+  })
+
   it('declares classroom contract for every route with teach-critical fallback size', () => {
     for (const route of DEMO_ROUTES) {
       expect(route.pageId).toMatch(/^[a-z][a-z0-9-]*$/)
