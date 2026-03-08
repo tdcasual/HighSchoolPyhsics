@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { Suspense, createElement } from 'react'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import * as ts from 'typescript'
 import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
 import { findSceneCatalogEntryByPath } from '../sceneCatalog'
@@ -33,6 +34,113 @@ function countRenderedCoreSummaryLines(summary: HTMLElement): number {
   return summary.querySelectorAll('p').length
 }
 
+function unwrapPresentationSignalsExpression(expression: ts.Expression): ts.Expression {
+  if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression) || ts.isSatisfiesExpression(expression)) {
+    return unwrapPresentationSignalsExpression(expression.expression)
+  }
+
+  return expression
+}
+
+function readSignalsFromArrayLiteral(arrayLiteral: ts.ArrayLiteralExpression, contextLabel: string): string[] {
+  return arrayLiteral.elements.map((element, index) => {
+    const resolvedElement = unwrapPresentationSignalsExpression(element)
+    if (!ts.isStringLiteralLike(resolvedElement)) {
+      throw new Error(`presentationSignals[${index}] must be a string literal in ${contextLabel}`)
+    }
+    return resolvedElement.text
+  })
+}
+
+function findPresentationSignalsExpression(sourceFile: ts.SourceFile): ts.Expression | null {
+  let foundExpression: ts.Expression | null = null
+
+  const visit = (node: ts.Node) => {
+    if (foundExpression) {
+      return
+    }
+
+    if (ts.isJsxAttribute(node) && node.name.text === 'presentationSignals') {
+      const initializer = node.initializer
+      if (initializer && ts.isJsxExpression(initializer) && initializer.expression) {
+        foundExpression = initializer.expression
+        return
+      }
+    }
+
+    ts.forEachChild(node, visit)
+  }
+
+  visit(sourceFile)
+  return foundExpression
+}
+
+function findConstInitializer(sourceFile: ts.SourceFile, identifierName: string): ts.Expression | null {
+  let initializer: ts.Expression | null = null
+
+  const visit = (node: ts.Node) => {
+    if (initializer) {
+      return
+    }
+
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === identifierName) {
+      initializer = node.initializer ?? null
+      return
+    }
+
+    ts.forEachChild(node, visit)
+  }
+
+  visit(sourceFile)
+  return initializer
+}
+
+function resolvePresentationSignalsExpression(
+  expression: ts.Expression,
+  sourceFile: ts.SourceFile,
+  contextLabel: string,
+  seenIdentifiers: Set<string> = new Set(),
+): string[] {
+  const resolvedExpression = unwrapPresentationSignalsExpression(expression)
+
+  if (ts.isArrayLiteralExpression(resolvedExpression)) {
+    return readSignalsFromArrayLiteral(resolvedExpression, contextLabel)
+  }
+
+  if (ts.isIdentifier(resolvedExpression)) {
+    if (seenIdentifiers.has(resolvedExpression.text)) {
+      throw new Error(`Recursive presentationSignals reference detected for ${contextLabel}`)
+    }
+    seenIdentifiers.add(resolvedExpression.text)
+
+    const initializer = findConstInitializer(sourceFile, resolvedExpression.text)
+    if (!initializer) {
+      throw new Error(`Unable to resolve presentationSignals reference "${resolvedExpression.text}" for ${contextLabel}`)
+    }
+
+    return resolvePresentationSignalsExpression(initializer, sourceFile, contextLabel, seenIdentifiers)
+  }
+
+  throw new Error(`Unsupported SceneLayout presentationSignals declaration for ${contextLabel}`)
+}
+
+function readPresentationSignalsFromSceneSource(sceneSource: string, contextLabel: string): string[] {
+  const sourceFile = ts.createSourceFile(
+    `${contextLabel}.tsx`,
+    sceneSource,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  )
+  const presentationSignalsExpression = findPresentationSignalsExpression(sourceFile)
+
+  if (!presentationSignalsExpression) {
+    throw new Error(`Missing SceneLayout presentationSignals declaration for ${contextLabel}`)
+  }
+
+  return resolvePresentationSignalsExpression(presentationSignalsExpression, sourceFile, contextLabel)
+}
+
 function readSceneDeclaredPresentationSignals(pageId: string): string[] {
   const sceneDirectory = resolve(process.cwd(), 'src/scenes', pageId)
   const sceneFiles = readdirSync(sceneDirectory).filter((fileName) => fileName.endsWith('Scene.tsx'))
@@ -42,15 +150,7 @@ function readSceneDeclaredPresentationSignals(pageId: string): string[] {
   }
 
   const sceneSource = readFileSync(resolve(sceneDirectory, sceneFiles[0]), 'utf8')
-  const presentationSignalsMatch = sceneSource.match(/presentationSignals=\{\[([^\]]*)\]\}/s)
-  if (!presentationSignalsMatch) {
-    throw new Error(`Missing SceneLayout presentationSignals declaration for ${pageId}`)
-  }
-
-  return presentationSignalsMatch[1]
-    .split(',')
-    .map((token) => token.trim().replace(/^['"]|['"]$/g, ''))
-    .filter((token) => token.length > 0)
+  return readPresentationSignalsFromSceneSource(sceneSource, pageId)
 }
 
 function collectRenderedPresentationSignals(host: ParentNode = document.body): string[] {
@@ -88,6 +188,23 @@ async function renderDemoRoute(route: (typeof DEMO_ROUTES)[number]) {
 }
 
 describe('demo route conformance', () => {
+  it('reads SceneLayout presentationSignals from referenced const arrays', () => {
+    const source = `const presentationSignals = ['chart', 'live-metric'] as const
+
+export function SampleScene() {
+  return (
+    <SceneLayout
+      presentationSignals={presentationSignals}
+      coreSummary={<div />}
+      controls={<div />}
+      viewport={<div />}
+    />
+  )
+}`
+
+    expect(readPresentationSignalsFromSceneSource(source, 'sample-scene')).toEqual(['chart', 'live-metric'])
+  })
+
   beforeEach(() => {
     setViewportSize(1920, 1080)
   })
