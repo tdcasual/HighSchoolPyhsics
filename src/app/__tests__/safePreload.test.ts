@@ -21,4 +21,18 @@ describe('safePreload', () => {
 
     expect(preload).toHaveBeenCalledTimes(1)
   })
+
+  it('swallows synchronous preload throws', () => {
+    const preload = vi.fn(() => {
+      throw new Error('sync warmup failed')
+    })
+
+    expect(() => safePreload(preload)).not.toThrow()
+    expect(preload).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignores non-function preload values', () => {
+    expect(() => safePreload(null)).not.toThrow()
+    expect(() => safePreload({})).not.toThrow()
+  })
 })
