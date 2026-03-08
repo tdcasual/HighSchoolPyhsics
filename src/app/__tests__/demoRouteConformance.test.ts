@@ -247,6 +247,40 @@ export function SampleScene() {
     })
   })
 
+  it('reports non-string route metadata as conformance issues instead of throwing', () => {
+    const invalidRoute = {
+      ...DEMO_ROUTES[0],
+      label: 42 as unknown as (typeof DEMO_ROUTES)[number]['label'],
+      meta: {
+        ...DEMO_ROUTES[0].meta,
+        tag: false as unknown as (typeof DEMO_ROUTES)[number]['meta']['tag'],
+        summary: { text: 'bad' } as unknown as (typeof DEMO_ROUTES)[number]['meta']['summary'],
+        highlights: [42, 'ok'] as unknown as (typeof DEMO_ROUTES)[number]['meta']['highlights'],
+      },
+    }
+
+    expect(collectRouteConformanceIssues([invalidRoute])).toEqual(
+      expect.arrayContaining([
+        {
+          path: invalidRoute.path,
+          message: 'label must be a non-blank string',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'meta.tag must be a non-blank string',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'meta.summary must be a non-blank string',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'meta.highlights[0] must be a non-blank string',
+        },
+      ]),
+    )
+  })
+
   it('declares classroom contract for every route with teach-critical fallback size', () => {
     for (const route of DEMO_ROUTES) {
       expect(route.pageId).toMatch(/^[a-z][a-z0-9-]*$/)

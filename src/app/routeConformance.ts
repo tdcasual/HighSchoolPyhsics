@@ -6,37 +6,43 @@ type RouteConformanceIssue = {
   message: string
 }
 
-function isNonBlankText(value: string): boolean {
-  return value.trim().length > 0
+function isNonBlankText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
 }
 
 function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
 
   if (!isNonBlankText(route.label)) {
-    issues.push({ path: route.path, message: 'label is required' })
+    issues.push({ path: route.path, message: 'label must be a non-blank string' })
   }
 
   if (!isNonBlankText(route.meta.tag)) {
-    issues.push({ path: route.path, message: 'meta.tag is required' })
+    issues.push({ path: route.path, message: 'meta.tag must be a non-blank string' })
   }
 
   if (!isNonBlankText(route.meta.summary)) {
-    issues.push({ path: route.path, message: 'meta.summary is required' })
+    issues.push({ path: route.path, message: 'meta.summary must be a non-blank string' })
   }
 
-  if (route.meta.highlights.length < 2) {
-    issues.push({ path: route.path, message: 'meta.highlights must provide at least two items' })
+  const highlights = Array.isArray(route.meta.highlights) ? route.meta.highlights : null
+
+  if (!highlights) {
+    issues.push({ path: route.path, message: 'meta.highlights must be an array of non-blank strings' })
+  } else {
+    if (highlights.length < 2) {
+      issues.push({ path: route.path, message: 'meta.highlights must provide at least two items' })
+    }
+
+    for (const [index, highlight] of highlights.entries()) {
+      if (!isNonBlankText(highlight)) {
+        issues.push({ path: route.path, message: `meta.highlights[${index}] must be a non-blank string` })
+      }
+    }
   }
 
   if (typeof route.preload !== 'function') {
     issues.push({ path: route.path, message: 'preload is required' })
-  }
-
-  for (const [index, highlight] of route.meta.highlights.entries()) {
-    if (!isNonBlankText(highlight)) {
-      issues.push({ path: route.path, message: `meta.highlights[${index}] cannot be blank` })
-    }
   }
 
   return issues
