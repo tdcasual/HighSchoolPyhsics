@@ -10,6 +10,10 @@ function isNonBlankText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
 function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
 
@@ -50,7 +54,15 @@ function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
 
 function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
-  const profile = route.touchProfile
+  const profile = isRecord(route.touchProfile) ? route.touchProfile : null
+
+  if (!profile) {
+    issues.push({
+      path: route.path,
+      message: 'touchProfile must be an object',
+    })
+    return issues
+  }
 
   if (profile.pageScroll !== 'vertical-outside-canvas') {
     issues.push({
@@ -63,19 +75,29 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
     issues.push({ path: route.path, message: 'touchProfile.canvasGestureScope must be interactive-canvas' })
   }
 
-  if (profile.minTouchTargetPx < 44) {
-    issues.push({ path: route.path, message: 'touchProfile.minTouchTargetPx must be >= 44' })
+  if (typeof profile.minTouchTargetPx !== 'number' || profile.minTouchTargetPx < 44) {
+    issues.push({ path: route.path, message: 'touchProfile.minTouchTargetPx must be a number >= 44' })
   }
 
-  if (!profile.gestureMatrix.singleFingerRotate) {
+  const gestureMatrix = isRecord(profile.gestureMatrix) ? profile.gestureMatrix : null
+
+  if (!gestureMatrix) {
+    issues.push({
+      path: route.path,
+      message: 'touchProfile.gestureMatrix must be an object with singleFingerRotate, twoFingerZoom, and twoFingerPan',
+    })
+    return issues
+  }
+
+  if (gestureMatrix.singleFingerRotate !== true) {
     issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.singleFingerRotate must be true' })
   }
 
-  if (!profile.gestureMatrix.twoFingerZoom) {
+  if (gestureMatrix.twoFingerZoom !== true) {
     issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.twoFingerZoom must be true' })
   }
 
-  if (!profile.gestureMatrix.twoFingerPan) {
+  if (gestureMatrix.twoFingerPan !== true) {
     issues.push({ path: route.path, message: 'touchProfile.gestureMatrix.twoFingerPan must be true' })
   }
 
@@ -84,68 +106,94 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
 
 function validateClassroomContract(route: DemoRoute): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
-  const { classroom } = route
-  const signals = classroom.presentationSignals
+  const classroom = isRecord(route.classroom) ? route.classroom : null
 
-  if (signals.length === 0) {
+  if (!classroom) {
     issues.push({
       path: route.path,
-      message: 'classroom.presentationSignals must declare at least one signal',
+      message: 'classroom must be an object',
     })
+    return issues
   }
 
-  signals.forEach((signal, index) => {
-    if (!isPresentationSignal(signal)) {
+  const signals = Array.isArray(classroom.presentationSignals) ? classroom.presentationSignals : null
+
+  if (!signals) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.presentationSignals must be an array of supported signals',
+    })
+  } else {
+    if (signals.length === 0) {
       issues.push({
         path: route.path,
-        message: `classroom.presentationSignals[${index}] must be one of chart|live-metric|time-series|interactive-readout`,
+        message: 'classroom.presentationSignals must declare at least one signal',
       })
     }
-  })
 
-  if (new Set(signals).size !== signals.length) {
+    signals.forEach((signal, index) => {
+      if (typeof signal !== 'string' || !isPresentationSignal(signal)) {
+        issues.push({
+          path: route.path,
+          message: `classroom.presentationSignals[${index}] must be one of chart|live-metric|time-series|interactive-readout`,
+        })
+      }
+    })
+
+    if (new Set(signals).size !== signals.length) {
+      issues.push({
+        path: route.path,
+        message: 'classroom.presentationSignals cannot contain duplicates',
+      })
+    }
+
+    if (scorePresentationSignals(signals) < 1) {
+      issues.push({
+        path: route.path,
+        message: 'classroom.presentationSignals score must be >= 1',
+      })
+    }
+  }
+
+  if (!Number.isInteger(classroom.coreSummaryLineCount) || classroom.coreSummaryLineCount < 3 || classroom.coreSummaryLineCount > 5) {
     issues.push({
       path: route.path,
-      message: 'classroom.presentationSignals cannot contain duplicates',
+      message: 'classroom.coreSummaryLineCount must be an integer between 3 and 5',
     })
   }
 
-  if (scorePresentationSignals(signals) < 1) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.presentationSignals score must be >= 1',
-    })
-  }
-
-  if (classroom.coreSummaryLineCount < 3 || classroom.coreSummaryLineCount > 5) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.coreSummaryLineCount must be between 3 and 5',
-    })
-  }
-
-  if (!['trajectory', 'field', 'structure', 'process'].includes(classroom.sceneKind)) {
+  if (typeof classroom.sceneKind !== 'string' || !['trajectory', 'field', 'structure', 'process'].includes(classroom.sceneKind)) {
     issues.push({
       path: route.path,
       message: 'classroom.sceneKind must be one of trajectory|field|structure|process',
     })
   }
 
-  if (!['never', 'enter-only', 'staged'].includes(classroom.smartPresentation.layout)) {
+  const smartPresentation = isRecord(classroom.smartPresentation) ? classroom.smartPresentation : null
+
+  if (!smartPresentation) {
+    issues.push({
+      path: route.path,
+      message: 'classroom.smartPresentation must be an object with layout, focus, and stickySummary',
+    })
+    return issues
+  }
+
+  if (typeof smartPresentation.layout !== 'string' || !['never', 'enter-only', 'staged'].includes(smartPresentation.layout)) {
     issues.push({
       path: route.path,
       message: 'classroom.smartPresentation.layout must be one of never|enter-only|staged',
     })
   }
 
-  if (typeof classroom.smartPresentation.focus !== 'boolean') {
+  if (typeof smartPresentation.focus !== 'boolean') {
     issues.push({
       path: route.path,
       message: 'classroom.smartPresentation.focus must be boolean',
     })
   }
 
-  if (typeof classroom.smartPresentation.stickySummary !== 'boolean') {
+  if (typeof smartPresentation.stickySummary !== 'boolean') {
     issues.push({
       path: route.path,
       message: 'classroom.smartPresentation.stickySummary must be boolean',

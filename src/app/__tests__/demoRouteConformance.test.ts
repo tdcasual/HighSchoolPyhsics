@@ -281,6 +281,69 @@ export function SampleScene() {
     )
   })
 
+  it('reports malformed classroom metadata as conformance issues instead of throwing', () => {
+    const invalidRoute = {
+      ...DEMO_ROUTES[0],
+      classroom: {
+        ...DEMO_ROUTES[0].classroom,
+        presentationSignals: 'chart' as unknown as (typeof DEMO_ROUTES)[number]['classroom']['presentationSignals'],
+        coreSummaryLineCount: '4' as unknown as (typeof DEMO_ROUTES)[number]['classroom']['coreSummaryLineCount'],
+        smartPresentation: null as unknown as (typeof DEMO_ROUTES)[number]['classroom']['smartPresentation'],
+      },
+    }
+
+    expect(collectRouteConformanceIssues([invalidRoute])).toEqual(
+      expect.arrayContaining([
+        {
+          path: invalidRoute.path,
+          message: 'classroom.presentationSignals must be an array of supported signals',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'classroom.coreSummaryLineCount must be an integer between 3 and 5',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'classroom.smartPresentation must be an object with layout, focus, and stickySummary',
+        },
+      ]),
+    )
+  })
+
+  it('reports malformed touch metadata as conformance issues instead of throwing', () => {
+    const invalidRoute = {
+      ...DEMO_ROUTES[0],
+      touchProfile: {
+        ...DEMO_ROUTES[0].touchProfile,
+        pageScroll: false as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['pageScroll'],
+        canvasGestureScope: 12 as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['canvasGestureScope'],
+        minTouchTargetPx: '44' as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['minTouchTargetPx'],
+        gestureMatrix: null as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['gestureMatrix'],
+      },
+    }
+
+    expect(collectRouteConformanceIssues([invalidRoute])).toEqual(
+      expect.arrayContaining([
+        {
+          path: invalidRoute.path,
+          message: 'touchProfile.pageScroll must be vertical-outside-canvas',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'touchProfile.canvasGestureScope must be interactive-canvas',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'touchProfile.minTouchTargetPx must be a number >= 44',
+        },
+        {
+          path: invalidRoute.path,
+          message: 'touchProfile.gestureMatrix must be an object with singleFingerRotate, twoFingerZoom, and twoFingerPan',
+        },
+      ]),
+    )
+  })
+
   it('declares classroom contract for every route with teach-critical fallback size', () => {
     for (const route of DEMO_ROUTES) {
       expect(route.pageId).toMatch(/^[a-z][a-z0-9-]*$/)
