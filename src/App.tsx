@@ -11,7 +11,7 @@ import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
-import { ENHANCED_TOUCH_PROFILE, resolveTouchTargetMinSize } from './app/touchProfile'
+import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize } from './app/touchProfile'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -20,6 +20,18 @@ const PRESENTATION_LAYOUT_OPTIONS = [
   { value: 'split', label: '双核心' },
   { value: 'viewport', label: '视口优先' },
 ] as const
+
+function isNonBlankText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function resolveRouteButtonLabel(label: unknown, index: number): string {
+  return isNonBlankText(label) ? label : `演示 ${index + 1}`
+}
+
+function resolveRouteButtonPath(path: unknown): string {
+  return isNonBlankText(path) ? path : '/'
+}
 
 function App() {
   const theme = useAppStore((state) => state.theme)
@@ -103,7 +115,7 @@ function App() {
     PRESENTATION_LAYOUT_OPTIONS.find((option) => option.value === presentationLayoutMode)?.label ?? '自动'
   const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
-  const activeTouchProfile = activeRoute?.touchProfile ?? ENHANCED_TOUCH_PROFILE
+  const activeTouchProfile = resolveTouchProfile(activeRoute?.touchProfile, ENHANCED_TOUCH_PROFILE)
   const ActiveScene = activeRoute?.Component
   const runtimeCapabilities = useMemo(() => getRuntimeCapabilities(), [])
   const shellStyle = useMemo<CSSProperties>(
@@ -242,11 +254,16 @@ function App() {
                 <button className="touch-target" onClick={() => navigateTo('/')}>
                   返回导航
                 </button>
-                {DEMO_ROUTES.map((route) => (
-                  <button className="touch-target" key={route.path} onClick={() => navigateTo(route.path)}>
-                    {route.label}
-                  </button>
-                ))}
+                {DEMO_ROUTES.map((route, index) => {
+                  const routePath = resolveRouteButtonPath(route.path)
+                  const routeLabel = resolveRouteButtonLabel(route.label, index)
+
+                  return (
+                    <button className="touch-target" key={`${routePath}-${index}`} onClick={() => navigateTo(routePath)}>
+                      {routeLabel}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}

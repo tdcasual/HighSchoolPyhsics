@@ -201,6 +201,22 @@ describe('App shell', () => {
     expect(shell).toHaveStyle('--touch-target-min-size: 44px')
   })
 
+  it('renders safe missing-page route buttons when a route label is malformed', () => {
+    window.history.replaceState(null, '', '/missing-demo')
+
+    const originalLabel = DEMO_ROUTES[0].label
+    ;(DEMO_ROUTES[0] as { label: unknown }).label = { broken: 'label' }
+
+    try {
+      render(<App />)
+
+      expect(screen.getByRole('heading', { name: '页面不存在' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: '演示 1' })).toBeInTheDocument()
+    } finally {
+      ;(DEMO_ROUTES[0] as { label: unknown }).label = originalLabel
+    }
+  })
+
   it('renders runtime capability blocking card when required features are unavailable', () => {
     vi
       .spyOn(runtimeCapabilities, 'getRuntimeCapabilities')
