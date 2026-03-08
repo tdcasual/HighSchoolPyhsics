@@ -81,6 +81,11 @@ describe('sceneCatalog classroom semantics', () => {
     expect(entry?.touchProfile.minTouchTargetPx).toBeGreaterThanOrEqual(44)
   })
 
+  it('returns null for malformed scene catalog lookup paths instead of throwing', () => {
+    expect(() => findSceneCatalogEntryByPath({ broken: 'path' } as unknown as string)).not.toThrow()
+    expect(findSceneCatalogEntryByPath({ broken: 'path' } as unknown as string)).toBeNull()
+  })
+
   it('prefers current browser path over stale activeScenePath when resolving runtime contract', () => {
     window.history.replaceState(null, '', '/oscilloscope')
 

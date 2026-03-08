@@ -42,7 +42,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function normalizeScenePath(pathname: string): string {
+function normalizeScenePath(pathname: unknown): string {
+  if (typeof pathname !== 'string') {
+    return '/'
+  }
+
   if (!pathname || pathname === '/') {
     return '/'
   }
@@ -57,7 +61,7 @@ const SCENE_CATALOG_BY_PATH = new Map(
   SCENE_CATALOG.map((entry) => [`/${entry.pageId}`, entry] satisfies [string, SceneCatalogEntry]),
 )
 
-export function findSceneCatalogEntryByPath(pathname: string): SceneCatalogEntry | null {
+export function findSceneCatalogEntryByPath(pathname: unknown): SceneCatalogEntry | null {
   const normalized = normalizeScenePath(pathname)
   return SCENE_CATALOG_BY_PATH.get(normalized) ?? null
 }
