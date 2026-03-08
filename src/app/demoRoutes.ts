@@ -140,7 +140,11 @@ export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) 
   }
 })
 
-export function normalizeDemoPath(pathname: string): string {
+export function normalizeDemoPath(pathname: unknown): string {
+  if (typeof pathname !== 'string') {
+    return '/'
+  }
+
   if (!pathname || pathname === '/') {
     return '/'
   }

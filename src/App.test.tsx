@@ -150,6 +150,20 @@ describe('App shell', () => {
     expect(shell).toHaveClass('theme-day')
   })
 
+  it('ignores malformed shortcut route paths instead of throwing', () => {
+    const originalPath = DEMO_ROUTES[0].path
+    ;(DEMO_ROUTES[0] as { path: unknown }).path = { broken: 'path' }
+
+    try {
+      render(<App />)
+
+      expect(() => fireEvent.keyDown(window, { key: '1' })).not.toThrow()
+      expect(window.location.pathname).toBe('/')
+    } finally {
+      ;(DEMO_ROUTES[0] as { path: unknown }).path = originalPath
+    }
+  })
+
   it('ignores global shortcuts while typing in formula inputs', async () => {
     window.history.replaceState(null, '', '/oscilloscope')
     const { container } = render(<App />)
