@@ -31,6 +31,10 @@ function resolveOverviewLabel(label: unknown): string {
   return isNonBlankText(label) ? label : FALLBACK_OVERVIEW_LABEL
 }
 
+function resolveOverviewPath(path: unknown): string {
+  return isNonBlankText(path) ? path : '/'
+}
+
 function resolveOverviewMeta(meta: unknown): {
   tag: string
   summary: string
@@ -130,11 +134,12 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
 
         <div className="overview-grid">
           {routes.map((route, index) => {
+            const routePath = resolveOverviewPath(route.path)
             const label = resolveOverviewLabel(route.label)
             const meta = resolveOverviewMeta(route.meta)
 
             return (
-              <article key={route.path} className={`overview-card tone-${meta.tone}`}>
+              <article key={`${routePath}-${index}`} className={`overview-card tone-${meta.tone}`}>
                 <div className="overview-card-head">
                   <p className="overview-card-index">{String(index + 1).padStart(2, '0')}</p>
                   <p className="overview-card-tag">{meta.tag}</p>
@@ -144,7 +149,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                 {meta.highlights.length > 0 ? (
                   <ul className="overview-points">
                     {meta.highlights.map((item, itemIndex) => (
-                      <li key={`${route.path}-${itemIndex}-${item}`}>{item}</li>
+                      <li key={`${routePath}-${itemIndex}-${item}`}>{item}</li>
                     ))}
                   </ul>
                 ) : null}
@@ -163,7 +168,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                   onFocus={() => warmRouteNow(route)}
                   onClick={() => {
                     clearWarmupTimer()
-                    onOpenRoute(route.path)
+                    onOpenRoute(routePath)
                   }}
                 >
                   <span>进入{label}</span>

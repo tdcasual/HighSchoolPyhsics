@@ -158,4 +158,16 @@ describe('NavigationPage warmup behavior', () => {
     expect(screen.getByText('课堂演示信息待补充')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '进入演示' })).toBeInTheDocument()
   })
+
+  it('passes a safe fallback path when route path metadata is malformed', () => {
+    const onOpenRoute = vi.fn()
+    const route = buildRoute({
+      path: { broken: 'path' } as unknown as DemoRoute['path'],
+    })
+
+    render(<NavigationPage routes={[route]} onOpenRoute={onOpenRoute} />)
+    fireEvent.click(screen.getByRole('button', { name: '进入示波器' }))
+
+    expect(onOpenRoute).toHaveBeenCalledWith('/')
+  })
 })
