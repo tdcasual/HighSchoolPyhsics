@@ -357,17 +357,39 @@ function buildCssTemplate(id) {
 `
 }
 
-function buildTestTemplate({ id, sceneName, label }) {
+function buildSignalTestAssertions(signals) {
+  const assertions = []
+
+  if (signals.includes('live-metric')) {
+    assertions.push("    expect(await screen.findByText(/当前读数:/)).toBeInTheDocument()")
+  }
+
+  if (signals.includes('interactive-readout')) {
+    assertions.push("    expect(await screen.findByText(/课堂观察:/)).toBeInTheDocument()")
+  }
+
+  const chartSignals = signals.filter((signal) => signal === 'chart' || signal === 'time-series')
+  if (chartSignals.length > 0) {
+    const chartPattern = chartSignals.includes('time-series') ? '/时间序列趋势图占位/' : '/趋势图占位/'
+    assertions.push(`    expect(await screen.findByText(${chartPattern})).toBeInTheDocument()`)
+  }
+
+  return assertions.join('\n')
+}
+
+function buildTestTemplate({ id, sceneName, label, signals }) {
+  const signalAssertions = buildSignalTestAssertions(signals)
+
   return `import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ${sceneName} } from './${sceneName}'
 
 describe('${id} structure', () => {
-  it('renders classroom control title and readout block', async () => {
+  it('renders classroom control title and scaffolded signal placeholders', async () => {
     render(<${sceneName} />)
 
     expect(await screen.findByText('${label}控制')).toBeInTheDocument()
-    expect(await screen.findByText(/当前读数:/)).toBeInTheDocument()
+${signalAssertions}
   })
 })
 `
@@ -476,7 +498,7 @@ async function main() {
   await writeFile(stateFile, buildStateTemplate({ stateHookName, stateTypeName }), 'utf8')
   await writeFile(rigFile, buildRigTemplate({ rigName }), 'utf8')
   await writeFile(cssFile, buildCssTemplate(id), 'utf8')
-  await writeFile(testFile, buildTestTemplate({ id, sceneName, label }), 'utf8')
+  await writeFile(testFile, buildTestTemplate({ id, sceneName, label, signals }), 'utf8')
 
   catalog.push({
     pageId: id,

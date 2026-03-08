@@ -188,11 +188,32 @@ describe('scene scaffold generator', () => {
 
     const controlsFile = path.join(rootDir, 'src/scenes/hall-effect/HallEffectControls.tsx')
     const controlsSource = await readFile(controlsFile, 'utf8')
+    const testFile = path.join(rootDir, 'src/scenes/hall-effect/HallEffectScene.test.tsx')
+    const testSource = await readFile(testFile, 'utf8')
 
     expect(controlsSource).toContain('data-presentation-signal="live-metric"')
     expect(controlsSource).toContain('data-presentation-signal="chart time-series"')
     expect(controlsSource).toContain('趋势图占位')
     expect(controlsSource).not.toContain('data-presentation-signal="chart time-series live-metric"')
+    expect(testSource).toContain('findByText(/当前读数:/)')
+    expect(testSource).toContain('findByText(/时间序列趋势图占位/)')
+  })
+
+  it('generates signal-aware scene tests for non-metric scenes', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(path.join(rootDir, 'config/demo-scenes.json'), '[]\n', 'utf8')
+
+    await runScaffold(rootDir, ['--scene-kind', 'structure', '--signals', 'interactive-readout'])
+
+    const testFile = path.join(rootDir, 'src/scenes/hall-effect/HallEffectScene.test.tsx')
+    const testSource = await readFile(testFile, 'utf8')
+
+    expect(testSource).toContain('findByText(/课堂观察:/)')
+    expect(testSource).not.toContain('findByText(/当前读数:/)')
   })
 
   it('generates layered scene modules by default', async () => {
