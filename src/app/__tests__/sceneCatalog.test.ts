@@ -22,6 +22,27 @@ describe('sceneCatalog classroom semantics', () => {
     expect(resolveSmartStickySummaryPreference(undefined, true)).toBe(true)
   })
 
+  it('falls back to safe defaults when smart presentation booleans are malformed', () => {
+    expect(
+      resolveSmartFocusEnabled({
+        layout: 'staged',
+        focus: 'false' as unknown as boolean,
+        stickySummary: true,
+      }),
+    ).toBe(true)
+
+    expect(
+      resolveSmartStickySummaryPreference(
+        {
+          layout: 'staged',
+          focus: true,
+          stickySummary: 'false' as unknown as boolean,
+        },
+        true,
+      ),
+    ).toBe(true)
+  })
+
 
   it('resolves sceneKind fallback scores for classroom auto layout', () => {
     expect(resolveSceneKindMinimumAutoSignalScore('trajectory')).toBe(2)

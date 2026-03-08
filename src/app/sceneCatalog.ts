@@ -71,14 +71,16 @@ export function canUseRuntimePreferredLayout(smartPresentation: SmartPresentatio
 }
 
 export function resolveSmartFocusEnabled(smartPresentation: SmartPresentationContract | null | undefined): boolean {
-  return smartPresentation?.focus ?? true
+  return typeof smartPresentation?.focus === 'boolean' ? smartPresentation.focus : true
 }
 
 export function resolveSmartStickySummaryPreference(
   smartPresentation: SmartPresentationContract | null | undefined,
   fallback: boolean,
 ): boolean {
-  return smartPresentation?.stickySummary ?? fallback
+  return typeof smartPresentation?.stickySummary === 'boolean'
+    ? smartPresentation.stickySummary
+    : fallback
 }
 
 
