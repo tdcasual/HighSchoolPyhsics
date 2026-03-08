@@ -53,6 +53,40 @@ function readSceneDeclaredPresentationSignals(pageId: string): string[] {
     .filter((token) => token.length > 0)
 }
 
+function collectRenderedPresentationSignals(host: ParentNode = document.body): string[] {
+  const signals = new Set<string>()
+
+  host.querySelectorAll<HTMLElement>('[data-presentation-signal]').forEach((node) => {
+    node
+      .getAttribute('data-presentation-signal')
+      ?.split(/\s+/)
+      .map((token) => token.trim())
+      .filter((token) => token.length > 0)
+      .forEach((token) => signals.add(token))
+  })
+
+  return [...signals].sort()
+}
+
+async function renderDemoRoute(route: (typeof DEMO_ROUTES)[number]) {
+  window.history.replaceState(null, '', route.path)
+  useAppStore.setState({
+    presentationMode: true,
+    presentationRouteModes: { [route.path]: 'viewport' },
+    activeScenePath: route.path,
+  })
+
+  await route.preload()
+
+  return render(
+    createElement(
+      Suspense,
+      { fallback: createElement('p', null, 'loading') },
+      createElement(route.Component),
+    ),
+  )
+}
+
 describe('demo route conformance', () => {
   beforeEach(() => {
     setViewportSize(1920, 1080)
@@ -104,22 +138,7 @@ describe('demo route conformance', () => {
 
   it('matches each catalog core summary line count to the rendered classroom summary', async () => {
     for (const route of DEMO_ROUTES) {
-      window.history.replaceState(null, '', route.path)
-      useAppStore.setState({
-        presentationMode: true,
-        presentationRouteModes: { [route.path]: 'viewport' },
-        activeScenePath: route.path,
-      })
-
-      await route.preload()
-
-      const { unmount } = render(
-        createElement(
-          Suspense,
-          { fallback: createElement('p', null, 'loading') },
-          createElement(route.Component),
-        ),
-      )
+      const { unmount } = await renderDemoRoute(route)
 
       const summary = await screen.findByRole('region', { name: '课堂核心信息' })
       expect(
@@ -131,6 +150,22 @@ describe('demo route conformance', () => {
     }
   })
 
+  it('keeps rendered DOM presentation signals aligned with each classroom contract', async () => {
+    for (const route of DEMO_ROUTES) {
+      const { unmount, container } = await renderDemoRoute(route)
+      await screen.findByRole('region', { name: '课堂核心信息' })
+
+      const renderedSignals = collectRenderedPresentationSignals(container)
+      const declaredSignals = [...route.classroom.presentationSignals].sort()
+
+      expect(
+        renderedSignals,
+        `${route.pageId} rendered data-presentation-signal tokens should match the classroom contract`,
+      ).toEqual(declaredSignals)
+
+      unmount()
+    }
+  })
 
   it('keeps route touch profiles aligned with the shared catalog source', () => {
     for (const route of DEMO_ROUTES) {

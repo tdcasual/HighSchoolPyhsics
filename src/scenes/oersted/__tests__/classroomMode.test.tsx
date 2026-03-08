@@ -41,7 +41,7 @@ describe('oersted classroom mode', () => {
     expect(within(summary).getByText(/可观察性:/)).toBeInTheDocument()
 
     const signalNode = document.querySelector(
-      '.oersted-card[data-presentation-signal~="interactive-readout"][data-presentation-signal~="live-metric"]',
+      '.oersted-card[data-presentation-signal~="interactive-readout"]:not([data-presentation-signal~="live-metric"])',
     )
     expect(signalNode).toBeInTheDocument()
     expect(document.querySelector('[data-presentation-focus-mode="overview"]')).toBeInTheDocument()
