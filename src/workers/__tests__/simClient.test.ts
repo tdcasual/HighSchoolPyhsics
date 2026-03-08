@@ -110,4 +110,36 @@ describe('worker simulation stepper', () => {
       vi.useRealTimers()
     }
   })
+
+  it('falls back to a generic worker error when ErrorEvent.message is malformed', async () => {
+    const worker = new FakeWorker()
+    const stepper = createWorkerSimulationStepper(worker)
+
+    try {
+      const pending = stepper.step({
+        state: {
+          position: { x: 0, y: 0, z: 0 },
+          velocity: { x: 1, y: 0, z: 0 },
+        },
+        acceleration: { x: 0, y: 0, z: 0 },
+        dt: 1,
+      })
+      const outcome = pending.then(
+        () => ({ status: 'resolved' as const }),
+        (error) => ({ status: 'rejected' as const, error }),
+      )
+
+      const errorListeners = (worker as unknown as { errorListeners: Set<ErrorListener> }).errorListeners
+      errorListeners.forEach((listener) => listener({ message: 42 } as unknown as ErrorEvent))
+
+      const settled = await outcome
+      expect(settled.status).toBe('rejected')
+      if (settled.status !== 'rejected') {
+        throw new Error('Expected worker error to reject the request')
+      }
+      expect((settled.error as Error).message).toBe('Simulation worker error')
+    } finally {
+      stepper.terminate()
+    }
+  })
 })

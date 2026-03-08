@@ -110,6 +110,15 @@ describe('route warmup policy', () => {
     expect(shouldWarmRouteOnOverview()).toBe(false)
   })
 
+  it('ignores malformed effectiveType values instead of throwing', () => {
+    mockMatchMedia(true)
+    mockConnection({ saveData: false, effectiveType: 42 as unknown as string })
+    mockDeviceProfile({ deviceMemory: 8, hardwareConcurrency: 8 })
+
+    expect(() => shouldWarmRouteOnOverview()).not.toThrow()
+    expect(shouldWarmRouteOnOverview()).toBe(true)
+  })
+
   it('disables route warmup when downlink bandwidth is low', () => {
     mockMatchMedia(true)
     mockConnection({ saveData: false, effectiveType: '4g', downlink: 0.8 })

@@ -33,7 +33,7 @@ function hasConstrainedConnection(connection: NetworkInformationLike | undefined
     return true
   }
 
-  const effectiveType = connection.effectiveType?.toLowerCase()
+  const effectiveType = typeof connection.effectiveType === 'string' ? connection.effectiveType.toLowerCase() : null
   if (effectiveType && DISABLED_EFFECTIVE_TYPES.has(effectiveType)) {
     return true
   }

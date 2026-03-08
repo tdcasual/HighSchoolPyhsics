@@ -81,7 +81,9 @@ export function createWorkerSimulationStepper(worker: WorkerLike): SimulationSte
   }
 
   const onError = (event: ErrorEvent) => {
-    const reason = event.message?.trim() || 'Simulation worker error'
+    const reason = typeof event.message === 'string' && event.message.trim().length > 0
+      ? event.message.trim()
+      : 'Simulation worker error'
     rejectAllPending(new Error(reason))
   }
 
