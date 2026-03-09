@@ -34,6 +34,22 @@ function ensure(value, message) {
   }
 }
 
+function isRecord(value) {
+  return typeof value === 'object' && value !== null
+}
+
+function validateExistingCatalogEntries(catalog) {
+  catalog.forEach((entry, index) => {
+    const fieldName = `config/demo-scenes.json entry[${index}]`
+
+    ensure(isRecord(entry), `${fieldName} must be an object`)
+    ensure(
+      typeof entry.pageId === 'string' && entry.pageId.trim().length > 0,
+      `${fieldName}.pageId must be a non-blank string`,
+    )
+  })
+}
+
 function toPascalCase(id) {
   return id
     .split('-')
@@ -469,6 +485,7 @@ async function main() {
   const catalogContent = await readFile(catalogFile, 'utf8')
   const catalog = JSON.parse(catalogContent)
   ensure(Array.isArray(catalog), 'config/demo-scenes.json must be an array')
+  validateExistingCatalogEntries(catalog)
   ensure(
     !catalog.some((entry) => entry.pageId === id),
     `Catalog entry for pageId "${id}" already exists in config/demo-scenes.json`,

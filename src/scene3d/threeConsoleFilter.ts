@@ -27,23 +27,27 @@ const SUPPRESSED_THREE_MESSAGE_POLICY: ThreeConsoleFilterPolicy = {
   production: [...ALWAYS_SUPPRESSED_THREE_MESSAGES],
 }
 
+function isThreeConsoleFilterEnvironment(value: unknown): value is ThreeConsoleFilterEnvironment {
+  return value === 'development' || value === 'test' || value === 'production'
+}
+
 function resolveFilterEnvironment(
   requestedEnvironment?: ThreeConsoleFilterEnvironment,
 ): ThreeConsoleFilterEnvironment {
-  if (requestedEnvironment) {
+  if (isThreeConsoleFilterEnvironment(requestedEnvironment)) {
     return requestedEnvironment
   }
 
   if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
     const viteMode = import.meta.env.MODE
-    if (viteMode === 'test' || viteMode === 'development' || viteMode === 'production') {
+    if (isThreeConsoleFilterEnvironment(viteMode)) {
       return viteMode
     }
   }
 
   if (typeof process !== 'undefined') {
     const nodeEnvironment = process.env.NODE_ENV
-    if (nodeEnvironment === 'test' || nodeEnvironment === 'development' || nodeEnvironment === 'production') {
+    if (isThreeConsoleFilterEnvironment(nodeEnvironment)) {
       return nodeEnvironment
     }
   }

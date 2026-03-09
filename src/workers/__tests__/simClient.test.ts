@@ -41,6 +41,25 @@ class FakeWorker {
     }
     this.messageErrorListeners.delete(listener as MessageListener)
   }
+
+  emitMessage(data: unknown): void {
+    this.messageListeners.forEach((listener) => listener({ data } as MessageEvent<unknown>))
+  }
+
+  emitError(event: Partial<ErrorEvent>): void {
+    this.errorListeners.forEach((listener) => listener(event as ErrorEvent))
+  }
+}
+
+function createValidStepPayload() {
+  return {
+    state: {
+      position: { x: 0, y: 0, z: 0 },
+      velocity: { x: 1, y: 0, z: 0 },
+    },
+    acceleration: { x: 0, y: 0, z: 0 },
+    dt: 1,
+  }
 }
 
 describe('default simulation stepper', () => {
@@ -84,14 +103,7 @@ describe('worker simulation stepper', () => {
     const stepper = createWorkerSimulationStepper(worker)
 
     try {
-      const pending = stepper.step({
-        state: {
-          position: { x: 0, y: 0, z: 0 },
-          velocity: { x: 1, y: 0, z: 0 },
-        },
-        acceleration: { x: 0, y: 0, z: 0 },
-        dt: 1,
-      })
+      const pending = stepper.step(createValidStepPayload())
       const outcome = pending.then(
         () => ({ status: 'resolved' as const }),
         (error) => ({ status: 'rejected' as const, error }),
@@ -116,21 +128,13 @@ describe('worker simulation stepper', () => {
     const stepper = createWorkerSimulationStepper(worker)
 
     try {
-      const pending = stepper.step({
-        state: {
-          position: { x: 0, y: 0, z: 0 },
-          velocity: { x: 1, y: 0, z: 0 },
-        },
-        acceleration: { x: 0, y: 0, z: 0 },
-        dt: 1,
-      })
+      const pending = stepper.step(createValidStepPayload())
       const outcome = pending.then(
         () => ({ status: 'resolved' as const }),
         (error) => ({ status: 'rejected' as const, error }),
       )
 
-      const errorListeners = (worker as unknown as { errorListeners: Set<ErrorListener> }).errorListeners
-      errorListeners.forEach((listener) => listener({ message: 42 } as unknown as ErrorEvent))
+      worker.emitError({ message: 42 as unknown as string })
 
       const settled = await outcome
       expect(settled.status).toBe('rejected')
@@ -140,6 +144,68 @@ describe('worker simulation stepper', () => {
       expect((settled.error as Error).message).toBe('Simulation worker error')
     } finally {
       stepper.terminate()
+    }
+  })
+
+  it('ignores malformed step-result payloads and keeps waiting for a valid reply', async () => {
+    vi.useFakeTimers()
+    const worker = new FakeWorker()
+    const stepper = createWorkerSimulationStepper(worker)
+
+    try {
+      const pending = stepper.step(createValidStepPayload())
+      const outcome = pending.then(
+        () => ({ status: 'resolved' as const }),
+        (error) => ({ status: 'rejected' as const, error }),
+      )
+
+      worker.emitMessage({
+        type: 'step-result',
+        requestId: 'req-1',
+        payload: {},
+      })
+
+      await vi.advanceTimersByTimeAsync(5000)
+      const settled = await outcome
+      expect(settled.status).toBe('rejected')
+      if (settled.status !== 'rejected') {
+        throw new Error('Expected malformed worker result to be ignored until timeout')
+      }
+      expect((settled.error as Error).message).toMatch(/timeout/i)
+    } finally {
+      stepper.terminate()
+      vi.useRealTimers()
+    }
+  })
+
+  it('ignores malformed error payloads and keeps waiting for a valid reply', async () => {
+    vi.useFakeTimers()
+    const worker = new FakeWorker()
+    const stepper = createWorkerSimulationStepper(worker)
+
+    try {
+      const pending = stepper.step(createValidStepPayload())
+      const outcome = pending.then(
+        () => ({ status: 'resolved' as const }),
+        (error) => ({ status: 'rejected' as const, error }),
+      )
+
+      worker.emitMessage({
+        type: 'error',
+        requestId: 'req-1',
+        payload: {},
+      })
+
+      await vi.advanceTimersByTimeAsync(5000)
+      const settled = await outcome
+      expect(settled.status).toBe('rejected')
+      if (settled.status !== 'rejected') {
+        throw new Error('Expected malformed worker error to be ignored until timeout')
+      }
+      expect((settled.error as Error).message).toMatch(/timeout/i)
+    } finally {
+      stepper.terminate()
+      vi.useRealTimers()
     }
   })
 })

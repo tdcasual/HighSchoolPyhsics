@@ -42,6 +42,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
+function isNonBlankText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
 function normalizeScenePath(pathname: unknown): string {
   if (typeof pathname !== 'string') {
     return '/'
@@ -55,7 +59,34 @@ function normalizeScenePath(pathname: unknown): string {
   return normalized.startsWith('/') ? normalized : `/${normalized}`
 }
 
-export const SCENE_CATALOG: SceneCatalogEntry[] = sceneCatalog as SceneCatalogEntry[]
+export function buildSceneCatalog(rawCatalog: unknown): SceneCatalogEntry[] {
+  if (!Array.isArray(rawCatalog)) {
+    throw new Error('sceneCatalog must be an array')
+  }
+
+  const seenPageIds = new Set<string>()
+
+  return rawCatalog.map((entry, index) => {
+    const fieldName = `sceneCatalog[${index}]`
+
+    if (!isRecord(entry)) {
+      throw new Error(`${fieldName} must be an object`)
+    }
+
+    if (!isNonBlankText(entry.pageId)) {
+      throw new Error(`${fieldName}.pageId must be a non-blank string`)
+    }
+
+    if (seenPageIds.has(entry.pageId)) {
+      throw new Error(`duplicate sceneCatalog pageId "${entry.pageId}" at index ${index}`)
+    }
+
+    seenPageIds.add(entry.pageId)
+    return entry as SceneCatalogEntry
+  })
+}
+
+export const SCENE_CATALOG: SceneCatalogEntry[] = buildSceneCatalog(sceneCatalog)
 
 const SCENE_CATALOG_BY_PATH = new Map(
   SCENE_CATALOG.map((entry) => [`/${entry.pageId}`, entry] satisfies [string, SceneCatalogEntry]),
@@ -129,7 +160,6 @@ export function resolveSmartStickySummaryPreference(
     ? smartPresentation.stickySummary
     : fallback
 }
-
 
 export function resolveSceneKindMinimumAutoSignalScore(sceneKind: SceneKind | null | undefined): number {
   switch (sceneKind) {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildSceneCatalog,
   canUseRuntimePreferredLayout,
   findRuntimeSceneCatalogEntry,
   findSceneCatalogEntryByPath,
@@ -11,6 +12,29 @@ import {
 } from '../sceneCatalog'
 
 describe('sceneCatalog classroom semantics', () => {
+  it('throws a descriptive error when a scene catalog entry is malformed', () => {
+    expect(() => buildSceneCatalog([null])).toThrow(/sceneCatalog\[0\] must be an object/i)
+  })
+
+  it('throws a descriptive error when a scene catalog entry pageId is malformed', () => {
+    expect(() =>
+      buildSceneCatalog([
+        {
+          pageId: 42,
+        },
+      ]),
+    ).toThrow(/sceneCatalog\[0\]\.pageId must be a non-blank string/i)
+  })
+
+  it('throws a descriptive error when scene catalog pageIds are duplicated', () => {
+    expect(() =>
+      buildSceneCatalog([
+        { pageId: 'oscilloscope' },
+        { pageId: 'oscilloscope' },
+      ]),
+    ).toThrow(/duplicate sceneCatalog pageId "oscilloscope" at index 1/i)
+  })
+
   it('allows runtime preferred layout only for staged scenes', () => {
     expect(canUseRuntimePreferredLayout({ layout: 'staged', focus: true, stickySummary: true })).toBe(true)
     expect(canUseRuntimePreferredLayout({ layout: 'enter-only', focus: true, stickySummary: true })).toBe(false)
@@ -45,7 +69,6 @@ describe('sceneCatalog classroom semantics', () => {
     ).toBe(true)
   })
 
-
   it('resolves classroom sceneKind and smart presentation only from valid classroom objects', () => {
     expect(resolveClassroomSceneKind({ sceneKind: 'field' })).toBe('field')
     expect(resolveClassroomSceneKind(null)).toBeNull()
@@ -71,7 +94,6 @@ describe('sceneCatalog classroom semantics', () => {
     expect(resolveSceneKindMinimumAutoSignalScore('process')).toBe(1)
     expect(resolveSceneKindMinimumAutoSignalScore(undefined)).toBe(0)
   })
-
 
   it('exposes touch profile metadata from the shared catalog lookup', () => {
     const entry = findSceneCatalogEntryByPath('/oscilloscope')

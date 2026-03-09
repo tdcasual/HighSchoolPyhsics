@@ -4,9 +4,8 @@ import { Suspense, createElement } from 'react'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as ts from 'typescript'
-import sceneCatalog from '../../../config/demo-scenes.json'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
-import { findSceneCatalogEntryByPath } from '../sceneCatalog'
+import { SCENE_CATALOG, findSceneCatalogEntryByPath } from '../sceneCatalog'
 import { scorePresentationSignals } from '../../ui/layout/presentationSignals'
 import { collectRouteConformanceIssues } from '../routeConformance'
 import { useAppStore } from '../../store/useAppStore'
@@ -422,7 +421,7 @@ export function SampleScene() {
   })
 
   it('stays aligned with the shared scene catalog source', () => {
-    const expectedPageIds = sceneCatalog.map((scene) => scene.pageId)
+    const expectedPageIds = SCENE_CATALOG.map((scene) => scene.pageId)
     expect(DEMO_ROUTES.map((route) => route.pageId)).toEqual(expectedPageIds)
     expect(DEMO_ROUTES.map((route) => route.path)).toEqual(
       expectedPageIds.map((pageId) => `/${pageId}`),
@@ -439,7 +438,7 @@ export function SampleScene() {
   })
 
   it('keeps auto-discovered scene modules aligned with the catalog', () => {
-    const expectedPageIds = sceneCatalog.map((scene) => scene.pageId).sort()
+    const expectedPageIds = SCENE_CATALOG.map((scene) => scene.pageId).sort()
     expect(DISCOVERED_SCENE_PAGE_IDS).toEqual(expectedPageIds)
   })
 })

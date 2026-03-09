@@ -244,4 +244,21 @@ describe('scene scaffold generator', () => {
     expect(sceneSource).toContain('<HallEffectControls')
     expect(sceneSource).toContain('<HallEffectRig3D')
   })
+
+  it('fails with a descriptive error when existing catalog entries are malformed', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), '3dmotion-scaffold-'))
+    createdTempDirs.push(rootDir)
+
+    await mkdir(path.join(rootDir, 'config'), { recursive: true })
+    await mkdir(path.join(rootDir, 'src/scenes'), { recursive: true })
+    await writeFile(
+      path.join(rootDir, 'config/demo-scenes.json'),
+      JSON.stringify([null], null, 2) + '\n',
+      'utf8',
+    )
+
+    await expect(runScaffold(rootDir, ['--scene-kind', 'field'])).rejects.toThrow(
+      /config\/demo-scenes\.json entry\[0\] must be an object/i,
+    )
+  })
 })

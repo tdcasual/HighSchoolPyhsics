@@ -99,4 +99,20 @@ describe('threeConsoleFilter', () => {
 
     expect(originalConsole).not.toHaveBeenCalled()
   })
+
+  it('falls back to the active runtime policy when the requested environment is malformed', async () => {
+    const originalConsole = vi.fn<ThreeConsoleHandler>()
+    const { module, handler } = await installFilter('staging' as unknown as ThreeConsoleFilterEnvironment, originalConsole)
+
+    expect(() => handler('warn', 'ordinary warning')).not.toThrow()
+    expect(originalConsole).toHaveBeenCalledWith('warn', 'ordinary warning')
+    expect(module.getThreeConsoleFilterPolicy()).toEqual({
+      environment: 'test',
+      suppressedPatterns: [
+        'WARNING: Multiple instances of Three.js being imported.',
+        'THREE.WebGLRenderer: Context Lost.',
+        'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
+      ],
+    })
+  })
 })

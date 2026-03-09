@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import sceneCatalog from '../../../config/demo-scenes.json'
-import { DEMO_CATALOG } from '../shared/demoCatalog.mjs'
+import { DEMO_CATALOG, buildDemoCatalog, parseSceneCatalog } from '../shared/demoCatalog.mjs'
 import { build1080pPresentationCases } from '../shared/presentationRegressionCases.mjs'
 
 describe('playwright demo catalog', () => {
-  it('stays aligned with shared scene catalog length', () => {
-    expect(DEMO_CATALOG).toHaveLength(sceneCatalog.length)
+  it('stays aligned with the validated shared scene catalog builder', () => {
+    expect(DEMO_CATALOG).toEqual(buildDemoCatalog(parseSceneCatalog()))
   })
 
   it('keeps unique path and screenshot identifiers', () => {

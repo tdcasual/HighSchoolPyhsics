@@ -31,9 +31,26 @@ export type StepErrorMessage = {
 
 export type SimulationMessage = StepResultMessage | StepErrorMessage
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
 function assertFiniteVector(vector: Vector3Like, label: string): void {
   if (!Number.isFinite(vector.x) || !Number.isFinite(vector.y) || !Number.isFinite(vector.z)) {
-    throw new Error(`${label} must be finite`) 
+    throw new Error(`${label} must be finite`)
+  }
+}
+
+function isFiniteParticleState(value: unknown): value is ParticleState {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  try {
+    assertFiniteState(value as ParticleState)
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -47,15 +64,21 @@ export function assertValidStepPayload(payload: StepPayload): void {
 }
 
 export function isSimulationMessage(value: unknown): value is SimulationMessage {
-  if (typeof value !== 'object' || value === null) {
+  if (!isRecord(value)) {
     return false
   }
 
-  const candidate = value as Partial<SimulationMessage>
-  return (
-    (candidate.type === 'step-result' || candidate.type === 'error') &&
-    typeof candidate.requestId === 'string' &&
-    typeof candidate.payload === 'object' &&
-    candidate.payload !== null
-  )
+  if (typeof value.requestId !== 'string' || !isRecord(value.payload)) {
+    return false
+  }
+
+  if (value.type === 'step-result') {
+    return isFiniteParticleState(value.payload.state)
+  }
+
+  if (value.type === 'error') {
+    return typeof value.payload.message === 'string'
+  }
+
+  return false
 }
