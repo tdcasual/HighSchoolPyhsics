@@ -47,7 +47,7 @@ const CASE_OVERRIDES = {
     },
   },
   'electromagnetic-drive': {
-    expectedLayout: 'split',
+    expectedLayout: 'split-sticky-summary',
     expectedFocus: 'overview',
   },
 }

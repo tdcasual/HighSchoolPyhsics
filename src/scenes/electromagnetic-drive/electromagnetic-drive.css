@@ -51,26 +51,27 @@
   gap: 0.95rem;
   padding: 1rem;
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(35, 35, 35, 0.96) 0%, rgba(17, 17, 17, 0.96) 100%);
-  color: #eef2f6;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(192, 204, 219, 0.92);
+  background: linear-gradient(180deg, rgba(248, 250, 253, 0.98) 0%, rgba(232, 238, 246, 0.98) 100%);
+  color: #1f2e3c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
 .electromagnetic-drive-board-head {
   padding-bottom: 0.8rem;
-  border-bottom: 2px solid rgba(102, 102, 102, 0.92);
+  border-bottom: 2px solid rgba(196, 207, 220, 0.95);
 }
 
 .electromagnetic-drive-board-title {
   margin: 0;
-  color: #fff;
+  color: #1d2a38;
   font-size: 1.5rem;
   font-weight: 800;
 }
 
 .electromagnetic-drive-board-subtitle {
   margin: 0.35rem 0 0;
-  color: #c8d2dc;
+  color: #4f667d;
   font-size: 0.92rem;
   line-height: 1.5;
 }
@@ -78,10 +79,10 @@
 .electromagnetic-drive-telemetry,
 .electromagnetic-drive-chart-card,
 .electromagnetic-drive-stage-note-card {
-  border: 1px solid rgba(82, 92, 104, 0.48);
-  background: rgba(17, 17, 17, 0.7);
-  backdrop-filter: blur(8px);
-  color: #eef2f6;
+  border: 1px solid rgba(186, 200, 216, 0.9);
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f2e3c;
+  box-shadow: 0 10px 24px rgba(123, 145, 170, 0.12);
 }
 
 .electromagnetic-drive-telemetry {
@@ -101,11 +102,11 @@
 }
 
 .electromagnetic-drive-telemetry span {
-  color: #d0d8e1;
+  color: #5c7187;
 }
 
 .electromagnetic-drive-telemetry strong {
-  color: #ffffff;
+  color: #182838;
   font-family: 'SF Mono', Menlo, monospace;
 }
 
@@ -123,7 +124,7 @@
 
 .electromagnetic-drive-stage-note-label {
   margin: 0;
-  color: #fff;
+  color: #24384b;
   font-size: 1.05rem;
   font-weight: 800;
 }
@@ -131,10 +132,10 @@
 .electromagnetic-drive-section-toggle {
   min-height: 40px;
   padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(137, 154, 170, 0.42);
+  border: 1px solid rgba(178, 191, 206, 0.95);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #f5f8fb;
+  background: rgba(245, 248, 252, 0.96);
+  color: #31475b;
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
@@ -150,7 +151,7 @@
 .electromagnetic-drive-stage-note-card p {
   margin: 0;
   line-height: 1.55;
-  color: #e8eef4;
+  color: #30485e;
 }
 
 .electromagnetic-drive-chart-section {
@@ -158,13 +159,24 @@
 }
 
 .electromagnetic-drive-chart-card {
+  --electromagnetic-drive-chart-surface: rgba(240, 246, 252, 0.95);
+  --electromagnetic-drive-chart-grid-line: rgba(115, 134, 156, 0.18);
+  --electromagnetic-drive-chart-axis-line: rgba(93, 115, 138, 0.38);
+  --electromagnetic-drive-chart-axis-text: #597188;
+  --electromagnetic-drive-chart-axis-subtext: #7b8da0;
+  --electromagnetic-drive-chart-magnet-line: #d94c57;
+  --electromagnetic-drive-chart-magnet-fill-top: rgba(217, 76, 87, 0.24);
+  --electromagnetic-drive-chart-magnet-fill-bottom: rgba(217, 76, 87, 0);
+  --electromagnetic-drive-chart-frame-line: #2f8fcb;
+  --electromagnetic-drive-chart-frame-fill-top: rgba(47, 143, 203, 0.22);
+  --electromagnetic-drive-chart-frame-fill-bottom: rgba(47, 143, 203, 0);
   padding: 0.9rem 0.95rem 0.8rem;
   border-radius: 16px;
 }
 
 .electromagnetic-drive-chart-collapsed-note {
   margin: 0;
-  color: #dbe3ea;
+  color: #4d6379;
   line-height: 1.5;
 }
 
@@ -208,11 +220,11 @@
 }
 
 .electromagnetic-drive-chart-legend .magnet::before {
-  background: #ff5555;
+  background: var(--electromagnetic-drive-chart-magnet-line);
 }
 
 .electromagnetic-drive-chart-legend .frame::before {
-  background: #33ddee;
+  background: var(--electromagnetic-drive-chart-frame-line);
 }
 
 .electromagnetic-drive-chart {
@@ -220,7 +232,7 @@
   height: auto;
   display: block;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--electromagnetic-drive-chart-surface);
 }
 
 .electromagnetic-drive-viewport {
@@ -268,12 +280,71 @@
 }
 
 .app-shell.theme-night .electromagnetic-drive-board {
+  border-color: rgba(57, 73, 90, 0.92);
   background: linear-gradient(180deg, rgba(18, 25, 34, 0.98) 0%, rgba(10, 16, 24, 0.98) 100%);
+  color: #eef2f6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.app-shell.theme-night .electromagnetic-drive-board-head {
+  border-bottom-color: rgba(102, 102, 102, 0.92);
+}
+
+.app-shell.theme-night .electromagnetic-drive-board-title {
+  color: #fff;
+}
+
+.app-shell.theme-night .electromagnetic-drive-board-subtitle {
+  color: #c8d2dc;
+}
+
+.app-shell.theme-night .electromagnetic-drive-telemetry,
+.app-shell.theme-night .electromagnetic-drive-chart-card,
+.app-shell.theme-night .electromagnetic-drive-stage-note-card {
+  border-color: rgba(82, 92, 104, 0.48);
+  background: rgba(17, 17, 17, 0.7);
+  color: #eef2f6;
+  box-shadow: none;
+}
+
+.app-shell.theme-night .electromagnetic-drive-chart-card {
+  --electromagnetic-drive-chart-surface: rgba(0, 0, 0, 0.28);
+  --electromagnetic-drive-chart-grid-line: rgba(255, 255, 255, 0.12);
+  --electromagnetic-drive-chart-axis-line: rgba(255, 255, 255, 0.22);
+  --electromagnetic-drive-chart-axis-text: #cfd6de;
+  --electromagnetic-drive-chart-axis-subtext: #98a5b5;
+  --electromagnetic-drive-chart-magnet-line: #ff5555;
+  --electromagnetic-drive-chart-magnet-fill-top: rgba(255, 85, 85, 0.58);
+  --electromagnetic-drive-chart-magnet-fill-bottom: rgba(255, 85, 85, 0);
+  --electromagnetic-drive-chart-frame-line: #33ddee;
+  --electromagnetic-drive-chart-frame-fill-top: rgba(51, 221, 238, 0.58);
+  --electromagnetic-drive-chart-frame-fill-bottom: rgba(51, 221, 238, 0);
+}
+
+.app-shell.theme-night .electromagnetic-drive-telemetry span {
+  color: #d0d8e1;
+}
+
+.app-shell.theme-night .electromagnetic-drive-telemetry strong {
+  color: #ffffff;
+}
+
+.app-shell.theme-night .electromagnetic-drive-stage-note-label {
+  color: #fff;
 }
 
 .app-shell.theme-night .electromagnetic-drive-section-toggle {
   border-color: rgba(112, 142, 170, 0.44);
   background: rgba(255, 255, 255, 0.05);
+  color: #f5f8fb;
+}
+
+.app-shell.theme-night .electromagnetic-drive-stage-note-card p {
+  color: #e8eef4;
+}
+
+.app-shell.theme-night .electromagnetic-drive-chart-collapsed-note {
+  color: #dbe3ea;
 }
 
 .app-shell.theme-night .electromagnetic-drive-scene-title {

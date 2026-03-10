@@ -471,6 +471,30 @@ body {
   grid-template-columns: minmax(320px, 33.333vw) minmax(0, 1fr);
 }
 
+.scene-layout--desktop.scene-layout--presentation-split-sticky-summary {
+  grid-template-rows: auto 1fr;
+}
+
+.scene-layout--desktop.scene-layout--presentation-split-sticky-summary .scene-core-summary {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.scene-layout--desktop.scene-layout--presentation-split-sticky-summary .control-panel {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.scene-layout--desktop.scene-layout--presentation-split-sticky-summary .scene-layout-divider {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.scene-layout--desktop.scene-layout--presentation-split-sticky-summary .viewport-panel {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+}
+
 .scene-layout--tablet,
 .scene-layout--mobile {
   grid-template-columns: 1fr;

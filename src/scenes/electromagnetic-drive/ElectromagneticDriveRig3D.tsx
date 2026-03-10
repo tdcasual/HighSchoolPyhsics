@@ -92,7 +92,7 @@ export function ElectromagneticDriveRig3D({ magnetAngle, frameAngle }: Electroma
             <boxGeometry args={[2, 0.2, 0.4]} />
             <meshStandardMaterial color="#66696d" metalness={0.62} roughness={0.34} />
           </mesh>
-          <mesh position={[1.6, 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh position={[1.6, 2, 0]}>
             <cylinderGeometry args={[0.2, 0.2, 1, 16]} />
             <meshStandardMaterial color="#b6864a" roughness={0.8} />
           </mesh>

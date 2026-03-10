@@ -99,12 +99,12 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
       >
         <defs>
           <linearGradient id={magnetGradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(255, 85, 85, 0.58)" />
-            <stop offset="100%" stopColor="rgba(255, 85, 85, 0)" />
+            <stop offset="0%" stopColor="var(--electromagnetic-drive-chart-magnet-fill-top)" />
+            <stop offset="100%" stopColor="var(--electromagnetic-drive-chart-magnet-fill-bottom)" />
           </linearGradient>
           <linearGradient id={frameGradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(51, 221, 238, 0.58)" />
-            <stop offset="100%" stopColor="rgba(51, 221, 238, 0)" />
+            <stop offset="0%" stopColor="var(--electromagnetic-drive-chart-frame-fill-top)" />
+            <stop offset="100%" stopColor="var(--electromagnetic-drive-chart-frame-fill-bottom)" />
           </linearGradient>
         </defs>
 
@@ -117,7 +117,7 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
               y1={y}
               x2={VIEWBOX_WIDTH - PADDING.right}
               y2={y}
-              stroke="rgba(255, 255, 255, 0.12)"
+              stroke="var(--electromagnetic-drive-chart-grid-line)"
               strokeWidth="1"
             />
           )
@@ -128,23 +128,23 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
           y1={VIEWBOX_HEIGHT - PADDING.bottom}
           x2={VIEWBOX_WIDTH - PADDING.right}
           y2={VIEWBOX_HEIGHT - PADDING.bottom}
-          stroke="rgba(255, 255, 255, 0.22)"
+          stroke="var(--electromagnetic-drive-chart-axis-line)"
           strokeWidth="1.2"
         />
 
         {magnetAreaPath ? <path d={magnetAreaPath} fill={`url(#${magnetGradientId})`} /> : null}
         {frameAreaPath ? <path d={frameAreaPath} fill={`url(#${frameGradientId})`} /> : null}
         {magnetLinePath ? (
-          <path d={magnetLinePath} fill="none" stroke="#ff5555" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+          <path d={magnetLinePath} fill="none" stroke="var(--electromagnetic-drive-chart-magnet-line)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
         ) : null}
         {frameLinePath ? (
-          <path d={frameLinePath} fill="none" stroke="#33ddee" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+          <path d={frameLinePath} fill="none" stroke="var(--electromagnetic-drive-chart-frame-line)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
         ) : null}
 
-        <text x={PADDING.left} y={PADDING.top - 2} fill="#cfd6de" fontSize="11">
+        <text x={PADDING.left} y={PADDING.top - 2} fill="var(--electromagnetic-drive-chart-axis-text)" fontSize="11">
           {maxValue.toFixed(1)} rad/s
         </text>
-        <text x={PADDING.left} y={VIEWBOX_HEIGHT - 4} fill="#98a5b5" fontSize="11">
+        <text x={PADDING.left} y={VIEWBOX_HEIGHT - 4} fill="var(--electromagnetic-drive-chart-axis-subtext)" fontSize="11">
           0
         </text>
       </svg>
