@@ -318,5 +318,46 @@
       "readyText": "实验控制台",
       "screenshotName": "induction-current"
     }
+  },
+  {
+    "pageId": "electromagnetic-drive",
+    "label": "电磁驱动",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "旋转磁铁驱动铝框异步跟随",
+      "highlights": [
+        "木质实验架与转动磁铁 3D 复刻",
+        "实时转速对比曲线保留原页节奏"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "classroom": {
+      "presentationSignals": [
+        "chart",
+        "live-metric",
+        "interactive-readout"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": false,
+        "stickySummary": true
+      }
+    },
+    "playwright": {
+      "readyText": "电磁驱动控制",
+      "screenshotName": "electromagnetic-drive"
+    }
   }
 ]

@@ -42,6 +42,10 @@ const CASE_OVERRIDES = {
       await page.getByRole('button', { name: '↓ 向下运动 (接近)' }).click()
     },
   },
+  'electromagnetic-drive': {
+    expectedLayout: 'split',
+    expectedFocus: 'overview',
+  },
 }
 
 export function build1080pPresentationCases() {
