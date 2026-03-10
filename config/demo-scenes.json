@@ -399,5 +399,45 @@
       "readyText": "电磁驱动控制",
       "screenshotName": "electromagnetic-drive"
     }
+  },
+  {
+    "pageId": "rotational-emf",
+    "label": "旋转切割磁感线",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "旋转导体棒与旋转线框的感应电动势对比",
+      "highlights": [
+        "两种典型旋转情形一页切换",
+        "主视图与俯视图对照讲解"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "classroom": {
+      "presentationSignals": [
+        "live-metric",
+        "interactive-readout"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "never",
+        "focus": false,
+        "stickySummary": false
+      }
+    },
+    "playwright": {
+      "readyText": "旋转切割磁感线控制",
+      "screenshotName": "rotational-emf"
+    }
   }
 ]
