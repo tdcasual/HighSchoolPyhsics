@@ -44,7 +44,7 @@ describe('electromagnetic-drive classroom mode', () => {
     })
   })
 
-  it('keeps core summary visible and exposes chart + telemetry signals when controls are collapsed', async () => {
+  it('keeps core summary visible and exposes chart + telemetry signals from the left controls when controls are collapsed', async () => {
     render(<ElectromagneticDriveScene />)
 
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
@@ -55,13 +55,14 @@ describe('electromagnetic-drive classroom mode', () => {
     expect(within(summary).getByText(/跟随比:/)).toBeInTheDocument()
 
     const telemetryNode = document.querySelector(
-      '.electromagnetic-drive-telemetry[data-presentation-signal~="live-metric"][data-presentation-signal~="interactive-readout"]',
+      '.control-panel .electromagnetic-drive-telemetry[data-presentation-signal~="live-metric"][data-presentation-signal~="interactive-readout"]',
     )
     const chartNode = document.querySelector(
-      '.electromagnetic-drive-chart-card[data-presentation-signal~="chart"]',
+      '.control-panel .electromagnetic-drive-chart-card[data-presentation-signal~="chart"]',
     )
 
     expect(telemetryNode).toBeInTheDocument()
     expect(chartNode).toBeInTheDocument()
+    expect(document.querySelector('.electromagnetic-drive-stage-rail')).not.toBeInTheDocument()
   })
 })

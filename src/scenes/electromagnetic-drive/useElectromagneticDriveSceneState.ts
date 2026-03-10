@@ -17,10 +17,21 @@ type StateUpdater =
   | ElectromagneticDriveState
   | ((prev: ElectromagneticDriveState) => ElectromagneticDriveState)
 
+const FIXED_STEP_MS = 1000 / 60
+const MAX_ACCUMULATED_MS = FIXED_STEP_MS * 15
+const STEP_EPSILON_MS = 0.001
+
 export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneState {
   const [simulation, setSimulation] = useState(() => createElectromagneticDriveState())
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
+  const lastTimestampRef = useRef<number | null>(null)
+  const accumulatedMsRef = useRef(0)
+
+  const resetAnimationClock = useCallback(() => {
+    lastTimestampRef.current = null
+    accumulatedMsRef.current = 0
+  }, [])
 
   const commitSimulation = useCallback((updater: StateUpdater) => {
     setSimulation((previous) => {
@@ -41,20 +52,42 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
       return
     }
 
-    const tick = () => {
-      const next = stepElectromagneticDriveState(simulationRef.current)
-      simulationRef.current = next
-      setSimulation(next)
+    const tick = (timestampMs: number) => {
+      if (lastTimestampRef.current === null) {
+        lastTimestampRef.current = timestampMs
+      } else {
+        const elapsedMs = Math.max(0, timestampMs - lastTimestampRef.current)
+        lastTimestampRef.current = timestampMs
+        accumulatedMsRef.current = Math.min(
+          accumulatedMsRef.current + elapsedMs,
+          MAX_ACCUMULATED_MS,
+        )
 
-      if (isElectromagneticDriveActive(next)) {
+        let next = simulationRef.current
+        let advanced = false
+
+        while (accumulatedMsRef.current + STEP_EPSILON_MS >= FIXED_STEP_MS) {
+          next = stepElectromagneticDriveState(next)
+          accumulatedMsRef.current = Math.max(0, accumulatedMsRef.current - FIXED_STEP_MS)
+          advanced = true
+        }
+
+        if (advanced) {
+          simulationRef.current = next
+          setSimulation(next)
+        }
+      }
+
+      if (isElectromagneticDriveActive(simulationRef.current)) {
         frameRef.current = requestAnimationFrame(tick)
       } else {
         frameRef.current = null
+        resetAnimationClock()
       }
     }
 
     frameRef.current = requestAnimationFrame(tick)
-  }, [simulation])
+  }, [resetAnimationClock, simulation])
 
   useEffect(() => {
     return () => {
@@ -62,15 +95,17 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
         cancelAnimationFrame(frameRef.current)
         frameRef.current = null
       }
+      resetAnimationClock()
     }
-  }, [])
+  }, [resetAnimationClock])
 
   const start = useCallback(() => {
+    resetAnimationClock()
     commitSimulation((previous) => ({
       ...previous,
       isRunning: true,
     }))
-  }, [commitSimulation])
+  }, [commitSimulation, resetAnimationClock])
 
   const pause = useCallback(() => {
     commitSimulation((previous) => ({
@@ -80,8 +115,9 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   }, [commitSimulation])
 
   const reset = useCallback(() => {
+    resetAnimationClock()
     commitSimulation((previous) => resetElectromagneticDriveState(previous))
-  }, [commitSimulation])
+  }, [commitSimulation, resetAnimationClock])
 
   return {
     ...simulation,
