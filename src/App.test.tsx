@@ -31,7 +31,7 @@ describe('App shell', () => {
     expect(screen.getByText('从单入口进入各个演示页面，避免课堂演示中跨页干扰。')).toBeInTheDocument()
     expect(screen.getByText('双通道电压驱动 + 李萨如图形')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
-    expect(screen.getByText('快捷键: 1-8 进入演示, D/N 切换昼夜。')).toBeInTheDocument()
+    expect(screen.getByText('快捷键: 1-9 进入前 9 个演示, D/N 切换昼夜。')).toBeInTheDocument()
 
     for (const route of DEMO_ROUTES) {
       expect(screen.getByRole('button', { name: `进入${route.label}` })).toBeInTheDocument()

@@ -49,6 +49,14 @@ describe('scene switching', () => {
     expect(await screen.findByText('奥斯特电流磁效应', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText('导线姿态（3D）', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '通电' }, asyncWait)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
+    fireEvent.click(screen.getByRole('button', { name: '进入电磁驱动' }))
+    expect(window.location.pathname).toBe('/electromagnetic-drive')
+    await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
+    expect(await screen.findByText('电磁驱动控制', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('实时转速对比', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: '开始摇动' }, asyncWait)).toBeInTheDocument()
   })
 
   it('loads scene directly from url path', async () => {
