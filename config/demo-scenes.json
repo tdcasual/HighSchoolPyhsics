@@ -318,5 +318,45 @@
       "readyText": "实验控制台",
       "screenshotName": "induction-current"
     }
+  },
+  {
+    "pageId": "motional-emf",
+    "label": "导体棒切割磁感线",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "B、v、L 三向量关系与感应电压联动",
+      "highlights": [
+        "中零式电压表偏转",
+        "常见夹角预设对比"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "classroom": {
+      "presentationSignals": [
+        "live-metric",
+        "interactive-readout"
+      ],
+      "coreSummaryLineCount": 5,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "never",
+        "focus": false,
+        "stickySummary": false
+      }
+    },
+    "playwright": {
+      "readyText": "切割磁感线实验控制",
+      "screenshotName": "motional-emf"
+    }
   }
 ]

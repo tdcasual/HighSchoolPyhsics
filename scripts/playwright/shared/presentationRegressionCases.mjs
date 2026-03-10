@@ -14,7 +14,7 @@ const CASE_OVERRIDES = {
     expectedFocus: 'overview',
   },
   oersted: {
-    expectedLayout: 'split',
+    expectedLayout: 'viewport',
     expectedFocus: 'overview',
   },
   equipotential: {
@@ -34,8 +34,12 @@ const CASE_OVERRIDES = {
     expectedLayout: 'split-sticky-summary',
     expectedFocus: 'focus',
   },
+  'motional-emf': {
+    expectedLayout: 'split',
+    expectedFocus: 'overview',
+  },
   'induction-current': {
-    expectedLayout: 'viewport',
+    expectedLayout: 'split',
     expectedFocus: 'focus',
     prepare: async (page, helpers) => {
       await helpers.openControlsIfCollapsed(page)
