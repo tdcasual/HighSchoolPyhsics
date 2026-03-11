@@ -67,9 +67,9 @@ export function MotionalEmfScene() {
         <div className="scene-core-summary-stack">
           <p>电压 U_AB: {state.signedVoltageV.toFixed(2)} V</p>
           <p>极性: {state.polarityText}</p>
-          <p>方向关系: {state.relationText}</p>
-          <p>速度方向: {state.velocityPresetLabel}</p>
-          <p>磁场方向: {state.magneticFieldDirectionLabel}</p>
+          <p>∠(B,L): {state.angleBetweenBLLabel}</p>
+          <p>∠(L,v): {state.angleBetweenLVLabel}</p>
+          <p>∠(B,v): {state.angleBetweenBVLabel}</p>
         </div>
       }
       controls={
@@ -84,14 +84,23 @@ export function MotionalEmfScene() {
           onSpeedChange={state.setSpeedMps}
           rodAngleDeg={state.rodAngleDeg}
           onRodAngleChange={state.setRodAngleDeg}
+          discussionMode={state.discussionMode}
+          onDiscussionModeChange={state.setDiscussionMode}
           velocityPreset={state.velocityPreset}
           onVelocityPresetChange={state.setVelocityPreset}
+          rodVelocityAngleDeg={state.rodVelocityAngleDeg}
+          onRodVelocityAngleChange={state.setRodVelocityAngleDeg}
+          motionDirection={state.motionDirection}
+          onMotionDirectionChange={state.setMotionDirection}
           running={state.running}
           onToggleRunning={state.toggleRunning}
           onReset={state.reset}
           signedVoltageV={state.signedVoltageV}
           polarityText={state.polarityText}
           relationText={state.relationText}
+          angleBetweenBLLabel={state.angleBetweenBLLabel}
+          angleBetweenLVLabel={state.angleBetweenLVLabel}
+          angleBetweenBVLabel={state.angleBetweenBVLabel}
         />
       }
       viewport={
@@ -146,7 +155,10 @@ export function MotionalEmfScene() {
               motionOffset={state.motionOffset}
               rodLengthM={state.rodLengthM}
               rodAngleDeg={state.rodAngleDeg}
+              discussionMode={state.discussionMode}
               velocityPreset={state.velocityPreset}
+              rodVelocityAngleDeg={state.rodVelocityAngleDeg}
+              motionDirection={state.motionDirection}
               magneticFieldDirection={state.magneticFieldDirection}
               currentActive={Math.abs(state.signedVoltageV) > 1e-9}
               needleAngleRad={state.needleAngleRad}

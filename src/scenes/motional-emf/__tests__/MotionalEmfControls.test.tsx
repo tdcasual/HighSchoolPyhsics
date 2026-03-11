@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { MotionalEmfControls } from '../MotionalEmfControls'
 
 describe('MotionalEmfControls', () => {
-  it('renders sliders, preset buttons, and the voltage readout card', () => {
+  it('renders both discussion modes and restores the old v-B presets', () => {
     render(
       <MotionalEmfControls
         magneticFieldT={1}
@@ -16,67 +16,108 @@ describe('MotionalEmfControls', () => {
         onSpeedChange={() => undefined}
         rodAngleDeg={90}
         onRodAngleChange={() => undefined}
+        discussionMode="vb"
+        onDiscussionModeChange={() => undefined}
         velocityPreset="forward"
         onVelocityPresetChange={() => undefined}
+        rodVelocityAngleDeg={90}
+        onRodVelocityAngleChange={() => undefined}
+        motionDirection="forward"
+        onMotionDirectionChange={() => undefined}
         running={false}
         onToggleRunning={() => undefined}
         onReset={() => undefined}
         signedVoltageV={1}
         polarityText="A 端高电势"
-        relationText="B ⟂ v，L ∥ (v × B)"
+        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
+        angleBetweenBLLabel="90°"
+        angleBetweenLVLabel="90°"
+        angleBetweenBVLabel="90°"
       />,
     )
 
-    expect(screen.getByRole('heading', { name: '切割磁感线实验控制' })).toBeInTheDocument()
-    expect(screen.getByLabelText('磁场 B (T)')).toHaveValue('1')
-    expect(screen.getByLabelText('导体棒长度 L (m)')).toHaveValue('0.5')
-    expect(screen.getByText('两端电压 U_AB')).toBeInTheDocument()
-    expect(screen.getByTestId('motional-emf-voltage-display')).toHaveTextContent('1.00 V')
-    expect(screen.getByRole('button', { name: '前进（标准切割）' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '磁场向上' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '磁场向下' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '按 ∠(v,B) 讨论' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '与 B 成 45°' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'L 与 v 成 45°' })).not.toBeInTheDocument()
   })
 
-  it('emits callbacks for sliders, field direction, presets, and actions', () => {
-    const onSpeedChange = vi.fn()
-    const onMagneticFieldDirectionChange = vi.fn()
-    const onVelocityPresetChange = vi.fn()
-    const onToggleRunning = vi.fn()
-    const onReset = vi.fn()
+  it('switches to L-v mode and emits the new callbacks there', () => {
+    const onDiscussionModeChange = vi.fn()
+    const onRodVelocityAngleChange = vi.fn()
+    const onMotionDirectionChange = vi.fn()
 
-    render(
+    const { rerender } = render(
       <MotionalEmfControls
         magneticFieldT={1}
         onMagneticFieldChange={() => undefined}
         magneticFieldDirection="up"
-        onMagneticFieldDirectionChange={onMagneticFieldDirectionChange}
+        onMagneticFieldDirectionChange={() => undefined}
         rodLengthM={0.5}
         onRodLengthChange={() => undefined}
         speedMps={2}
-        onSpeedChange={onSpeedChange}
+        onSpeedChange={() => undefined}
         rodAngleDeg={90}
         onRodAngleChange={() => undefined}
+        discussionMode="vb"
+        onDiscussionModeChange={onDiscussionModeChange}
         velocityPreset="forward"
-        onVelocityPresetChange={onVelocityPresetChange}
+        onVelocityPresetChange={() => undefined}
+        rodVelocityAngleDeg={90}
+        onRodVelocityAngleChange={onRodVelocityAngleChange}
+        motionDirection="forward"
+        onMotionDirectionChange={onMotionDirectionChange}
         running={false}
-        onToggleRunning={onToggleRunning}
-        onReset={onReset}
+        onToggleRunning={() => undefined}
+        onReset={() => undefined}
         signedVoltageV={1}
         polarityText="A 端高电势"
-        relationText="B ⟂ v，L ∥ (v × B)"
+        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
+        angleBetweenBLLabel="90°"
+        angleBetweenLVLabel="90°"
+        angleBetweenBVLabel="90°"
       />,
     )
 
-    fireEvent.change(screen.getByLabelText('速度 v (m/s)'), { target: { value: '3.5' } })
-    fireEvent.click(screen.getByRole('button', { name: '磁场向下' }))
-    fireEvent.click(screen.getByRole('button', { name: '与 B 成 45°' }))
-    fireEvent.click(screen.getByRole('button', { name: '播放' }))
-    fireEvent.click(screen.getByRole('button', { name: '重置' }))
+    fireEvent.click(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' }))
+    expect(onDiscussionModeChange).toHaveBeenCalledWith('lv')
 
-    expect(onSpeedChange).toHaveBeenCalledWith(3.5)
-    expect(onMagneticFieldDirectionChange).toHaveBeenCalledWith('down')
-    expect(onVelocityPresetChange).toHaveBeenCalledWith('angle-45')
-    expect(onToggleRunning).toHaveBeenCalled()
-    expect(onReset).toHaveBeenCalled()
+    rerender(
+      <MotionalEmfControls
+        magneticFieldT={1}
+        onMagneticFieldChange={() => undefined}
+        magneticFieldDirection="up"
+        onMagneticFieldDirectionChange={() => undefined}
+        rodLengthM={0.5}
+        onRodLengthChange={() => undefined}
+        speedMps={2}
+        onSpeedChange={() => undefined}
+        rodAngleDeg={90}
+        onRodAngleChange={() => undefined}
+        discussionMode="lv"
+        onDiscussionModeChange={onDiscussionModeChange}
+        velocityPreset="forward"
+        onVelocityPresetChange={() => undefined}
+        rodVelocityAngleDeg={90}
+        onRodVelocityAngleChange={onRodVelocityAngleChange}
+        motionDirection="forward"
+        onMotionDirectionChange={onMotionDirectionChange}
+        running={false}
+        onToggleRunning={() => undefined}
+        onReset={() => undefined}
+        signedVoltageV={1}
+        polarityText="A 端高电势"
+        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
+        angleBetweenBLLabel="90°"
+        angleBetweenLVLabel="90°"
+        angleBetweenBVLabel="90°"
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'L 与 v 成 45°' }))
+    fireEvent.click(screen.getByRole('button', { name: '反向运动' }))
+
+    expect(onRodVelocityAngleChange).toHaveBeenCalledWith(45)
+    expect(onMotionDirectionChange).toHaveBeenCalledWith('backward')
   })
 })

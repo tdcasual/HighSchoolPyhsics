@@ -8,8 +8,11 @@ import {
   resolveTeachingVectorAnchors,
   resolveVelocityDirection,
   resolveWireCurvePoints,
+  type DiscussionMode,
   type MagneticFieldDirection,
   type MotionOffset,
+  type MotionDirectionPreset,
+  type RodVelocityAnglePreset,
   type VelocityPreset,
 } from './model'
 
@@ -17,7 +20,10 @@ type MotionalEmfRig3DProps = {
   motionOffset: MotionOffset
   rodLengthM: number
   rodAngleDeg: number
+  discussionMode: DiscussionMode
   velocityPreset: VelocityPreset
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
   magneticFieldDirection: MagneticFieldDirection
   currentActive: boolean
   needleAngleRad: number
@@ -102,12 +108,22 @@ export function MotionalEmfRig3D({
   motionOffset,
   rodLengthM,
   rodAngleDeg,
+  discussionMode,
   velocityPreset,
+  rodVelocityAngleDeg,
+  motionDirection,
   magneticFieldDirection,
   currentActive,
   needleAngleRad,
 }: MotionalEmfRig3DProps) {
-  const velocityDirectionVector = resolveVelocityDirection(velocityPreset, magneticFieldDirection)
+  const velocityDirectionVector = resolveVelocityDirection({
+    discussionMode,
+    velocityPreset,
+    magneticFieldDirection,
+    rodAngleDeg,
+    rodVelocityAngleDeg,
+    motionDirection,
+  })
   const velocityDirection = normalize([
     velocityDirectionVector.x,
     velocityDirectionVector.y,
@@ -115,7 +131,10 @@ export function MotionalEmfRig3D({
   ])
   const currentDirection = resolveInducedCurrentDirection({
     rodAngleDeg,
+    discussionMode,
     velocityPreset,
+    rodVelocityAngleDeg,
+    motionDirection,
     magneticFieldDirection,
     activeMotion: currentActive,
   })

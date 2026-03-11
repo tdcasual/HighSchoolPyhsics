@@ -38,8 +38,9 @@ describe('motional-emf classroom mode', () => {
     expect(await screen.findByRole('button', { name: '显示控制面板' })).toBeInTheDocument()
     const summary = await screen.findByRole('region', { name: '课堂核心信息' })
     expect(within(summary).getByText(/电压 U_AB:/)).toBeInTheDocument()
-    expect(within(summary).getByText(/速度方向:/)).toBeInTheDocument()
-    expect(within(summary).getByText(/磁场方向:/)).toBeInTheDocument()
+    expect(within(summary).getByText(/∠\(B,L\):/)).toBeInTheDocument()
+    expect(within(summary).getByText(/∠\(L,v\):/)).toBeInTheDocument()
+    expect(within(summary).getByText(/∠\(B,v\):/)).toBeInTheDocument()
 
     const signalNode = document.querySelector(
       '.motional-emf-voltage-card[data-presentation-signal~="live-metric"][data-presentation-signal~="interactive-readout"]',

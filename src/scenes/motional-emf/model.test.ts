@@ -3,9 +3,10 @@ import {
   advanceMotionOffset,
   advanceTravelProgress,
   deriveMotionalEmfReadings,
+  formatMotionDirection,
   formatPolarityText,
-  formatVelocityPreset,
   formatRelationText,
+  formatVelocityPreset,
   resolveInducedCurrentDirection,
   resolveRodContactOffsets,
   resolveTeachingVectorAnchors,
@@ -20,71 +21,48 @@ describe('motional-emf model', () => {
       rodLengthM: 0.5,
       speedMps: 2,
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
 
     expect(result.signedVoltageV).toBeCloseTo(1)
+    expect(result.angleBetweenBLDeg).toBeCloseTo(90)
+    expect(result.angleBetweenLVDeg).toBeCloseTo(90)
+    expect(result.angleBetweenBVDeg).toBeCloseTo(90)
     expect(formatPolarityText(result.signedVoltageV)).toBe('A 端高电势')
   })
 
-  it('flips polarity when the magnetic field direction flips', () => {
+  it('returns zero when velocity is parallel to magnetic field in v-B mode', () => {
     const upward = deriveMotionalEmfReadings({
       magneticFieldT: 1,
       magneticFieldDirection: 'up',
       rodLengthM: 0.5,
       speedMps: 2,
       rodAngleDeg: 90,
-      velocityPreset: 'forward',
-    })
-    const downward = deriveMotionalEmfReadings({
-      magneticFieldT: 1,
-      magneticFieldDirection: 'down',
-      rodLengthM: 0.5,
-      speedMps: 2,
-      rodAngleDeg: 90,
-      velocityPreset: 'forward',
-    })
-
-    expect(upward.signedVoltageV).toBeCloseTo(-downward.signedVoltageV)
-  })
-
-  it('returns zero when velocity is parallel to magnetic field', () => {
-    const upward = deriveMotionalEmfReadings({
-      magneticFieldT: 1,
-      magneticFieldDirection: 'up',
-      rodLengthM: 0.5,
-      speedMps: 2,
-      rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'up',
-    })
-    const downward = deriveMotionalEmfReadings({
-      magneticFieldT: 1,
-      magneticFieldDirection: 'up',
-      rodLengthM: 0.5,
-      speedMps: 2,
-      rodAngleDeg: 90,
-      velocityPreset: 'down',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
 
     expect(upward.signedVoltageV).toBeCloseTo(0)
-    expect(downward.signedVoltageV).toBeCloseTo(0)
-  })
-
-  it('labels up/down presets consistently with the downward magnetic field direction', () => {
+    expect(upward.angleBetweenBVDeg).toBeCloseTo(0)
     expect(formatVelocityPreset('up')).toBe('向上')
-    expect(formatVelocityPreset('down')).toBe('向下')
-    expect(formatRelationText({ rodAngleDeg: 90, velocityPreset: 'up', magneticFieldDirection: 'up' })).toBe('v ∥ B，L ∥ (v × B)')
-    expect(formatRelationText({ rodAngleDeg: 90, velocityPreset: 'up', magneticFieldDirection: 'down' })).toContain('反向')
   })
 
-  it('reduces magnitude for 30/45/60 degree velocity presets', () => {
+  it('retains the old 30/45/60 degree presets in v-B mode', () => {
     const thirty = deriveMotionalEmfReadings({
       magneticFieldT: 1,
       magneticFieldDirection: 'up',
       rodLengthM: 1,
       speedMps: 1,
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'angle-30',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
     const fortyFive = deriveMotionalEmfReadings({
       magneticFieldT: 1,
@@ -92,7 +70,10 @@ describe('motional-emf model', () => {
       rodLengthM: 1,
       speedMps: 1,
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'angle-45',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
     const sixty = deriveMotionalEmfReadings({
       magneticFieldT: 1,
@@ -100,21 +81,46 @@ describe('motional-emf model', () => {
       rodLengthM: 1,
       speedMps: 1,
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'angle-60',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
 
     expect(Math.abs(thirty.signedVoltageV)).toBeLessThan(Math.abs(fortyFive.signedVoltageV))
     expect(Math.abs(fortyFive.signedVoltageV)).toBeLessThan(Math.abs(sixty.signedVoltageV))
   })
 
-  it('flips sign when motion reverses along the rail', () => {
+  it('still supports explicit L-v mode and derives the B-v angle from B-L and L-v', () => {
+    const result = deriveMotionalEmfReadings({
+      magneticFieldT: 1,
+      magneticFieldDirection: 'up',
+      rodLengthM: 1,
+      speedMps: 1,
+      rodAngleDeg: 60,
+      discussionMode: 'lv',
+      velocityPreset: 'forward',
+      rodVelocityAngleDeg: 45,
+      motionDirection: 'forward',
+    })
+
+    expect(result.angleBetweenBLDeg).toBeCloseTo(60)
+    expect(result.angleBetweenLVDeg).toBeCloseTo(45)
+    expect(result.angleBetweenBVDeg).toBeCloseTo(69.295, 3)
+    expect(formatRelationText(result)).toBe('∠(B,L)=60°，∠(L,v)=45°，∠(B,v)=69.3°')
+  })
+
+  it('flips sign when motion reverses along the same L-v preset', () => {
     const forward = deriveMotionalEmfReadings({
       magneticFieldT: 1,
       magneticFieldDirection: 'up',
       rodLengthM: 0.5,
       speedMps: 2,
       rodAngleDeg: 90,
+      discussionMode: 'lv',
       velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
     const backward = deriveMotionalEmfReadings({
       magneticFieldT: 1,
@@ -122,10 +128,15 @@ describe('motional-emf model', () => {
       rodLengthM: 0.5,
       speedMps: 2,
       rodAngleDeg: 90,
-      velocityPreset: 'backward',
+      discussionMode: 'lv',
+      velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'backward',
     })
 
     expect(forward.signedVoltageV).toBeCloseTo(-backward.signedVoltageV)
+    expect(formatMotionDirection('forward')).toBe('标准方向')
+    expect(formatMotionDirection('backward')).toBe('反向运动')
   })
 
   it('returns zero when the rod is parallel to the magnetic field', () => {
@@ -135,7 +146,10 @@ describe('motional-emf model', () => {
       rodLengthM: 0.5,
       speedMps: 2,
       rodAngleDeg: 0,
+      discussionMode: 'vb',
       velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
     })
 
     expect(result.signedVoltageV).toBeCloseTo(0)
@@ -157,18 +171,22 @@ describe('motional-emf model', () => {
     expect(advanceTravelProgress({ previous: 0.95, deltaS: 1, speedMps: 3 })).toBe(1)
   })
 
-  it('accumulates motion offset incrementally instead of reprojecting the rod', () => {
+  it('accumulates motion offset incrementally along the resolved velocity vector', () => {
     const next = advanceMotionOffset({
       previous: [0, 0, 1.1],
       deltaS: 0.5,
       speedMps: 2,
-      velocityPreset: 'up',
+      discussionMode: 'vb',
+      velocityPreset: 'forward',
+      rodAngleDeg: 90,
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
       magneticFieldDirection: 'up',
     })
 
     expect(next[0]).toBeCloseTo(0)
-    expect(next[1]).toBeCloseTo(1)
-    expect(next[2]).toBeCloseTo(1.1)
+    expect(next[1]).toBeCloseTo(0)
+    expect(next[2]).toBeCloseTo(2.1)
   })
 
   it('pins both teaching arrows to the rod geometric center', () => {
@@ -181,13 +199,19 @@ describe('motional-emf model', () => {
   it('resolves induced current along the rod while moving and hides it when static', () => {
     const moving = resolveInducedCurrentDirection({
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
       magneticFieldDirection: 'up',
       activeMotion: true,
     })
     const staticCurrent = resolveInducedCurrentDirection({
       rodAngleDeg: 90,
+      discussionMode: 'vb',
       velocityPreset: 'forward',
+      rodVelocityAngleDeg: 90,
+      motionDirection: 'forward',
       magneticFieldDirection: 'up',
       activeMotion: false,
     })

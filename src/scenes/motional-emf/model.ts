@@ -1,4 +1,7 @@
+export type DiscussionMode = 'vb' | 'lv'
 export type VelocityPreset = 'forward' | 'backward' | 'up' | 'down' | 'angle-30' | 'angle-45' | 'angle-60'
+export type MotionDirectionPreset = 'forward' | 'backward'
+export type RodVelocityAnglePreset = 90 | 60 | 45 | 30
 export type MagneticFieldDirection = 'up' | 'down'
 
 export type MotionalEmfConfig = {
@@ -7,13 +10,19 @@ export type MotionalEmfConfig = {
   rodLengthM: number
   speedMps: number
   rodAngleDeg: number
+  discussionMode: DiscussionMode
   velocityPreset: VelocityPreset
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
 }
 
 export type MotionalEmfReadings = {
   signedVoltageV: number
   voltageMagnitudeV: number
   effectiveCuttingRatio: number
+  angleBetweenBLDeg: number
+  angleBetweenLVDeg: number
+  angleBetweenBVDeg: number
 }
 
 type Vec3 = {
@@ -42,6 +51,12 @@ export type TeachingVectorAnchors = {
 }
 
 const DEFAULT_TRAVEL_SPAN = 2.2
+const FORWARD_AXIS: Vec3 = { x: 0, y: 0, z: 1 }
+
+export const DISCUSSION_MODE_LABELS: Record<DiscussionMode, string> = {
+  vb: '按 ∠(v,B) 讨论',
+  lv: '按 ∠(L,v) 讨论',
+}
 
 export const VELOCITY_PRESET_LABELS: Record<VelocityPreset, string> = {
   forward: '前进（标准切割）',
@@ -53,12 +68,34 @@ export const VELOCITY_PRESET_LABELS: Record<VelocityPreset, string> = {
   'angle-60': '与 B 成 60°',
 }
 
+export const MOTION_DIRECTION_LABELS: Record<MotionDirectionPreset, string> = {
+  forward: '标准方向',
+  backward: '反向运动',
+}
+
+export const ROD_VELOCITY_ANGLE_LABELS: Record<RodVelocityAnglePreset, string> = {
+  90: 'L 与 v 成 90°',
+  60: 'L 与 v 成 60°',
+  45: 'L 与 v 成 45°',
+  30: 'L 与 v 成 30°',
+}
+
 export const MAGNETIC_FIELD_DIRECTION_LABELS: Record<MagneticFieldDirection, string> = {
   up: '向上',
   down: '向下',
 }
 
 export const ROD_ANGLE_OPTIONS = [90, 60, 45, 30] as const
+export const ROD_VELOCITY_ANGLE_OPTIONS = [90, 60, 45, 30] as const
+export const VELOCITY_PRESET_ORDER: VelocityPreset[] = [
+  'forward',
+  'backward',
+  'up',
+  'down',
+  'angle-30',
+  'angle-45',
+  'angle-60',
+]
 
 function dot(a: Vec3, b: Vec3): number {
   return a.x * b.x + a.y * b.y + a.z * b.z
@@ -69,6 +106,14 @@ function cross(a: Vec3, b: Vec3): Vec3 {
     x: a.y * b.z - a.z * b.y,
     y: a.z * b.x - a.x * b.z,
     z: a.x * b.y - a.y * b.x,
+  }
+}
+
+function add(a: Vec3, b: Vec3): Vec3 {
+  return {
+    x: a.x + b.x,
+    y: a.y + b.y,
+    z: a.z + b.z,
   }
 }
 
@@ -100,11 +145,35 @@ function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180
 }
 
-export function resolveVelocityDirection(
-  velocityPreset: VelocityPreset,
-  magneticFieldDirection: MagneticFieldDirection = 'up',
-): Vec3 {
-  switch (velocityPreset) {
+function toDegrees(radians: number): number {
+  return (radians * 180) / Math.PI
+}
+
+function angleBetweenVectorsDeg(a: Vec3, b: Vec3): number {
+  const normalizedA = normalize(a)
+  const normalizedB = normalize(b)
+  const lengthProduct = Math.hypot(normalizedA.x, normalizedA.y, normalizedA.z) * Math.hypot(normalizedB.x, normalizedB.y, normalizedB.z)
+  if (lengthProduct < 1e-8) {
+    return 0
+  }
+
+  const cosine = clamp(dot(normalizedA, normalizedB), -1, 1)
+  return toDegrees(Math.acos(cosine))
+}
+
+function formatAngleDegrees(value: number): string {
+  const roundedToTenth = Math.round(value * 10) / 10
+  if (Math.abs(roundedToTenth - Math.round(roundedToTenth)) < 1e-8) {
+    return `${Math.round(roundedToTenth)}°`
+  }
+  return `${roundedToTenth.toFixed(1)}°`
+}
+
+function resolveVelocityDirectionFromVB(options: {
+  velocityPreset: VelocityPreset
+  magneticFieldDirection: MagneticFieldDirection
+}): Vec3 {
+  switch (options.velocityPreset) {
     case 'forward':
       return { x: 0, y: 0, z: 1 }
     case 'backward':
@@ -116,9 +185,9 @@ export function resolveVelocityDirection(
     case 'angle-30':
     case 'angle-45':
     case 'angle-60': {
-      const angleDeg = Number(velocityPreset.replace('angle-', ''))
+      const angleDeg = Number(options.velocityPreset.replace('angle-', ''))
       const angleRad = toRadians(angleDeg)
-      const magneticSign = magneticFieldDirection === 'up' ? 1 : -1
+      const magneticSign = options.magneticFieldDirection === 'up' ? 1 : -1
       return {
         x: 0,
         y: magneticSign * Math.cos(angleRad),
@@ -126,6 +195,38 @@ export function resolveVelocityDirection(
       }
     }
   }
+}
+
+function resolveVelocityDirectionFromLV(options: {
+  rodAngleDeg: number
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
+}): Vec3 {
+  const rodDirection = normalize(resolveRodVector(1, options.rodAngleDeg))
+  const angleRad = toRadians(options.rodVelocityAngleDeg)
+  const forwardDirection = options.motionDirection === 'forward' ? FORWARD_AXIS : scale(FORWARD_AXIS, -1)
+
+  return normalize(add(scale(rodDirection, Math.cos(angleRad)), scale(forwardDirection, Math.sin(angleRad))))
+}
+
+export function resolveVelocityDirection(options: {
+  discussionMode: DiscussionMode
+  velocityPreset: VelocityPreset
+  magneticFieldDirection: MagneticFieldDirection
+  rodAngleDeg: number
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
+}): Vec3 {
+  return options.discussionMode === 'vb'
+    ? resolveVelocityDirectionFromVB({
+        velocityPreset: options.velocityPreset,
+        magneticFieldDirection: options.magneticFieldDirection,
+      })
+    : resolveVelocityDirectionFromLV({
+        rodAngleDeg: options.rodAngleDeg,
+        rodVelocityAngleDeg: options.rodVelocityAngleDeg,
+        motionDirection: options.motionDirection,
+      })
 }
 
 export function resolveMagneticFieldVector(
@@ -146,7 +247,15 @@ export function resolveRodVector(rodLengthM: number, rodAngleDeg: number): Vec3 
 
 export function deriveMotionalEmfReadings(config: MotionalEmfConfig): MotionalEmfReadings {
   const magneticField = resolveMagneticFieldVector(config.magneticFieldT, config.magneticFieldDirection)
-  const velocity = scale(resolveVelocityDirection(config.velocityPreset, config.magneticFieldDirection), config.speedMps)
+  const velocityDirection = resolveVelocityDirection({
+    discussionMode: config.discussionMode,
+    velocityPreset: config.velocityPreset,
+    magneticFieldDirection: config.magneticFieldDirection,
+    rodAngleDeg: config.rodAngleDeg,
+    rodVelocityAngleDeg: config.rodVelocityAngleDeg,
+    motionDirection: config.motionDirection,
+  })
+  const velocity = scale(velocityDirection, config.speedMps)
   const rod = resolveRodVector(config.rodLengthM, config.rodAngleDeg)
   const signedVoltageV = dot(cross(magneticField, velocity), rod)
   const baseProduct = Math.abs(config.magneticFieldT * config.rodLengthM * config.speedMps)
@@ -155,6 +264,9 @@ export function deriveMotionalEmfReadings(config: MotionalEmfConfig): MotionalEm
     signedVoltageV,
     voltageMagnitudeV: Math.abs(signedVoltageV),
     effectiveCuttingRatio: baseProduct > 0 ? Math.abs(signedVoltageV) / baseProduct : 0,
+    angleBetweenBLDeg: angleBetweenVectorsDeg(magneticField, rod),
+    angleBetweenLVDeg: angleBetweenVectorsDeg(rod, velocityDirection),
+    angleBetweenBVDeg: angleBetweenVectorsDeg(magneticField, velocityDirection),
   }
 }
 
@@ -183,10 +295,14 @@ export function advanceMotionOffset(options: {
   previous: MotionOffset
   deltaS: number
   speedMps: number
+  discussionMode: DiscussionMode
   velocityPreset: VelocityPreset
   magneticFieldDirection: MagneticFieldDirection
+  rodAngleDeg: number
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
 }): MotionOffset {
-  const velocityDirection = resolveVelocityDirection(options.velocityPreset, options.magneticFieldDirection)
+  const velocityDirection = resolveVelocityDirection(options)
   const distance = options.deltaS * options.speedMps
 
   return [
@@ -205,7 +321,10 @@ export function resolveTeachingVectorAnchors(rodCenter: MotionOffset): TeachingV
 
 export function resolveInducedCurrentDirection(options: {
   rodAngleDeg: number
+  discussionMode: DiscussionMode
   velocityPreset: VelocityPreset
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
   magneticFieldDirection: MagneticFieldDirection
   activeMotion: boolean
 }): MotionOffset {
@@ -214,7 +333,7 @@ export function resolveInducedCurrentDirection(options: {
   }
 
   const rodDirection = normalize(resolveRodVector(1, options.rodAngleDeg))
-  const velocityDirection = normalize(resolveVelocityDirection(options.velocityPreset, options.magneticFieldDirection))
+  const velocityDirection = normalize(resolveVelocityDirection(options))
   const magneticFieldDirection = normalize(resolveMagneticFieldVector(1, options.magneticFieldDirection))
   const emfDirection = cross(velocityDirection, magneticFieldDirection)
   const projection = dot(emfDirection, rodDirection)
@@ -261,8 +380,20 @@ export function resolveWireCurvePoints(options: {
   ]
 }
 
+export function formatDiscussionMode(mode: DiscussionMode): string {
+  return DISCUSSION_MODE_LABELS[mode]
+}
+
 export function formatVelocityPreset(velocityPreset: VelocityPreset): string {
   return VELOCITY_PRESET_LABELS[velocityPreset]
+}
+
+export function formatRodVelocityAngle(angle: RodVelocityAnglePreset): string {
+  return ROD_VELOCITY_ANGLE_LABELS[angle]
+}
+
+export function formatMotionDirection(direction: MotionDirectionPreset): string {
+  return MOTION_DIRECTION_LABELS[direction]
 }
 
 export function formatMagneticFieldDirection(direction: MagneticFieldDirection): string {
@@ -276,27 +407,10 @@ export function formatPolarityText(signedVoltageV: number): string {
   return signedVoltageV > 0 ? 'A 端高电势' : 'B 端高电势'
 }
 
-export function formatRelationText(options: {
-  rodAngleDeg: number
-  velocityPreset: VelocityPreset
-  magneticFieldDirection: MagneticFieldDirection
-}): string {
-  const velocityText =
-    options.velocityPreset === 'up'
-      ? options.magneticFieldDirection === 'up'
-        ? 'v ∥ B'
-        : 'v ∥ B（反向）'
-      : options.velocityPreset === 'down'
-        ? options.magneticFieldDirection === 'down'
-          ? 'v ∥ B'
-          : 'v ∥ B（反向）'
-        : options.velocityPreset.startsWith('angle-')
-          ? `v 与 B 成 ${options.velocityPreset.replace('angle-', '')}°`
-          : 'B ⟂ v'
-  const rodText = options.rodAngleDeg === 90
-    ? 'L ∥ (v × B)'
-    : options.rodAngleDeg === 0
-      ? 'L ∥ B'
-      : `L 与 B 成 ${options.rodAngleDeg}°`
-  return `${velocityText}，${rodText}`
+export function formatRelationText(options: Pick<MotionalEmfReadings, 'angleBetweenBLDeg' | 'angleBetweenLVDeg' | 'angleBetweenBVDeg'>): string {
+  return `∠(B,L)=${formatAngleDegrees(options.angleBetweenBLDeg)}，∠(L,v)=${formatAngleDegrees(options.angleBetweenLVDeg)}，∠(B,v)=${formatAngleDegrees(options.angleBetweenBVDeg)}`
+}
+
+export function formatAngleLabel(angleDeg: number): string {
+  return formatAngleDegrees(angleDeg)
 }
