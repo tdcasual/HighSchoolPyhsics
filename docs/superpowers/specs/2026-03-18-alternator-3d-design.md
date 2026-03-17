@@ -28,6 +28,8 @@
 - Y 轴：上下
 - Z 轴：转轴方向（水平，线圈绕此轴旋转）
 
+注意：现有代码中旋转轴为 X 轴（`AXIS_DIRECTION = [1,0,0]`），本次重构有意改为 Z 轴以匹配更自然的空间布局（转轴沿纵深方向）。model.ts 中的 `angleRad` 含义不变，仅 Rig3D 中的旋转应用轴从 X 改为 Z。
+
 ## 部件设计
 
 ### 1. 弧形磁极（两个，固定）
@@ -137,7 +139,7 @@
 - `components/RotorAssembly.tsx` — 转子铁芯 + 线圈 + 转轴 + 滑环，接收 angleRad
 - `components/Brushes.tsx` — 碳刷 + 弹簧
 - `components/BearingMount.tsx` — 轴承座
-- `components/ExternalCircuit.tsx` — 外电路导线 + 负载
+- `components/ExternalCircuit.tsx` — 外电路导线 + 负载 + 输出电流表（含 meterNeedleAngleRad 驱动的指针偏转）
 - `components/FieldArrows.tsx` — 磁场箭头可视化
 - `components/CurrentIndicators.tsx` — 电流方向箭头/流动点
 
