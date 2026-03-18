@@ -1,31 +1,43 @@
-function FieldArrow({ position }: { position: [number, number, number] }) {
+function DashedSegment({
+  position,
+  length,
+  color,
+}: {
+  position: [number, number, number]
+  length: number
+  color: string
+}) {
   return (
-    <group position={position} rotation={[0, 0, Math.PI / 2]}>
-      <mesh>
-        <cylinderGeometry args={[0.02, 0.02, 2.0, 10]} />
-        <meshBasicMaterial color="#7cd8ff" transparent opacity={0.6} />
-      </mesh>
-      <mesh position={[0, -1.1, 0]}>
-        <coneGeometry args={[0.07, 0.2, 10]} />
-        <meshBasicMaterial color="#7cd8ff" transparent opacity={0.6} />
-      </mesh>
-    </group>
+    <mesh position={position} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.028, 0.028, length, 6]} />
+      <meshBasicMaterial color={color} />
+    </mesh>
   )
 }
 
-export function FieldArrows() {
-  const positions: [number, number, number][] = []
-  for (const y of [-0.6, 0, 0.6]) {
-    for (const z of [-0.3, 0, 0.3]) {
-      positions.push([0, y, z])
+export function FieldArrows({ color }: { color: string }) {
+  const rows: [number, number][] = []
+  for (let y = -1.5; y <= 1.5; y += 1.5) {
+    for (let z = -5; z <= 0; z += 1.5) {
+      rows.push([y, z])
     }
   }
 
   return (
-    <group name="field-arrows">
-      {positions.map((pos, i) => (
-        <FieldArrow key={i} position={pos} />
-      ))}
+    <group name="field-lines">
+      {rows.map(([y, z], rowIndex) =>
+        Array.from({ length: 10 }, (_, segmentIndex) => {
+          const startX = -3.15 + segmentIndex * 0.72
+          return (
+            <DashedSegment
+              key={`${rowIndex}-${segmentIndex}`}
+              position={[startX, y, z]}
+              length={0.34}
+              color={color}
+            />
+          )
+        }),
+      )}
     </group>
   )
 }

@@ -1,155 +1,115 @@
 import { Text } from '@react-three/drei/core/Text'
 import { useMemo } from 'react'
-import { CatmullRomCurve3, Vector3 } from 'three'
-
-import { CurrentIndicators } from './CurrentIndicators'
+import { CurvePath, LineCurve3, Path, Shape, Vector3 } from 'three'
+import type { AlternatorPalette } from '../palette'
 
 type RotorAssemblyProps = {
   angleRad: number
+  palette: AlternatorPalette
 }
 
-function IronCore() {
-  const slices = 10
-  const totalLength = 1.0
-  const gap = 0.01
-  const sliceThickness = (totalLength - gap * (slices - 1)) / slices
+function buildTubePath(points: [number, number, number][]) {
+  const curvePath = new CurvePath<Vector3>()
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const start = points[index]
+    const end = points[index + 1]
+    curvePath.add(
+      new LineCurve3(
+        new Vector3(start[0], start[1], start[2]),
+        new Vector3(end[0], end[1], end[2]),
+      ),
+    )
+  }
+  return curvePath
+}
+
+function buildSlipRingShape() {
+  const shape = new Shape()
+  shape.absarc(0, 0, 1.1, 0, Math.PI * 2, false)
+
+  const hole = new Path()
+  hole.absarc(0, 0, 0.7, 0, Math.PI * 2, true)
+  shape.holes.push(hole)
+
+  return shape
+}
+
+export function RotorAssembly({ angleRad, palette }: RotorAssemblyProps) {
+  const orangePath = useMemo(
+    () =>
+      buildTubePath([
+        [0, 0, -6],
+        [-2.5, 0, -6],
+        [-2.5, 0, 1],
+        [-0.9, 0, 1],
+        [-0.9, 0, 2.5],
+      ]),
+    [],
+  )
+  const bluePath = useMemo(
+    () =>
+      buildTubePath([
+        [0, 0, -6],
+        [2.5, 0, -6],
+        [2.5, 0, 1.5],
+        [0, 0, 1.5],
+        [0, 0, 5],
+        [0, 0.9, 5],
+      ]),
+    [],
+  )
+  const ringShape = useMemo(() => buildSlipRingShape(), [])
 
   return (
-    <group name="iron-core">
-      {Array.from({ length: slices }, (_, i) => {
-        const z =
-          -totalLength / 2 +
-          sliceThickness / 2 +
-          i * (sliceThickness + gap)
-        return (
-          <mesh key={i} position={[0, 0, z]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.85, 0.85, sliceThickness, 24]} />
-            <meshStandardMaterial
-              color="#3a3a3a"
-              metalness={0.5}
-              roughness={0.4}
-            />
-          </mesh>
-        )
-      })}
-    </group>
-  )
-}
-
-function Shaft() {
-  return (
-    <mesh name="shaft" rotation={[Math.PI / 2, 0, 0]}>
-      <cylinderGeometry args={[0.06, 0.06, 7.0, 12]} />
-      <meshStandardMaterial color="#C0C0C0" metalness={0.8} roughness={0.2} />
-    </mesh>
-  )
-}
-
-function buildCoilPath() {
-  const hw = 1.09
-  const hd = 0.53
-  const pts: [number, number, number][] = [
-    [-hd, -hw, 0],
-    [-hd, hw, 0],
-    [hd, hw, 0],
-    [hd, -hw, 0],
-    [-hd, -hw, 0],
-  ]
-  return new CatmullRomCurve3(
-    pts.map(([x, y, z]) => new Vector3(x, y, z)),
-    true,
-    'catmullrom',
-    0.15,
-  )
-}
-
-function Coil() {
-  const coilCurve = useMemo(() => buildCoilPath(), [])
-  return (
-    <group name="coil-loop">
-      <mesh>
-        <tubeGeometry args={[coilCurve, 80, 0.055, 12, true]} />
-        <meshStandardMaterial
-          color="#B87333"
-          metalness={0.7}
-          roughness={0.3}
-        />
+    <group name="rotor-assembly" rotation={[0, 0, angleRad + Math.PI / 6]}>
+      <mesh name="orange-wire">
+        <tubeGeometry args={[orangePath, 64, 0.15, 12, false]} />
+        <meshStandardMaterial color={palette.wireOrange} roughness={0.3} metalness={0.6} />
       </mesh>
-      <Text
-        position={[-0.53, -1.09, 0.15]}
-        color="#fbfbfd"
-        fontSize={0.12}
-        anchorX="center"
-        anchorY="middle"
-        name="label-A"
-      >
-        A
-      </Text>
-      <Text
-        position={[-0.53, 1.09, 0.15]}
-        color="#fbfbfd"
-        fontSize={0.12}
-        anchorX="center"
-        anchorY="middle"
-        name="label-B"
-      >
-        B
-      </Text>
-      <Text
-        position={[0.53, 1.09, 0.15]}
-        color="#fbfbfd"
-        fontSize={0.12}
-        anchorX="center"
-        anchorY="middle"
-        name="label-C"
-      >
-        C
-      </Text>
-      <Text
-        position={[0.53, -1.09, 0.15]}
-        color="#fbfbfd"
-        fontSize={0.12}
-        anchorX="center"
-        anchorY="middle"
-        name="label-D"
-      >
-        D
-      </Text>
-    </group>
-  )
-}
 
-function SlipRings() {
-  return (
-    <group name="slip-rings">
-      <mesh position={[0, 0, 1.8]} name="slip-ring-front">
-        <torusGeometry args={[0.17, 0.04, 14, 30]} />
-        <meshStandardMaterial
-          color="#C5A03F"
-          metalness={0.8}
-          roughness={0.2}
-        />
+      <mesh name="blue-wire">
+        <tubeGeometry args={[bluePath, 64, 0.15, 12, false]} />
+        <meshStandardMaterial color={palette.wireBlue} roughness={0.3} metalness={0.6} />
       </mesh>
-      <mesh position={[0, 0, 2.1]} name="slip-ring-back">
-        <torusGeometry args={[0.17, 0.04, 14, 30]} />
-        <meshStandardMaterial
-          color="#C5A03F"
-          metalness={0.8}
-          roughness={0.2}
-        />
-      </mesh>
-    </group>
-  )
-}
 
-export function RotorAssembly({ angleRad }: RotorAssemblyProps) {
-  return (
-    <group name="rotor-assembly" rotation={[0, 0, angleRad]}>
-      <IronCore />
-      <Coil />
-      <Shaft />
-      <SlipRings />
-      <CurrentIndicators angleRad={angleRad} />
+      <group name="coil-loop">
+        <Text position={[0, 0, -6.55]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-A">
+          A
+        </Text>
+        <Text position={[-2.8, 0, 0.5]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-B">
+          B
+        </Text>
+        <Text position={[2.8, 0, 0.9]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-C">
+          C
+        </Text>
+        <Text position={[0, 1.3, 5.2]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-D">
+          D
+        </Text>
+      </group>
+
+      <group name="slip-ring-front">
+        <mesh name="ring-orange" position={[0, 0, 2.1]}>
+          <extrudeGeometry
+            args={[
+              ringShape,
+              { depth: 0.8, curveSegments: 64, bevelEnabled: false, steps: 1 },
+            ]}
+          />
+          <meshStandardMaterial color={palette.ringOrange} roughness={0.2} metalness={0.8} />
+        </mesh>
+      </group>
+
+      <group name="slip-ring-back">
+        <mesh name="ring-blue" position={[0, 0, 4.6]}>
+          <extrudeGeometry
+            args={[
+              ringShape,
+              { depth: 0.8, curveSegments: 64, bevelEnabled: false, steps: 1 },
+            ]}
+          />
+          <meshStandardMaterial color={palette.ringBlue} roughness={0.2} metalness={0.8} />
+        </mesh>
+      </group>
     </group>
   )
 }

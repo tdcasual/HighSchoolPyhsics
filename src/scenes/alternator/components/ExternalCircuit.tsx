@@ -1,90 +1,122 @@
-import { Text } from '@react-three/drei/core/Text'
 import { useMemo } from 'react'
-import { CatmullRomCurve3, Vector3 } from 'three'
+import { CurvePath, LineCurve3, Vector3 } from 'three'
+import type { AlternatorPalette } from '../palette'
 
 type ExternalCircuitProps = {
   meterNeedleAngleRad: number
+  palette: AlternatorPalette
 }
 
-function OutputMeter({ needleAngleRad }: { needleAngleRad: number }) {
+function buildTubePath(points: [number, number, number][]) {
+  const curvePath = new CurvePath<Vector3>()
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const start = points[index]
+    const end = points[index + 1]
+    curvePath.add(
+      new LineCurve3(
+        new Vector3(start[0], start[1], start[2]),
+        new Vector3(end[0], end[1], end[2]),
+      ),
+    )
+  }
+  return curvePath
+}
+
+function Ammeter({
+  meterNeedleAngleRad,
+  palette,
+}: {
+  meterNeedleAngleRad: number
+  palette: AlternatorPalette
+}) {
   return (
-    <group position={[0, 0, 4.2]} name="output-meter">
-      {/* Meter body */}
-      <mesh>
-        <boxGeometry args={[0.96, 1.24, 0.34]} />
-        <meshStandardMaterial color="#a9521d" roughness={0.52} />
+    <group name="ammeter" position={[-0.5, -4, 7]} rotation={[-Math.PI / 4, 0, 0]}>
+      <mesh name="ammeter-casing" rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[1.5, 1.5, 0.3, 32]} />
+        <meshStandardMaterial color={palette.meterCasing} />
       </mesh>
-      {/* Dial face */}
-      <mesh position={[0, 0.1, 0.18]}>
-        <planeGeometry args={[0.62, 0.72]} />
-        <meshBasicMaterial color="#f9eee2" />
+
+      <mesh name="ammeter-border">
+        <torusGeometry args={[1.5, 0.1, 16, 32]} />
+        <meshBasicMaterial color={palette.meterBorder} />
       </mesh>
-      {/* Label */}
-      <Text
-        position={[0, -0.24, 0.19]}
-        color="#61311a"
-        fontSize={0.18}
-        anchorX="center"
-        anchorY="middle"
-      >
-        A
-      </Text>
-      {/* Needle */}
-      <group
-        position={[0, 0.12, 0.19]}
-        rotation={[0, 0, needleAngleRad * 0.9]}
-      >
-        <mesh position={[0, 0.16, 0]}>
-          <boxGeometry args={[0.032, 0.36, 0.02]} />
-          <meshBasicMaterial color="#f04d43" />
+
+      <mesh name="ammeter-center-dot" rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.4, 16]} />
+        <meshBasicMaterial color={palette.meterBorder} />
+      </mesh>
+
+      <group name="ammeter-needle" position={[0, 0, 0.2]} rotation={[0, 0, meterNeedleAngleRad]}>
+        <mesh position={[0, 0.7, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 1.4, 10]} />
+          <meshBasicMaterial color={palette.meterNeedle} />
         </mesh>
-        <mesh>
-          <circleGeometry args={[0.04, 18]} />
-          <meshBasicMaterial color="#fff7ef" />
+        <mesh position={[0, 1.5, 0]}>
+          <coneGeometry args={[0.1, 0.3, 8]} />
+          <meshBasicMaterial color={palette.meterNeedle} />
         </mesh>
       </group>
     </group>
   )
 }
 
-export function ExternalCircuit({
-  meterNeedleAngleRad,
-}: ExternalCircuitProps) {
-  const upperWire = useMemo(
+export function ExternalCircuit({ meterNeedleAngleRad, palette }: ExternalCircuitProps) {
+  const orangeCircuit = useMemo(
     () =>
-      new CatmullRomCurve3([
-        new Vector3(0, 0.28, 1.8),
-        new Vector3(0, 0.6, 2.5),
-        new Vector3(0, 0.6, 3.5),
-        new Vector3(0, 0.4, 4.2),
+      buildTubePath([
+        [0, -1.4, 2.5],
+        [0, -4, 2.5],
+        [4, -4, 2.5],
+        [4, -4, 7],
       ]),
     [],
   )
-
-  const lowerWire = useMemo(
+  const blueCircuit = useMemo(
     () =>
-      new CatmullRomCurve3([
-        new Vector3(0, -0.28, 2.1),
-        new Vector3(0, -0.6, 2.8),
-        new Vector3(0, -0.6, 3.5),
-        new Vector3(0, -0.4, 4.2),
+      buildTubePath([
+        [0, -1.4, 5.0],
+        [0, -4, 5.0],
+        [-4, -4, 5.0],
+        [-4, -4, 7],
       ]),
+    [],
+  )
+  const connectorRight = useMemo(
+    () => buildTubePath([[2, -4, 7], [0.5, -4, 7]]),
+    [],
+  )
+  const connectorLeft = useMemo(
+    () => buildTubePath([[-4, -4, 7], [-1.5, -4, 7]]),
     [],
   )
 
   return (
     <group name="external-circuit">
-      {/* Upper wire (red) */}
       <mesh>
-        <tubeGeometry args={[upperWire, 40, 0.028, 10, false]} />
-        <meshStandardMaterial color="#cc3333" metalness={0.5} roughness={0.3} />
+        <tubeGeometry args={[orangeCircuit, 64, 0.08, 8, false]} />
+        <meshStandardMaterial color={palette.circuit} />
       </mesh>
-      {/* Lower wire (blue) */}
+
       <mesh>
-        <tubeGeometry args={[lowerWire, 40, 0.028, 10, false]} />
-        <meshStandardMaterial color="#3355cc" metalness={0.5} roughness={0.3} />
+        <tubeGeometry args={[blueCircuit, 64, 0.08, 8, false]} />
+        <meshStandardMaterial color={palette.circuit} />
       </mesh>
-      <OutputMeter needleAngleRad={meterNeedleAngleRad} />
+
+      <mesh position={[3, -4, 7]}>
+        <boxGeometry args={[2, 0.6, 0.6]} />
+        <meshStandardMaterial color={palette.resistor} />
+      </mesh>
+
+      <mesh>
+        <tubeGeometry args={[connectorRight, 16, 0.08, 8, false]} />
+        <meshStandardMaterial color={palette.circuit} />
+      </mesh>
+      <mesh>
+        <tubeGeometry args={[connectorLeft, 16, 0.08, 8, false]} />
+        <meshStandardMaterial color={palette.circuit} />
+      </mesh>
+
+      <Ammeter meterNeedleAngleRad={meterNeedleAngleRad} palette={palette} />
     </group>
   )
 }

@@ -1,5 +1,6 @@
+import type { ThemeMode } from '../../store/useAppStore'
+import { getAlternatorPalette } from './palette'
 import { ArcMagnet } from './components/ArcMagnet'
-import { BearingMount } from './components/BearingMount'
 import { Brushes } from './components/Brushes'
 import { ExternalCircuit } from './components/ExternalCircuit'
 import { FieldArrows } from './components/FieldArrows'
@@ -8,30 +9,48 @@ import { RotorAssembly } from './components/RotorAssembly'
 type AlternatorRig3DProps = {
   angleRad: number
   meterNeedleAngleRad: number
+  theme: ThemeMode
+}
+
+function AxisLine({ color }: { color: string }) {
+  return (
+    <group name="axis-line">
+      {Array.from({ length: 18 }, (_, index) => (
+        <mesh key={index} position={[0, 0, -9.6 + index * 1.0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.028, 0.028, 0.55, 8]} />
+          <meshBasicMaterial color={color} />
+        </mesh>
+      ))}
+    </group>
+  )
 }
 
 export function AlternatorRig3D({
   angleRad,
   meterNeedleAngleRad,
+  theme,
 }: AlternatorRig3DProps) {
+  const palette = getAlternatorPalette(theme)
+
   return (
     <group data-rig-scene="alternator">
-      <ambientLight intensity={0.58} />
-      <directionalLight position={[-3, 5, 6]} intensity={1.28} />
-      <pointLight position={[2, 2.2, 4]} intensity={0.3} color="#ffffff" />
-      <color attach="background" args={['#101317']} />
+      <ambientLight intensity={0.4} />
+      <spotLight
+        position={[15, 20, 10]}
+        intensity={1}
+        angle={Math.PI / 4}
+        penumbra={0.5}
+      />
+      <directionalLight position={[-10, -5, -15]} intensity={0.5} color={palette.fillLight} />
+      <color attach="background" args={[palette.background]} />
 
-      {/* Fixed stator components */}
-      <ArcMagnet polarity="S" position={[-2.5, 0, 0]} />
-      <ArcMagnet polarity="N" position={[2.5, 0, 0]} />
-      <BearingMount position={[0, 0, -2.5]} />
-      <BearingMount position={[0, 0, 2.8]} />
-      <FieldArrows />
-      <Brushes />
-      <ExternalCircuit meterNeedleAngleRad={meterNeedleAngleRad} />
-
-      {/* Rotating rotor */}
-      <RotorAssembly angleRad={angleRad} />
+      <ArcMagnet polarity="N" position={[0, 0, -2.5]} color={palette.magnetNorth} labelColor={palette.label} />
+      <ArcMagnet polarity="S" position={[0, 0, -2.5]} color={palette.magnetSouth} labelColor={palette.label} />
+      <FieldArrows color={palette.field} />
+      <RotorAssembly angleRad={angleRad} palette={palette} />
+      <Brushes color={palette.brush} />
+      <ExternalCircuit meterNeedleAngleRad={meterNeedleAngleRad} palette={palette} />
+      <AxisLine color={palette.axis} />
     </group>
   )
 }

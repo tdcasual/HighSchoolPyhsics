@@ -439,5 +439,47 @@
       "readyText": "旋转切割磁感线控制",
       "screenshotName": "rotational-emf"
     }
+  },
+  {
+    "pageId": "alternator",
+    "label": "交流发电机",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "旋转线圈、滑环与电流表联动展示交流发电过程",
+      "highlights": [
+        "转速可调且 V-t 波形实时同步",
+        "电流表指针按半周换向左右偏转"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "classroom": {
+      "presentationSignals": [
+        "chart",
+        "time-series",
+        "live-metric",
+        "interactive-readout"
+      ],
+      "coreSummaryLineCount": 4,
+      "sceneKind": "process",
+      "smartPresentation": {
+        "layout": "enter-only",
+        "focus": false,
+        "stickySummary": true
+      }
+    },
+    "playwright": {
+      "readyText": "交流发电机控制",
+      "screenshotName": "alternator"
+    }
   }
 ]
