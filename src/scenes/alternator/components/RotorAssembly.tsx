@@ -61,7 +61,7 @@ export function RotorAssembly({ angleRad, palette }: RotorAssemblyProps) {
   const ringShape = useMemo(() => buildSlipRingShape(), [])
 
   return (
-    <group name="rotor-assembly" rotation={[0, 0, angleRad + Math.PI / 6]}>
+    <group name="rotor-assembly" rotation={[0, 0, angleRad]}>
       <mesh name="orange-wire">
         <tubeGeometry args={[orangePath, 64, 0.15, 12, false]} />
         <meshStandardMaterial color={palette.wireOrange} roughness={0.3} metalness={0.6} />

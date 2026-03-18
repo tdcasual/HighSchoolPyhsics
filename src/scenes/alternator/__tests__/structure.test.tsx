@@ -11,6 +11,7 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
 }))
 
 vi.mock('../AlternatorRig3D', () => ({
+  ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD: Math.PI / 2,
   AlternatorRig3D: () => <div data-testid="alternator-rig" />,
 }))
 

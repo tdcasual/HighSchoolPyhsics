@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import type { PresentationSignal } from '../../ui/layout/presentationSignals'
 import { AlternatorControls } from './AlternatorControls'
-import { AlternatorRig3D } from './AlternatorRig3D'
+import { ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD, AlternatorRig3D } from './AlternatorRig3D'
 import { useAlternatorSceneState } from './useAlternatorSceneState'
 import './alternator.css'
 
@@ -13,7 +13,7 @@ export function AlternatorScene() {
   const theme = useAppStore((state) => state.theme)
   const state = useAlternatorSceneState()
   const viewportSpeedValue = Math.max(0, Math.min(0.1, state.angularSpeedRad / 120))
-  const viewportRotorAngleRad = state.angleRad + Math.PI / 6
+  const viewportRotorAngleRad = state.angleRad + ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD
   const viewportDemonstrationCurrent = Math.cos(viewportRotorAngleRad)
   const viewportDemonstrationVoltageV = viewportDemonstrationCurrent * 10
   const emfToneClass = viewportDemonstrationVoltageV >= 0 ? 'alternator-emf-positive' : 'alternator-emf-negative'
