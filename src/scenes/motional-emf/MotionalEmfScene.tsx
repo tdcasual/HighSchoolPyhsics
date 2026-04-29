@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MotionalEmfControls } from './MotionalEmfControls'
 import { MotionalEmfRig3D } from './MotionalEmfRig3D'
 import { useMotionalEmfSceneState } from './useMotionalEmfSceneState'
 import './motional-emf.css'
-
-const presentationSignals: Array<'live-metric' | 'interactive-readout'> = ['live-metric', 'interactive-readout']
 
 type CameraViewPreset = 'default' | 'top' | 'bottom'
 
@@ -62,109 +61,103 @@ export function MotionalEmfScene() {
 
   return (
     <SceneLayout
-      presentationSignals={presentationSignals}
-      coreSummary={
+      controls={
+        <>
+          <MotionalEmfControls
+            magneticFieldT={state.magneticFieldT}
+            onMagneticFieldChange={state.setMagneticFieldT}
+            magneticFieldDirection={state.magneticFieldDirection}
+            onMagneticFieldDirectionChange={state.setMagneticFieldDirection}
+            rodLengthM={state.rodLengthM}
+            onRodLengthChange={state.setRodLengthM}
+            speedMps={state.speedMps}
+            onSpeedChange={state.setSpeedMps}
+            rodAngleDeg={state.rodAngleDeg}
+            onRodAngleChange={state.setRodAngleDeg}
+            discussionMode={state.discussionMode}
+            onDiscussionModeChange={state.setDiscussionMode}
+            velocityPreset={state.velocityPreset}
+            onVelocityPresetChange={state.setVelocityPreset}
+            rodVelocityAngleDeg={state.rodVelocityAngleDeg}
+            onRodVelocityAngleChange={state.setRodVelocityAngleDeg}
+            motionDirection={state.motionDirection}
+            onMotionDirectionChange={state.setMotionDirection}
+          />
+
+          <section className="motional-emf-view-card" aria-label="视角切换">
+            <p className="motional-emf-view-card-title">视角</p>
+            <div className="motional-emf-view-button-row">
+              <button
+                type="button"
+                className={`touch-target motional-emf-view-button ${cameraView === 'default' ? 'active' : ''}`.trim()}
+                onClick={() => setCameraView('default')}
+              >
+                默认视角
+              </button>
+              <button
+                type="button"
+                className={`touch-target motional-emf-view-button ${cameraView === 'top' ? 'active' : ''}`.trim()}
+                onClick={() => setCameraView('top')}
+              >
+                俯视
+              </button>
+              <button
+                type="button"
+                className={`touch-target motional-emf-view-button ${cameraView === 'bottom' ? 'active' : ''}`.trim()}
+                onClick={() => setCameraView('bottom')}
+              >
+                底视
+              </button>
+            </div>
+          </section>
+        </>
+      }
+      dataOverlay={
         <div className="scene-core-summary-stack">
           <p>电压 U_AB: {state.signedVoltageV.toFixed(2)} V</p>
           <p>极性: {state.polarityText}</p>
           <p>∠(B,L): {state.angleBetweenBLLabel}</p>
           <p>∠(L,v): {state.angleBetweenLVLabel}</p>
           <p>∠(B,v): {state.angleBetweenBVLabel}</p>
+          <p>关系: {state.relationText}</p>
         </div>
       }
-      controls={
-        <MotionalEmfControls
-          magneticFieldT={state.magneticFieldT}
-          onMagneticFieldChange={state.setMagneticFieldT}
-          magneticFieldDirection={state.magneticFieldDirection}
-          onMagneticFieldDirectionChange={state.setMagneticFieldDirection}
-          rodLengthM={state.rodLengthM}
-          onRodLengthChange={state.setRodLengthM}
-          speedMps={state.speedMps}
-          onSpeedChange={state.setSpeedMps}
-          rodAngleDeg={state.rodAngleDeg}
-          onRodAngleChange={state.setRodAngleDeg}
-          discussionMode={state.discussionMode}
-          onDiscussionModeChange={state.setDiscussionMode}
-          velocityPreset={state.velocityPreset}
-          onVelocityPresetChange={state.setVelocityPreset}
-          rodVelocityAngleDeg={state.rodVelocityAngleDeg}
-          onRodVelocityAngleChange={state.setRodVelocityAngleDeg}
-          motionDirection={state.motionDirection}
-          onMotionDirectionChange={state.setMotionDirection}
-          running={state.running}
-          onToggleRunning={state.toggleRunning}
-          onReset={state.reset}
-          signedVoltageV={state.signedVoltageV}
-          polarityText={state.polarityText}
-          relationText={state.relationText}
-          angleBetweenBLLabel={state.angleBetweenBLLabel}
-          angleBetweenLVLabel={state.angleBetweenLVLabel}
-          angleBetweenBVLabel={state.angleBetweenBVLabel}
+      playback={
+        <SceneActions
+          actions={[
+            {
+              key: 'toggle-running',
+              label: state.running ? '暂停' : '播放',
+              onClick: state.toggleRunning,
+            },
+            {
+              key: 'reset',
+              label: '重置',
+              onClick: state.reset,
+            },
+          ]}
         />
       }
       viewport={
-        <div className="motional-emf-viewport-stack">
-          <p className="motional-emf-scene-title">导体棒切割磁感线</p>
-          <div className="motional-emf-overlay-stack">
-            <section className="motional-emf-vector-legend" aria-label="矢量图例">
-              <p className="motional-emf-vector-legend-title">图例</p>
-              <div className="motional-emf-vector-legend-row">
-                <span className="motional-emf-legend-arrow motional-emf-legend-arrow--velocity" aria-hidden="true" />
-                <span>速度方向</span>
-              </div>
-              <div className="motional-emf-vector-legend-row">
-                <span className="motional-emf-legend-arrow motional-emf-legend-arrow--current" aria-hidden="true" />
-                <span>感应电流方向</span>
-              </div>
-            </section>
-            <section className="motional-emf-view-card" aria-label="视角切换">
-              <p className="motional-emf-view-card-title">视角</p>
-              <div className="motional-emf-view-button-row">
-                <button
-                  type="button"
-                  className={`touch-target motional-emf-view-button ${cameraView === 'default' ? 'active' : ''}`.trim()}
-                  onClick={() => setCameraView('default')}
-                >
-                  默认视角
-                </button>
-                <button
-                  type="button"
-                  className={`touch-target motional-emf-view-button ${cameraView === 'top' ? 'active' : ''}`.trim()}
-                  onClick={() => setCameraView('top')}
-                >
-                  俯视
-                </button>
-                <button
-                  type="button"
-                  className={`touch-target motional-emf-view-button ${cameraView === 'bottom' ? 'active' : ''}`.trim()}
-                  onClick={() => setCameraView('bottom')}
-                >
-                  底视
-                </button>
-              </div>
-            </section>
-          </div>
-          <InteractiveCanvas
-            key={cameraView}
-            camera={activeCameraPreset.camera}
-            controls={activeCameraPreset.controls}
-            frameloop="always"
-          >
-            <MotionalEmfRig3D
-              motionOffset={state.motionOffset}
-              rodLengthM={state.rodLengthM}
-              rodAngleDeg={state.rodAngleDeg}
-              discussionMode={state.discussionMode}
-              velocityPreset={state.velocityPreset}
-              rodVelocityAngleDeg={state.rodVelocityAngleDeg}
-              motionDirection={state.motionDirection}
-              magneticFieldDirection={state.magneticFieldDirection}
-              currentActive={Math.abs(state.signedVoltageV) > 1e-9}
-              needleAngleRad={state.needleAngleRad}
-            />
-          </InteractiveCanvas>
-        </div>
+        <InteractiveCanvas
+          key={cameraView}
+          camera={activeCameraPreset.camera}
+          controls={activeCameraPreset.controls}
+          frameloop="always"
+        >
+          <MotionalEmfRig3D
+            motionOffset={state.motionOffset}
+            rodLengthM={state.rodLengthM}
+            rodAngleDeg={state.rodAngleDeg}
+            discussionMode={state.discussionMode}
+            velocityPreset={state.velocityPreset}
+            rodVelocityAngleDeg={state.rodVelocityAngleDeg}
+            motionDirection={state.motionDirection}
+            magneticFieldDirection={state.magneticFieldDirection}
+            currentActive={Math.abs(state.signedVoltageV) > 1e-9}
+            needleAngleRad={state.needleAngleRad}
+          />
+        </InteractiveCanvas>
       }
     />
   )

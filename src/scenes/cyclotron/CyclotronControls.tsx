@@ -1,6 +1,4 @@
-import type { ReactNode } from 'react'
 import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import type { CyclotronEnergyMode } from './trace'
 
 type CyclotronControlsProps = {
@@ -12,17 +10,7 @@ type CyclotronControlsProps = {
   onGapHalfWidthChange: (value: number) => void
   energyMode: CyclotronEnergyMode
   onEnergyModeChange: (value: CyclotronEnergyMode) => void
-  running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
   modeText: string
-  cyclotronPeriodS: number
-  launchPositionY: number
-  voltageDirectionText: string
-  currentVoltageV: number
-  currentEnergyJ: number
-  error: string | null
-  charts: ReactNode
 }
 
 export function CyclotronControls({
@@ -34,17 +22,7 @@ export function CyclotronControls({
   onGapHalfWidthChange,
   energyMode,
   onEnergyModeChange,
-  running,
-  onToggleRunning,
-  onReset,
   modeText,
-  cyclotronPeriodS,
-  launchPositionY,
-  voltageDirectionText,
-  currentVoltageV,
-  currentEnergyJ,
-  error,
-  charts,
 }: CyclotronControlsProps) {
   return (
     <>
@@ -96,33 +74,6 @@ export function CyclotronControls({
           考虑加速时间
         </button>
       </div>
-
-      <SceneActions
-        actions={[
-          {
-            key: 'toggle-running',
-            label: running ? '暂停' : '播放',
-            onClick: onToggleRunning,
-          },
-          {
-            key: 'reset',
-            label: '重置',
-            onClick: onReset,
-          },
-        ]}
-      />
-
-      <div className="readings" data-presentation-signal="live-metric">
-        <p>模式: {modeText}</p>
-        <p>自适应周期 T: {cyclotronPeriodS.toExponential(2)} s</p>
-        <p>自适应出发 y0: {launchPositionY.toExponential(2)} m</p>
-        <p>电压方向: {voltageDirectionText}</p>
-        <p>当前 U: {currentVoltageV.toExponential(2)} V</p>
-        <p>当前 Ek: {currentEnergyJ.toExponential(2)} J</p>
-        {error ? <p>错误: {error}</p> : null}
-      </div>
-
-      {charts}
     </>
   )
 }
