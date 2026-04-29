@@ -5,10 +5,7 @@ import { useAppStore } from '../useAppStore'
 const STORE_NAME = 'electromagnetics-lab-ui'
 const DEFAULT_STATE = {
   theme: 'day' as const,
-  nightTone: 'minimal' as const,
-  presentationMode: false,
   activeScenePath: '/',
-  presentationRouteModes: {},
 }
 
 function createMemoryJsonStorage(initialEntries: Record<string, string> = {}) {
@@ -51,43 +48,24 @@ describe('app store persisted state sanitization', () => {
     useAppStore.setState(DEFAULT_STATE)
   })
 
-  it('sanitizes malformed persisted presentation route modes during rehydration', async () => {
-    await rehydrateFromPersistedState({
-      theme: 'day',
-      nightTone: 'minimal',
-      presentationMode: false,
-      presentationRouteModes: null,
-    })
-
-    expect(useAppStore.getState().presentationRouteModes).toEqual({})
-    expect(() => useAppStore.getState().setPresentationRouteMode('/cyclotron', 'viewport')).not.toThrow()
-    expect(useAppStore.getState().presentationRouteModes).toEqual({
-      '/cyclotron': 'viewport',
-    })
-  })
-
-  it('drops invalid persisted theme and layout override values during rehydration', async () => {
+  it('drops invalid persisted theme values during rehydration', async () => {
     await rehydrateFromPersistedState({
       theme: 'sunset',
-      nightTone: 'aurora',
-      presentationMode: 'yes',
-      presentationRouteModes: {
-        '/cyclotron': 'viewport',
-        '/oersted': 'split',
-        '/mhd': 'auto',
-        '/oscilloscope': 42,
-        '': 'viewport',
-      },
     })
 
     expect(useAppStore.getState()).toMatchObject({
       theme: 'day',
-      nightTone: 'minimal',
-      presentationMode: false,
-      presentationRouteModes: {
-        '/cyclotron': 'viewport',
-        '/oersted': 'split',
-      },
+      activeScenePath: '/',
+    })
+  })
+
+  it('accepts valid persisted theme during rehydration', async () => {
+    await rehydrateFromPersistedState({
+      theme: 'night',
+    })
+
+    expect(useAppStore.getState()).toMatchObject({
+      theme: 'night',
     })
   })
 })
