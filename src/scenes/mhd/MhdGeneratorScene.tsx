@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MhdControls } from './MhdControls'
 import { MhdGeneratorRig3D } from './MhdGeneratorRig3D'
@@ -10,14 +11,6 @@ export function MhdGeneratorScene() {
 
   return (
     <SceneLayout
-      presentationSignals={['live-metric']}
-      coreSummary={
-        <div className="scene-core-summary-stack">
-          <p>状态: {state.running ? '运行中' : '已暂停'}</p>
-          <p>输出电压 U_AB: {state.voltageDisplayV.toFixed(1)} V</p>
-          <p>B: {state.magneticFieldT.toFixed(1)} T · v: {state.plasmaVelocityMps.toFixed(0)} m/s</p>
-        </div>
-      }
       controls={
         <MhdControls
           magneticFieldT={state.magneticFieldT}
@@ -30,10 +23,6 @@ export function MhdGeneratorScene() {
           onElectrodeGapChange={state.setElectrodeGapM}
           conductivitySPerM={state.conductivitySPerM}
           onConductivityChange={state.setConductivitySPerM}
-          running={state.running}
-          onToggleRunning={state.toggleRunning}
-          onReset={state.reset}
-          voltageDisplayV={state.voltageDisplayV}
         />
       }
       viewport={
@@ -49,6 +38,30 @@ export function MhdGeneratorScene() {
             plasmaDensityRatio={state.plasmaDensityRatio}
           />
         </InteractiveCanvas>
+      }
+      dataOverlay={
+        <div className="mhd-telemetry">
+          <p>状态: {state.running ? '运行中' : '已暂停'}</p>
+          <p><span>输出电压 U_AB</span><strong data-testid="mhd-voltage-display">{state.voltageDisplayV.toFixed(1)} V</strong></p>
+          <p><span>B</span><strong>{state.magneticFieldT.toFixed(1)} T</strong></p>
+          <p><span>v</span><strong>{state.plasmaVelocityMps.toFixed(0)} m/s</strong></p>
+        </div>
+      }
+      playback={
+        <SceneActions
+          actions={[
+            {
+              key: 'toggle-running',
+              label: state.running ? '暂停' : '播放',
+              onClick: state.toggleRunning,
+            },
+            {
+              key: 'reset',
+              label: '重置',
+              onClick: state.reset,
+            },
+          ]}
+        />
       }
     />
   )

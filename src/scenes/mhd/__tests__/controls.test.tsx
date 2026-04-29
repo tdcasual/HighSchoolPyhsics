@@ -11,7 +11,7 @@ describe('mhd controls', () => {
     expect(await screen.findByLabelText('等离子体速度 v (m/s)')).toBeInTheDocument()
     expect(await screen.findByLabelText('电极间距 d (m)')).toBeInTheDocument()
     expect(await screen.findByLabelText('等离子浓度 n')).toBeInTheDocument()
-    expect(await screen.findByText('两端电压 U_AB')).toBeInTheDocument()
+    expect(await screen.findByTestId('mhd-voltage-display')).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '播放' })).toBeInTheDocument()
   })
 
