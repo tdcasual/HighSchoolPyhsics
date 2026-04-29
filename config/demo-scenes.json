@@ -21,19 +21,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 3,
-      "sceneKind": "trajectory",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": false,
-        "stickySummary": false
-      }
-    },
     "playwright": {
       "readyText": "示波器控制",
       "screenshotName": "oscilloscope"
@@ -59,20 +46,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "time-series",
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "trajectory",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": true,
-        "stickySummary": true
       }
     },
     "playwright": {
@@ -102,18 +75,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 3,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "never",
-        "focus": false,
-        "stickySummary": false
-      }
-    },
     "playwright": {
       "readyText": "磁流体发电机控制",
       "screenshotName": "mhd"
@@ -139,18 +100,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "structure",
-      "smartPresentation": {
-        "layout": "never",
-        "focus": true,
-        "stickySummary": false
       }
     },
     "playwright": {
@@ -180,19 +129,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "field",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": false,
-        "stickySummary": true
-      }
-    },
     "playwright": {
       "readyText": "电荷等势面控制",
       "screenshotName": "equipotential"
@@ -218,19 +154,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "staged",
-        "focus": true,
-        "stickySummary": false
       }
     },
     "playwright": {
@@ -260,20 +183,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "live-metric",
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "field",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": true,
-        "stickySummary": true
-      }
-    },
     "playwright": {
       "readyText": "3D等势面实验台控制",
       "screenshotName": "electrostatic-lab"
@@ -299,19 +208,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "interactive-readout",
-        "live-metric"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "staged",
-        "focus": true,
-        "stickySummary": true
       }
     },
     "playwright": {
@@ -341,19 +237,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "live-metric",
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 5,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "never",
-        "focus": false,
-        "stickySummary": false
-      }
-    },
     "playwright": {
       "readyText": "切割磁感线实验控制",
       "screenshotName": "motional-emf"
@@ -379,20 +262,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "live-metric",
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": false,
-        "stickySummary": true
       }
     },
     "playwright": {
@@ -422,19 +291,6 @@
         "twoFingerPan": true
       }
     },
-    "classroom": {
-      "presentationSignals": [
-        "live-metric",
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "never",
-        "focus": false,
-        "stickySummary": false
-      }
-    },
     "playwright": {
       "readyText": "旋转切割磁感线控制",
       "screenshotName": "rotational-emf"
@@ -460,21 +316,6 @@
         "singleFingerRotate": true,
         "twoFingerZoom": true,
         "twoFingerPan": true
-      }
-    },
-    "classroom": {
-      "presentationSignals": [
-        "chart",
-        "time-series",
-        "live-metric",
-        "interactive-readout"
-      ],
-      "coreSummaryLineCount": 4,
-      "sceneKind": "process",
-      "smartPresentation": {
-        "layout": "enter-only",
-        "focus": false,
-        "stickySummary": true
       }
     },
     "playwright": {
