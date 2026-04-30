@@ -25,8 +25,7 @@
     "check:route-load-budget": "node scripts/perf/assert-route-load-budget.mjs",
     "check:clean-build": "node scripts/ci/check-clean-build.mjs",
     "check:scene-shell-length": "node scripts/ci/check-scene-shell-length.mjs",
-    "test:perf": "npm run build && npm run check:homepage-preload && npm run check:bundle-budget",
-    "test:1080p-presentation": "node scripts/playwright/1080p-presentation-regression.mjs"
+    "test:perf": "npm run build && npm run check:homepage-preload && npm run check:bundle-budget"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
