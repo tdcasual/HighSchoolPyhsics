@@ -136,22 +136,6 @@ export function EquipotentialScene() {
 
   return (
     <SceneLayout
-      presentationSignals={['chart', 'live-metric']}
-      coreSummary={
-        <div className="scene-core-summary-stack">
-          <p>
-            电荷数: {charges.length}（+{cloudResult.stats.positiveChargeCount} / -
-            {cloudResult.stats.negativeChargeCount}）
-          </p>
-          <p>
-            势场范围: {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
-          </p>
-          <p>
-            等势采样: 正 {cloudResult.stats.positivePointCount} 点 · 负 {cloudResult.stats.negativePointCount} 点
-          </p>
-          <p>主导势区: {coreDominantLabel}</p>
-        </div>
-      }
       controls={
         <EquipotentialControls
           charges={charges}
@@ -171,29 +155,39 @@ export function EquipotentialScene() {
           stats={cloudResult.stats}
         />
       }
-      viewport={
-        <>
-          <InteractiveCanvas
-            camera={{ position: [8, 6, 8], fov: 44 }}
-            controls={{
-              target: [0, 0, 0],
-              minDistance: 4,
-              maxDistance: 28,
-            }}
-            adaptiveFraming={false}
-            frameloop="demand"
-          >
-            <EquipotentialRig3D
-              bounds={SCENE_BOUNDS}
-              charges={charges}
-              positiveSurfaces={cloudResult.positiveSurfaces}
-              negativeSurfaces={cloudResult.negativeSurfaces}
-            />
-          </InteractiveCanvas>
-          <p className="equipotential-viewport-note" data-presentation-signal="chart">
-            课堂提示：红色为正电荷，蓝色为负电荷；冷色点云代表正势面，暖色点云代表负势面。
+      dataOverlay={
+        <div className="scene-core-summary-stack">
+          <p>
+            电荷数: {charges.length}（+{cloudResult.stats.positiveChargeCount} / -
+            {cloudResult.stats.negativeChargeCount}）
           </p>
-        </>
+          <p>
+            势场范围: {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
+          </p>
+          <p>
+            等势采样: 正 {cloudResult.stats.positivePointCount} 点 · 负 {cloudResult.stats.negativePointCount} 点
+          </p>
+          <p>主导势区: {coreDominantLabel}</p>
+        </div>
+      }
+      viewport={
+        <InteractiveCanvas
+          camera={{ position: [8, 6, 8], fov: 44 }}
+          controls={{
+            target: [0, 0, 0],
+            minDistance: 4,
+            maxDistance: 28,
+          }}
+          adaptiveFraming={false}
+          frameloop="demand"
+        >
+          <EquipotentialRig3D
+            bounds={SCENE_BOUNDS}
+            charges={charges}
+            positiveSurfaces={cloudResult.positiveSurfaces}
+            negativeSurfaces={cloudResult.negativeSurfaces}
+          />
+        </InteractiveCanvas>
       }
     />
   )

@@ -170,7 +170,7 @@ export function EquipotentialControls({
         />
       </div>
 
-      <div className="equipotential-readout" data-presentation-signal="chart live-metric">
+      <div className="equipotential-readout">
         <p>正势面点数: {stats.positivePointCount}</p>
         <p>负势面点数: {stats.negativePointCount}</p>
         <p>主导势区: {formatPolarityLabel(stats.dominantPolarity)}</p>
@@ -181,7 +181,7 @@ export function EquipotentialControls({
         <ul>
           <li>同号电荷周围等势层向外扩展，异号电荷之间出现势面过渡带。</li>
           <li>调节单个电荷的 q 与空间位置，可观察等势壳层重构过程。</li>
-          <li>课堂建议：先用双极子讲“正负势面”，再切到四极子讲叠加效应。</li>
+          <li>课堂建议：先用双极子讲"正负势面"，再切到四极子讲叠加效应。</li>
         </ul>
       </div>
     </>

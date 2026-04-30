@@ -1,5 +1,4 @@
 import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { useState } from 'react'
 
 type OerstedPresetButton = {
@@ -7,11 +6,6 @@ type OerstedPresetButton = {
   label: string
   active: boolean
   onClick: () => void
-}
-
-type NeedlePreviewState = {
-  observedSwingDeg: number
-  wireFieldMicroT: number
 }
 
 type OerstedControlsProps = {
@@ -29,14 +23,6 @@ type OerstedControlsProps = {
   onWireHeightChange: (value: number) => void
   initialHeadingDeg: number
   onInitialHeadingChange: (value: number) => void
-  running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
-  showFieldLines: boolean
-  onToggleFieldLines: () => void
-  previewNeedleStates: NeedlePreviewState[]
-  maxSwing: number
-  discoveryText: string
 }
 
 export function OerstedControls({
@@ -54,14 +40,6 @@ export function OerstedControls({
   onWireHeightChange,
   initialHeadingDeg,
   onInitialHeadingChange,
-  running,
-  onToggleRunning,
-  onReset,
-  showFieldLines,
-  onToggleFieldLines,
-  previewNeedleStates,
-  maxSwing,
-  discoveryText,
 }: OerstedControlsProps) {
   const [advancedVisible, setAdvancedVisible] = useState(false)
 
@@ -165,50 +143,6 @@ export function OerstedControls({
           />
         </div>
       ) : null}
-
-      <SceneActions
-        actions={[
-          {
-            key: 'toggle-running',
-            label: running ? '断电' : '通电',
-            onClick: onToggleRunning,
-          },
-          {
-            key: 'reset',
-            label: '回到地磁初始位',
-            onClick: onReset,
-          },
-          {
-            key: 'toggle-field-lines',
-            label: showFieldLines ? '隐藏磁感线' : '显示磁感线',
-            onClick: onToggleFieldLines,
-          },
-        ]}
-      />
-
-      <div className="oersted-card" data-presentation-signal="interactive-readout">
-        {previewNeedleStates.map((state, index) => (
-          <p key={`needle-reading-${index}`} data-testid={`oersted-swing-${index + 1}`}>
-            磁针{index + 1}: 摆动 <strong>{state.observedSwingDeg.toFixed(1)}°</strong> · Bwire{' '}
-            <strong>{state.wireFieldMicroT.toFixed(1)} μT</strong>
-          </p>
-        ))}
-        <p>
-          最大可见摆动: <strong>{maxSwing.toFixed(1)}°</strong>
-        </p>
-        <p>可观察性: {discoveryText}</p>
-      </div>
-
-      <div className="structure-card">
-        <h3>演示要点</h3>
-        <ul>
-          <li>磁感线半径统一，仅表示方向，不暗示不同圈层强弱。</li>
-          <li>磁感线方向由切向箭头强化，便于课堂观察右手定则。</li>
-          <li>三枚小磁针可鼠标拖拽放置，初始默认按地磁北向摆放。</li>
-          <li>导线方位角、俯仰角和高度都可在三维中连续调节。</li>
-          <li>极性标识：红色为正极(+)，蓝色为负极(-)。</li>
-        </ul>
-      </div>
     </>
   )
 }
