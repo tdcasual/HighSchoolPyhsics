@@ -19,7 +19,7 @@ export function ElectromagneticDriveScene() {
 
   return (
     <SceneLayout
-      controls={<ElectromagneticDriveControls state={state} />}
+      controls={<ElectromagneticDriveControls />}
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>实验状态: {experimentStatus}</p>

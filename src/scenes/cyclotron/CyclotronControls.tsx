@@ -10,7 +10,6 @@ type CyclotronControlsProps = {
   onGapHalfWidthChange: (value: number) => void
   energyMode: CyclotronEnergyMode
   onEnergyModeChange: (value: CyclotronEnergyMode) => void
-  modeText: string
 }
 
 export function CyclotronControls({
@@ -22,7 +21,6 @@ export function CyclotronControls({
   onGapHalfWidthChange,
   energyMode,
   onEnergyModeChange,
-  modeText,
 }: CyclotronControlsProps) {
   return (
     <>

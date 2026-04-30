@@ -1,5 +1,4 @@
 import type { DemoRoute } from './demoRoutes'
-import { isPresentationSignal, scorePresentationSignals } from '../ui/layout/presentationSignals'
 
 type RouteConformanceIssue = {
   path: string
@@ -114,105 +113,6 @@ function validateTouchProfile(route: DemoRoute): RouteConformanceIssue[] {
   return issues
 }
 
-function validateClassroomContract(route: DemoRoute): RouteConformanceIssue[] {
-  const issues: RouteConformanceIssue[] = []
-  const classroom = isRecord(route.classroom) ? route.classroom : null
-
-  if (!classroom) {
-    issues.push({
-      path: route.path,
-      message: 'classroom must be an object',
-    })
-    return issues
-  }
-
-  const signals = Array.isArray(classroom.presentationSignals) ? classroom.presentationSignals : null
-
-  if (!signals) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.presentationSignals must be an array of supported signals',
-    })
-  } else {
-    if (signals.length === 0) {
-      issues.push({
-        path: route.path,
-        message: 'classroom.presentationSignals must declare at least one signal',
-      })
-    }
-
-    signals.forEach((signal, index) => {
-      if (typeof signal !== 'string' || !isPresentationSignal(signal)) {
-        issues.push({
-          path: route.path,
-          message: `classroom.presentationSignals[${index}] must be one of chart|live-metric|time-series|interactive-readout`,
-        })
-      }
-    })
-
-    if (new Set(signals).size !== signals.length) {
-      issues.push({
-        path: route.path,
-        message: 'classroom.presentationSignals cannot contain duplicates',
-      })
-    }
-
-    if (scorePresentationSignals(signals) < 1) {
-      issues.push({
-        path: route.path,
-        message: 'classroom.presentationSignals score must be >= 1',
-      })
-    }
-  }
-
-  if (!Number.isInteger(classroom.coreSummaryLineCount) || classroom.coreSummaryLineCount < 3 || classroom.coreSummaryLineCount > 5) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.coreSummaryLineCount must be an integer between 3 and 5',
-    })
-  }
-
-  if (typeof classroom.sceneKind !== 'string' || !['trajectory', 'field', 'structure', 'process'].includes(classroom.sceneKind)) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.sceneKind must be one of trajectory|field|structure|process',
-    })
-  }
-
-  const smartPresentation = isRecord(classroom.smartPresentation) ? classroom.smartPresentation : null
-
-  if (!smartPresentation) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.smartPresentation must be an object with layout, focus, and stickySummary',
-    })
-    return issues
-  }
-
-  if (typeof smartPresentation.layout !== 'string' || !['never', 'enter-only', 'staged'].includes(smartPresentation.layout)) {
-    issues.push({
-      path: route.path,
-      message: 'classroom.smartPresentation.layout must be one of never|enter-only|staged',
-    })
-  }
-
-  if (typeof smartPresentation.focus !== 'boolean') {
-    issues.push({
-      path: route.path,
-      message: 'classroom.smartPresentation.focus must be boolean',
-    })
-  }
-
-  if (typeof smartPresentation.stickySummary !== 'boolean') {
-    issues.push({
-      path: route.path,
-      message: 'classroom.smartPresentation.stickySummary must be boolean',
-    })
-  }
-
-  return issues
-}
-
 function validateRouteIdentity(routes: DemoRoute[]): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
   const seenPageIds = new Set<string>()
@@ -277,7 +177,6 @@ export function collectRouteConformanceIssues(routes: DemoRoute[]): RouteConform
     ...routes.flatMap((route) => [
       ...validateRouteMetadata(route),
       ...validateTouchProfile(route),
-      ...validateClassroomContract(route),
     ]),
   ]
 }

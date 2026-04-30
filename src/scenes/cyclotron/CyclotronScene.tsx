@@ -29,7 +29,6 @@ export function CyclotronScene() {
           onGapHalfWidthChange={state.setGapHalfWidthMm}
           energyMode={state.energyMode}
           onEnergyModeChange={state.setEnergyMode}
-          modeText="Worker"
         />
       }
       dataOverlay={

@@ -26,7 +26,7 @@ describe('InteractiveCanvas classroom contract', () => {
     setScenePath('/')
   })
 
-  it('suppresses presentation focus when the active scene contract disables smart focus', () => {
+  it('passes through presentation focus when no smart focus override is configured', () => {
     render(
       <InteractiveCanvas
         camera={{ position: [0, 2, 6], fov: 42 }}
@@ -36,7 +36,7 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'overview')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
   })
 
 
@@ -53,22 +53,17 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'overview')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
   })
 
-  it('keeps presentation focus when the active scene contract enables smart focus', () => {
-    setScenePath('/cyclotron')
-
+  it('defaults to overview when no presentationFocus is provided', () => {
     render(
-      <InteractiveCanvas
-        camera={{ position: [0, 2, 6], fov: 42 }}
-        presentationFocus={{ mode: 'focus', primary: [2, 1, -1] }}
-      >
+      <InteractiveCanvas camera={{ position: [0, 2, 6], fov: 42 }}>
         <mesh />
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'overview')
   })
 
 

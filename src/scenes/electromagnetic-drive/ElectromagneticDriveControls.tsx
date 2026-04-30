@@ -1,14 +1,6 @@
 import { useState } from 'react'
-import type { ElectromagneticDriveSceneState } from './useElectromagneticDriveSceneState'
 
-type ElectromagneticDriveControlsProps = {
-  state: Pick<
-    ElectromagneticDriveSceneState,
-    'isRunning'
-  >
-}
-
-export function ElectromagneticDriveControls({ state }: ElectromagneticDriveControlsProps) {
+export function ElectromagneticDriveControls() {
   const [notesExpanded, setNotesExpanded] = useState(true)
 
   return (

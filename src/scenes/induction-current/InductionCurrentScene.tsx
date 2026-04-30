@@ -1,11 +1,9 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import type { PresentationFocus } from '../../scene3d/presentationCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { InductionCurrentControls } from './InductionCurrentControls'
 import { InductionCurrentRig3D } from './InductionCurrentRig3D'
 import {
   formatCurrentDirection,
-  formatFluxChange,
   formatPoleSetting,
   formatVerticalDirection,
 } from './model'
