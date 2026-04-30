@@ -10,9 +10,6 @@ describe('App shell', () => {
     useAppStore.persist.clearStorage()
     useAppStore.setState({
       theme: 'day',
-      nightTone: 'minimal',
-      presentationMode: false,
-      presentationRouteModes: {},
       activeScenePath: '/',
     })
     window.history.replaceState(null, '', '/')
@@ -54,50 +51,13 @@ describe('App shell', () => {
 
     fireEvent.click(nightButton)
     expect(shell).toHaveClass('theme-night')
-    expect(shell).toHaveClass('night-tone-minimal')
     expect(dayButton).toHaveAttribute('aria-pressed', 'false')
     expect(nightButton).toHaveAttribute('aria-pressed', 'true')
 
-    const minimalToneButton = scoped.getByRole('button', { name: '夜间极简' })
-    const neonToneButton = scoped.getByRole('button', { name: '夜间霓虹' })
-
-    expect(minimalToneButton).toHaveAttribute('aria-pressed', 'true')
-    expect(neonToneButton).toHaveAttribute('aria-pressed', 'false')
-
-    fireEvent.click(neonToneButton)
-    expect(shell).toHaveClass('night-tone-neon')
-    expect(minimalToneButton).toHaveAttribute('aria-pressed', 'false')
-    expect(neonToneButton).toHaveAttribute('aria-pressed', 'true')
-
     fireEvent.click(dayButton)
     expect(shell).toHaveClass('theme-day')
-    expect(shell).not.toHaveClass('night-tone-minimal')
-    expect(shell).not.toHaveClass('night-tone-neon')
     expect(dayButton).toHaveAttribute('aria-pressed', 'true')
     expect(nightButton).toHaveAttribute('aria-pressed', 'false')
-
-    expect(screen.queryByRole('button', { name: '夜间极简' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: '夜间霓虹' })).not.toBeInTheDocument()
-  })
-
-  it('toggles classroom presentation mode from button and keyboard shortcut', () => {
-    const { container } = render(<App />)
-
-    const shell = container.querySelector('.app-shell') as HTMLElement
-    const presentationButton = screen.getByRole('button', { name: '课堂展示' })
-
-    expect(presentationButton).toHaveAttribute('aria-pressed', 'false')
-    expect(shell).not.toHaveClass('presentation-mode')
-
-    fireEvent.click(presentationButton)
-    expect(presentationButton).toHaveAttribute('aria-pressed', 'true')
-    expect(shell).toHaveClass('presentation-mode')
-    expect(screen.getByText(/课堂展示中/)).toBeInTheDocument()
-
-    fireEvent.keyDown(window, { key: 'p' })
-    expect(presentationButton).toHaveAttribute('aria-pressed', 'false')
-    expect(shell).not.toHaveClass('presentation-mode')
-    expect(screen.queryByText(/课堂展示中/)).not.toBeInTheDocument()
   })
 
   it('keeps root path on overview navigation page', async () => {
@@ -139,9 +99,6 @@ describe('App shell', () => {
     fireEvent.keyDown(window, { key: 'n' })
     expect(shell).toHaveClass('theme-night')
 
-    fireEvent.keyDown(window, { key: 'e' })
-    expect(shell).toHaveClass('night-tone-neon')
-
     fireEvent.keyDown(window, { key: '1' })
     expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
     expect(window.location.pathname).toBe('/oscilloscope')
@@ -173,34 +130,6 @@ describe('App shell', () => {
 
     fireEvent.keyDown(formulaInput, { key: 'n' })
     expect(shell).toHaveClass('theme-day')
-
-    fireEvent.keyDown(formulaInput, { key: 'p' })
-    expect(shell).not.toHaveClass('presentation-mode')
-  })
-
-  it('supports route-level presentation layout override in classroom mode', async () => {
-    window.history.replaceState(null, '', '/cyclotron')
-
-    render(<App />)
-
-    expect(await screen.findByText('回旋加速器控制', {}, { timeout: 3000 })).toBeInTheDocument()
-
-    const presentationButton = screen.getByRole('button', { name: '课堂展示' })
-    fireEvent.click(presentationButton)
-
-    const autoButton = screen.getByRole('button', { name: '自动' })
-    const splitButton = screen.getByRole('button', { name: '双核心' })
-    const viewportButton = screen.getByRole('button', { name: '视口优先' })
-
-    expect(autoButton).toHaveAttribute('aria-pressed', 'true')
-    expect(splitButton).toHaveAttribute('aria-pressed', 'false')
-    expect(viewportButton).toHaveAttribute('aria-pressed', 'false')
-
-    fireEvent.click(viewportButton)
-
-    expect(autoButton).toHaveAttribute('aria-pressed', 'false')
-    expect(viewportButton).toHaveAttribute('aria-pressed', 'true')
-    expect(useAppStore.getState().presentationRouteModes['/cyclotron']).toBe('viewport')
   })
 
   it('applies the active route touch profile to shell interaction affordances', async () => {

@@ -1,5 +1,4 @@
 import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import {
   DISCUSSION_MODE_LABELS,
   MAGNETIC_FIELD_DIRECTION_LABELS,
@@ -34,15 +33,6 @@ type MotionalEmfControlsProps = {
   onRodVelocityAngleChange: (value: RodVelocityAnglePreset) => void
   motionDirection: MotionDirectionPreset
   onMotionDirectionChange: (value: MotionDirectionPreset) => void
-  running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
-  signedVoltageV: number
-  polarityText: string
-  relationText: string
-  angleBetweenBLLabel: string
-  angleBetweenLVLabel: string
-  angleBetweenBVLabel: string
 }
 
 const MAGNETIC_FIELD_DIRECTIONS: MagneticFieldDirection[] = ['up', 'down']
@@ -68,15 +58,6 @@ export function MotionalEmfControls({
   onRodVelocityAngleChange,
   motionDirection,
   onMotionDirectionChange,
-  running,
-  onToggleRunning,
-  onReset,
-  signedVoltageV,
-  polarityText,
-  relationText,
-  angleBetweenBLLabel,
-  angleBetweenLVLabel,
-  angleBetweenBVLabel,
 }: MotionalEmfControlsProps) {
   return (
     <div className="motional-emf-controls">
@@ -210,36 +191,6 @@ export function MotionalEmfControls({
           </div>
         </>
       )}
-
-      <SceneActions
-        actions={[
-          {
-            key: 'toggle-running',
-            label: running ? '暂停' : '播放',
-            onClick: onToggleRunning,
-          },
-          {
-            key: 'reset',
-            label: '重置',
-            onClick: onReset,
-          },
-        ]}
-      />
-
-      <div
-        className="motional-emf-voltage-card"
-        data-presentation-signal="live-metric interactive-readout"
-      >
-        <p className="motional-emf-voltage-label">两端电压 U_AB</p>
-        <p className="motional-emf-voltage-value" data-testid="motional-emf-voltage-display">
-          {signedVoltageV.toFixed(2)} V
-        </p>
-        <p className="motional-emf-voltage-detail">极性：{polarityText}</p>
-        <p className="motional-emf-voltage-detail">∠(B,L)：{angleBetweenBLLabel}</p>
-        <p className="motional-emf-voltage-detail">∠(L,v)：{angleBetweenLVLabel}</p>
-        <p className="motional-emf-voltage-detail">∠(B,v)：{angleBetweenBVLabel}</p>
-        <p className="motional-emf-voltage-detail">关系：{relationText}</p>
-      </div>
     </div>
   )
 }

@@ -9,7 +9,6 @@ describe('playwright demo catalog schema validation', () => {
           pageId: 'oscilloscope',
           label: '示波器',
           playwright: null,
-          classroom: {},
         },
       ]),
     ).toThrow(/scene\[0\]\.playwright must be an object/i)
@@ -25,7 +24,6 @@ describe('playwright demo catalog schema validation', () => {
             readyText: '示波器控制',
             screenshotName: 'oscilloscope',
           },
-          classroom: {},
         },
       ]),
     ).toThrow(/scene\[0\]\.label must be a non-blank string/i)
@@ -41,9 +39,6 @@ describe('playwright demo catalog schema validation', () => {
             readyText: '示波器控制',
             screenshotName: 'oscilloscope',
           },
-          classroom: {
-            smartPresentation: { layout: 'staged', focus: true, stickySummary: false },
-          },
         },
         {
           pageId: 'oscilloscope',
@@ -52,29 +47,8 @@ describe('playwright demo catalog schema validation', () => {
             readyText: '示波器控制-重复',
             screenshotName: 'oscilloscope-duplicate',
           },
-          classroom: {
-            smartPresentation: { layout: 'staged', focus: true, stickySummary: false },
-          },
         },
       ]),
     ).toThrow(/duplicate scene pageId "oscilloscope" at index 1/i)
-  })
-
-  it('throws a descriptive schema error when smartPresentation metadata is malformed', () => {
-    expect(() =>
-      demoCatalogModule.buildDemoCatalog([
-        {
-          pageId: 'oscilloscope',
-          label: '示波器',
-          playwright: {
-            readyText: '示波器控制',
-            screenshotName: 'oscilloscope',
-          },
-          classroom: {
-            smartPresentation: null,
-          },
-        },
-      ]),
-    ).toThrow(/scene\[0\]\.classroom\.smartPresentation must be an object/i)
   })
 })

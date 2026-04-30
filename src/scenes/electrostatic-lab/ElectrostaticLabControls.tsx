@@ -43,7 +43,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         </div>
       </div>
 
-      <div className="electrostatic-lab-mode-card" data-presentation-signal="chart">
+      <div className="electrostatic-lab-mode-card">
         <p>显示模式: {state.modeLabel}</p>
         <div className="electrostatic-lab-mode-row">
           <button
@@ -182,7 +182,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         onChange={state.setResolution}
       />
 
-      <div className="electrostatic-lab-readout" data-presentation-signal="chart live-metric interactive-readout">
+      <div className="electrostatic-lab-readout">
         <p>
           电荷总数: {state.charges.length}（+{state.chargeSummary.positiveCount} / -
           {state.chargeSummary.negativeCount}）
@@ -208,7 +208,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
       <div className="structure-card">
         <h3>演示要点</h3>
         <ul>
-          <li>先切“电势地形”观察正负电势在空间中的高低分区，再切“电场线”观察方向性。</li>
+          <li>先切"电势地形"观察正负电势在空间中的高低分区，再切"电场线"观察方向性。</li>
           <li>更换预设可快速演示单电荷、偶极子、四极子等典型模型的场分布差异。</li>
           <li>开启探针模式并点击地面任意点，可对比电势数值与场强大小。</li>
         </ul>

@@ -1,7 +1,6 @@
 import { OrbitControls } from '@react-three/drei/core/OrbitControls'
 import { Canvas } from '@react-three/fiber'
 import { useAppStore } from '../store/useAppStore'
-import { findRuntimeSceneCatalogEntry, resolveClassroomSmartPresentation, resolveSmartFocusEnabled } from '../app/sceneCatalog'
 import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile } from '../app/touchProfile'
 import {
   useCallback,
@@ -72,15 +71,11 @@ export function InteractiveCanvas({
     Array.isArray(targetProp) && targetProp.length === 3
       ? targetProp.map((value) => Number(value).toFixed(4)).join(',')
       : 'default'
-  const smartFocusEnabled = useMemo(
-    () => resolveSmartFocusEnabled(resolveClassroomSmartPresentation(findRuntimeSceneCatalogEntry(activeScenePath)?.classroom)),
-    [activeScenePath],
-  )
   const touchProfile = useMemo(
     () => findRuntimeTouchProfile(activeScenePath) ?? ENHANCED_TOUCH_PROFILE,
     [activeScenePath],
   )
-  const resolvedPresentationFocus = smartFocusEnabled ? presentationFocus : OVERVIEW_PRESENTATION_FOCUS
+  const resolvedPresentationFocus = presentationFocus ?? OVERVIEW_PRESENTATION_FOCUS
   const presentationFocusKey = resolvedPresentationFocus
     ? `${resolvedPresentationFocus.mode}:${resolvedPresentationFocus.primary?.join(',') ?? 'none'}:${resolvedPresentationFocus.secondary?.join(',') ?? 'none'}`
     : 'none'

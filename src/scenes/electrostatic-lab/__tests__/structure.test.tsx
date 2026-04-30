@@ -74,8 +74,6 @@ describe('electrostatic-lab structure', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/electrostatic-lab')
     useAppStore.setState({
-      presentationMode: true,
-      presentationRouteModes: { '/electrostatic-lab': 'viewport' },
       activeScenePath: '/electrostatic-lab',
     })
     mockUseElectrostaticLabState.mockReset()
@@ -87,8 +85,6 @@ describe('electrostatic-lab structure', () => {
   afterEach(() => {
     window.history.replaceState(null, '', '/')
     useAppStore.setState({
-      presentationMode: false,
-      presentationRouteModes: {},
       activeScenePath: '/',
     })
   })
@@ -125,7 +121,7 @@ describe('electrostatic-lab structure', () => {
     )
   })
 
-  it('renders core summary from hook state for classroom fallback', () => {
+  it('renders data overlay from hook state', () => {
     mockUseElectrostaticLabState.mockReturnValue(
       createMockState({
         presetLabel: '双极子基线',
@@ -138,10 +134,9 @@ describe('electrostatic-lab structure', () => {
 
     render(<ElectrostaticLabScene />)
 
-    const summary = screen.getByRole('region', { name: '课堂核心信息' })
-    expect(summary).toHaveTextContent('电荷方案: 双极子基线（+1 / -1）')
-    expect(summary).toHaveTextContent('势场范围: -3.10 ~ 2.60')
-    expect(summary).toHaveTextContent('当前模式: 电场线')
-    expect(summary).toHaveTextContent('探针读数: V=1.23, |E|=2.35')
+    expect(screen.getByText(/电荷方案: 双极子基线/)).toBeInTheDocument()
+    expect(screen.getByText(/势场范围: -3.10 ~ 2.60/)).toBeInTheDocument()
+    expect(screen.getByText(/当前模式: 电场线/)).toBeInTheDocument()
+    expect(screen.getByText(/探针读数: V=1.23, \|E\|=2.35/)).toBeInTheDocument()
   })
 })

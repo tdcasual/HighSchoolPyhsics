@@ -7,16 +7,13 @@ describe('motional-emf structure', () => {
     render(<MotionalEmfScene />)
 
     expect(await screen.findByText('切割磁感线实验控制')).toBeInTheDocument()
-    expect(screen.getByText('图例')).toBeInTheDocument()
-    expect(screen.getByText('速度方向')).toBeInTheDocument()
-    expect(screen.getByText('感应电流方向')).toBeInTheDocument()
     expect(screen.getByText('速度方向预设')).toBeInTheDocument()
 
-    const display = await screen.findByTestId('motional-emf-voltage-display')
-    expect(display).toHaveTextContent('0.00 V')
+    const display = await screen.findByText(/电压 U_AB:/)
+    expect(display).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '播放' }))
-    expect(await screen.findByTestId('motional-emf-voltage-display')).toHaveTextContent('1.00 V')
+    expect(await screen.findByText(/1\.00 V/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '暂停' }))
     fireEvent.click(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' }))
@@ -24,6 +21,6 @@ describe('motional-emf structure', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'L 与 v 成 30°' }))
     fireEvent.click(screen.getByRole('button', { name: '播放' }))
-    expect(await screen.findByTestId('motional-emf-voltage-display')).toHaveTextContent('0.50 V')
+    expect(await screen.findByText(/0\.50 V/)).toBeInTheDocument()
   })
 })

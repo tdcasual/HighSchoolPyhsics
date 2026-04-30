@@ -24,15 +24,6 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={() => undefined}
         motionDirection="forward"
         onMotionDirectionChange={() => undefined}
-        running={false}
-        onToggleRunning={() => undefined}
-        onReset={() => undefined}
-        signedVoltageV={1}
-        polarityText="A 端高电势"
-        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
-        angleBetweenBLLabel="90°"
-        angleBetweenLVLabel="90°"
-        angleBetweenBVLabel="90°"
       />,
     )
 
@@ -67,15 +58,6 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={onRodVelocityAngleChange}
         motionDirection="forward"
         onMotionDirectionChange={onMotionDirectionChange}
-        running={false}
-        onToggleRunning={() => undefined}
-        onReset={() => undefined}
-        signedVoltageV={1}
-        polarityText="A 端高电势"
-        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
-        angleBetweenBLLabel="90°"
-        angleBetweenLVLabel="90°"
-        angleBetweenBVLabel="90°"
       />,
     )
 
@@ -102,15 +84,6 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={onRodVelocityAngleChange}
         motionDirection="forward"
         onMotionDirectionChange={onMotionDirectionChange}
-        running={false}
-        onToggleRunning={() => undefined}
-        onReset={() => undefined}
-        signedVoltageV={1}
-        polarityText="A 端高电势"
-        relationText="∠(B,L)=90°，∠(L,v)=90°，∠(B,v)=90°"
-        angleBetweenBLLabel="90°"
-        angleBetweenLVLabel="90°"
-        angleBetweenBVLabel="90°"
       />,
     )
 

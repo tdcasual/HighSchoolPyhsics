@@ -18,27 +18,26 @@ vi.mock('../AlternatorRig3D', () => ({
 import { AlternatorScene } from '../AlternatorScene'
 
 describe('alternator structure', () => {
-  it('renders speed control, readout card, and bottom U-t chart', () => {
-    const { container } = render(<AlternatorScene />)
+  it('renders controls, data overlay, chart, and playback in five-zone layout', () => {
+    render(<AlternatorScene />)
 
+    // Sidebar controls
     expect(screen.getByRole('heading', { name: '交流发电机控制' })).toBeInTheDocument()
     expect(screen.getByLabelText('转速 ω (rad/s)')).toBeInTheDocument()
-    expect(screen.getByText('U-t 图')).toBeInTheDocument()
+
+    // Data overlay (floating panel)
     expect(screen.getByText('瞬时感应电压')).toBeInTheDocument()
-    expect(screen.getByText(/^感应电动势:/)).toBeInTheDocument()
+    expect(screen.getByText('转速 ω')).toBeInTheDocument()
+
+    // Chart (floating panel)
+    expect(screen.getByText('U-t 图')).toBeInTheDocument()
+
+    // Playback (floating panel)
+    expect(screen.getByRole('button', { name: '暂停' })).toBeInTheDocument()
+
+    // Viewport
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
     expect(screen.getByTestId('alternator-rig')).toBeInTheDocument()
-
-    expect(
-      container.querySelector(
-        '.alternator-telemetry[data-presentation-signal~="live-metric"][data-presentation-signal~="interactive-readout"]',
-      ),
-    ).toBeInTheDocument()
-    expect(
-      container.querySelector(
-        '.alternator-chart-card[data-presentation-signal~="chart"][data-presentation-signal~="time-series"]',
-      ),
-    ).toBeInTheDocument()
   })
 
   it('updates the speed readout and frameloop when playback pauses', () => {

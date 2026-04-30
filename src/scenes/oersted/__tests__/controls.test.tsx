@@ -19,7 +19,6 @@ describe('oersted controls', () => {
     expect(screen.queryByText('三枚小磁针位置（鼠标拖拽）')).not.toBeInTheDocument()
     expect(screen.queryByText(/磁针1: X/)).not.toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '通电' })).toBeInTheDocument()
-    expect(await screen.findByText('极性标识：红色为正极(+)，蓝色为负极(-)。')).toBeInTheDocument()
   })
 
   it('updates observed swing value when current changes', async () => {

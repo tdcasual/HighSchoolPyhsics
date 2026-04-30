@@ -71,7 +71,7 @@ export function CyclotronTraceChart({
   const latest = series[series.length - 1]
 
   return (
-    <div className={`cyclotron-plot-card ${tone}`} data-presentation-signal="chart time-series">
+    <div className={`cyclotron-plot-card ${tone}`}>
       <h3>{title}</h3>
       <div className="cyclotron-plot-screen">
         <svg

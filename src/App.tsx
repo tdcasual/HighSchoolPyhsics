@@ -15,12 +15,6 @@ import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize 
 
 const APP_BRAND_NAME = '教学动画演示'
 
-const PRESENTATION_LAYOUT_OPTIONS = [
-  { value: 'auto', label: '自动' },
-  { value: 'split', label: '双核心' },
-  { value: 'viewport', label: '视口优先' },
-] as const
-
 function isNonBlankText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
@@ -35,14 +29,8 @@ function resolveRouteButtonPath(path: unknown): string {
 
 function App() {
   const theme = useAppStore((state) => state.theme)
-  const nightTone = useAppStore((state) => state.nightTone)
-  const presentationMode = useAppStore((state) => state.presentationMode)
-  const presentationRouteModes = useAppStore((state) => state.presentationRouteModes)
   const setTheme = useAppStore((state) => state.setTheme)
-  const setNightTone = useAppStore((state) => state.setNightTone)
-  const setPresentationMode = useAppStore((state) => state.setPresentationMode)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
-  const setPresentationRouteMode = useAppStore((state) => state.setPresentationRouteMode)
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -102,18 +90,11 @@ function App() {
     routes: DEMO_ROUTES,
     pathname,
     theme,
-    presentationMode,
     setTheme,
-    setNightTone,
-    setPresentationMode,
     navigateTo,
   })
 
   const isOverviewPage = pathname === '/'
-  const presentationLayoutMode = presentationRouteModes[pathname] ?? 'auto'
-  const presentationLayoutLabel =
-    PRESENTATION_LAYOUT_OPTIONS.find((option) => option.value === presentationLayoutMode)?.label ?? '自动'
-  const canConfigurePresentationLayout = presentationMode && !isOverviewPage
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const activeTouchProfile = resolveTouchProfile(activeRoute?.touchProfile, ENHANCED_TOUCH_PROFILE)
   const ActiveScene = activeRoute?.Component
@@ -125,8 +106,6 @@ function App() {
   const shellClassName = [
     'app-shell',
     `theme-${theme}`,
-    presentationMode ? 'presentation-mode' : '',
-    theme === 'night' ? `night-tone-${nightTone}` : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -182,56 +161,6 @@ function App() {
               夜间模式
             </button>
           </div>
-          {theme === 'night' ? (
-            <div className="night-tone-switch" role="group" aria-label="夜间风格">
-              <button
-                className={`touch-target ${nightTone === 'minimal' ? 'active' : ''}`.trim()}
-                aria-pressed={nightTone === 'minimal'}
-                aria-keyshortcuts="M"
-                title="快捷键 M"
-                onClick={() => setNightTone('minimal')}
-              >
-                夜间极简
-              </button>
-              <button
-                className={`touch-target ${nightTone === 'neon' ? 'active' : ''}`.trim()}
-                aria-pressed={nightTone === 'neon'}
-                aria-keyshortcuts="E"
-                title="快捷键 E"
-                onClick={() => setNightTone('neon')}
-              >
-                夜间霓虹
-              </button>
-            </div>
-          ) : null}
-          <button
-            className={`touch-target presentation-toggle ${presentationMode ? 'active' : ''}`.trim()}
-            aria-pressed={presentationMode}
-            aria-keyshortcuts="P"
-            title="快捷键 P"
-            onClick={() => setPresentationMode(!presentationMode)}
-          >
-            课堂展示
-          </button>
-          {presentationMode ? (
-            <p className="presentation-indicator" aria-live="polite">
-              课堂展示中 · {presentationLayoutLabel}
-            </p>
-          ) : null}
-          {canConfigurePresentationLayout ? (
-            <div className="presentation-layout-switch" role="group" aria-label="课堂展示布局">
-              {PRESENTATION_LAYOUT_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  className={`touch-target ${presentationLayoutMode === option.value ? 'active' : ''}`.trim()}
-                  aria-pressed={presentationLayoutMode === option.value}
-                  onClick={() => setPresentationRouteMode(pathname, option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
       </header>
       <section className="scene-container">

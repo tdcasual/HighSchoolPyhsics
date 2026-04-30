@@ -1,5 +1,4 @@
 import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
 
 type MhdControlsProps = {
   magneticFieldT: number
@@ -12,10 +11,6 @@ type MhdControlsProps = {
   onElectrodeGapChange: (value: number) => void
   conductivitySPerM: number
   onConductivityChange: (value: number) => void
-  running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
-  voltageDisplayV: number
 }
 
 export function MhdControls({
@@ -29,10 +24,6 @@ export function MhdControls({
   onElectrodeGapChange,
   conductivitySPerM,
   onConductivityChange,
-  running,
-  onToggleRunning,
-  onReset,
-  voltageDisplayV,
 }: MhdControlsProps) {
   return (
     <>
@@ -87,28 +78,6 @@ export function MhdControls({
         value={conductivitySPerM}
         onChange={onConductivityChange}
       />
-
-      <SceneActions
-        actions={[
-          {
-            key: 'toggle-running',
-            label: running ? '暂停' : '播放',
-            onClick: onToggleRunning,
-          },
-          {
-            key: 'reset',
-            label: '重置',
-            onClick: onReset,
-          },
-        ]}
-      />
-
-      <div className="mhd-voltage-card" data-presentation-signal="live-metric">
-        <p className="mhd-voltage-label">两端电压 U_AB</p>
-        <p className="mhd-voltage-value" data-testid="mhd-voltage-display">
-          {voltageDisplayV.toFixed(1)} V
-        </p>
-      </div>
 
       <div className="structure-card">
         <h3>结构组成</h3>

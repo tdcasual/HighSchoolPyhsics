@@ -25,14 +25,15 @@
     "check:route-load-budget": "node scripts/perf/assert-route-load-budget.mjs",
     "check:clean-build": "node scripts/ci/check-clean-build.mjs",
     "check:scene-shell-length": "node scripts/ci/check-scene-shell-length.mjs",
-    "test:perf": "npm run build && npm run check:homepage-preload && npm run check:bundle-budget",
-    "test:1080p-presentation": "node scripts/playwright/1080p-presentation-regression.mjs"
+    "test:perf": "npm run build && npm run check:homepage-preload && npm run check:bundle-budget"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@tailwindcss/vite": "^4.2.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "tailwindcss": "^4.2.4",
     "three": "0.183.1",
     "three-stdlib": "^2.36.1",
     "zustand": "^5.0.11"

@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { OerstedControls } from './OerstedControls'
 import { OerstedRig3D } from './OerstedRig3D'
@@ -9,26 +10,12 @@ import './oersted.css'
 export function OerstedScene() {
   const state = useOerstedSceneState()
   const focusedNeedle = state.draggingNeedleIndex !== null ? state.visualNeedles[state.draggingNeedleIndex] ?? null : null
-  const presentationIntent = {
-    moment: state.draggingNeedleIndex !== null ? 'interact' : state.maxSwing >= 16 ? 'result' : 'overview',
-    userInteracting: state.draggingNeedleIndex !== null,
-  } as const
   const presentationFocus = focusedNeedle
     ? { mode: 'focus' as const, primary: [focusedNeedle.x, 0, focusedNeedle.z] as [number, number, number] }
     : { mode: 'overview' as const }
 
   return (
     <SceneLayout
-      presentationSignals={['interactive-readout']}
-      presentationIntent={presentationIntent}
-      coreSummary={
-        <div className="scene-core-summary-stack">
-          <p>状态: {state.running ? '通电演示中' : '待机观察'}</p>
-          <p>电流 I: {state.currentA.toFixed(1)} A</p>
-          <p>最大可见摆动: {state.maxSwing.toFixed(1)}°</p>
-          <p>可观察性: {state.discoveryText}</p>
-        </div>
-      }
       controls={
         <OerstedControls
           presetButtons={OERSTED_PRESETS.map((preset) => ({
@@ -50,14 +37,43 @@ export function OerstedScene() {
           onWireHeightChange={state.onWireHeightChange}
           initialHeadingDeg={state.initialHeadingDeg}
           onInitialHeadingChange={state.onInitialHeadingChange}
-          running={state.running}
-          onToggleRunning={state.toggleRunning}
-          onReset={state.resetNeedles}
-          showFieldLines={state.showFieldLines}
-          onToggleFieldLines={state.toggleFieldLines}
-          previewNeedleStates={state.previewNeedleStates}
-          maxSwing={state.maxSwing}
-          discoveryText={state.discoveryText}
+        />
+      }
+      dataOverlay={
+        <div className="oersted-card">
+          {state.previewNeedleStates.map((needleState, index) => (
+            <p key={`needle-reading-${index}`} data-testid={`oersted-swing-${index + 1}`}>
+              磁针{index + 1}: 摆动 <strong>{needleState.observedSwingDeg.toFixed(1)}°</strong> · Bwire{' '}
+              <strong>{needleState.wireFieldMicroT.toFixed(1)} μT</strong>
+            </p>
+          ))}
+          <p>
+            最大可见摆动: <strong>{state.maxSwing.toFixed(1)}°</strong>
+          </p>
+          <p>可观察性: {state.discoveryText}</p>
+          <p>状态: {state.running ? '通电演示中' : '待机观察'}</p>
+          <p>电流 I: {state.currentA.toFixed(1)} A</p>
+        </div>
+      }
+      playback={
+        <SceneActions
+          actions={[
+            {
+              key: 'toggle-running',
+              label: state.running ? '断电' : '通电',
+              onClick: state.toggleRunning,
+            },
+            {
+              key: 'reset',
+              label: '回到地磁初始位',
+              onClick: state.resetNeedles,
+            },
+            {
+              key: 'toggle-field-lines',
+              label: state.showFieldLines ? '隐藏磁感线' : '显示磁感线',
+              onClick: state.toggleFieldLines,
+            },
+          ]}
         />
       }
       viewport={

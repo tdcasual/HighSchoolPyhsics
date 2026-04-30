@@ -1,5 +1,4 @@
 import { RangeField } from '../../ui/controls/RangeField'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import type { RotationalEmfScenario, RotationalEmfViewMode } from './model'
 
 type RotationalEmfControlsProps = {
@@ -13,11 +12,6 @@ type RotationalEmfControlsProps = {
   onAngularSpeedChange: (value: number) => void
   effectiveLengthM: number
   onEffectiveLengthChange: (value: number) => void
-  angleLabel: string
-  emfMagnitudeLabel: string
-  running: boolean
-  onToggleRunning: () => void
-  onReset: () => void
 }
 
 export function RotationalEmfControls({
@@ -31,11 +25,6 @@ export function RotationalEmfControls({
   onAngularSpeedChange,
   effectiveLengthM,
   onEffectiveLengthChange,
-  angleLabel,
-  emfMagnitudeLabel,
-  running,
-  onToggleRunning,
-  onReset,
 }: RotationalEmfControlsProps) {
   return (
     <div className="rotational-emf-controls">
@@ -112,33 +101,6 @@ export function RotationalEmfControls({
         value={effectiveLengthM}
         onChange={onEffectiveLengthChange}
       />
-
-      <SceneActions
-        actions={[
-          {
-            key: 'toggle-running',
-            label: running ? '暂停' : '播放',
-            onClick: onToggleRunning,
-          },
-          {
-            key: 'reset',
-            label: '重置',
-            onClick: onReset,
-          },
-        ]}
-      />
-
-      <div className="rotational-emf-readout" data-presentation-signal="live-metric interactive-readout">
-        <p>
-          实验类型：<span data-testid="rotational-emf-scenario">{scenario === 'rod' ? '旋转导体棒' : '旋转矩形线框'}</span>
-        </p>
-        <p>
-          当前视图：<span data-testid="rotational-emf-view">{viewMode === 'main' ? '主视图' : '俯视图'}</span>
-        </p>
-        <p>当前转角：{angleLabel}</p>
-        <p className="rotational-emf-readout-label">感应电动势</p>
-        <p className="rotational-emf-readout-value" data-testid="rotational-emf-display">{emfMagnitudeLabel}</p>
-      </div>
     </div>
   )
 }

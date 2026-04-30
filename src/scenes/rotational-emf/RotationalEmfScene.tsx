@@ -1,13 +1,11 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import type { PresentationSignal } from '../../ui/layout/presentationSignals'
 import { RotationalEmfControls } from './RotationalEmfControls'
 import { RotationalEmfRig3D } from './RotationalEmfRig3D'
 import { useRotationalEmfSceneState } from './useRotationalEmfSceneState'
 import './rotational-emf.css'
-
-const presentationSignals: PresentationSignal[] = ['live-metric', 'interactive-readout']
 
 const CAMERA_PRESETS = {
   main: {
@@ -26,15 +24,6 @@ export function RotationalEmfScene() {
 
   return (
     <SceneLayout
-      presentationSignals={presentationSignals}
-      coreSummary={
-        <div className="scene-core-summary-stack">
-          <p>实验类型: {state.scenarioLabel}</p>
-          <p>当前视图: {state.viewLabel}</p>
-          <p>当前转角: {state.angleLabel}</p>
-          <p>感应电动势: {state.emfMagnitudeLabel}</p>
-        </div>
-      }
       controls={
         <RotationalEmfControls
           scenario={state.scenario}
@@ -47,25 +36,41 @@ export function RotationalEmfScene() {
           onAngularSpeedChange={state.setAngularSpeed}
           effectiveLengthM={state.effectiveLengthM}
           onEffectiveLengthChange={state.setEffectiveLengthM}
-          angleLabel={state.angleLabel}
-          emfMagnitudeLabel={state.emfMagnitudeLabel}
-          running={state.running}
-          onToggleRunning={state.toggleRunning}
-          onReset={state.reset}
+        />
+      }
+      dataOverlay={
+        <div className="scene-core-summary-stack">
+          <p>实验类型: {state.scenarioLabel}</p>
+          <p>当前视图: {state.viewLabel}</p>
+          <p>当前转角: {state.angleLabel}</p>
+          <p>感应电动势: {state.emfMagnitudeLabel}</p>
+        </div>
+      }
+      playback={
+        <SceneActions
+          actions={[
+            {
+              key: 'toggle-running',
+              label: state.running ? '暂停' : '播放',
+              onClick: state.toggleRunning,
+            },
+            {
+              key: 'reset',
+              label: '重置',
+              onClick: state.reset,
+            },
+          ]}
         />
       }
       viewport={
-        <div className="rotational-emf-viewport-stack">
-          <p className="rotational-emf-scene-title">旋转切割磁感线</p>
-          <InteractiveCanvas
-            key={state.viewMode}
-            camera={activeCameraPreset.camera}
-            controls={activeCameraPreset.controls}
-            frameloop={state.running ? 'always' : 'demand'}
-          >
-            <RotationalEmfRig3D scenario={state.scenario} angleRad={state.angleRad} />
-          </InteractiveCanvas>
-        </div>
+        <InteractiveCanvas
+          key={state.viewMode}
+          camera={activeCameraPreset.camera}
+          controls={activeCameraPreset.controls}
+          frameloop={state.running ? 'always' : 'demand'}
+        >
+          <RotationalEmfRig3D scenario={state.scenario} angleRad={state.angleRad} />
+        </InteractiveCanvas>
       }
     />
   )

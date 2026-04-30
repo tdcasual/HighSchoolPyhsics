@@ -1,5 +1,5 @@
 import { createElement, type ComponentType } from 'react'
-import { SCENE_CATALOG, type ClassroomContract, type DemoRouteMeta, type SceneCatalogEntry } from './sceneCatalog'
+import { SCENE_CATALOG, type DemoRouteMeta, type SceneCatalogEntry } from './sceneCatalog'
 import type { TouchProfile } from './touchProfile'
 import { createPreloadableScene } from './preloadableScene'
 import { DemoPage } from '../pages/DemoPage'
@@ -12,7 +12,6 @@ export type DemoRoute = {
   preload: () => Promise<void>
   meta: DemoRouteMeta
   touchProfile: TouchProfile
-  classroom: ClassroomContract
 }
 
 type SceneModule = {
@@ -30,7 +29,6 @@ type DemoSceneDefinition = {
   label: string
   meta: DemoRouteMeta
   touchProfile: TouchProfile
-  classroom: ClassroomContract
   loadScene: () => Promise<SceneModule>
 }
 
@@ -120,7 +118,6 @@ const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((en
     label: entry.label,
     meta: entry.meta,
     touchProfile: entry.touchProfile,
-    classroom: entry.classroom,
     loadScene,
   }
 })
@@ -136,7 +133,6 @@ export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) 
     preload: preloadable.preload,
     meta: definition.meta,
     touchProfile: definition.touchProfile,
-    classroom: definition.classroom,
   }
 })
 
