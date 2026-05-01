@@ -4,6 +4,8 @@ type SidebarPanelProps = {
   title?: string
   width?: number
   defaultCollapsed?: boolean
+  collapsed?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
   children: ReactNode
 }
 
@@ -11,9 +13,16 @@ export function SidebarPanel({
   title,
   width = 320,
   defaultCollapsed = false,
+  collapsed: controlledCollapsed,
+  onCollapsedChange,
   children,
 }: SidebarPanelProps) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
+  const collapsed = controlledCollapsed ?? internalCollapsed
+  const setCollapsed = (value: boolean) => {
+    setInternalCollapsed(value)
+    onCollapsedChange?.(value)
+  }
 
   return (
     <div

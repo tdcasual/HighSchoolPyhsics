@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { FloatingPanel } from '../panels/FloatingPanel'
 import { SidebarPanel } from '../panels/SidebarPanel'
 
@@ -11,6 +11,10 @@ type SceneLayoutProps = {
   chartVisible?: boolean
 }
 
+const SIDEBAR_WIDTH = 320
+const SIDEBAR_COLLAPSED_WIDTH = 40
+const PANEL_GAP = 20
+
 export function SceneLayout({
   viewport,
   controls,
@@ -20,7 +24,12 @@ export function SceneLayout({
   chartVisible = false,
 }: SceneLayoutProps) {
   const [chartDismissed, setChartDismissed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const showChart = chartVisible && !chartDismissed
+  const panelX = useMemo(
+    () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
+    [sidebarCollapsed],
+  )
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -30,7 +39,11 @@ export function SceneLayout({
       </div>
 
       {/* Parameter sidebar */}
-      <SidebarPanel title="参数控制">
+      <SidebarPanel
+        title="参数控制"
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+      >
         {controls}
       </SidebarPanel>
 
@@ -38,7 +51,7 @@ export function SceneLayout({
       {dataOverlay && (
         <FloatingPanel
           title="数据"
-          defaultPosition={{ x: 340, y: 0 }}
+          defaultPosition={{ x: panelX, y: 0 }}
         >
           <div className="p-3 min-w-[200px]">
             {dataOverlay}
@@ -50,7 +63,7 @@ export function SceneLayout({
       {chart && showChart && (
         <FloatingPanel
           title="图表"
-          defaultPosition={{ x: 340, y: 300 }}
+          defaultPosition={{ x: panelX, y: 300 }}
           closable
           onClose={() => setChartDismissed(true)}
         >
@@ -64,7 +77,7 @@ export function SceneLayout({
       {playback && (
         <FloatingPanel
           title="播放控制"
-          defaultPosition={{ x: 340, y: 700 }}
+          defaultPosition={{ x: panelX, y: 700 }}
           zIndex="z-20"
         >
           <div className="p-3 flex items-center gap-2">
