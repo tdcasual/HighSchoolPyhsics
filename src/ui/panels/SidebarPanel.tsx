@@ -26,6 +26,8 @@ export function SidebarPanel({
 
   return (
     <div
+      role="complementary"
+      aria-label={title ?? '侧边栏'}
       className="absolute left-0 top-0 bottom-0 z-30 flex bg-white/90 dark:bg-[#0c1826]/90 backdrop-blur-sm border-r border-gray-200 dark:border-[#2f4863] transition-all duration-200"
       style={{ width: collapsed ? 40 : width }}
     >

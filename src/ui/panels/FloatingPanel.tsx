@@ -50,6 +50,8 @@ export function FloatingPanel({
   return (
     <div
       ref={panelRef}
+      role="region"
+      aria-label={title}
       className={`absolute ${zIndex} flex flex-col rounded-lg shadow-lg bg-white/90 dark:bg-[#0c1826]/90 backdrop-blur-sm border border-gray-200 dark:border-[#2f4863] select-none`}
       style={style as CSSProperties}
     >
