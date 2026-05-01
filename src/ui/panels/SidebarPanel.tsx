@@ -31,11 +31,16 @@ export function SidebarPanel({
     >
       {collapsed ? (
         <button
-          className="flex items-center justify-center w-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="flex flex-col items-center justify-center w-full gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           onClick={() => setCollapsed(false)}
           aria-label="展开参数面板"
         >
-          →
+          <span className="text-sm">→</span>
+          {title && (
+            <span className="text-xs font-medium [writing-mode:vertical-rl]">
+              {title}
+            </span>
+          )}
         </button>
       ) : (
         <div className="flex flex-col w-full overflow-hidden">
