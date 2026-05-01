@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type CSSProperties } from 'react'
+import { useRef, useState, type ReactNode, type CSSProperties } from 'react'
 import { useDraggable } from '../hooks/useDraggable'
 
 type FloatingPanelProps = {
@@ -23,10 +23,22 @@ export function FloatingPanel({
   children,
 }: FloatingPanelProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
-  const { style, handlers } = useDraggable({ initialPosition: defaultPosition })
+  const panelRef = useRef<HTMLDivElement>(null)
+  const { style, handlers } = useDraggable({
+    initialPosition: defaultPosition,
+    bounds: () => {
+      const el = panelRef.current
+      if (!el) return {}
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      const { width, height } = el.getBoundingClientRect()
+      return { left: 0, top: 0, right: vw - width, bottom: vh - height }
+    },
+  })
 
   return (
     <div
+      ref={panelRef}
       className={`absolute ${zIndex} flex flex-col rounded-lg shadow-lg bg-white/90 backdrop-blur-sm border border-gray-200 select-none`}
       style={style as CSSProperties}
     >
