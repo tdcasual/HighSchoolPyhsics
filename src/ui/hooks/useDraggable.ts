@@ -40,12 +40,12 @@ export function useDraggable(options?: UseDraggableOptions) {
       event.preventDefault()
       const target = event.currentTarget as HTMLElement
       target.setPointerCapture(event.pointerId)
-      const resolved = resolveBounds(boundsRef.current)
       const startPos = { ...posRef.current }
       const startPointer = { x: event.clientX, y: event.clientY }
       const onMove = (e: PointerEvent) => {
         const dx = e.clientX - startPointer.x
         const dy = e.clientY - startPointer.y
+        const resolved = resolveBounds(boundsRef.current)
         setPositionRaw(clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved))
       }
       const onUp = () => {
