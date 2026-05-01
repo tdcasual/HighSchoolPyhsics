@@ -28,16 +28,10 @@
   color: #eef6ff;
 }
 
-.app-shell.theme-night .scene-core-summary {
-  border-color: #3f6285;
-  background: rgba(14, 29, 45, 0.9);
-}
-
 .app-shell.theme-night .scene-core-summary-stack p {
   color: #d8ebff;
 }
 
-.app-shell.theme-night .control-panel label,
 .app-shell.theme-night .subsection h3 {
   color: #ecf4ff;
 }

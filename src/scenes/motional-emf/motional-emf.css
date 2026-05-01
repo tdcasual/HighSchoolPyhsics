@@ -200,24 +200,3 @@
 .motional-emf-legend-arrow--current {
   color: #7bcf82;
 }
-
-.scene-layout--presentation .motional-emf-voltage-value {
-  font-size: 2.35rem;
-}
-
-.scene-layout--presentation .motional-emf-voltage-detail,
-.scene-layout--presentation .motional-emf-voltage-label {
-  font-size: 1.02rem;
-}
-
-.scene-layout--presentation .motional-emf-vector-legend,
-.scene-layout--presentation .motional-emf-view-card {
-  min-width: 12rem;
-  padding: 0.82rem 0.95rem;
-}
-
-.scene-layout--presentation .motional-emf-vector-legend-row,
-.scene-layout--presentation .motional-emf-vector-legend-title,
-.scene-layout--presentation .motional-emf-view-card-title {
-  font-size: 1rem;
-}

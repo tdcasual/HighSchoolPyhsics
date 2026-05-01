@@ -397,13 +397,6 @@ body {
   color: #374151;
 }
 
-.scene-core-summary {
-  border: 1px solid #bcd4ea;
-  border-radius: 12px;
-  background: rgba(247, 252, 255, 0.92);
-  padding: 0.68rem 0.82rem;
-}
-
 .scene-core-summary-stack {
   display: grid;
   gap: 0.22rem;
@@ -463,11 +456,6 @@ body {
   margin: 0.1rem 0 0;
   color: #b00020;
   font-size: 0.82rem;
-}
-
-.readings p {
-  margin: 0.2rem 0;
-  font-family: 'SF Mono', Menlo, monospace;
 }
 
 .structure-card {
