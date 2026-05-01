@@ -59,6 +59,7 @@ export function SceneLayout({
         <FloatingPanel
           title="数据"
           defaultPosition={{ x: panelX, y: 0 }}
+          offsetX={panelX}
         >
           <div className="min-w-[200px]">
             {dataOverlay}
@@ -71,6 +72,7 @@ export function SceneLayout({
         <FloatingPanel
           title="图表"
           defaultPosition={{ x: panelX, y: 300 }}
+          offsetX={panelX}
           closable
           onClose={() => setChartDismissed(true)}
         >
@@ -85,6 +87,7 @@ export function SceneLayout({
         <FloatingPanel
           title="播放控制"
           defaultPosition={{ x: panelX, y: 500 }}
+          offsetX={panelX}
           zIndex="z-20"
         >
           <div className="flex items-center gap-2">

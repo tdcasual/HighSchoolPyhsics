@@ -1,10 +1,11 @@
-import { useRef, useState, type ReactNode, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react'
 import { useDraggable } from '../hooks/useDraggable'
 
 type FloatingPanelProps = {
   title: string
   icon?: ReactNode
   defaultPosition: { x: number; y: number }
+  offsetX?: number
   defaultCollapsed?: boolean
   closable?: boolean
   onClose?: () => void
@@ -16,6 +17,7 @@ export function FloatingPanel({
   title,
   icon,
   defaultPosition,
+  offsetX,
   defaultCollapsed = false,
   closable = false,
   onClose,
@@ -24,7 +26,7 @@ export function FloatingPanel({
 }: FloatingPanelProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
   const panelRef = useRef<HTMLDivElement>(null)
-  const { style, handlers } = useDraggable({
+  const { style, handlers, position, setPosition } = useDraggable({
     initialPosition: defaultPosition,
     bounds: () => {
       const el = panelRef.current
@@ -35,6 +37,15 @@ export function FloatingPanel({
       return { left: 0, top: 0, right: vw - width, bottom: vh - height }
     },
   })
+
+  const prevOffsetX = useRef(offsetX)
+  useEffect(() => {
+    if (offsetX !== undefined && prevOffsetX.current !== undefined && offsetX !== prevOffsetX.current) {
+      const dx = offsetX - prevOffsetX.current
+      setPosition({ x: position.x + dx, y: position.y })
+    }
+    prevOffsetX.current = offsetX
+  }, [offsetX, position.x, position.y, setPosition])
 
   return (
     <div
