@@ -53,7 +53,7 @@ export function SceneLayout({
           title="数据"
           defaultPosition={{ x: panelX, y: 0 }}
         >
-          <div className="p-3 min-w-[200px]">
+          <div className="min-w-[200px]">
             {dataOverlay}
           </div>
         </FloatingPanel>
@@ -67,20 +67,20 @@ export function SceneLayout({
           closable
           onClose={() => setChartDismissed(true)}
         >
-          <div className="p-3 min-w-[300px]">
+          <div className="min-w-[300px]">
             {chart}
           </div>
         </FloatingPanel>
       )}
 
-      {/* Playback floating panel — bottom-left area */}
+      {/* Playback floating panel — bottom area */}
       {playback && (
         <FloatingPanel
           title="播放控制"
-          defaultPosition={{ x: panelX, y: 700 }}
+          defaultPosition={{ x: panelX, y: 500 }}
           zIndex="z-20"
         >
-          <div className="p-3 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {playback}
           </div>
         </FloatingPanel>
