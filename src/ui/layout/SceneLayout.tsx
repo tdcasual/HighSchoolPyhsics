@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { FloatingPanel } from '../panels/FloatingPanel'
 import { SidebarPanel } from '../panels/SidebarPanel'
 
@@ -21,6 +21,10 @@ export function SceneLayout({
 }: SceneLayoutProps) {
   const [showChart, setShowChart] = useState(chartVisible)
 
+  useEffect(() => {
+    setShowChart(chartVisible)
+  }, [chartVisible])
+
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* Animation zone: full-screen base layer */}
@@ -33,7 +37,7 @@ export function SceneLayout({
         {controls}
       </SidebarPanel>
 
-      {/* Data floating panel */}
+      {/* Data floating panel — top-right area */}
       {dataOverlay && (
         <FloatingPanel
           title="数据"
@@ -45,7 +49,7 @@ export function SceneLayout({
         </FloatingPanel>
       )}
 
-      {/* Chart floating panel */}
+      {/* Chart floating panel — bottom-right area */}
       {chart && showChart && (
         <FloatingPanel
           title="图表"
@@ -59,11 +63,11 @@ export function SceneLayout({
         </FloatingPanel>
       )}
 
-      {/* Playback floating panel */}
+      {/* Playback floating panel — bottom-left area */}
       {playback && (
         <FloatingPanel
           title="播放控制"
-          defaultPosition={{ x: 0, y: 0 }}
+          defaultPosition={{ x: 340, y: 0 }}
           zIndex="z-20"
         >
           <div className="p-3 flex items-center gap-2">

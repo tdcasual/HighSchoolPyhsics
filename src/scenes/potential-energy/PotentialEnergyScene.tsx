@@ -70,30 +70,31 @@ export function PotentialEnergyScene() {
             </button>
             <p>当前状态: {chargeTypeLabel}</p>
           </div>
-
-          <SceneActions
-            actions={[
-              {
-                key: 'show-slice',
-                label: '1. 显示电势切片',
-                onClick: showSlice,
-                disabled: sliceVisible,
-              },
-              {
-                key: 'start-rotation',
-                label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转',
-                onClick: startRotation,
-                disabled: !sliceVisible || rotationInProgress,
-              },
-              {
-                key: 'reset',
-                label: '3. 重置',
-                onClick: resetScene,
-                disabled: !sliceVisible && !surfaceVisible,
-              },
-            ]}
-          />
         </>
+      }
+      playback={
+        <SceneActions
+          actions={[
+            {
+              key: 'show-slice',
+              label: '1. 显示电势切片',
+              onClick: showSlice,
+              disabled: sliceVisible,
+            },
+            {
+              key: 'start-rotation',
+              label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转',
+              onClick: startRotation,
+              disabled: !sliceVisible || rotationInProgress,
+            },
+            {
+              key: 'reset',
+              label: '3. 重置',
+              onClick: resetScene,
+              disabled: !sliceVisible && !surfaceVisible,
+            },
+          ]}
+        />
       }
       dataOverlay={
         <div className="scene-core-summary-stack">
