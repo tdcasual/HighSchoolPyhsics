@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { FloatingPanel } from '../panels/FloatingPanel'
 import { SidebarPanel } from '../panels/SidebarPanel'
 
@@ -19,11 +19,8 @@ export function SceneLayout({
   playback,
   chartVisible = false,
 }: SceneLayoutProps) {
-  const [showChart, setShowChart] = useState(chartVisible)
-
-  useEffect(() => {
-    setShowChart(chartVisible)
-  }, [chartVisible])
+  const [chartDismissed, setChartDismissed] = useState(false)
+  const showChart = chartVisible && !chartDismissed
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -55,7 +52,7 @@ export function SceneLayout({
           title="图表"
           defaultPosition={{ x: 340, y: 300 }}
           closable
-          onClose={() => setShowChart(false)}
+          onClose={() => setChartDismissed(true)}
         >
           <div className="p-3 min-w-[300px]">
             {chart}
