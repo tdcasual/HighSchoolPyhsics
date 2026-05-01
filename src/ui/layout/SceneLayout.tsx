@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { FloatingPanel } from '../panels/FloatingPanel'
 import { SidebarPanel } from '../panels/SidebarPanel'
 
@@ -25,6 +25,13 @@ export function SceneLayout({
 }: SceneLayoutProps) {
   const [chartDismissed, setChartDismissed] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const prevChartVisible = useRef(chartVisible)
+  useEffect(() => {
+    if (chartVisible && !prevChartVisible.current) {
+      setChartDismissed(false)
+    }
+    prevChartVisible.current = chartVisible
+  }, [chartVisible])
   const showChart = chartVisible && !chartDismissed
   const panelX = useMemo(
     () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,

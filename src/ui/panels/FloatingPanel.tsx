@@ -49,7 +49,8 @@ export function FloatingPanel({
         {icon}
         <span className="text-sm font-medium dark:text-[#ecf4ff]">{title}</span>
         <button
-          className="ml-auto text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="ml-auto text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-w-[28px] min-h-[28px]"
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? '展开' : '折叠'}
         >
@@ -57,7 +58,8 @@ export function FloatingPanel({
         </button>
         {closable && onClose && (
           <button
-            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-w-[28px] min-h-[28px]"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={onClose}
             aria-label="关闭"
           >
