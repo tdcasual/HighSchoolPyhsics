@@ -42,5 +42,5 @@ export function useGlobalShortcuts({
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [navigateTo, pathname, routes, setTheme, theme])
+  }, [navigateTo, pathname, routes, setTheme])
 }

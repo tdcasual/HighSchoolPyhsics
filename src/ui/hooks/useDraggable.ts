@@ -19,7 +19,8 @@ function clampPos(pos: Position, bounds: DragBounds | undefined): Position {
 export function useDraggable(options?: UseDraggableOptions) {
   const { initialPosition = { x: 0, y: 0 }, bounds } = options ?? {}
   const [position, setPositionRaw] = useState<Position>(initialPosition)
-  const dragRef = useRef<{ startPointer: Position; startPos: Position } | null>(null)
+  const posRef = useRef(position)
+  posRef.current = position
   const boundsRef = useRef(bounds)
   boundsRef.current = bounds
 
@@ -33,25 +34,21 @@ export function useDraggable(options?: UseDraggableOptions) {
       event.preventDefault()
       const target = event.currentTarget as HTMLElement
       target.setPointerCapture(event.pointerId)
-      dragRef.current = { startPointer: { x: event.clientX, y: event.clientY }, startPos: position }
+      const startPos = { ...posRef.current }
+      const startPointer = { x: event.clientX, y: event.clientY }
       const onMove = (e: PointerEvent) => {
-        if (!dragRef.current) return
-        const dx = e.clientX - dragRef.current.startPointer.x
-        const dy = e.clientY - dragRef.current.startPointer.y
-        setPositionRaw(clampPos(
-          { x: dragRef.current.startPos.x + dx, y: dragRef.current.startPos.y + dy },
-          boundsRef.current,
-        ))
+        const dx = e.clientX - startPointer.x
+        const dy = e.clientY - startPointer.y
+        setPositionRaw(clampPos({ x: startPos.x + dx, y: startPos.y + dy }, boundsRef.current))
       }
       const onUp = () => {
-        dragRef.current = null
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
       }
       window.addEventListener('pointermove', onMove)
       window.addEventListener('pointerup', onUp)
     },
-    [position],
+    [],
   )
 
   return {
