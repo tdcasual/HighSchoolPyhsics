@@ -39,7 +39,7 @@ export function FloatingPanel({
   return (
     <div
       ref={panelRef}
-      className={`absolute ${zIndex} flex flex-col rounded-lg shadow-lg bg-white/90 backdrop-blur-sm border border-gray-200 select-none`}
+      className={`absolute ${zIndex} flex flex-col rounded-lg shadow-lg bg-white/90 dark:bg-[#0c1826]/90 backdrop-blur-sm border border-gray-200 dark:border-[#2f4863] select-none`}
       style={style as CSSProperties}
     >
       <div
@@ -47,9 +47,9 @@ export function FloatingPanel({
         {...handlers}
       >
         {icon}
-        <span className="text-sm font-medium">{title}</span>
+        <span className="text-sm font-medium dark:text-[#ecf4ff]">{title}</span>
         <button
-          className="ml-auto text-xs text-gray-500 hover:text-gray-700"
+          className="ml-auto text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? '展开' : '折叠'}
         >
@@ -57,7 +57,7 @@ export function FloatingPanel({
         </button>
         {closable && onClose && (
           <button
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             onClick={onClose}
             aria-label="关闭"
           >

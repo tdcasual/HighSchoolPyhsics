@@ -14,8 +14,6 @@
 
 .app-shell.theme-night .scene-actions button,
 .app-shell.theme-night .theme-switch button,
-.app-shell.theme-night .presentation-layout-switch button,
-.app-shell.theme-night .presentation-toggle,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
   border-color: #4f6f98;
@@ -24,34 +22,10 @@
 }
 
 .app-shell.theme-night .scene-actions button.active,
-.app-shell.theme-night .theme-switch button.active,
-.app-shell.theme-night .presentation-layout-switch button.active,
-.app-shell.theme-night .presentation-toggle.active {
+.app-shell.theme-night .theme-switch button.active {
   background: #2d5277;
   border-color: #6e95bf;
   color: #eef6ff;
-}
-
-.app-shell.theme-night .scene-toolbar-toggle {
-  border-color: #4f6f98;
-  background: #101c30;
-  color: #dcecff;
-}
-
-.app-shell.theme-night .scene-layout-divider span {
-  background: rgba(111, 149, 188, 0.42);
-}
-
-.app-shell.theme-night .scene-layout-divider:hover span,
-.app-shell.theme-night .scene-layout-divider:focus-visible span {
-  background: rgba(122, 201, 255, 0.86);
-  box-shadow: 0 0 0 4px rgba(122, 201, 255, 0.2);
-}
-
-.app-shell.theme-night .presentation-indicator {
-  border-color: #4f6f98;
-  background: rgba(17, 34, 54, 0.92);
-  color: #dcecff;
 }
 
 .app-shell.theme-night .scene-core-summary {
@@ -63,24 +37,6 @@
   color: #d8ebff;
 }
 
-.app-shell.theme-night .night-tone-switch button {
-  border-color: #4f6f98;
-  background: #101c30;
-  color: #dcecff;
-}
-
-.app-shell.theme-night .night-tone-switch button.active {
-  background: #2d5277;
-  border-color: #6e95bf;
-  color: #eef6ff;
-}
-
-.app-shell.theme-night .control-panel {
-  background: rgba(12, 24, 38, 0.9);
-  border-color: #2f4863;
-}
-
-.app-shell.theme-night .control-panel h2,
 .app-shell.theme-night .control-panel label,
 .app-shell.theme-night .subsection h3 {
   color: #ecf4ff;
@@ -182,11 +138,6 @@
   box-shadow: 0 12px 24px rgba(26, 116, 188, 0.3);
 }
 
-.app-shell.theme-night .viewport-panel {
-  border-color: #2f4863;
-  background: rgba(11, 21, 35, 0.72);
-}
-
 .app-shell.theme-night .structure-card {
   border-color: #46617d;
   background: rgba(25, 42, 59, 0.85);
@@ -225,195 +176,4 @@
   border-color: #4f6f98;
   background: #101c30;
   color: #dcecff;
-}
-
-.app-shell.theme-night.night-tone-neon {
-  color: #f6ebff;
-  background: #161127;
-}
-
-.app-shell.theme-night.night-tone-neon .scene-actions button,
-.app-shell.theme-night.night-tone-neon .theme-switch button,
-.app-shell.theme-night.night-tone-neon .presentation-layout-switch button,
-.app-shell.theme-night.night-tone-neon .presentation-toggle,
-.app-shell.theme-night.night-tone-neon .overview-link,
-.app-shell.theme-night.night-tone-neon .overview-card button,
-.app-shell.theme-night.night-tone-neon .scene-toolbar-toggle,
-.app-shell.theme-night.night-tone-neon .night-tone-switch button,
-.app-shell.theme-night.night-tone-neon .scene-missing-links button {
-  border-color: #9158d8;
-  background: #251744;
-  color: #f3dbff;
-}
-
-.app-shell.theme-night.night-tone-neon .scene-actions button.active,
-.app-shell.theme-night.night-tone-neon .theme-switch button.active,
-.app-shell.theme-night.night-tone-neon .presentation-layout-switch button.active,
-.app-shell.theme-night.night-tone-neon .presentation-toggle.active,
-.app-shell.theme-night.night-tone-neon .night-tone-switch button.active {
-  background: #6a46a3;
-  border-color: #ff67b2;
-  color: #21072e;
-}
-
-.app-shell.theme-night.night-tone-neon .control-panel {
-  background: rgba(34, 20, 58, 0.9);
-  border-color: #5f4d8f;
-}
-
-.app-shell.theme-night.night-tone-neon .control-panel h2,
-.app-shell.theme-night.night-tone-neon .control-panel label,
-.app-shell.theme-night.night-tone-neon .subsection h3 {
-  color: #f6e9ff;
-}
-
-.app-shell.theme-night.night-tone-neon .formula-input,
-.app-shell.theme-night.night-tone-neon .preset-select {
-  background: #2a1d47;
-  border-color: #7d63b5;
-  color: #f2e8ff;
-}
-
-.app-shell.theme-night.night-tone-neon .formula-help {
-  color: #edd9ff;
-  background: rgba(68, 44, 105, 0.9);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-page {
-  --overview-ink: #fcefff;
-  --overview-soft-ink: #d5baf2;
-  --overview-card-bg-start: rgba(45, 26, 70, 0.94);
-  --overview-card-bg-end: rgba(45, 26, 70, 0.94);
-  --overview-card-border: rgba(201, 124, 255, 0.36);
-  --overview-shell-border: rgba(173, 108, 232, 0.42);
-  --overview-shell-bg: rgba(35, 19, 55, 0.9);
-  --overview-shadow: 0 22px 46px rgba(11, 4, 20, 0.66);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-hero {
-  border-color: rgba(201, 124, 255, 0.46);
-  background: rgba(46, 24, 73, 0.96);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-kicker {
-  color: #ffb5d6;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-hero-note {
-  border-color: rgba(255, 184, 118, 0.6);
-  background: rgba(255, 184, 118, 0.18);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-note-title {
-  color: #ffe1c2;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-note-text {
-  color: #f5dec4;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-shortcut-tip {
-  color: #d8bee8;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-card {
-  border-color: rgba(201, 124, 255, 0.38);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-card-index {
-  color: #b89fd3;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-card-summary {
-  color: #dbc6ef;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-card-tag {
-  color: #f7ddff;
-  background: rgba(201, 124, 255, 0.2);
-  border-color: rgba(201, 124, 255, 0.5);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-points {
-  color: #ddc8ef;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-card:hover {
-  border-color: rgba(235, 154, 255, 0.66);
-  box-shadow: 0 16px 30px rgba(177, 79, 224, 0.34);
-}
-
-.app-shell.theme-night.night-tone-neon .overview-enter {
-  background: rgba(72, 28, 95, 0.96);
-  border-color: rgba(232, 152, 255, 0.62);
-  color: #faedff;
-}
-
-.app-shell.theme-night.night-tone-neon .overview-enter:hover {
-  border-color: rgba(241, 183, 255, 0.88);
-  box-shadow: 0 12px 24px rgba(201, 105, 236, 0.32);
-}
-
-.app-shell.theme-night.night-tone-neon .viewport-panel {
-  border-color: #5f4d8f;
-  background: rgba(27, 16, 47, 0.74);
-}
-
-.app-shell.theme-night.night-tone-neon .structure-card {
-  border-color: #8263b1;
-  background: rgba(52, 32, 82, 0.86);
-}
-
-.app-shell.theme-night.night-tone-neon .structure-card h3,
-.app-shell.theme-night.night-tone-neon .structure-card li {
-  color: #f2e5ff;
-}
-
-.app-shell.theme-night.night-tone-neon .interaction-hint {
-  color: #e9d9ff;
-  background: rgba(47, 29, 72, 0.94);
-  border-top-color: #5f4d8f;
-}
-
-.app-shell.theme-night.night-tone-neon .interaction-feedback {
-  color: #ffbde4;
-}
-
-.app-shell.theme-night.night-tone-neon .canvas-fallback {
-  color: #f2e0ff;
-}
-
-.app-shell.theme-night.night-tone-neon .scene-missing {
-  border-color: #6d57a5;
-  background: rgba(37, 24, 62, 0.9);
-}
-
-.app-shell.theme-night.night-tone-neon .presentation-indicator {
-  border-color: #9158d8;
-  background: rgba(45, 25, 71, 0.95);
-  color: #f3dbff;
-}
-
-.app-shell.theme-night.night-tone-neon .scene-layout-divider span {
-  background: rgba(174, 122, 236, 0.48);
-}
-
-.app-shell.theme-night.night-tone-neon .scene-layout-divider:hover span,
-.app-shell.theme-night.night-tone-neon .scene-layout-divider:focus-visible span {
-  background: rgba(235, 154, 255, 0.86);
-  box-shadow: 0 0 0 4px rgba(235, 154, 255, 0.2);
-}
-
-.app-shell.theme-night.night-tone-neon .scene-core-summary {
-  border-color: #7d63b5;
-  background: rgba(52, 30, 81, 0.9);
-}
-
-.app-shell.theme-night.night-tone-neon .scene-core-summary-stack p {
-  color: #f2e5ff;
-}
-
-.app-shell.theme-night.night-tone-neon .scene-missing h2,
-.app-shell.theme-night.night-tone-neon .scene-missing p {
-  color: #f4e7ff;
 }
