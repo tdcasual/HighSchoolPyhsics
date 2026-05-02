@@ -38,7 +38,7 @@ export function MhdGeneratorScene() {
         </InteractiveCanvas>
       }
       dataOverlay={
-        <div>
+        <div className="scene-core-summary-stack">
           <p>状态: {state.running ? '运行中' : '已暂停'}</p>
           <p><span>输出电压 U_AB</span><strong data-testid="mhd-voltage-display">{state.voltageDisplayV.toFixed(1)} V</strong></p>
           <p><span>B</span><strong>{state.magneticFieldT.toFixed(1)} T</strong></p>
