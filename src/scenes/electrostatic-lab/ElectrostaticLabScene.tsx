@@ -6,7 +6,6 @@ import {
   ELECTROSTATIC_LAB_SCENE_BOUNDS,
   useElectrostaticLabState,
 } from './useElectrostaticLabState'
-import './electrostatic-lab.css'
 
 export function ElectrostaticLabScene() {
   const state = useElectrostaticLabState()

@@ -48,7 +48,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
           value={state.displayMode}
           onChange={(key) => state.setDisplayMode(key as 'potential' | 'field')}
         />
-        <label className="electrostatic-lab-checkline">
+        <label className="flex items-center gap-[0.42rem] text-[#1e4f74] text-[0.88rem]">
           <input
             type="checkbox"
             checked={state.overlayFieldLines}
@@ -56,7 +56,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
           />
           势面叠加电场线
         </label>
-        <label className="electrostatic-lab-checkline">
+        <label className="flex items-center gap-[0.42rem] text-[#1e4f74] text-[0.88rem]">
           <input
             type="checkbox"
             checked={state.showContourLines}
@@ -64,7 +64,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
           />
           显示等势线
         </label>
-        <label className="electrostatic-lab-checkline">
+        <label className="flex items-center gap-[0.42rem] text-[#1e4f74] text-[0.88rem]">
           <input
             type="checkbox"
             checked={state.invertHeight}
@@ -73,14 +73,14 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
           翻转势面高度
         </label>
         <button
-          className="touch-target electrostatic-lab-advanced-toggle"
+          className="touch-target border border-[#79acd7] rounded-[10px] bg-[rgba(242,250,255,0.94)] text-[#13486f] font-bold cursor-pointer"
           aria-pressed={state.advancedInteractionsEnabled}
           onClick={state.toggleAdvancedInteractions}
         >
           {state.advancedInteractionsEnabled ? '关闭进阶交互' : '开启进阶交互'}
         </button>
         {state.advancedInteractionsEnabled ? (
-          <p className="electrostatic-lab-advanced-hint">
+          <p className="m-0 text-[#1d5074] text-[0.84rem] leading-[1.35]">
             已启用：可在视图中拖拽电荷移动、双击地面添加电荷、右键点击电荷删除。
           </p>
         ) : null}
