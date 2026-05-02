@@ -354,22 +354,6 @@ body {
   line-height: 1;
 }
 
-.tone-scope {
-  --card-accent: #2cbcff;
-}
-
-.tone-cyclotron {
-  --card-accent: #ff9f43;
-}
-
-.tone-mhd {
-  --card-accent: #19d39a;
-}
-
-.tone-oersted {
-  --card-accent: #ff6f91;
-}
-
 @keyframes overview-rise {
   from {
     opacity: 0;
@@ -410,17 +394,6 @@ body {
   line-height: 1.42;
 }
 
-.subsection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.subsection h3 {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
 .formula-input {
   width: 100%;
   border: 1px solid #90a4ae;
@@ -456,28 +429,6 @@ body {
   margin: 0.1rem 0 0;
   color: #b00020;
   font-size: 0.82rem;
-}
-
-.structure-card {
-  margin-top: 0.5rem;
-  padding: 0.6rem 0.7rem;
-  border: 1px dashed #90a4ae;
-  border-radius: 10px;
-  background: rgba(237, 247, 255, 0.7);
-}
-
-.structure-card h3 {
-  margin: 0 0 0.35rem 0;
-  font-size: 0.95rem;
-}
-
-.structure-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.structure-card li {
-  margin: 0.15rem 0;
 }
 
 .canvas-fallback {
@@ -520,11 +471,6 @@ body {
   color: #284b63;
   background: rgba(232, 245, 255, 0.9);
   border-top: 1px solid #c7d7e7;
-}
-
-.interaction-feedback {
-  color: #0b6e4f;
-  font-weight: 700;
 }
 
 .scene-missing {
@@ -571,6 +517,10 @@ body {
 }
 
 @media (max-width: 767px) {
+  .app-shell {
+    padding: 0.5rem;
+  }
+
   .overview-page {
     padding: 0.8rem 0.25rem 1rem;
   }

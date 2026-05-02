@@ -10,6 +10,7 @@ import { SceneActions } from '../../ui/controls/SceneActions'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SelectField } from '../../ui/controls/SelectField'
 import { TextField } from '../../ui/controls/TextField'
+import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import './oscilloscope.css'
 
@@ -58,21 +59,22 @@ export function OscilloscopeScene() {
   return (
     <SceneLayout
       controls={
-        <>
+        <div className="grid gap-[0.8rem]">
           <h2>示波器控制</h2>
 
-          <RangeField
-            id="osc-speed"
-            label="初始速度"
-            min={0.2}
-            max={3}
-            step={0.05}
-            value={initialSpeed}
-            onChange={setInitialSpeed}
-          />
+          <ControlSection title="电子束参数">
+            <RangeField
+              id="osc-speed"
+              label="初始速度"
+              min={0.2}
+              max={3}
+              step={0.05}
+              value={initialSpeed}
+              onChange={setInitialSpeed}
+            />
+          </ControlSection>
 
-          <div className="subsection">
-            <h3>X 电场 Ux(t)</h3>
+          <ControlSection title="X 电场 Ux(t)">
             <SelectField
               id="osc-ux-preset"
               label="X 常用函数"
@@ -93,10 +95,9 @@ export function OscilloscopeScene() {
               placeholder="例如: 5*sin(2*pi*50*t)"
             />
             {compiledX.error ? <p className="formula-error">{compiledX.error}</p> : null}
-          </div>
+          </ControlSection>
 
-          <div className="subsection">
-            <h3>Y 电场 Uy(t)</h3>
+          <ControlSection title="Y 电场 Uy(t)">
             <SelectField
               id="osc-uy-preset"
               label="Y 常用函数"
@@ -117,24 +118,14 @@ export function OscilloscopeScene() {
               placeholder="例如: 3*cos(2*pi*10*t)"
             />
             {compiledY.error ? <p className="formula-error">{compiledY.error}</p> : null}
-          </div>
+          </ControlSection>
 
           <div className="formula-help">
             支持: + - * / ^, 括号, t, pi, sin/cos/tan, abs/sqrt, min/max, clamp
           </div>
 
           {simulation.error ? <p className="formula-error">仿真错误: {simulation.error}</p> : null}
-
-          <div className="structure-card">
-            <h3>结构组成</h3>
-            <ul>
-              <li>电子枪</li>
-              <li>Y 偏转板</li>
-              <li>X 偏转板</li>
-              <li>荧光屏</li>
-            </ul>
-          </div>
-        </>
+        </div>
       }
       dataOverlay={
         <div className="scene-core-summary-stack">

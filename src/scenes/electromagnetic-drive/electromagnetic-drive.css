@@ -1,13 +1,7 @@
 .electromagnetic-drive-controls {
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
   align-content: start;
-}
-
-.electromagnetic-drive-controls h2 {
-  margin: 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #d0d7e2;
 }
 
 .electromagnetic-drive-button-grid {
@@ -46,119 +40,9 @@
   color: #fff;
 }
 
-.electromagnetic-drive-board {
-  display: grid;
-  gap: 0.95rem;
-  padding: 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(192, 204, 219, 0.92);
-  background: linear-gradient(180deg, rgba(248, 250, 253, 0.98) 0%, rgba(232, 238, 246, 0.98) 100%);
-  color: #1f2e3c;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
-}
-
-.electromagnetic-drive-board-head {
-  padding-bottom: 0.8rem;
-  border-bottom: 2px solid rgba(196, 207, 220, 0.95);
-}
-
-.electromagnetic-drive-board-title {
-  margin: 0;
-  color: #1d2a38;
-  font-size: 1.5rem;
-  font-weight: 800;
-}
-
-.electromagnetic-drive-board-subtitle {
-  margin: 0.35rem 0 0;
-  color: #4f667d;
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-.electromagnetic-drive-telemetry,
-.electromagnetic-drive-chart-card,
-.electromagnetic-drive-stage-note-card {
-  border: 1px solid rgba(186, 200, 216, 0.9);
-  background: rgba(255, 255, 255, 0.88);
-  color: #1f2e3c;
-  box-shadow: 0 10px 24px rgba(123, 145, 170, 0.12);
-}
-
-.electromagnetic-drive-telemetry {
-  padding: 0.9rem 1rem;
-  border-radius: 14px;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.electromagnetic-drive-telemetry p {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.electromagnetic-drive-telemetry span {
-  color: #5c7187;
-}
-
-.electromagnetic-drive-telemetry strong {
-  color: #182838;
-  font-family: 'SF Mono', Menlo, monospace;
-}
-
-.electromagnetic-drive-section {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.electromagnetic-drive-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.electromagnetic-drive-stage-note-label {
-  margin: 0;
-  color: #24384b;
-  font-size: 1.05rem;
-  font-weight: 800;
-}
-
-.electromagnetic-drive-section-toggle {
-  min-height: 40px;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(178, 191, 206, 0.95);
-  border-radius: 999px;
-  background: rgba(245, 248, 252, 0.96);
-  color: #31475b;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.electromagnetic-drive-stage-note-card {
+.electromagnetic-drive-chart-shell {
   display: grid;
   gap: 0.7rem;
-  padding: 1rem 1.05rem;
-  border-radius: 12px;
-}
-
-.electromagnetic-drive-stage-note-card p {
-  margin: 0;
-  line-height: 1.55;
-  color: #30485e;
-}
-
-.electromagnetic-drive-chart-section {
-  align-content: start;
-}
-
-.electromagnetic-drive-chart-card {
   --electromagnetic-drive-chart-surface: rgba(240, 246, 252, 0.95);
   --electromagnetic-drive-chart-grid-line: rgba(115, 134, 156, 0.18);
   --electromagnetic-drive-chart-axis-line: rgba(93, 115, 138, 0.38);
@@ -170,19 +54,6 @@
   --electromagnetic-drive-chart-frame-line: #2f8fcb;
   --electromagnetic-drive-chart-frame-fill-top: rgba(47, 143, 203, 0.22);
   --electromagnetic-drive-chart-frame-fill-bottom: rgba(47, 143, 203, 0);
-  padding: 0.9rem 0.95rem 0.8rem;
-  border-radius: 16px;
-}
-
-.electromagnetic-drive-chart-collapsed-note {
-  margin: 0;
-  color: #4d6379;
-  line-height: 1.5;
-}
-
-.electromagnetic-drive-chart-shell {
-  display: grid;
-  gap: 0.7rem;
 }
 
 .electromagnetic-drive-chart-title-row {
@@ -235,79 +106,53 @@
   background: var(--electromagnetic-drive-chart-surface);
 }
 
-.electromagnetic-drive-viewport {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 18px;
-  background: radial-gradient(circle at 40% 28%, #f0f0f0 0%, #c0c0c0 100%);
+/* legend shared with induction-current scene */
+.induction-current-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: -0.1rem;
+  padding: 0.5rem 0.64rem;
+  border-radius: 10px;
+  border: 1px solid #bfd6ea;
+  background: rgba(235, 247, 255, 0.82);
 }
 
-.electromagnetic-drive-viewport .interactive-canvas,
-.electromagnetic-drive-viewport .interactive-canvas-surface {
-  height: 100%;
+.induction-current-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #245273;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
-.electromagnetic-drive-viewport .interaction-hint {
-  position: absolute;
-  left: 0.8rem;
-  bottom: 0.5rem;
-  z-index: 2;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: rgba(28, 63, 88, 0.8);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-  pointer-events: none;
+.induction-current-dot {
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 999px;
+  display: inline-block;
 }
 
-.electromagnetic-drive-scene-title {
-  position: absolute;
-  top: 1.6rem;
-  left: 2.2rem;
-  z-index: 3;
-  margin: 0;
-  font-size: clamp(1.9rem, 3vw, 3.15rem);
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  color: #20242b;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.45);
-  pointer-events: none;
+.induction-current-dot.north {
+  background: #ff2f2f;
 }
 
-.app-shell.theme-night .electromagnetic-drive-controls h2 {
-  border-bottom-color: #44586f;
+.induction-current-dot.current {
+  background: #ffe431;
 }
 
-.app-shell.theme-night .electromagnetic-drive-board {
-  border-color: rgba(57, 73, 90, 0.92);
-  background: linear-gradient(180deg, rgba(18, 25, 34, 0.98) 0%, rgba(10, 16, 24, 0.98) 100%);
-  color: #eef2f6;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.app-shell.theme-night .induction-current-legend {
+  border-color: #3f6285;
+  background: rgba(16, 33, 50, 0.88);
 }
 
-.app-shell.theme-night .electromagnetic-drive-board-head {
-  border-bottom-color: rgba(102, 102, 102, 0.92);
+.app-shell.theme-night .induction-current-legend-item {
+  color: #d7ebff;
 }
 
-.app-shell.theme-night .electromagnetic-drive-board-title {
-  color: #fff;
-}
-
-.app-shell.theme-night .electromagnetic-drive-board-subtitle {
-  color: #c8d2dc;
-}
-
-.app-shell.theme-night .electromagnetic-drive-telemetry,
-.app-shell.theme-night .electromagnetic-drive-chart-card,
-.app-shell.theme-night .electromagnetic-drive-stage-note-card {
-  border-color: rgba(82, 92, 104, 0.48);
-  background: rgba(17, 17, 17, 0.7);
-  color: #eef2f6;
-  box-shadow: none;
-}
-
-.app-shell.theme-night .electromagnetic-drive-chart-card {
+.app-shell.theme-night .electromagnetic-drive-chart-shell {
   --electromagnetic-drive-chart-surface: rgba(0, 0, 0, 0.28);
   --electromagnetic-drive-chart-grid-line: rgba(255, 255, 255, 0.12);
   --electromagnetic-drive-chart-axis-line: rgba(255, 255, 255, 0.22);
@@ -321,63 +166,9 @@
   --electromagnetic-drive-chart-frame-fill-bottom: rgba(51, 221, 238, 0);
 }
 
-.app-shell.theme-night .electromagnetic-drive-telemetry span {
-  color: #d0d8e1;
-}
-
-.app-shell.theme-night .electromagnetic-drive-telemetry strong {
-  color: #ffffff;
-}
-
-.app-shell.theme-night .electromagnetic-drive-stage-note-label {
-  color: #fff;
-}
-
-.app-shell.theme-night .electromagnetic-drive-section-toggle {
-  border-color: rgba(112, 142, 170, 0.44);
-  background: rgba(255, 255, 255, 0.05);
-  color: #f5f8fb;
-}
-
-.app-shell.theme-night .electromagnetic-drive-stage-note-card p {
-  color: #e8eef4;
-}
-
-.app-shell.theme-night .electromagnetic-drive-chart-collapsed-note {
-  color: #dbe3ea;
-}
-
-.app-shell.theme-night .electromagnetic-drive-scene-title {
-  color: #f6fbff;
-  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-}
-
-.app-shell.theme-night .electromagnetic-drive-viewport .interaction-hint {
-  color: rgba(228, 240, 250, 0.88);
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
-}
-
-@media (max-width: 980px) {
-  .electromagnetic-drive-scene-title {
-    top: 1rem;
-    left: 1rem;
-    letter-spacing: 0.08em;
-  }
-}
-
 @media (max-width: 640px) {
-  .electromagnetic-drive-section-head,
   .electromagnetic-drive-chart-title-row {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .electromagnetic-drive-section-toggle {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .electromagnetic-drive-scene-title {
-    font-size: 1.65rem;
   }
 }

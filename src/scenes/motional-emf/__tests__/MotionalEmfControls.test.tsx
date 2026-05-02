@@ -27,10 +27,10 @@ describe('MotionalEmfControls', () => {
       />,
     )
 
-    expect(screen.getByRole('button', { name: '按 ∠(v,B) 讨论' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '与 B 成 45°' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'L 与 v 成 45°' })).not.toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '按 ∠(v,B) 讨论' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '按 ∠(L,v) 讨论' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '与 B 成 45°' })).toBeInTheDocument()
+    expect(screen.queryByRole('radio', { name: 'L 与 v 成 45°' })).not.toBeInTheDocument()
   })
 
   it('switches to L-v mode and emits the new callbacks there', () => {
@@ -61,7 +61,7 @@ describe('MotionalEmfControls', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' }))
+    fireEvent.click(screen.getByRole('radio', { name: '按 ∠(L,v) 讨论' }))
     expect(onDiscussionModeChange).toHaveBeenCalledWith('lv')
 
     rerender(
@@ -87,8 +87,8 @@ describe('MotionalEmfControls', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'L 与 v 成 45°' }))
-    fireEvent.click(screen.getByRole('button', { name: '反向运动' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'L 与 v 成 45°' }))
+    fireEvent.click(screen.getByRole('radio', { name: '反向运动' }))
 
     expect(onRodVelocityAngleChange).toHaveBeenCalledWith(45)
     expect(onMotionDirectionChange).toHaveBeenCalledWith('backward')

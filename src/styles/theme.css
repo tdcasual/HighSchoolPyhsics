@@ -32,10 +32,6 @@
   color: #d8ebff;
 }
 
-.app-shell.theme-night .subsection h3 {
-  color: #ecf4ff;
-}
-
 .app-shell.theme-night .formula-input,
 .app-shell.theme-night .preset-select {
   background: #0f1d2d;
@@ -132,24 +128,10 @@
   box-shadow: 0 12px 24px rgba(26, 116, 188, 0.3);
 }
 
-.app-shell.theme-night .structure-card {
-  border-color: #46617d;
-  background: rgba(25, 42, 59, 0.85);
-}
-
-.app-shell.theme-night .structure-card h3,
-.app-shell.theme-night .structure-card li {
-  color: #dcecff;
-}
-
 .app-shell.theme-night .interaction-hint {
   color: #bdd9f2;
   background: rgba(18, 34, 52, 0.95);
   border-top-color: #2f4863;
-}
-
-.app-shell.theme-night .interaction-feedback {
-  color: #8ff2cf;
 }
 
 .app-shell.theme-night .canvas-fallback {

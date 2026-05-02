@@ -30,7 +30,7 @@ describe('scene switching', () => {
     fireEvent.click(screen.getByRole('button', { name: '进入回旋加速器' }))
     expect(window.location.pathname).toBe('/cyclotron')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
-    expect(await screen.findByText('磁场 B (T)', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('磁场 B', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
     expect(container.querySelector('.app-shell')).toHaveClass('theme-night')
 
@@ -39,7 +39,7 @@ describe('scene switching', () => {
     expect(window.location.pathname).toBe('/mhd')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('磁流体发电机控制', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByText('等离子体速度 v (m/s)', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('等离子体速度 v', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
@@ -47,7 +47,7 @@ describe('scene switching', () => {
     expect(window.location.pathname).toBe('/oersted')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('奥斯特电流磁效应', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByText('导线姿态（3D）', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('基本参数', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '通电' }, asyncWait)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
@@ -67,6 +67,6 @@ describe('scene switching', () => {
     const asyncWait = { timeout: 8000 }
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('磁流体发电机控制', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByText('等离子体速度 v (m/s)', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('等离子体速度 v', {}, asyncWait)).toBeInTheDocument()
   })
 })

@@ -1,5 +1,17 @@
 import { RangeField } from '../../ui/controls/RangeField'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { ControlSection } from '../../ui/controls/ControlSection'
 import type { RotationalEmfScenario, RotationalEmfViewMode } from './model'
+
+const scenarioOptions = [
+  { key: 'rod', label: '旋转导体棒' },
+  { key: 'frame', label: '旋转矩形线框' },
+]
+
+const viewModeOptions = [
+  { key: 'main', label: '主视图' },
+  { key: 'top', label: '俯视图' },
+]
 
 type RotationalEmfControlsProps = {
   scenario: RotationalEmfScenario
@@ -27,80 +39,57 @@ export function RotationalEmfControls({
   onEffectiveLengthChange,
 }: RotationalEmfControlsProps) {
   return (
-    <div className="rotational-emf-controls">
+    <div className="grid gap-[0.8rem]">
       <h2>旋转切割磁感线控制</h2>
 
-      <div className="subsection">
-        <h3>实验类型</h3>
-        <div className="rotational-emf-button-row">
-          <button
-            type="button"
-            className={`touch-target rotational-emf-toggle ${scenario === 'rod' ? 'active' : ''}`.trim()}
-            aria-pressed={scenario === 'rod'}
-            onClick={() => onScenarioChange('rod')}
-          >
-            旋转导体棒
-          </button>
-          <button
-            type="button"
-            className={`touch-target rotational-emf-toggle ${scenario === 'frame' ? 'active' : ''}`.trim()}
-            aria-pressed={scenario === 'frame'}
-            onClick={() => onScenarioChange('frame')}
-          >
-            旋转矩形线框
-          </button>
-        </div>
-      </div>
+      <ControlSection title="实验类型">
+        <SegmentedControl
+          options={scenarioOptions}
+          value={scenario}
+          onChange={(key) => onScenarioChange(key as RotationalEmfScenario)}
+        />
+      </ControlSection>
 
-      <div className="subsection">
-        <h3>视图</h3>
-        <div className="rotational-emf-button-row">
-          <button
-            type="button"
-            className={`touch-target rotational-emf-toggle ${viewMode === 'main' ? 'active' : ''}`.trim()}
-            aria-pressed={viewMode === 'main'}
-            onClick={() => onViewModeChange('main')}
-          >
-            主视图
-          </button>
-          <button
-            type="button"
-            className={`touch-target rotational-emf-toggle ${viewMode === 'top' ? 'active' : ''}`.trim()}
-            aria-pressed={viewMode === 'top'}
-            onClick={() => onViewModeChange('top')}
-          >
-            俯视图
-          </button>
-        </div>
-      </div>
+      <ControlSection title="视图">
+        <SegmentedControl
+          options={viewModeOptions}
+          value={viewMode}
+          onChange={(key) => onViewModeChange(key as RotationalEmfViewMode)}
+        />
+      </ControlSection>
 
-      <RangeField
-        id="rotational-emf-b"
-        label="磁感应强度 B"
-        min={0.2}
-        max={3}
-        step={0.1}
-        value={magneticFieldT}
-        onChange={onMagneticFieldChange}
-      />
-      <RangeField
-        id="rotational-emf-omega"
-        label="角速度 ω"
-        min={0.2}
-        max={3}
-        step={0.1}
-        value={angularSpeed}
-        onChange={onAngularSpeedChange}
-      />
-      <RangeField
-        id="rotational-emf-length"
-        label="有效长度 L"
-        min={0.2}
-        max={3}
-        step={0.1}
-        value={effectiveLengthM}
-        onChange={onEffectiveLengthChange}
-      />
+      <ControlSection title="参数">
+        <RangeField
+          id="rotational-emf-b"
+          label="磁感应强度 B"
+          unit="T"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={magneticFieldT}
+          onChange={onMagneticFieldChange}
+        />
+        <RangeField
+          id="rotational-emf-omega"
+          label="角速度 ω"
+          unit="rad/s"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={angularSpeed}
+          onChange={onAngularSpeedChange}
+        />
+        <RangeField
+          id="rotational-emf-length"
+          label="有效长度 L"
+          unit="m"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={effectiveLengthM}
+          onChange={onEffectiveLengthChange}
+        />
+      </ControlSection>
     </div>
   )
 }

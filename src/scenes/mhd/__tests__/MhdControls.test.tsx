@@ -20,8 +20,8 @@ describe('MhdControls', () => {
     )
 
     expect(screen.getByRole('heading', { name: '磁流体发电机控制' })).toBeInTheDocument()
-    expect(screen.getByLabelText('磁场 B (T)')).toHaveValue('1.4')
-    expect(screen.getByLabelText('等离子体速度 v (m/s)')).toHaveValue('1800')
+    expect(screen.getByLabelText('磁场 B')).toHaveValue('1.4')
+    expect(screen.getByLabelText('等离子体速度 v')).toHaveValue('1800')
   })
 
   it('emits callbacks for slider changes', () => {
@@ -42,7 +42,7 @@ describe('MhdControls', () => {
       />,
     )
 
-    fireEvent.change(screen.getByLabelText('磁场 B (T)'), { target: { value: '2.2' } })
+    fireEvent.change(screen.getByLabelText('磁场 B'), { target: { value: '2.2' } })
     expect(onMagneticFieldChange).toHaveBeenCalledWith(2.2)
   })
 })

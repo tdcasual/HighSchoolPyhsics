@@ -16,10 +16,10 @@ describe('motional-emf structure', () => {
     expect(await screen.findByText(/1\.00 V/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '暂停' }))
-    fireEvent.click(screen.getByRole('button', { name: '按 ∠(L,v) 讨论' }))
+    fireEvent.click(screen.getByRole('radio', { name: '按 ∠(L,v) 讨论' }))
     expect(screen.getByText('L 与 v 夹角预设')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'L 与 v 成 30°' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'L 与 v 成 30°' }))
     fireEvent.click(screen.getByRole('button', { name: '播放' }))
     expect(await screen.findByText(/0\.50 V/)).toBeInTheDocument()
   })

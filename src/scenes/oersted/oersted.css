@@ -17,56 +17,10 @@
   color: #2f1809;
 }
 
-.oersted-preset-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.45rem;
-}
-
-.oersted-preset-grid button {
-  border: 1px solid #9f7a57;
-  border-radius: 999px;
-  padding: 0.38rem 0.46rem;
-  background: #fff9ef;
-  color: #55371f;
-  cursor: pointer;
-  font-size: 0.78rem;
-}
-
-.oersted-preset-grid button.active {
-  background: #7a4f2e;
-  border-color: #7a4f2e;
-  color: #fff8ef;
-}
-
 .oersted-preset-tip {
   margin: 0.1rem 0 0;
   font-size: 0.78rem;
   color: #66401f;
-}
-
-.oersted-advanced-toggle {
-  width: 100%;
-  border: 1px dashed #9f7a57;
-  border-radius: 10px;
-  background: #fff7eb;
-  color: #55371f;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.oersted-advanced-panel {
-  border: 1px solid #d8bb9f;
-  border-radius: 10px;
-  background: rgba(255, 244, 228, 0.74);
-  padding: 0.5rem 0.55rem;
-}
-
-.oersted-advanced-panel h3 {
-  margin-top: 0.1rem;
 }
 
 .app-shell.theme-night .oersted-card {
@@ -82,35 +36,6 @@
   color: #ffe8cc;
 }
 
-.app-shell.theme-night .oersted-preset-grid button {
-  background: #2a1f16;
-  border-color: #71573f;
-  color: #f6e3cd;
-}
-
-.app-shell.theme-night .oersted-preset-grid button.active {
-  background: #d7a16a;
-  border-color: #d7a16a;
-  color: #1d1208;
-}
-
 .app-shell.theme-night .oersted-preset-tip {
   color: #ecd6bf;
-}
-
-.app-shell.theme-night .oersted-advanced-toggle {
-  border-color: #71573f;
-  background: #261d15;
-  color: #f6e3cd;
-}
-
-.app-shell.theme-night .oersted-advanced-panel {
-  border-color: #70553a;
-  background: rgba(49, 35, 25, 0.7);
-}
-
-@media (max-width: 900px) {
-  .oersted-preset-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }

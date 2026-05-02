@@ -1,5 +1,4 @@
 import { Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
-import './App.css'
 import {
   DEMO_ROUTES,
   findDemoRoute,
@@ -112,7 +111,7 @@ function App() {
   if (!runtimeCapabilities.supported) {
     return (
       <main className="app-shell" data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
-        <section className="scene-missing scene-runtime-fallback" role="alert">
+        <section className="scene-missing" role="alert">
           <h1>运行环境不支持</h1>
           <p>当前浏览器不满足 3D 演示运行要求。</p>
           <p>请使用支持以下能力的 Chromium 桌面浏览器：</p>

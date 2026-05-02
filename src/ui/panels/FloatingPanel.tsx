@@ -80,7 +80,7 @@ export function FloatingPanel({
           </button>
         )}
       </div>
-      {!collapsed && <div className="px-3 pb-2">{children}</div>}
+      {!collapsed && <div className="px-3 pb-2 overflow-y-auto">{children}</div>}
     </div>
   )
 }

@@ -4,7 +4,6 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { EquipotentialControls } from './EquipotentialControls'
 import { EquipotentialRig3D } from './EquipotentialRig3D'
 import { buildEquipotentialClouds, type EquipotentialCharge } from './model'
-import './equipotential.css'
 
 const SCENE_BOUNDS = 5
 const SOFTENING_FACTOR = 0.34

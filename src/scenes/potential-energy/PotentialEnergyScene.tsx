@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneActions } from '../../ui/controls/SceneActions'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import {
   buildPotentialSlicePoints,
@@ -8,7 +10,6 @@ import {
   summarizeSlice,
 } from './model'
 import { PotentialEnergyRig3D } from './PotentialEnergyRig3D'
-import './potential-energy.css'
 
 function resolveChargeLabel(chargeSign: 1 | -1): string {
   return chargeSign > 0 ? '正电荷 (+)' : '负电荷 (-)'
@@ -60,17 +61,24 @@ export function PotentialEnergyScene() {
   return (
     <SceneLayout
       controls={
-        <>
+        <div className="grid gap-[0.8rem]">
           <h2>电势图构建控制</h2>
 
-          <div className="potential-energy-sign-card">
-            <p>点击下方按钮切换电荷极性</p>
-            <button className="touch-target potential-energy-toggle" onClick={toggleChargeSign}>
-              切换为{chargeSign > 0 ? '负电荷' : '正电荷'}
-            </button>
-            <p>当前状态: {chargeTypeLabel}</p>
-          </div>
-        </>
+          <ControlSection title="电荷极性">
+            <SegmentedControl
+              options={[
+                { key: 'positive', label: '正电荷 (+)' },
+                { key: 'negative', label: '负电荷 (-)' },
+              ]}
+              value={chargeSign > 0 ? 'positive' : 'negative'}
+              onChange={(key) => {
+                if ((key === 'positive' && chargeSign < 0) || (key === 'negative' && chargeSign > 0)) {
+                  toggleChargeSign()
+                }
+              }}
+            />
+          </ControlSection>
+        </div>
       }
       playback={
         <SceneActions

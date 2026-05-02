@@ -1,17 +1,20 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SelectField } from '../../ui/controls/SelectField'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { ControlSection } from '../../ui/controls/ControlSection'
+import { DataReadout } from '../../ui/controls/DataReadout'
 import type { PresetKey } from './model'
 import type { ElectrostaticLabState } from './useElectrostaticLabState'
 
-const PRESET_OPTIONS: Array<{ value: PresetKey; label: string }> = [
-  { value: 'single', label: '单点电荷' },
-  { value: 'dipole', label: '电偶极子' },
-  { value: 'same', label: '等量同号' },
-  { value: 'opposite', label: '等量异号' },
-  { value: 'three-linear', label: '三电荷线性' },
-  { value: 'three-triangle', label: '三电荷三角' },
-  { value: 'quadrupole', label: '电四极子' },
+const PRESET_OPTIONS: Array<{ key: PresetKey; label: string }> = [
+  { key: 'single', label: '单点电荷' },
+  { key: 'dipole', label: '电偶极子' },
+  { key: 'same', label: '等量同号' },
+  { key: 'opposite', label: '等量异号' },
+  { key: 'three-linear', label: '三电荷线性' },
+  { key: 'three-triangle', label: '三电荷三角' },
+  { key: 'quadrupole', label: '电四极子' },
 ]
 
 function formatNetCharge(netCharge: number): string {
@@ -24,43 +27,27 @@ type ElectrostaticLabControlsProps = {
 
 export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProps) {
   return (
-    <>
+    <div className="grid gap-[0.8rem]">
       <h2>3D等势面实验台控制</h2>
 
-      <div className="subsection">
-        <h3>课堂预设</h3>
-        <div className="electrostatic-lab-preset-grid">
-          {PRESET_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              className={`touch-target electrostatic-lab-preset-btn ${state.presetKey === option.value ? 'active' : ''}`.trim()}
-              aria-pressed={state.presetKey === option.value}
-              onClick={() => state.applyPreset(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ControlSection title="课堂预设">
+        <SegmentedControl
+          columns={2}
+          options={PRESET_OPTIONS}
+          value={state.presetKey}
+          onChange={(key) => state.applyPreset(key as PresetKey)}
+        />
+      </ControlSection>
 
-      <div className="electrostatic-lab-mode-card">
-        <p>显示模式: {state.modeLabel}</p>
-        <div className="electrostatic-lab-mode-row">
-          <button
-            className={`touch-target electrostatic-lab-mode-btn ${state.displayMode === 'potential' ? 'active' : ''}`.trim()}
-            aria-pressed={state.displayMode === 'potential'}
-            onClick={() => state.setDisplayMode('potential')}
-          >
-            电势地形
-          </button>
-          <button
-            className={`touch-target electrostatic-lab-mode-btn ${state.displayMode === 'field' ? 'active' : ''}`.trim()}
-            aria-pressed={state.displayMode === 'field'}
-            onClick={() => state.setDisplayMode('field')}
-          >
-            电场线
-          </button>
-        </div>
+      <ControlSection title="显示模式">
+        <SegmentedControl
+          options={[
+            { key: 'potential', label: '电势地形' },
+            { key: 'field', label: '电场线' },
+          ]}
+          value={state.displayMode}
+          onChange={(key) => state.setDisplayMode(key as 'potential' | 'field')}
+        />
         <label className="electrostatic-lab-checkline">
           <input
             type="checkbox"
@@ -97,7 +84,17 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
             已启用：可在视图中拖拽电荷移动、双击地面添加电荷、右键点击电荷删除。
           </p>
         ) : null}
-      </div>
+
+        <RangeField
+          id="electrostatic-lab-resolution"
+          label="地形分辨率"
+          min={18}
+          max={44}
+          step={1}
+          value={state.resolution}
+          onChange={state.setResolution}
+        />
+      </ControlSection>
 
       <SceneActions
         actions={[
@@ -125,8 +122,7 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         ]}
       />
 
-      <div className="subsection">
-        <h3>电荷编辑</h3>
+      <ControlSection title="电荷编辑">
         <SelectField
           id="electrostatic-lab-selected-charge"
           label="当前目标"
@@ -138,81 +134,78 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
             label: `${charge.id} (${charge.magnitude.toFixed(1)} q)`,
           }))}
         />
-      </div>
 
-      {state.selectedCharge ? (
-        <>
-          <RangeField
-            id="electrostatic-lab-charge-magnitude"
-            label="电荷量 q"
-            min={-5}
-            max={5}
-            step={0.1}
-            value={state.selectedCharge.magnitude}
-            onChange={(value) => state.updateSelectedCharge({ magnitude: value })}
-          />
-          <RangeField
-            id="electrostatic-lab-charge-x"
-            label="位置 X"
-            min={-6}
-            max={6}
-            step={0.1}
-            value={state.selectedCharge.x}
-            onChange={(value) => state.updateSelectedCharge({ x: value })}
-          />
-          <RangeField
-            id="electrostatic-lab-charge-z"
-            label="位置 Z"
-            min={-6}
-            max={6}
-            step={0.1}
-            value={state.selectedCharge.z}
-            onChange={(value) => state.updateSelectedCharge({ z: value })}
-          />
-        </>
-      ) : null}
+        {state.selectedCharge ? (
+          <>
+            <RangeField
+              id="electrostatic-lab-charge-magnitude"
+              label="电荷量 q"
+              min={-5}
+              max={5}
+              step={0.1}
+              value={state.selectedCharge.magnitude}
+              onChange={(value) => state.updateSelectedCharge({ magnitude: value })}
+            />
+            <RangeField
+              id="electrostatic-lab-charge-x"
+              label="位置 X"
+              min={-6}
+              max={6}
+              step={0.1}
+              value={state.selectedCharge.x}
+              onChange={(value) => state.updateSelectedCharge({ x: value })}
+            />
+            <RangeField
+              id="electrostatic-lab-charge-z"
+              label="位置 Z"
+              min={-6}
+              max={6}
+              step={0.1}
+              value={state.selectedCharge.z}
+              onChange={(value) => state.updateSelectedCharge({ z: value })}
+            />
+          </>
+        ) : null}
+      </ControlSection>
 
-      <RangeField
-        id="electrostatic-lab-resolution"
-        label="地形分辨率"
-        min={18}
-        max={44}
-        step={1}
-        value={state.resolution}
-        onChange={state.setResolution}
-      />
-
-      <div className="electrostatic-lab-readout">
-        <p>
-          电荷总数: {state.charges.length}（+{state.chargeSummary.positiveCount} / -
-          {state.chargeSummary.negativeCount}）
-        </p>
-        <p>净电荷: {formatNetCharge(state.chargeSummary.netCharge)}</p>
-        <p>
-          选中电荷:{' '}
-          {state.selectedCharge
-            ? `${state.selectedCharge.id} (${state.selectedCharge.x.toFixed(2)}, ${state.selectedCharge.z.toFixed(2)})`
-            : '无'}
-        </p>
-        <p>
-          势场范围: {state.terrain.stats.minPotential.toFixed(2)} ~ {state.terrain.stats.maxPotential.toFixed(2)}
-        </p>
-        <p>
-          探针位置:{' '}
-          {state.probePoint ? `(${state.probePoint.x.toFixed(2)}, ${state.probePoint.z.toFixed(2)})` : '未放置'}
-        </p>
-        <p>探针电势: {state.probeReadout ? `${state.probeReadout.potential.toFixed(3)} V` : '--'}</p>
-        <p>探针场强: {state.probeReadout ? `${state.probeReadout.field.magnitude.toFixed(3)} N/C` : '--'}</p>
-      </div>
-
-      <div className="structure-card">
-        <h3>演示要点</h3>
-        <ul>
-          <li>先切"电势地形"观察正负电势在空间中的高低分区，再切"电场线"观察方向性。</li>
-          <li>更换预设可快速演示单电荷、偶极子、四极子等典型模型的场分布差异。</li>
-          <li>开启探针模式并点击地面任意点，可对比电势数值与场强大小。</li>
-        </ul>
-      </div>
-    </>
+      <ControlSection title="数据">
+        <DataReadout
+          items={[
+            {
+              label: '电荷总数',
+              value: `${state.charges.length}（+${state.chargeSummary.positiveCount} / -${state.chargeSummary.negativeCount}）`,
+            },
+            { label: '净电荷', value: formatNetCharge(state.chargeSummary.netCharge) },
+            {
+              label: '选中电荷',
+              value: state.selectedCharge
+                ? `${state.selectedCharge.id} (${state.selectedCharge.x.toFixed(2)}, ${state.selectedCharge.z.toFixed(2)})`
+                : '无',
+            },
+            {
+              label: '势场范围',
+              value: `${state.terrain.stats.minPotential.toFixed(2)} ~ ${state.terrain.stats.maxPotential.toFixed(2)}`,
+            },
+            {
+              label: '探针位置',
+              value: state.probePoint
+                ? `(${state.probePoint.x.toFixed(2)}, ${state.probePoint.z.toFixed(2)})`
+                : '未放置',
+            },
+            {
+              label: '探针电势',
+              value: state.probeReadout ? `${state.probeReadout.potential.toFixed(3)} V` : '--',
+            },
+            {
+              label: '探针场强',
+              value: state.probeReadout
+                ? `${state.probeReadout.field.magnitude.toFixed(3)} N/C`
+                : '--',
+            },
+          ]}
+          separatorAfter={4}
+        />
+      </ControlSection>
+    </div>
   )
 }

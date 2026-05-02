@@ -8,8 +8,8 @@ describe('equipotential structure', () => {
 
     expect(await screen.findByText('电荷等势面控制')).toBeInTheDocument()
     expect(await screen.findByText('双极子基线')).toBeInTheDocument()
-    expect(await screen.findByText(/正势面点数:/)).toBeInTheDocument()
-    expect(await screen.findByText(/负势面点数:/)).toBeInTheDocument()
+    expect(await screen.findByText('正势面点数')).toBeInTheDocument()
+    expect(await screen.findByText('负势面点数')).toBeInTheDocument()
   })
 
   it('keeps unique charge ids after deleting and adding charges', async () => {

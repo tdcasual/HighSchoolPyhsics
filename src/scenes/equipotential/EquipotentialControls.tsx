@@ -1,5 +1,9 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { SceneActions } from '../../ui/controls/SceneActions'
+import { SelectField } from '../../ui/controls/SelectField'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { ControlSection } from '../../ui/controls/ControlSection'
+import { DataReadout } from '../../ui/controls/DataReadout'
 import type { EquipotentialCharge, EquipotentialStats } from './model'
 
 type EquipotentialControlsProps = {
@@ -49,20 +53,22 @@ export function EquipotentialControls({
 }: EquipotentialControlsProps) {
   const selectedId = selectedChargeId ?? ''
   return (
-    <>
+    <div className="grid gap-[0.8rem]">
       <h2>电荷等势面控制</h2>
 
-      <div className="subsection">
-        <h3>课堂预设</h3>
-        <div className="equipotential-preset-grid">
-          <button className="touch-target equipotential-preset-btn" onClick={onApplyDipolePreset}>
-            双极子基线
-          </button>
-          <button className="touch-target equipotential-preset-btn" onClick={onApplyQuadrupolePreset}>
-            四极子对比
-          </button>
-        </div>
-      </div>
+      <ControlSection title="课堂预设">
+        <SegmentedControl
+          options={[
+            { key: 'dipole', label: '双极子基线' },
+            { key: 'quadrupole', label: '四极子对比' },
+          ]}
+          value=""
+          onChange={(key) => {
+            if (key === 'dipole') onApplyDipolePreset()
+            else if (key === 'quadrupole') onApplyQuadrupolePreset()
+          }}
+        />
+      </ControlSection>
 
       <SceneActions
         actions={[
@@ -85,25 +91,22 @@ export function EquipotentialControls({
         ]}
       />
 
-      <div className="subsection">
-        <h3>选中电荷</h3>
-        <label htmlFor="equipotential-selected">当前目标</label>
-        <select
+      <ControlSection title="选中电荷">
+        <SelectField
           id="equipotential-selected"
-          className="preset-select"
+          label="当前目标"
           value={selectedId}
-          onChange={(event) => onSelectCharge(event.target.value)}
-        >
-          {charges.map((charge) => (
-            <option key={charge.id} value={charge.id}>
-              {charge.id} ({charge.magnitude.toFixed(1)} q)
-            </option>
-          ))}
-        </select>
-      </div>
+          onChange={onSelectCharge}
+          className="preset-select"
+          options={charges.map((charge) => ({
+            value: charge.id,
+            label: `${charge.id} (${charge.magnitude.toFixed(1)} q)`,
+          }))}
+        />
+      </ControlSection>
 
       {selectedCharge ? (
-        <>
+        <ControlSection title="编辑电荷参数">
           <RangeField
             id="equipotential-charge-magnitude"
             label="电量 q"
@@ -143,12 +146,10 @@ export function EquipotentialControls({
             value={selectedCharge.z}
             onChange={(value) => onUpdateSelectedCharge({ z: value })}
           />
-        </>
+        </ControlSection>
       ) : null}
 
-      <div className="subsection">
-        <h3>等势采样参数</h3>
-
+      <ControlSection title="等势采样参数">
         <RangeField
           id="equipotential-shell-count"
           label="等势层数"
@@ -168,22 +169,18 @@ export function EquipotentialControls({
           value={sampleResolution}
           onChange={(value) => onSampleResolutionChange(Math.round(value))}
         />
-      </div>
+      </ControlSection>
 
-      <div className="equipotential-readout">
-        <p>正势面点数: {stats.positivePointCount}</p>
-        <p>负势面点数: {stats.negativePointCount}</p>
-        <p>主导势区: {formatPolarityLabel(stats.dominantPolarity)}</p>
-      </div>
+      <ControlSection title="数据">
+        <DataReadout
+          items={[
+            { label: '正势面点数', value: String(stats.positivePointCount) },
+            { label: '负势面点数', value: String(stats.negativePointCount) },
+            { label: '主导势区', value: formatPolarityLabel(stats.dominantPolarity) },
+          ]}
+        />
+      </ControlSection>
 
-      <div className="structure-card">
-        <h3>演示要点</h3>
-        <ul>
-          <li>同号电荷周围等势层向外扩展，异号电荷之间出现势面过渡带。</li>
-          <li>调节单个电荷的 q 与空间位置，可观察等势壳层重构过程。</li>
-          <li>课堂建议：先用双极子讲"正负势面"，再切到四极子讲叠加效应。</li>
-        </ul>
-      </div>
-    </>
+    </div>
   )
 }

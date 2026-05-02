@@ -52,11 +52,11 @@ describe('electromagnetic-drive structure', () => {
   it('allows note section to collapse', () => {
     render(<ElectromagneticDriveScene />)
 
-    const noteToggle = screen.getByRole('button', { name: '收起实验说明' })
+    const noteToggle = screen.getByRole('button', { name: /实验现象说明/ })
     expect(noteToggle).toHaveAttribute('aria-expanded', 'true')
 
     fireEvent.click(noteToggle)
-    expect(screen.getByRole('button', { name: '显示实验说明' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByRole('button', { name: /实验现象说明/ })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText(/异步跟随/)).not.toBeInTheDocument()
   })
 })

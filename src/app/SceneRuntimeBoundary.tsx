@@ -50,7 +50,7 @@ export class SceneRuntimeBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="scene-missing scene-runtime-fallback" role="alert">
+        <div className="scene-missing" role="alert">
           <h2>场景暂时不可用</h2>
           <p>该演示发生异常，可重试当前场景或返回导航继续课堂演示。</p>
           <div className="scene-missing-links">

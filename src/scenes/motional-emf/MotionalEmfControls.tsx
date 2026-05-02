@@ -1,4 +1,6 @@
 import { RangeField } from '../../ui/controls/RangeField'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { ControlSection } from '../../ui/controls/ControlSection'
 import {
   DISCUSSION_MODE_LABELS,
   MAGNETIC_FIELD_DIRECTION_LABELS,
@@ -63,132 +65,110 @@ export function MotionalEmfControls({
     <div className="motional-emf-controls">
       <h2>切割磁感线实验控制</h2>
 
-      <div className="subsection">
-        <h3>讨论模式</h3>
-        <div className="motional-emf-b-direction-grid">
-          {DISCUSSION_MODES.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              className={`touch-target motional-emf-preset ${discussionMode === mode ? 'active' : ''}`.trim()}
-              aria-pressed={discussionMode === mode}
-              onClick={() => onDiscussionModeChange(mode)}
-            >
-              {DISCUSSION_MODE_LABELS[mode]}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ControlSection title="讨论模式">
+        <SegmentedControl
+          options={DISCUSSION_MODES.map((mode) => ({
+            key: mode,
+            label: DISCUSSION_MODE_LABELS[mode],
+          }))}
+          value={discussionMode}
+          onChange={(key) => onDiscussionModeChange(key as DiscussionMode)}
+        />
+      </ControlSection>
 
-      <RangeField
-        id="motional-emf-b"
-        label="磁场 B (T)"
-        min={0.2}
-        max={3}
-        step={0.1}
-        value={magneticFieldT}
-        onChange={onMagneticFieldChange}
-      />
+      <ControlSection title="磁场参数">
+        <RangeField
+          id="motional-emf-b"
+          label="磁场 B"
+          unit="T"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={magneticFieldT}
+          onChange={onMagneticFieldChange}
+        />
 
-      <div className="subsection">
-        <h3>磁场方向</h3>
-        <div className="motional-emf-b-direction-grid">
-          {MAGNETIC_FIELD_DIRECTIONS.map((direction) => (
-            <button
-              key={direction}
-              type="button"
-              className={`touch-target motional-emf-preset ${magneticFieldDirection === direction ? 'active' : ''}`.trim()}
-              aria-pressed={magneticFieldDirection === direction}
-              onClick={() => onMagneticFieldDirectionChange(direction)}
-            >
-              {`磁场${MAGNETIC_FIELD_DIRECTION_LABELS[direction]}`}
-            </button>
-          ))}
-        </div>
-      </div>
+        <SegmentedControl
+          options={MAGNETIC_FIELD_DIRECTIONS.map((direction) => ({
+            key: direction,
+            label: `磁场${MAGNETIC_FIELD_DIRECTION_LABELS[direction]}`,
+          }))}
+          value={magneticFieldDirection}
+          onChange={(key) => onMagneticFieldDirectionChange(key as MagneticFieldDirection)}
+        />
+      </ControlSection>
 
-      <RangeField
-        id="motional-emf-l"
-        label="导体棒长度 L (m)"
-        min={0.2}
-        max={1.2}
-        step={0.05}
-        value={rodLengthM}
-        onChange={onRodLengthChange}
-      />
+      <ControlSection title="导体棒参数">
+        <RangeField
+          id="motional-emf-l"
+          label="导体棒长度 L"
+          unit="m"
+          min={0.2}
+          max={1.2}
+          step={0.05}
+          value={rodLengthM}
+          onChange={onRodLengthChange}
+        />
 
-      <RangeField
-        id="motional-emf-v"
-        label="速度 v (m/s)"
-        min={0}
-        max={5}
-        step={0.1}
-        value={speedMps}
-        onChange={onSpeedChange}
-      />
+        <RangeField
+          id="motional-emf-v"
+          label="速度 v"
+          unit="m/s"
+          min={0}
+          max={5}
+          step={0.1}
+          value={speedMps}
+          onChange={onSpeedChange}
+        />
 
-      <RangeField
-        id="motional-emf-angle"
-        label="导体棒与磁场夹角 θ (°)"
-        min={0}
-        max={90}
-        step={15}
-        value={rodAngleDeg}
-        onChange={onRodAngleChange}
-      />
+        <RangeField
+          id="motional-emf-angle"
+          label="导体棒与磁场夹角 θ"
+          unit="°"
+          min={0}
+          max={90}
+          step={15}
+          value={rodAngleDeg}
+          onChange={onRodAngleChange}
+        />
+      </ControlSection>
 
       {discussionMode === 'vb' ? (
-        <div className="subsection">
-          <h3>速度方向预设</h3>
-          <div className="motional-emf-preset-grid">
-            {VELOCITY_PRESET_ORDER.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                className={`touch-target motional-emf-preset ${velocityPreset === preset ? 'active' : ''}`.trim()}
-                aria-pressed={velocityPreset === preset}
-                onClick={() => onVelocityPresetChange(preset)}
-              >
-                {VELOCITY_PRESET_LABELS[preset]}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ControlSection title="速度方向预设">
+          <SegmentedControl
+            options={VELOCITY_PRESET_ORDER.map((preset) => ({
+              key: preset,
+              label: VELOCITY_PRESET_LABELS[preset],
+            }))}
+            value={velocityPreset}
+            onChange={(key) => onVelocityPresetChange(key as VelocityPreset)}
+            columns={3}
+          />
+        </ControlSection>
       ) : (
         <>
-          <div className="subsection">
-            <h3>运动方向</h3>
-            <div className="motional-emf-b-direction-grid">
-              {MOTION_DIRECTIONS.map((direction) => (
-                <button
-                  key={direction}
-                  type="button"
-                  className={`touch-target motional-emf-preset ${motionDirection === direction ? 'active' : ''}`.trim()}
-                  aria-pressed={motionDirection === direction}
-                  onClick={() => onMotionDirectionChange(direction)}
-                >
-                  {MOTION_DIRECTION_LABELS[direction]}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ControlSection title="运动方向">
+            <SegmentedControl
+              options={MOTION_DIRECTIONS.map((direction) => ({
+                key: direction,
+                label: MOTION_DIRECTION_LABELS[direction],
+              }))}
+              value={motionDirection}
+              onChange={(key) => onMotionDirectionChange(key as MotionDirectionPreset)}
+            />
+          </ControlSection>
 
-          <div className="subsection">
-            <h3>L 与 v 夹角预设</h3>
-            <div className="motional-emf-preset-grid">
-              {ROD_VELOCITY_ANGLE_OPTIONS.map((angle) => (
-                <button
-                  key={angle}
-                  type="button"
-                  className={`touch-target motional-emf-preset ${rodVelocityAngleDeg === angle ? 'active' : ''}`.trim()}
-                  aria-pressed={rodVelocityAngleDeg === angle}
-                  onClick={() => onRodVelocityAngleChange(angle)}
-                >
-                  {ROD_VELOCITY_ANGLE_LABELS[angle]}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ControlSection title="L 与 v 夹角预设">
+            <SegmentedControl
+              options={ROD_VELOCITY_ANGLE_OPTIONS.map((angle) => ({
+                key: String(angle),
+                label: ROD_VELOCITY_ANGLE_LABELS[angle],
+              }))}
+              value={String(rodVelocityAngleDeg)}
+              onChange={(key) => onRodVelocityAngleChange(Number(key) as RodVelocityAnglePreset)}
+              columns={3}
+            />
+          </ControlSection>
         </>
       )}
     </div>

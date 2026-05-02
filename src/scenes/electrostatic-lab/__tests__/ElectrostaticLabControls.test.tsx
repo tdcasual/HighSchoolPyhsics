@@ -50,10 +50,10 @@ describe('ElectrostaticLabControls', () => {
   it('exposes pressed state for preset, display mode, and advanced interaction toggles', () => {
     render(<ElectrostaticLabControls state={createState() as never} />)
 
-    expect(screen.getByRole('button', { name: '电偶极子' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: '单点电荷' })).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByRole('button', { name: '电势地形' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: '电场线' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('radio', { name: '电偶极子' })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('radio', { name: '单点电荷' })).toHaveAttribute('aria-checked', 'false')
+    expect(screen.getByRole('radio', { name: '电势地形' })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('radio', { name: '电场线' })).toHaveAttribute('aria-checked', 'false')
     expect(screen.getByRole('button', { name: '开启进阶交互' })).toHaveAttribute('aria-pressed', 'false')
   })
 })

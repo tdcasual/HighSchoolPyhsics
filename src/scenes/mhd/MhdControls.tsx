@@ -1,4 +1,5 @@
 import { RangeField } from '../../ui/controls/RangeField'
+import { ControlSection } from '../../ui/controls/ControlSection'
 
 type MhdControlsProps = {
   magneticFieldT: number
@@ -26,70 +27,64 @@ export function MhdControls({
   onConductivityChange,
 }: MhdControlsProps) {
   return (
-    <>
+    <div className="grid gap-[0.8rem]">
       <h2>磁流体发电机控制</h2>
 
-      <RangeField
-        id="mhd-b"
-        label="磁场 B (T)"
-        min={0.2}
-        max={3}
-        step={0.1}
-        value={magneticFieldT}
-        onChange={onMagneticFieldChange}
-      />
+      <ControlSection title="参数">
+        <RangeField
+          id="mhd-b"
+          label="磁场 B"
+          unit="T"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={magneticFieldT}
+          onChange={onMagneticFieldChange}
+        />
 
-      <RangeField
-        id="mhd-v"
-        label="等离子体速度 v (m/s)"
-        min={200}
-        max={4000}
-        step={50}
-        value={plasmaVelocityMps}
-        onChange={onPlasmaVelocityChange}
-      />
+        <RangeField
+          id="mhd-v"
+          label="等离子体速度 v"
+          unit="m/s"
+          min={200}
+          max={4000}
+          step={50}
+          value={plasmaVelocityMps}
+          onChange={onPlasmaVelocityChange}
+        />
 
-      <RangeField
-        id="mhd-density"
-        label="等离子浓度 n"
-        min={0.2}
-        max={2}
-        step={0.05}
-        value={plasmaDensityRatio}
-        onChange={onPlasmaDensityChange}
-      />
+        <RangeField
+          id="mhd-density"
+          label="等离子浓度 n"
+          min={0.2}
+          max={2}
+          step={0.05}
+          value={plasmaDensityRatio}
+          onChange={onPlasmaDensityChange}
+        />
 
-      <RangeField
-        id="mhd-gap"
-        label="电极间距 d (m)"
-        min={0.1}
-        max={1}
-        step={0.02}
-        value={electrodeGapM}
-        onChange={onElectrodeGapChange}
-      />
+        <RangeField
+          id="mhd-gap"
+          label="电极间距 d"
+          unit="m"
+          min={0.1}
+          max={1}
+          step={0.02}
+          value={electrodeGapM}
+          onChange={onElectrodeGapChange}
+        />
 
-      <RangeField
-        id="mhd-sigma"
-        label="电导率 σ (S/m)"
-        min={2}
-        max={40}
-        step={1}
-        value={conductivitySPerM}
-        onChange={onConductivityChange}
-      />
-
-      <div className="structure-card">
-        <h3>结构组成</h3>
-        <ul>
-          <li>N 极磁体</li>
-          <li>S 极磁体</li>
-          <li>电极 A / B</li>
-          <li>等离子体通道</li>
-          <li>外接负载与导线</li>
-          <li>红色=正电荷, 蓝色=负电荷</li>
-        </ul>
-      </div>
-    </>
+        <RangeField
+          id="mhd-sigma"
+          label="电导率 σ"
+          unit="S/m"
+          min={2}
+          max={40}
+          step={1}
+          value={conductivitySPerM}
+          onChange={onConductivityChange}
+        />
+      </ControlSection>
+    </div>
   )
 }

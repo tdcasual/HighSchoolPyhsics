@@ -4,21 +4,11 @@
   align-content: start;
 }
 
-.alternator-controls h2 {
-  margin: 0;
-  padding-bottom: 0.55rem;
-  border-bottom: 1px solid #c8bfb2;
-}
-
-.alternator-telemetry,
-.alternator-chart-card {
+.alternator-telemetry {
   border: 1px solid rgba(180, 170, 156, 0.7);
   background: rgba(252, 248, 242, 0.92);
   color: #3b2e24;
   box-shadow: 0 10px 24px rgba(140, 128, 110, 0.1);
-}
-
-.alternator-telemetry {
   padding: 0.82rem 0.9rem;
   border-radius: 14px;
   display: grid;
@@ -44,7 +34,9 @@
   font-family: 'SF Mono', Menlo, monospace;
 }
 
-.alternator-chart-card {
+.alternator-chart-shell {
+  display: grid;
+  gap: 0.75rem;
   --alternator-chart-surface: rgba(245, 240, 232, 0.95);
   --alternator-chart-grid-line: rgba(160, 148, 130, 0.16);
   --alternator-chart-axis-line: rgba(130, 118, 100, 0.36);
@@ -52,13 +44,6 @@
   --alternator-chart-axis-subtext: #9a8e82;
   --alternator-chart-wave-line: #3088d0;
   --alternator-chart-current-point: #dc3c3c;
-  padding: 0.82rem;
-  border-radius: 16px;
-}
-
-.alternator-chart-shell {
-  display: grid;
-  gap: 0.75rem;
 }
 
 .alternator-chart-title-row {
@@ -89,277 +74,7 @@
   background: var(--alternator-chart-surface);
 }
 
-.alternator-viewport {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 18px;
-  background: #f7f3ee;
-}
-
-.alternator-viewport .interactive-canvas,
-.alternator-viewport .canvas-fallback-stack,
-.alternator-viewport .interactive-canvas-surface {
-  height: 100%;
-}
-
-.alternator-overlay {
-  position: absolute;
-  z-index: 1;
-  color: #3b2e24;
-  pointer-events: auto;
-}
-
-.alternator-overlay-top {
-  top: 20px;
-  left: 50%;
-  width: calc(100% - 48px);
-  transform: translateX(-50%);
-  text-align: center;
-  pointer-events: none;
-}
-
-.alternator-overlay-top h2 {
-  margin: 0;
-  font-size: clamp(1.5rem, 2vw, 2rem);
-  letter-spacing: 2px;
-  color: #2e2218;
-  text-shadow: 0 2px 4px rgba(247, 243, 238, 0.6);
-}
-
-.alternator-overlay-top p {
-  margin: 8px 0 0;
-  font-size: 0.96rem;
-  color: #7a6e62;
-}
-
-.alternator-emf-panel {
-  top: 100px;
-  left: 40px;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(180, 170, 156, 0.8);
-  background: rgba(252, 248, 242, 0.9);
-  font-size: 18px;
-  color: #3b2e24;
-  font-family: Menlo, Monaco, Consolas, monospace;
-}
-
-.alternator-emf-panel span {
-  margin-left: 10px;
-  font-weight: 700;
-}
-
-.alternator-emf-positive {
-  color: #5a8a4a;
-}
-
-.alternator-emf-negative {
-  color: #c4513d;
-}
-
-.alternator-legend {
-  top: 100px;
-  right: 40px;
-  width: 260px;
-  padding: 25px;
-  border-radius: 12px;
-  border: 1px solid rgba(180, 170, 156, 0.8);
-  background: rgba(252, 248, 242, 0.9);
-  box-shadow: 0 10px 30px rgba(140, 128, 110, 0.15);
-}
-
-.alternator-legend h3 {
-  margin: 0 0 15px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #c8bfb2;
-  font-size: 18px;
-  color: #2e2218;
-}
-
-.alternator-legend p {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: #5a4e42;
-}
-
-.alternator-legend-chip {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-  border-radius: 3px;
-  box-shadow: inset 0 0 4px rgba(60, 46, 36, 0.25);
-}
-
-.alternator-chip-orange {
-  background: #FF5722;
-}
-
-.alternator-chip-blue {
-  background: #03A9F4;
-}
-
-.alternator-chip-ring {
-  background: #FFC107;
-}
-
-.alternator-chip-brush {
-  background: #333;
-  border: 1px solid #555;
-}
-
-.alternator-chip-field {
-  background: repeating-linear-gradient(45deg, #fff, #fff 2px, transparent 2px, transparent 6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.alternator-speed-panel {
-  bottom: 40px;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 15px 30px;
-  border: 1px solid rgba(180, 170, 156, 0.8);
-  border-radius: 12px;
-  background: rgba(252, 248, 242, 0.9);
-  box-shadow: 0 10px 30px rgba(140, 128, 110, 0.15);
-  transform: translateX(-50%);
-}
-
-.alternator-speed-panel label {
-  font-size: 15px;
-  font-weight: 600;
-  color: #5a4e42;
-}
-
-.alternator-speed-panel input[type='range'] {
-  width: 250px;
-  cursor: pointer;
-  accent-color: #2a7e8f;
-}
-
-.app-shell.theme-day .alternator-viewport {
-  background: #f7f3ee;
-}
-
-.app-shell.theme-day .alternator-overlay {
-  color: #3b2e24;
-}
-
-.app-shell.theme-day .alternator-overlay-top h2 {
-  color: #2e2218;
-  text-shadow: 0 2px 4px rgba(247, 243, 238, 0.6);
-}
-
-.app-shell.theme-day .alternator-overlay-top p {
-  color: #7a6e62;
-}
-
-.app-shell.theme-day .alternator-emf-panel,
-.app-shell.theme-day .alternator-legend,
-.app-shell.theme-day .alternator-speed-panel {
-  border-color: rgba(180, 170, 156, 0.8);
-  background: rgba(252, 248, 242, 0.92);
-  box-shadow: 0 10px 30px rgba(140, 128, 110, 0.15);
-  color: #3b2e24;
-}
-
-.app-shell.theme-day .alternator-legend h3 {
-  border-bottom-color: #c8bfb2;
-  color: #2e2218;
-}
-
-.app-shell.theme-day .alternator-legend p,
-.app-shell.theme-day .alternator-speed-panel label {
-  color: #5a4e42;
-}
-
-.app-shell.theme-day .alternator-speed-panel input[type='range'] {
-  accent-color: #3088d0;
-}
-
-.app-shell.theme-day .alternator-chip-brush {
-  background: #333;
-  border-color: #555;
-}
-
-.app-shell.theme-day .alternator-chip-field {
-  background: repeating-linear-gradient(45deg, #8fa7bc, #8fa7bc 2px, transparent 2px, transparent 6px);
-  border-color: rgba(143, 167, 188, 0.4);
-}
-
-.app-shell.theme-night .alternator-viewport {
-  background: #1c2333;
-}
-
-.app-shell.theme-night .alternator-overlay {
-  color: #e8e0d4;
-}
-
-.app-shell.theme-night .alternator-overlay-top h2 {
-  color: #f0e8dc;
-  text-shadow: 0 2px 4px rgba(28, 35, 51, 0.6);
-}
-
-.app-shell.theme-night .alternator-overlay-top p {
-  color: #a0988c;
-}
-
-.app-shell.theme-night .alternator-emf-panel,
-.app-shell.theme-night .alternator-legend,
-.app-shell.theme-night .alternator-speed-panel {
-  border-color: rgba(100, 110, 130, 0.6);
-  background: rgba(30, 38, 54, 0.88);
-  box-shadow: 0 10px 30px rgba(10, 14, 22, 0.4);
-  color: #e8e0d4;
-}
-
-.app-shell.theme-night .alternator-speed-panel {
-  background: rgba(34, 42, 60, 0.88);
-}
-
-.app-shell.theme-night .alternator-legend h3 {
-  border-bottom-color: rgba(100, 110, 130, 0.5);
-  color: #f0e8dc;
-}
-
-.app-shell.theme-night .alternator-legend p,
-.app-shell.theme-night .alternator-speed-panel label {
-  color: #b8b0a4;
-}
-
-.app-shell.theme-night .alternator-speed-panel input[type='range'] {
-  accent-color: #58a8e8;
-}
-
-.app-shell.theme-night .alternator-chip-orange {
-  background: #FF5722;
-}
-
-.app-shell.theme-night .alternator-chip-blue {
-  background: #03A9F4;
-}
-
-.app-shell.theme-night .alternator-chip-ring {
-  background: #FFC107;
-}
-
-.app-shell.theme-night .alternator-chip-brush {
-  background: #333;
-  border-color: #555;
-}
-
-.app-shell.theme-night .alternator-chip-field {
-  background: repeating-linear-gradient(45deg, #fff, #fff 2px, transparent 2px, transparent 6px);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.app-shell.theme-night .alternator-telemetry,
-.app-shell.theme-night .alternator-chart-card {
+.app-shell.theme-night .alternator-telemetry {
   border-color: rgba(100, 110, 130, 0.5);
   background: rgba(24, 30, 44, 0.82);
   color: #e0d8cc;
@@ -373,7 +88,7 @@
   color: #f0e8dc;
 }
 
-.app-shell.theme-night .alternator-chart-card {
+.app-shell.theme-night .alternator-chart-shell {
   --alternator-chart-surface: rgba(18, 24, 36, 0.6);
   --alternator-chart-grid-line: rgba(184, 196, 216, 0.1);
   --alternator-chart-axis-line: rgba(184, 196, 216, 0.2);
@@ -387,32 +102,5 @@
   .alternator-chart-title-row {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .alternator-legend {
-    top: auto;
-    right: 16px;
-    bottom: 120px;
-    width: min(240px, calc(100% - 32px));
-    padding: 18px;
-  }
-
-  .alternator-emf-panel {
-    top: 90px;
-    left: 16px;
-    max-width: calc(100% - 32px);
-    padding: 14px;
-    font-size: 14px;
-  }
-
-  .alternator-speed-panel {
-    bottom: 16px;
-    width: calc(100% - 32px);
-    padding: 12px 16px;
-    gap: 12px;
-  }
-
-  .alternator-speed-panel input[type='range'] {
-    width: 100%;
   }
 }

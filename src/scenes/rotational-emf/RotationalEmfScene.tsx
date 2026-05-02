@@ -5,7 +5,6 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { RotationalEmfControls } from './RotationalEmfControls'
 import { RotationalEmfRig3D } from './RotationalEmfRig3D'
 import { useRotationalEmfSceneState } from './useRotationalEmfSceneState'
-import './rotational-emf.css'
 
 const CAMERA_PRESETS = {
   main: {
