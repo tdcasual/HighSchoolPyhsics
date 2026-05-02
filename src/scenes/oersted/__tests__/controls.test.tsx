@@ -6,7 +6,7 @@ describe('oersted controls', () => {
   it('exposes classroom core controls and keeps advanced controls collapsed by default', async () => {
     render(<OerstedScene />)
 
-    expect(await screen.findByText('奥斯特电流磁效应')).toBeInTheDocument()
+    expect(await screen.findByText('奥斯特实验控制')).toBeInTheDocument()
     expect(await screen.findByLabelText('电流 I')).toBeInTheDocument()
     expect(await screen.findByLabelText('导线高度 h')).toBeInTheDocument()
     const advancedToggle = await screen.findByRole('button', { name: /高级参数/ })

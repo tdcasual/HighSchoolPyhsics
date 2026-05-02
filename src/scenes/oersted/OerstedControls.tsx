@@ -46,7 +46,7 @@ export function OerstedControls({
 
   return (
     <div className="grid gap-[0.8rem]">
-      <h2>奥斯特电流磁效应</h2>
+      <h2>奥斯特实验控制</h2>
 
       <ControlSection title="课堂预设">
         <SegmentedControl

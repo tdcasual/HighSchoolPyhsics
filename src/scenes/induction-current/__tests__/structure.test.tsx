@@ -10,7 +10,7 @@ describe('induction-current structure', () => {
   it('renders key controls and keeps appending records before reset', async () => {
     render(<InductionCurrentScene />)
 
-    expect(await screen.findByText('实验控制台')).toBeInTheDocument()
+    expect(await screen.findByText('感应电流实验控制')).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '↓ 向下运动 (接近)' })).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '↑ 向上运动 (远离)' })).toBeInTheDocument()
     expect(screen.getByText('暂无实验记录')).toBeInTheDocument()

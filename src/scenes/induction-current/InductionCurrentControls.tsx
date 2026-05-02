@@ -23,7 +23,7 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
 
   return (
     <div className="induction-current-controls">
-      <h2>实验控制台</h2>
+      <h2>感应电流实验控制</h2>
 
       <ControlSection title="磁极设置">
         <SegmentedControl

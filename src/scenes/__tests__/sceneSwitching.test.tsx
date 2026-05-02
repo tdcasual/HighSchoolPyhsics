@@ -46,7 +46,7 @@ describe('scene switching', () => {
     fireEvent.click(screen.getByRole('button', { name: '进入奥斯特实验' }))
     expect(window.location.pathname).toBe('/oersted')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
-    expect(await screen.findByText('奥斯特电流磁效应', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('奥斯特实验控制', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText('基本参数', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '通电' }, asyncWait)).toBeInTheDocument()
 

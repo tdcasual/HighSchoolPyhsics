@@ -62,7 +62,7 @@ export function PotentialEnergyScene() {
     <SceneLayout
       controls={
         <div className="grid gap-[0.8rem]">
-          <h2>电势图构建控制</h2>
+          <h2>电势图控制</h2>
 
           <ControlSection title="电荷极性">
             <SegmentedControl
