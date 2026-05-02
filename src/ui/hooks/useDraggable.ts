@@ -29,6 +29,7 @@ export function useDraggable(options?: UseDraggableOptions) {
   posRef.current = position
   const boundsRef = useRef(bounds)
   boundsRef.current = bounds
+  const draggingRef = useRef(false)
 
   const setPosition = useCallback(
     (pos: Position) => setPositionRaw(clampPos(pos, resolveBounds(boundsRef.current))),
@@ -37,7 +38,9 @@ export function useDraggable(options?: UseDraggableOptions) {
 
   const onPointerDown: PointerEventHandler = useCallback(
     (event) => {
+      if (draggingRef.current) return
       event.preventDefault()
+      draggingRef.current = true
       const target = event.currentTarget as HTMLElement
       target.setPointerCapture(event.pointerId)
       const startPos = { ...posRef.current }
@@ -49,6 +52,7 @@ export function useDraggable(options?: UseDraggableOptions) {
         setPositionRaw(clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved))
       }
       const onUp = () => {
+        draggingRef.current = false
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
       }

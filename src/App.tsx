@@ -166,7 +166,12 @@ function App() {
       <section className="scene-container">
         <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
           {isOverviewPage ? (
-            <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
+            <SceneRuntimeBoundary
+              scenePath="/"
+              onBackToOverview={() => navigateTo('/')}
+            >
+              <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
+            </SceneRuntimeBoundary>
           ) : ActiveScene ? (
             <SceneRuntimeBoundary
               scenePath={pathname}
