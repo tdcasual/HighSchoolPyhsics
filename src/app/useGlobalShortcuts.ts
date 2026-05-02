@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { DemoRoute } from './demoRoutes'
+import type { ThemeMode } from '../store/useAppStore'
 import { safePreload } from './safePreload'
 
 type UseGlobalShortcutsOptions = {
