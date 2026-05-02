@@ -5,13 +5,13 @@ export function ElectromagneticDriveControls() {
     <div className="grid gap-[0.8rem] content-start">
       <h2>电磁驱动控制</h2>
 
-      <div className="induction-current-legend" aria-label="颜色图例">
-        <span className="induction-current-legend-item">
-          <i className="induction-current-dot north" aria-hidden="true" />
+      <div className="scene-legend" aria-label="颜色图例">
+        <span className="scene-legend-item">
+          <i className="scene-legend-dot bg-[#ff2f2f]" aria-hidden="true" />
           磁铁
         </span>
-        <span className="induction-current-legend-item">
-          <i className="induction-current-dot current" aria-hidden="true" />
+        <span className="scene-legend-item">
+          <i className="scene-legend-dot bg-[#ffe431]" aria-hidden="true" />
           铝框
         </span>
       </div>

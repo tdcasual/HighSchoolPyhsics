@@ -36,17 +36,17 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
         />
       </ControlSection>
 
-      <div className="induction-current-legend" aria-label="颜色图例">
-        <span className="induction-current-legend-item">
-          <i className="induction-current-dot north" aria-hidden="true" />
+      <div className="scene-legend" aria-label="颜色图例">
+        <span className="scene-legend-item">
+          <i className="scene-legend-dot bg-[#ff2f2f]" aria-hidden="true" />
           N 极
         </span>
-        <span className="induction-current-legend-item">
-          <i className="induction-current-dot south" aria-hidden="true" />
+        <span className="scene-legend-item">
+          <i className="scene-legend-dot bg-[#1f3cff]" aria-hidden="true" />
           S 极
         </span>
-        <span className="induction-current-legend-item">
-          <i className="induction-current-dot current" aria-hidden="true" />
+        <span className="scene-legend-item">
+          <i className="scene-legend-dot bg-[#ffe431]" aria-hidden="true" />
           感应电流
         </span>
       </div>

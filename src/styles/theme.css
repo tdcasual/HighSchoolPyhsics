@@ -32,6 +32,15 @@
   color: #d8ebff;
 }
 
+.app-shell.theme-night .scene-legend {
+  border-color: #3f6285;
+  background: rgba(16, 33, 50, 0.88);
+}
+
+.app-shell.theme-night .scene-legend-item {
+  color: #d7ebff;
+}
+
 .app-shell.theme-night .formula-input,
 .app-shell.theme-night .preset-select {
   background: #0f1d2d;
