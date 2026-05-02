@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectromagneticDriveChart } from './ElectromagneticDriveChart'
 import { ElectromagneticDriveControls } from './ElectromagneticDriveControls'
@@ -36,17 +37,25 @@ export function ElectromagneticDriveScene() {
       }
       chartVisible={true}
       playback={
-        <div className="electromagnetic-drive-button-grid">
-          <button type="button" className="touch-target btn-start" onClick={state.start}>
-            开始摇动
-          </button>
-          <button type="button" className="touch-target btn-pause" onClick={state.pause}>
-            停止摇动
-          </button>
-          <button type="button" className="touch-target btn-reset" onClick={state.reset}>
-            重置实验
-          </button>
-        </div>
+        <SceneActions
+          actions={[
+            {
+              key: 'start',
+              label: '开始摇动',
+              onClick: state.start,
+            },
+            {
+              key: 'pause',
+              label: '停止摇动',
+              onClick: state.pause,
+            },
+            {
+              key: 'reset',
+              label: '重置实验',
+              onClick: state.reset,
+            },
+          ]}
+        />
       }
       viewport={
         <InteractiveCanvas
