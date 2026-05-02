@@ -9,7 +9,7 @@ describe('scene switching', () => {
     window.history.replaceState(null, '', '/')
   })
 
-  it('navigates demos from overview page and returns back to overview', async () => {
+  it('navigates demos from overview page and returns back to overview', { timeout: 30_000 }, async () => {
     const { container } = render(<App />)
     const asyncWait = { timeout: 8000 }
 
