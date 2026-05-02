@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type CSSProperties, type PointerEventHandler } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEventHandler } from 'react'
 
 type Position = { x: number; y: number }
 type DragBounds = { left?: number; top?: number; right?: number; bottom?: number }
@@ -26,10 +26,11 @@ export function useDraggable(options?: UseDraggableOptions) {
   const { initialPosition = { x: 0, y: 0 }, bounds } = options ?? {}
   const [position, setPositionRaw] = useState<Position>(initialPosition)
   const posRef = useRef(position)
-  posRef.current = position
   const boundsRef = useRef(bounds)
-  boundsRef.current = bounds
   const draggingRef = useRef(false)
+
+  useEffect(() => { posRef.current = position })
+  useEffect(() => { boundsRef.current = bounds })
 
   const setPosition = useCallback(
     (pos: Position) => setPositionRaw(clampPos(pos, resolveBounds(boundsRef.current))),

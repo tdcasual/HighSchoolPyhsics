@@ -1,12 +1,10 @@
 import { useEffect } from 'react'
 import type { DemoRoute } from './demoRoutes'
-import type { ThemeMode } from '../store/useAppStore'
 import { safePreload } from './safePreload'
 
 type UseGlobalShortcutsOptions = {
   routes: DemoRoute[]
   pathname: string
-  theme: ThemeMode
   setTheme: (theme: ThemeMode) => void
   navigateTo: (path: string) => void
 }
@@ -20,7 +18,6 @@ function isTypingTarget(target: EventTarget | null): boolean {
 export function useGlobalShortcuts({
   routes,
   pathname,
-  theme,
   setTheme,
   navigateTo,
 }: UseGlobalShortcutsOptions): void {

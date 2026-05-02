@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { FloatingPanel } from '../panels/FloatingPanel'
 import { SidebarPanel } from '../panels/SidebarPanel'
 
@@ -23,16 +23,14 @@ export function SceneLayout({
   playback,
   chartVisible = false,
 }: SceneLayoutProps) {
-  const [chartDismissed, setChartDismissed] = useState(false)
+  const [chartDismissVersion, setChartDismissVersion] = useState(0)
+  const [chartVisibleVersion, setChartVisibleVersion] = useState(0)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const prevChartVisible = useRef(chartVisible)
-  useEffect(() => {
-    if (chartVisible && !prevChartVisible.current) {
-      setChartDismissed(false)
-    }
-    prevChartVisible.current = chartVisible
-  }, [chartVisible])
-  const showChart = chartVisible && !chartDismissed
+
+  if (chartVisible && chartVisibleVersion === 0) {
+    setChartVisibleVersion(1)
+  }
+  const showChart = chartVisible && chartVisibleVersion > chartDismissVersion
   const panelX = useMemo(
     () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
     [sidebarCollapsed],
@@ -74,7 +72,7 @@ export function SceneLayout({
           defaultPosition={{ x: panelX, y: 300 }}
           offsetX={panelX}
           closable
-          onClose={() => setChartDismissed(true)}
+          onClose={() => setChartDismissVersion(chartVisibleVersion)}
         >
           <div className="min-w-[300px]">
             {chart}

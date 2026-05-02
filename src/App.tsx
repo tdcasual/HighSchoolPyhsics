@@ -89,7 +89,6 @@ function App() {
   useGlobalShortcuts({
     routes: DEMO_ROUTES,
     pathname,
-    theme,
     setTheme,
     navigateTo,
   })
