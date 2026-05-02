@@ -62,7 +62,7 @@ export function MotionalEmfControls({
   onMotionDirectionChange,
 }: MotionalEmfControlsProps) {
   return (
-    <div className="motional-emf-controls">
+    <div className="grid gap-[0.8rem]">
       <h2>切割磁感线实验控制</h2>
 
       <ControlSection title="讨论模式">

@@ -2,7 +2,7 @@ import { ControlSection } from '../../ui/controls/ControlSection'
 
 export function ElectromagneticDriveControls() {
   return (
-    <div className="electromagnetic-drive-controls">
+    <div className="grid gap-[0.8rem] content-start">
       <h2>电磁驱动控制</h2>
 
       <div className="induction-current-legend" aria-label="颜色图例">

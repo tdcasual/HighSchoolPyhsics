@@ -22,7 +22,7 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
         }))
 
   return (
-    <div className="induction-current-controls">
+    <div className="grid gap-[0.8rem]">
       <h2>感应电流实验控制</h2>
 
       <ControlSection title="磁极设置">

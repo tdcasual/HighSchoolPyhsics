@@ -1,9 +1,3 @@
-.electromagnetic-drive-controls {
-  display: grid;
-  gap: 0.8rem;
-  align-content: start;
-}
-
 .electromagnetic-drive-button-grid {
   display: grid;
   gap: 0.7rem;

@@ -13,7 +13,7 @@ type AlternatorControlsProps = {
 
 export function AlternatorControls({ state }: AlternatorControlsProps) {
   return (
-    <div className="alternator-controls">
+    <div className="grid gap-[0.8rem] content-start">
       <h2>交流发电机控制</h2>
       <ControlSection title="参数">
         <RangeField id="alternator-speed" label="转速 ω" unit="rad/s" min={0.5} max={12} step={0.1}

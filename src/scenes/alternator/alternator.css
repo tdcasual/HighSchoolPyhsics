@@ -1,9 +1,3 @@
-.alternator-controls {
-  display: grid;
-  gap: 0.8rem;
-  align-content: start;
-}
-
 .alternator-telemetry {
   border: 1px solid rgba(180, 170, 156, 0.7);
   background: rgba(252, 248, 242, 0.92);
