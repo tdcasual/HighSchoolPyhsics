@@ -25,8 +25,6 @@ body {
   min-height: 100vh;
   padding: 1rem;
   gap: 1rem;
-  color: var(--shell-ink-day);
-  background: var(--shell-bg-day);
 }
 
 .app-shell[data-page-scroll='vertical-outside-canvas'] {

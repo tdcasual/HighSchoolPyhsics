@@ -101,16 +101,11 @@ function App() {
     () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
     [activeTouchProfile],
   )
-  const shellClassName = [
-    'app-shell',
-    `theme-${theme}`,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const shellClassName = `app-shell theme-${theme}`
 
   if (!runtimeCapabilities.supported) {
     return (
-      <main className="app-shell" data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
+      <main className={shellClassName} data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
         <section className="scene-missing" role="alert">
           <h1>运行环境不支持</h1>
           <p>当前浏览器不满足 3D 演示运行要求。</p>
