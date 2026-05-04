@@ -50,12 +50,12 @@ export function SceneLayout({
   }, [chartVisible])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isMobile) {
       setMobilePlaybackActions(playbackActions ?? [])
       return () => setMobilePlaybackActions([])
     }
-  })
+  }, [isMobile, playbackActions?.length, playbackActions?.[0]?.key, playbackActions?.[0]?.label, playbackActions?.[0]?.disabled, playbackActions?.[1]?.key, playbackActions?.[1]?.label, playbackActions?.[1]?.disabled]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const showChart = chartVisible && chartDismissVersion === 0
   const showPlayback = playbackActions && playbackDismissVersion === 0
