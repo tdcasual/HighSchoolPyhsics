@@ -1,17 +1,95 @@
 :root {
-  font-family: 'Avenir Next', 'Helvetica Neue', sans-serif;
-  --focus-ring: #2f95d5;
-  --shell-ink-day: #102a43;
+  /* ── Typography ── */
+  font-family: 'Avenir Next', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /* ── Focus ── */
+  --focus-ring: #0ea5e9;
+  --focus-ring-offset: 3px;
+
+  /* ── Shell (Day) ── */
+  --shell-ink-day: #0f172a;
   --shell-bg-day:
-    radial-gradient(circle at 8% -12%, rgba(255, 175, 123, 0.28) 0%, rgba(255, 175, 123, 0) 42%),
-    radial-gradient(circle at 92% -10%, rgba(96, 205, 255, 0.24) 0%, rgba(96, 205, 255, 0) 44%),
-    linear-gradient(145deg, #fff7ef 0%, #f2fffb 55%, #eef5ff 100%);
-  --action-border: #3d5f8d;
-  --action-bg: #ffffff;
-  --action-ink: #133d66;
-  --action-hover-border: #2f95d5;
-  --action-hover-shadow: 0 8px 16px rgba(47, 149, 213, 0.16);
-  --action-active-bg: linear-gradient(135deg, #3ea8ff 0%, #36d6b1 100%);
-  --action-active-border: #36d6b1;
-  --action-active-ink: #062235;
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(14, 165, 233, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    linear-gradient(160deg, #f0f9ff 0%, #f5fff8 40%, #f8faff 100%);
+
+  /* ── Glass Panels (Day) ── */
+  --glass-bg-day: rgba(255, 255, 255, 0.62);
+  --glass-border-day: rgba(255, 255, 255, 0.72);
+  --glass-border-outer-day: rgba(148, 200, 230, 0.35);
+  --glass-highlight-day: inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+  --glass-shadow-day:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(14, 165, 233, 0.06);
+
+  /* ── Actions (Day) ── */
+  --action-border: rgba(14, 165, 233, 0.35);
+  --action-bg: rgba(255, 255, 255, 0.82);
+  --action-ink: #0c4a6e;
+  --action-hover-border: rgba(14, 165, 233, 0.65);
+  --action-hover-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(14, 165, 233, 0.12),
+    0 0 0 1px rgba(14, 165, 233, 0.15);
+  --action-active-bg: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  --action-active-border: rgba(45, 212, 191, 0.65);
+  --action-active-ink: #062c36;
+  --action-pressed-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+
+  /* ── Control Elements (Day) ── */
+  --control-bg: rgba(255, 255, 255, 0.72);
+  --control-border: rgba(186, 214, 230, 0.65);
+  --control-ink: #164e63;
+  --control-ink-soft: #0e7490;
+  --control-ink-muted: #64748b;
+  --control-hover-bg: rgba(224, 242, 254, 0.6);
+  --control-accent: #0ea5e9;
+  --control-accent-soft: #38bdf8;
+  --control-section-bg: rgba(255, 255, 255, 0.45);
+  --control-section-border: rgba(186, 214, 230, 0.5);
+
+  /* ── Data Readout (Day) ── */
+  --readout-bg: rgba(224, 242, 254, 0.55);
+  --readout-border: rgba(125, 211, 252, 0.45);
+  --readout-ink: #0c4a6e;
+  --readout-value: #0369a1;
+  --readout-divider: rgba(125, 211, 252, 0.35);
+
+  /* ── Overview / Navigation (Day) ── */
+  --overview-ink: #0f172a;
+  --overview-soft-ink: #334155;
+  --overview-card-bg-start: rgba(255, 255, 255, 0.72);
+  --overview-card-bg-end: rgba(255, 255, 255, 0.58);
+  --overview-card-border: rgba(148, 200, 230, 0.45);
+  --overview-shell-border: rgba(148, 200, 230, 0.45);
+  --overview-shell-bg:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.68) 0%, rgba(240, 249, 255, 0.62) 50%, rgba(245, 255, 248, 0.6) 100%);
+  --overview-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 8px 24px rgba(14, 165, 233, 0.08),
+    0 24px 64px rgba(14, 165, 233, 0.06);
+  --overview-card-accent: #0ea5e9;
+  --overview-card-glow: rgba(14, 165, 233, 0.15);
+  --overview-kicker: #0d9488;
+  --overview-note-bg: rgba(224, 242, 254, 0.55);
+  --overview-note-border: rgba(125, 211, 252, 0.5);
+  --overview-note-ink: #0c4a6e;
+
+  /* ── Scene Misc (Day) ── */
+  --scene-loading-ink: #334155;
+  --scene-missing-border: rgba(148, 186, 210, 0.5);
+  --scene-missing-bg: rgba(255, 255, 255, 0.55);
+  --interaction-hint-bg: rgba(224, 242, 254, 0.85);
+  --interaction-hint-border: rgba(186, 214, 230, 0.65);
+  --interaction-hint-ink: #0c4a6e;
+  --formula-input-bg: rgba(255, 255, 255, 0.82);
+  --formula-input-border: rgba(186, 214, 230, 0.75);
+  --formula-input-focus: #0ea5e9;
+  --formula-help-bg: rgba(224, 242, 254, 0.55);
+  --formula-help-ink: #0e7490;
+  --legend-bg: rgba(224, 242, 254, 0.45);
+  --legend-border: rgba(186, 214, 230, 0.55);
+  --legend-ink: #164e63;
 }

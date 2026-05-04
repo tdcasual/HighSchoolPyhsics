@@ -29,15 +29,17 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
 
   return (
     <div
-      className="grid gap-0"
-      style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+      className="segmented-control grid gap-[3px] p-[3px] rounded-[12px]"
+      style={{
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+        background: 'rgba(14, 165, 233, 0.08)',
+        border: '1px solid rgba(14, 165, 233, 0.12)',
+      }}
       role="radiogroup"
       onKeyDown={handleKeyDown}
     >
-      {options.map((option, i) => {
+      {options.map((option) => {
         const active = option.key === value
-        const isFirst = i === 0
-        const isLast = i === options.length - 1
         return (
           <button
             key={option.key}
@@ -45,15 +47,15 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
             aria-checked={active}
             tabIndex={active ? 0 : -1}
             className={[
-              'min-h-[34px] md:min-h-[38px] text-[0.72rem] md:text-[0.82rem] font-medium transition-colors duration-150 select-none',
-              'border border-[#8caec8] dark:border-[#3d5a75]',
+              'min-h-[32px] md:min-h-[36px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
               active
-                ? 'bg-[#264f72] dark:bg-[#3d7db0] text-white font-semibold border-[#2f6b96] dark:border-[#4a8fc2]'
-                : 'bg-[rgba(245,249,255,0.9)] dark:bg-[rgba(16,28,48,0.9)] text-[#2b4f6d] dark:text-[#b8d4ec] hover:bg-[rgba(230,242,255,0.95)] dark:hover:bg-[rgba(24,42,68,0.9)]',
-              isFirst ? 'rounded-l-[8px]' : '',
-              isLast ? 'rounded-r-[8px]' : '',
-              !isFirst ? '-ml-[1px]' : '',
+                ? 'active text-white shadow-sm'
+                : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',
             ].join(' ')}
+            style={active ? {
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #2dd4bf 100%)',
+              boxShadow: '0 2px 8px rgba(14, 165, 233, 0.25), inset 0 1px 0 0 rgba(255,255,255,0.2)',
+            } : {}}
             onClick={() => onChange(option.key)}
           >
             {option.label}

@@ -18,7 +18,7 @@ export function ControlSection({
   if (!collapsible) {
     return (
       <div className="flex flex-col gap-2 md:gap-3">
-        <h3 className="text-[0.72rem] md:text-[0.82rem] font-semibold text-[#4a6b84] dark:text-[#8fb0cc] m-0">
+        <h3 className="control-section-title text-[0.72rem] md:text-[0.82rem] font-semibold m-0 tracking-wide">
           {title}
         </h3>
         {children}
@@ -27,13 +27,22 @@ export function ControlSection({
   }
 
   return (
-    <div className="border border-[#d4e2ee] dark:border-[#2a4058] rounded-[12px] overflow-hidden">
+    <div className="control-section-body rounded-[14px] overflow-hidden border"
+      style={{
+        background: 'var(--control-section-bg)',
+        borderColor: 'var(--control-section-border)',
+        boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.4)',
+      }}
+    >
       <button
-        className="w-full flex items-center gap-2 px-2.5 py-2 md:px-3.5 md:py-2.5 text-[0.72rem] md:text-[0.82rem] font-semibold text-[#4a6b84] dark:text-[#8fb0cc] bg-transparent cursor-pointer hover:bg-[rgba(230,242,255,0.5)] dark:hover:bg-[rgba(20,38,58,0.5)] transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-2 md:px-3.5 md:py-2.5 text-[0.72rem] md:text-[0.82rem] font-semibold bg-transparent cursor-pointer rounded-[14px] transition-all duration-150 hover:bg-[var(--control-hover-bg)]"
+        style={{ color: 'var(--control-ink)' }}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
       >
-        <span className="text-[0.7rem] text-[#8ca0b4] dark:text-[#5a7e98]">{open ? '▾' : '▸'}</span>
+        <span className="text-[0.7rem]" style={{ color: 'var(--control-ink-muted)' }}>
+          {open ? '▾' : '▸'}
+        </span>
         {title}
       </button>
       {open && (

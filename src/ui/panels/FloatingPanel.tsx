@@ -48,7 +48,6 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
     offsetX,
   })
 
-  // Track available vertical space to prevent content from overflowing viewport
   useEffect(() => {
     const el = outerRef.current
     if (!el) return
@@ -87,17 +86,17 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       ref={setRefs}
       role="region"
       aria-label={title}
-      className={`absolute ${zIndex} flex flex-col rounded-lg shadow-lg bg-white/90 dark:bg-[#0c1826]/90 backdrop-blur-sm border border-gray-200 dark:border-[#2f4863] select-none`}
+      className={`floating-panel absolute ${zIndex} flex flex-col rounded-2xl select-none`}
       style={style as CSSProperties}
     >
       <div
-        className="flex items-center gap-2 px-3 py-2 cursor-grab active:cursor-grabbing shrink-0"
+        className="panel-header flex items-center gap-2 px-3.5 py-2.5 cursor-grab active:cursor-grabbing shrink-0"
         {...handlers}
       >
         {icon}
-        <span className="text-sm font-medium dark:text-[#ecf4ff]">{title}</span>
+        <span className="text-sm font-semibold tracking-tight">{title}</span>
         <button
-          className="ml-auto text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="ml-auto min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? '展开' : '折叠'}
@@ -106,7 +105,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
         </button>
         {closable && onClose && (
           <button
-            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[#e11d48] hover:bg-[rgba(225,29,72,0.08)] transition-all duration-150"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onClose}
             aria-label="关闭"
@@ -117,7 +116,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       </div>
       {!collapsed && (
         <div
-          className="px-3 pb-2 overflow-y-auto"
+          className="px-3.5 pb-3 overflow-y-auto"
           style={{ maxHeight: maxContentHeight }}
         >
           {children}

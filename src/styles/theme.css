@@ -4,168 +4,277 @@
 }
 
 .app-shell.theme-night {
-  color: #e8f1ff;
-  background: #0b1220;
+  color: #e0f2fe;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(45, 212, 191, 0.05) 0%, transparent 50%),
+    #060e1a;
 }
 
-.app-shell.theme-night .app-header h1 {
-  color: #f4f8ff;
+/* ── Night Glass Panels ── */
+.app-shell.theme-night .floating-panel {
+  background: rgba(8, 20, 38, 0.68);
+  border-color: rgba(56, 189, 248, 0.2);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 12px 40px rgba(14, 165, 233, 0.08);
 }
 
+.app-shell.theme-night .sidebar-panel {
+  background: rgba(8, 20, 38, 0.68);
+  border-right-color: rgba(56, 189, 248, 0.2);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+    4px 0 24px rgba(0, 0, 0, 0.2);
+}
+
+.app-shell.theme-night .floating-panel .panel-header,
+.app-shell.theme-night .sidebar-panel .panel-header {
+  color: #bae6fd;
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+/* ── Night Actions ── */
 .app-shell.theme-night .scene-actions button,
 .app-shell.theme-night .scene-actions-btn,
 .app-shell.theme-night .theme-switch button,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
-  border-color: #4f6f98;
-  background: #101c30;
-  color: #dcecff;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(12, 26, 48, 0.75);
+  color: #bae6fd;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.app-shell.theme-night .scene-actions button:hover,
+.app-shell.theme-night .scene-actions-btn:hover,
+.app-shell.theme-night .theme-switch button:hover,
+.app-shell.theme-night .overview-link:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+    0 4px 12px rgba(14, 165, 233, 0.2),
+    0 0 0 1px rgba(14, 165, 233, 0.1);
 }
 
 .app-shell.theme-night .scene-actions button.active,
 .app-shell.theme-night .scene-actions-btn.active,
 .app-shell.theme-night .theme-switch button.active {
-  background: #2d5277;
-  border-color: #6e95bf;
-  color: #eef6ff;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.55) 0%, rgba(45, 212, 191, 0.45) 100%);
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #f0f9ff;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 0 16px rgba(14, 165, 233, 0.25);
 }
 
-.app-shell.theme-night .scene-actions-btn:hover {
-  border-color: #6e95bf;
-  box-shadow: 0 6px 14px rgba(13, 64, 112, 0.3);
+.app-shell.theme-night .scene-actions-btn:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Night Controls ── */
+.app-shell.theme-night .control-section-title {
+  color: #7dd3fc;
+}
+
+.app-shell.theme-night .control-section-body {
+  background: rgba(12, 26, 48, 0.45);
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+.app-shell.theme-night .readout-panel {
+  background: rgba(8, 24, 44, 0.65);
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+.app-shell.theme-night .readout-item-label {
+  color: #7dd3fc;
+}
+
+.app-shell.theme-night .readout-item-value {
+  color: #e0f2fe;
+}
+
+.app-shell.theme-night .readout-divider {
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+.app-shell.theme-night .segmented-control button {
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.app-shell.theme-night .segmented-control button.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.55) 0%, rgba(45, 212, 191, 0.4) 100%);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #f0f9ff;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
+}
+
+.app-shell.theme-night .segmented-control button:not(.active) {
+  background: rgba(12, 26, 48, 0.6);
+  color: #93c5fd;
+}
+
+.app-shell.theme-night .segmented-control button:not(.active):hover {
+  background: rgba(14, 45, 80, 0.7);
+}
+
+/* ── Night Scene Core ── */
 .app-shell.theme-night .scene-core-summary-stack p {
-  color: #d8ebff;
+  color: #bae6fd;
 }
 
 .app-shell.theme-night .scene-legend {
-  border-color: #3f6285;
-  background: rgba(16, 33, 50, 0.88);
+  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(8, 24, 44, 0.55);
 }
 
 .app-shell.theme-night .scene-legend-item {
-  color: #d7ebff;
+  color: #7dd3fc;
 }
 
 .app-shell.theme-night .formula-input,
 .app-shell.theme-night .preset-select {
-  background: #0f1d2d;
-  border-color: #3a5675;
-  color: #dcecff;
+  background: rgba(8, 20, 38, 0.65);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #e0f2fe;
 }
 
 .app-shell.theme-night .formula-help {
-  color: #c8dbee;
-  background: rgba(26, 42, 61, 0.9);
+  color: #7dd3fc;
+  background: rgba(8, 24, 44, 0.55);
 }
 
+/* ── Night Overview ── */
 .app-shell.theme-night .overview-page {
-  --overview-ink: #f1f6ff;
-  --overview-soft-ink: #abc0da;
-  --overview-card-bg-start: rgba(15, 27, 47, 0.95);
-  --overview-card-bg-end: rgba(15, 27, 47, 0.95);
-  --overview-card-border: rgba(98, 143, 198, 0.34);
-  --overview-shell-border: rgba(86, 127, 176, 0.36);
-  --overview-shell-bg: rgba(8, 20, 38, 0.92);
-  --overview-shadow: 0 22px 46px rgba(1, 8, 18, 0.62);
+  --overview-ink: #f0f9ff;
+  --overview-soft-ink: #93c5fd;
+  --overview-card-bg-start: rgba(8, 20, 38, 0.72);
+  --overview-card-bg-end: rgba(8, 20, 38, 0.58);
+  --overview-card-border: rgba(56, 189, 248, 0.22);
+  --overview-shell-border: rgba(56, 189, 248, 0.22);
+  --overview-shell-bg:
+    linear-gradient(165deg, rgba(8, 20, 38, 0.72) 0%, rgba(6, 16, 32, 0.65) 50%, rgba(8, 24, 44, 0.62) 100%);
+  --overview-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(14, 165, 233, 0.08),
+    0 24px 64px rgba(0, 0, 0, 0.35);
+  --overview-card-accent: #38bdf8;
+  --overview-card-glow: rgba(14, 165, 233, 0.12);
+  --overview-kicker: #2dd4bf;
+  --overview-note-bg: rgba(8, 24, 44, 0.55);
+  --overview-note-border: rgba(56, 189, 248, 0.25);
+  --overview-note-ink: #bae6fd;
 }
 
 .app-shell.theme-night .overview-page::before {
-  display: none;
+  opacity: 0.4;
+  filter: blur(14px);
 }
 
 .app-shell.theme-night .overview-hero {
-  background: #0f1e33;
-  border-color: rgba(102, 149, 202, 0.4);
+  background:
+    radial-gradient(circle at 95% 6%, rgba(14, 165, 233, 0.15) 0%, transparent 48%),
+    radial-gradient(circle at 12% 90%, rgba(45, 212, 191, 0.1) 0%, transparent 45%),
+    linear-gradient(145deg, rgba(8, 20, 38, 0.9) 0%, rgba(6, 18, 36, 0.88) 45%, rgba(8, 24, 44, 0.85) 100%);
+  border-color: rgba(56, 189, 248, 0.25);
 }
 
 .app-shell.theme-night .overview-kicker {
-  color: #9ed0ff;
+  color: #2dd4bf;
 }
 
 .app-shell.theme-night .overview-hero-note {
-  border-color: rgba(103, 152, 208, 0.56);
-  background: rgba(56, 119, 178, 0.2);
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(8, 24, 44, 0.5);
 }
 
 .app-shell.theme-night .overview-note-title {
-  color: #c4e5ff;
+  color: #7dd3fc;
 }
 
 .app-shell.theme-night .overview-note-text {
-  color: #c6dff7;
+  color: #bae6fd;
 }
 
 .app-shell.theme-night .overview-shortcut-tip {
-  color: #97afc8;
+  color: #64748b;
 }
 
 .app-shell.theme-night .overview-card {
-  border-color: rgba(98, 143, 198, 0.34);
+  border-color: rgba(56, 189, 248, 0.2);
 }
 
 .app-shell.theme-night .overview-card-index {
-  color: #86a1be;
+  color: #64748b;
 }
 
 .app-shell.theme-night .overview-card::before {
-  background: #4f6f98;
-  opacity: 0.68;
+  background: linear-gradient(90deg, #38bdf8 0%, rgba(56, 189, 248, 0) 88%);
+  opacity: 0.5;
 }
 
 .app-shell.theme-night .overview-card-summary {
-  color: #abc2da;
+  color: #93c5fd;
 }
 
 .app-shell.theme-night .overview-card-tag {
-  color: #9be0ff;
-  background: rgba(44, 188, 255, 0.16);
-  border-color: rgba(44, 188, 255, 0.46);
+  color: #7dd3fc;
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.3);
 }
 
 .app-shell.theme-night .overview-points {
-  color: #c0d2e6;
+  color: #93c5fd;
 }
 
 .app-shell.theme-night .overview-card:hover {
-  border-color: rgba(117, 182, 255, 0.6);
-  box-shadow: 0 16px 30px rgba(13, 64, 112, 0.36);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(14, 165, 233, 0.1),
+    0 24px 64px rgba(0, 0, 0, 0.3);
 }
 
 .app-shell.theme-night .overview-enter {
-  background: #10243b;
-  border-color: rgba(94, 181, 255, 0.58);
-  color: #d8f0ff;
+  background: rgba(8, 24, 44, 0.7);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #bae6fd;
 }
 
 .app-shell.theme-night .overview-enter:hover {
-  border-color: rgba(126, 201, 255, 0.82);
-  box-shadow: 0 12px 24px rgba(26, 116, 188, 0.3);
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow:
+    0 4px 12px rgba(14, 165, 233, 0.15),
+    0 0 0 1px rgba(14, 165, 233, 0.1);
 }
 
 .app-shell.theme-night .interaction-hint {
-  color: #bdd9f2;
-  background: rgba(18, 34, 52, 0.95);
-  border-top-color: #2f4863;
+  color: #7dd3fc;
+  background: rgba(6, 16, 32, 0.9);
+  border-top-color: rgba(56, 189, 248, 0.2);
 }
 
 .app-shell.theme-night .canvas-fallback {
-  color: #b8d4ec;
+  color: #93c5fd;
 }
 
 .app-shell.theme-night .scene-missing {
-  border-color: #40617f;
-  background: rgba(15, 29, 44, 0.9);
+  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(8, 20, 38, 0.65);
 }
 
 .app-shell.theme-night .scene-missing h2,
 .app-shell.theme-night .scene-missing p {
-  color: #deedff;
+  color: #e0f2fe;
 }
 
 .app-shell.theme-night .scene-missing-links button {
-  border-color: #4f6f98;
-  background: #101c30;
-  color: #dcecff;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(12, 26, 48, 0.75);
+  color: #bae6fd;
 }

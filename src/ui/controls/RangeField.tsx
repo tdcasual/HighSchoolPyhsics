@@ -30,14 +30,22 @@ export function RangeField({
   }
 
   const valueText = displayValue ?? (unit ? `${value} ${unit}` : String(value))
+  const progress = ((value - min) / (max - min)) * 100
 
   return (
     <div className="flex flex-col gap-0.5 md:gap-1">
       <div className="flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-[0.75rem] md:text-[0.85rem] font-semibold text-[#3a5a78] dark:text-[#9cbad2]">
+        <label
+          htmlFor={id}
+          className="text-[0.75rem] md:text-[0.85rem] font-semibold tracking-tight"
+          style={{ color: 'var(--control-ink-soft)' }}
+        >
           {label}
         </label>
-        <span className="text-[0.75rem] md:text-[0.85rem] font-mono text-[#3d6a8e] dark:text-[#7db8dc] tabular-nums">
+        <span
+          className="text-[0.75rem] md:text-[0.85rem] font-mono font-bold tabular-nums"
+          style={{ color: 'var(--readout-value)' }}
+        >
           {valueText}
         </span>
       </div>
@@ -49,10 +57,13 @@ export function RangeField({
         step={step}
         value={value}
         onChange={handleChange}
-        className="w-full accent-[#2f95d5] dark:accent-[#58a8e8]"
+        className="w-full"
+        style={{
+          background: `linear-gradient(90deg, #38bdf8 ${progress}%, rgba(14,165,233,0.15) ${progress}%)`,
+        }}
       />
       {showMinMax && (
-        <div className="flex justify-between text-[0.72rem] text-[#8ca0b4] dark:text-[#5a7e98]">
+        <div className="flex justify-between text-[0.72rem] font-medium" style={{ color: 'var(--control-ink-muted)' }}>
           <span>{unit ? `${min} ${unit}` : min}</span>
           <span>{unit ? `${max} ${unit}` : max}</span>
         </div>
