@@ -27,6 +27,17 @@ body {
   gap: 1rem;
 }
 
+@media (max-width: 767px) {
+  #root {
+    height: 100dvh;
+  }
+
+  .app-shell {
+    height: 100dvh;
+    padding: 0.5rem;
+  }
+}
+
 .app-shell[data-page-scroll='vertical-outside-canvas'] {
   touch-action: pan-y;
 }
@@ -543,10 +554,6 @@ body {
 }
 
 @media (max-width: 767px) {
-  .app-shell {
-    padding: 0.5rem;
-  }
-
   .app-header h1 {
     display: none;
   }
