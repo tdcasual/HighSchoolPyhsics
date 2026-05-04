@@ -16,13 +16,13 @@ body {
 
 #root {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .app-shell {
   display: grid;
   grid-template-rows: auto 1fr;
-  min-height: 100vh;
+  height: 100vh;
   padding: 1rem;
   gap: 1rem;
 }
@@ -367,7 +367,7 @@ body {
 .scene-container {
   min-height: 0;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .scene-loading {
