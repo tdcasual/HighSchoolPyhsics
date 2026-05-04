@@ -1,6 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
 import { CyclotronRig3D } from './CyclotronRig3D'
@@ -63,22 +62,18 @@ export function CyclotronScene() {
           />
         </>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.simulation.running ? '暂停' : '播放',
-              onClick: state.simulation.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.simulation.running ? '暂停' : '播放',
+          onClick: state.simulation.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: state.reset,
+        },
+      ]}
       chartVisible={true}
       viewport={
         <InteractiveCanvas

@@ -263,6 +263,9 @@ export function InteractiveCanvas({
   return (
     <div
       className="interactive-canvas"
+      role="img"
+      aria-label="3D 物理模拟场景，支持鼠标拖拽旋转、滚轮缩放"
+      aria-roledescription="3D 交互场景"
       data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}
       data-canvas-gesture-scope={touchProfile.canvasGestureScope}
     >

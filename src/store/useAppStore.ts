@@ -3,11 +3,22 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type ThemeMode = 'day' | 'night'
 
+export type MobilePlaybackAction = {
+  key: string
+  label: string
+  onClick: () => void
+  disabled?: boolean
+}
+
 type AppState = {
   theme: ThemeMode
   activeScenePath: string
+  mobilePlaybackActions: MobilePlaybackAction[]
+  sidebarCollapsed: boolean
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
+  setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
+  setSidebarCollapsed: (collapsed: boolean) => void
 }
 
 type PersistedAppState = Pick<AppState, 'theme'>
@@ -67,8 +78,12 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: 'day',
       activeScenePath: '/',
+      mobilePlaybackActions: [],
+      sidebarCollapsed: false,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
+      setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
+      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
     }),
     {
       name: 'electromagnetics-lab-ui',

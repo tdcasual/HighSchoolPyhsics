@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
+export const MOBILE_BREAKPOINT = '(max-width: 767px)'
+
 const DUMMY_MQL = { matches: false, addEventListener: () => {}, removeEventListener: () => {} }
 
 function getMQL(query: string) {

@@ -1,12 +1,7 @@
-type SceneAction = {
-  key: string
-  label: string
-  onClick: () => void
-  disabled?: boolean
-}
+import type { MobilePlaybackAction } from '../../store/useAppStore'
 
 type SceneActionsProps = {
-  actions: SceneAction[]
+  actions: MobilePlaybackAction[]
   activeKey?: string
 }
 

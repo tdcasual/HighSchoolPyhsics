@@ -11,6 +11,7 @@ import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize } from './app/touchProfile'
+import { useMediaQuery, MOBILE_BREAKPOINT } from './ui/hooks/useMediaQuery'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -30,6 +31,8 @@ function App() {
   const theme = useAppStore((state) => state.theme)
   const setTheme = useAppStore((state) => state.setTheme)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
+  const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -126,14 +129,34 @@ function App() {
       data-page-scroll={activeTouchProfile.pageScroll}
       style={shellStyle}
     >
+      <a
+        href="#scene-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[#0c1826] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
+      >
+        跳转到主要内容
+      </a>
       <header className="app-header">
         <h1>{APP_BRAND_NAME}</h1>
         <div className="app-controls">
-          {!isOverviewPage ? (
+          {!isOverviewPage && isMobile ? (
+            <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
+              返回
+            </button>
+          ) : !isOverviewPage ? (
             <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
               返回导航
             </button>
           ) : null}
+          {!isOverviewPage && isMobile && mobilePlaybackActions.map((action) => (
+            <button
+              key={action.key}
+              className="touch-target scene-actions-btn"
+              onClick={action.onClick}
+              disabled={action.disabled}
+            >
+              {action.label}
+            </button>
+          ))}
           <div className="theme-switch">
             <button
               className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
@@ -142,7 +165,7 @@ function App() {
               title="快捷键 D"
               onClick={() => setTheme('day')}
             >
-              白天模式
+              {isMobile ? '白天' : '白天模式'}
             </button>
             <button
               className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
@@ -151,12 +174,12 @@ function App() {
               title="快捷键 N"
               onClick={() => setTheme('night')}
             >
-              夜间模式
+              {isMobile ? '夜间' : '夜间模式'}
             </button>
           </div>
         </div>
       </header>
-      <section className="scene-container">
+      <section className="scene-container" id="scene-content">
         <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
           {isOverviewPage ? (
             <SceneRuntimeBoundary

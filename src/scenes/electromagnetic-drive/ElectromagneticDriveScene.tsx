@@ -1,5 +1,4 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectromagneticDriveChart } from './ElectromagneticDriveChart'
 import { ElectromagneticDriveControls } from './ElectromagneticDriveControls'
@@ -36,27 +35,23 @@ export function ElectromagneticDriveScene() {
         />
       }
       chartVisible={true}
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'start',
-              label: '开始摇动',
-              onClick: state.start,
-            },
-            {
-              key: 'pause',
-              label: '停止摇动',
-              onClick: state.pause,
-            },
-            {
-              key: 'reset',
-              label: '重置实验',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'start',
+          label: '开始摇动',
+          onClick: state.start,
+        },
+        {
+          key: 'pause',
+          label: '停止摇动',
+          onClick: state.pause,
+        },
+        {
+          key: 'reset',
+          label: '重置实验',
+          onClick: state.reset,
+        },
+      ]}
       viewport={
         <InteractiveCanvas
           camera={{ position: [8.6, 14.1, 24.2], fov: 44 }}

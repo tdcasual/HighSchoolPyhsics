@@ -49,7 +49,7 @@
       }
     },
     "playwright": {
-      "readyText": "磁场 B (T)",
+      "readyText": "回旋加速器控制",
       "screenshotName": "cyclotron"
     }
   },
@@ -103,7 +103,7 @@
       }
     },
     "playwright": {
-      "readyText": "奥斯特电流磁效应",
+      "readyText": "奥斯特实验控制",
       "screenshotName": "oersted"
     }
   },
@@ -157,7 +157,7 @@
       }
     },
     "playwright": {
-      "readyText": "电势图构建控制",
+      "readyText": "电势图控制",
       "screenshotName": "potential-energy"
     }
   },
@@ -211,7 +211,7 @@
       }
     },
     "playwright": {
-      "readyText": "实验控制台",
+      "readyText": "感应电流实验控制",
       "screenshotName": "induction-current"
     }
   },

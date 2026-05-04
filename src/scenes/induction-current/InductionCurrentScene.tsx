@@ -8,7 +8,6 @@ import {
   formatVerticalDirection,
 } from './model'
 import { useInductionCurrentSceneState } from './useInductionCurrentSceneState'
-import './induction-current.css'
 
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
@@ -41,35 +40,25 @@ export function InductionCurrentScene() {
           <p>实验记录: {state.records.length} 条</p>
         </div>
       }
-      playback={
-        <div className="induction-current-btn-row">
-          <button
-            type="button"
-            className={`touch-target induction-current-action ${state.lastMotionDirection === 'approach' ? 'active' : ''}`.trim()}
-            onClick={state.moveTowardsCoil}
-            disabled={!state.canMoveTowardsCoil}
-            aria-pressed={state.lastMotionDirection === 'approach'}
-          >
-            ↓ 向下运动 (接近)
-          </button>
-          <button
-            type="button"
-            className={`touch-target induction-current-action ${state.lastMotionDirection === 'recede' ? 'active' : ''}`.trim()}
-            onClick={state.moveAwayFromCoil}
-            disabled={!state.canMoveAwayFromCoil}
-            aria-pressed={state.lastMotionDirection === 'recede'}
-          >
-            ↑ 向上运动 (远离)
-          </button>
-          <button
-            type="button"
-            className="touch-target induction-current-reset"
-            onClick={state.resetExperiment}
-          >
-            ↺ 重置实验
-          </button>
-        </div>
-      }
+      playbackActions={[
+        {
+          key: 'approach',
+          label: '↓ 接近',
+          onClick: state.moveTowardsCoil,
+          disabled: !state.canMoveTowardsCoil,
+        },
+        {
+          key: 'recede',
+          label: '↑ 远离',
+          onClick: state.moveAwayFromCoil,
+          disabled: !state.canMoveAwayFromCoil,
+        },
+        {
+          key: 'reset',
+          label: '↺ 重置',
+          onClick: state.resetExperiment,
+        },
+      ]}
       viewport={
         <InteractiveCanvas
           camera={{ position: [25, 5, 65], fov: 40 }}

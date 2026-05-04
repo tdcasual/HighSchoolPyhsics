@@ -1,55 +1,31 @@
-# 课堂展示混合模式接入规范（新演示页面模板）
+# 五区布局接入规范（新演示页面模板）
 
-本规范用于后续新增演示页面时，统一接入“课堂展示混合模式（自动 / 双核心 / 视口优先）”。
+本规范用于后续新增演示页面时，统一接入五区浮层布局。
 
 ## 1. 目标
 
-- 让新页面在 `自动` 模式下，尽量准确判断“左侧信息区是否为课堂核心”。
-- 保证误判时可通过顶部布局切换器手动覆盖。
-- 保持不同页面的信号标注一致，避免后续维护漂移。
-- 统一假设现代 Chromium 运行环境，不引入弱环境兼容分支。
+- 3D 动画全屏铺底，参数/数据/图表/播放以浮层覆盖。
+- 折叠侧栏后，数据浮层仍可显示课堂关键读数。
+- 移动端自动切换为底部面板 + tab 布局。
 
-## 2. 自动识别规则
+## 2. SceneLayout 四个内容槽
 
-`SceneLayout` 会对信号打分：
+| 槽位 | 用途 | 对应区域 |
+|---|---|---|
+| `controls` | 参数滑块、选择器、文本输入 | 侧栏 (SidebarPanel) |
+| `dataOverlay` | 实时读数、探针值、方向指示 | 数据浮层 (FloatingPanel) |
+| `chart` | 波形图、轨迹图、时序曲线 | 图表浮层 (FloatingPanel, 可关闭) |
+| `playbackActions` | 播放/暂停/重置按钮数组 | 播放浮层 (FloatingPanel) |
 
-- `chart` = 2
-- `live-metric` = 1
-- `time-series` = 1
-- `interactive-readout` = 1
+## 3. 新页面接入步骤
 
-决策阈值：
+1. 实现 `XxxControls` 组件 → 传入 `controls` 槽。
+2. 实现数据摘要 JSX（3~5 行关键读数）→ 传入 `dataOverlay` 槽。
+3. 如有图表，实现图表组件 → 传入 `chart` 槽，配合 `chartVisible` 控制显隐。
+4. 实现播放控制 actions 数组 → 传入 `playbackActions` 槽。
+5. 保持分层结构：`useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene` 壳层。
 
-- 总分 `>= 2`：自动进入 `split`（双核心并排）
-- 总分 `< 2`：自动进入 `viewport`（视口优先）
-
-注意：用户在顶部切换 `双核心` / `视口优先` 后，会覆盖自动判断并按路由记忆。
-
-## 3. 信号语义
-
-- `chart`: 可连续阅读趋势/波形/图表的可视核心（优先级最高）
-- `time-series`: 明确的随时间变化曲线（可与 `chart` 共用）
-- `live-metric`: 实时数值读数（电压、能量、频率等）
-- `interactive-readout`: 互动观察结果（例如可见摆动、状态等级）
-
-### 3.1 smartPresentation 契约补充
-
-- `layout = never`：场景不得依赖运行时布局阶段切换；`preferredLayout` 在课堂模式下会被忽略。
-- `layout = enter-only`：场景允许声明课堂默认摘要/焦点能力，但布局仍视为静态；`preferredLayout` 同样被忽略。
-- `layout = staged`：场景可以在教学流程推进时通过 `presentationIntent.preferredLayout` 驱动 `split` / `viewport` 切换。
-- `focus = false`：即使场景传入 `presentationFocus`，课堂模式也会回退到 `overview`。
-- `stickySummary = false`：即使场景传入黏附摘要偏好，1080P 课堂模式也不会进入 `split-sticky-summary`。
-
-## 4. 新页面接入步骤
-
-1. 在场景页面给 `SceneLayout` 传 `presentationSignals`（静态先验）。
-2. 提供 `coreSummary`（3~5 行课堂关键读数），保证 `viewport` 折叠态仍可读。
-3. 在左侧关键组件节点加 `data-presentation-signal`（运行时补充识别）。
-4. 保持分层结构：`useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene` 壳层。
-5. 默认不改全局布局逻辑，由混合模式自动判断。
-6. 用课堂展示开关和布局切换器做一次人工验收（自动是否合理、手动是否可兜底）。
-
-## 5. 最小模板（可直接复制）
+## 4. 最小模板
 
 ```tsx
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
@@ -63,17 +39,19 @@ export function NewDemoScene() {
 
   return (
     <SceneLayout
-      presentationSignals={['chart', 'live-metric']}
-      coreSummary={
+      controls={<NewDemoControls state={state} />}
+      dataOverlay={
         <div className="scene-core-summary-stack">
           <p>状态: {state.running ? '运行中' : '已暂停'}</p>
           <p>核心量: {state.intensity.toFixed(1)}</p>
-          <p>课堂提示: 待补充</p>
         </div>
       }
-      controls={
-        <NewDemoControls state={state} />
-      }
+      chart={state.showChart ? <NewDemoChart data={state.chartData} /> : undefined}
+      chartVisible={state.showChart}
+      playbackActions={[
+        { key: 'play', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
+        { key: 'reset', label: '重置', onClick: state.reset },
+      ]}
       viewport={
         <InteractiveCanvas frameloop={state.running ? 'always' : 'demand'}>
           <NewDemoRig3D running={state.running} intensity={state.intensity} />
@@ -84,14 +62,16 @@ export function NewDemoScene() {
 }
 ```
 
-## 6. 推荐组合
+## 5. 推荐组合
 
-- “图表 + 3D 同讲”类（示波器 / 回旋加速器）：`chart` + `live-metric`（通常自动进 `split`）
-- “读数辅助 3D 观察”类（MHD / 奥斯特）：`live-metric` 或 `interactive-readout`（通常自动进 `viewport`）
+- "图表 + 3D 同讲"类（示波器 / 回旋加速器）：`chart` + `dataOverlay`（波形 + 读数同时可见）
+- "读数辅助 3D 观察"类（MHD / 奥斯特）：`dataOverlay`（实时数值覆盖在 3D 旁边）
 
-## 7. 验收清单
+## 6. 验收清单
 
-- 开启“课堂展示”后，布局是否符合课堂预期。
-- 切换到 `自动` / `双核心` / `视口优先` 时，行为是否即时生效。
-- 刷新页面后，该路由的手动选择是否被记忆。
-- 1080P 屏上，核心信息是否在 2~4 米距离内可辨识。
+- 侧栏展开/折叠是否正常。
+- 数据浮层是否始终显示关键读数。
+- 图表浮层能否正确打开/关闭。
+- 播放按钮功能是否正常。
+- 移动端底部面板 tab 切换是否流畅。
+- 1080P 屏上，数据浮层读数是否在 2~4 米距离内可辨识。

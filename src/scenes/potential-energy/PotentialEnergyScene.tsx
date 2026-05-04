@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -80,30 +79,26 @@ export function PotentialEnergyScene() {
           </ControlSection>
         </div>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'show-slice',
-              label: '1. 显示电势切片',
-              onClick: showSlice,
-              disabled: sliceVisible,
-            },
-            {
-              key: 'start-rotation',
-              label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转',
-              onClick: startRotation,
-              disabled: !sliceVisible || rotationInProgress,
-            },
-            {
-              key: 'reset',
-              label: '3. 重置',
-              onClick: resetScene,
-              disabled: !sliceVisible && !surfaceVisible,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'show-slice',
+          label: '1. 显示电势切片',
+          onClick: showSlice,
+          disabled: sliceVisible,
+        },
+        {
+          key: 'start-rotation',
+          label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转',
+          onClick: startRotation,
+          disabled: !sliceVisible || rotationInProgress,
+        },
+        {
+          key: 'reset',
+          label: '3. 重置',
+          onClick: resetScene,
+          disabled: !sliceVisible && !surfaceVisible,
+        },
+      ]}
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>当前电荷: {chargeTypeLabel}</p>

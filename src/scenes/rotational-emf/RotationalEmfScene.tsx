@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { RotationalEmfControls } from './RotationalEmfControls'
 import { RotationalEmfRig3D } from './RotationalEmfRig3D'
@@ -45,22 +44,18 @@ export function RotationalEmfScene() {
           <p>感应电动势: {state.emfMagnitudeLabel}</p>
         </div>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.running ? '暂停' : '播放',
-              onClick: state.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.running ? '暂停' : '播放',
+          onClick: state.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: state.reset,
+        },
+      ]}
       viewport={
         <InteractiveCanvas
           key={state.viewMode}

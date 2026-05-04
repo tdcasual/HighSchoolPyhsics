@@ -1,6 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { AlternatorChart } from './AlternatorChart'
 import { AlternatorControls } from './AlternatorControls'
@@ -50,22 +49,18 @@ export function AlternatorScene() {
           peakVoltageV={state.peakVoltageV}
         />
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.running ? '暂停' : '播放',
-              onClick: state.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.running ? '暂停' : '播放',
+          onClick: state.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: state.reset,
+        },
+      ]}
       chartVisible={true}
     />
   )

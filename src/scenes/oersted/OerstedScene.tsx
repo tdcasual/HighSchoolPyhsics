@@ -1,5 +1,4 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { OerstedControls } from './OerstedControls'
 import { OerstedRig3D } from './OerstedRig3D'
@@ -55,27 +54,23 @@ export function OerstedScene() {
           <p>电流 I: {state.currentA.toFixed(1)} A</p>
         </div>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.running ? '断电' : '通电',
-              onClick: state.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '回到地磁初始位',
-              onClick: state.resetNeedles,
-            },
-            {
-              key: 'toggle-field-lines',
-              label: state.showFieldLines ? '隐藏磁感线' : '显示磁感线',
-              onClick: state.toggleFieldLines,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.running ? '断电' : '通电',
+          onClick: state.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '回到地磁初始位',
+          onClick: state.resetNeedles,
+        },
+        {
+          key: 'toggle-field-lines',
+          label: state.showFieldLines ? '隐藏磁感线' : '显示磁感线',
+          onClick: state.toggleFieldLines,
+        },
+      ]}
       viewport={
         <InteractiveCanvas
           camera={{ position: [3.8, 2.3, 5.6], fov: 42 }}

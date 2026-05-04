@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MotionalEmfControls } from './MotionalEmfControls'
 import { MotionalEmfRig3D } from './MotionalEmfRig3D'
@@ -122,22 +121,18 @@ export function MotionalEmfScene() {
           <p>关系: {state.relationText}</p>
         </div>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.running ? '暂停' : '播放',
-              onClick: state.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.running ? '暂停' : '播放',
+          onClick: state.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: state.reset,
+        },
+      ]}
       viewport={
         <InteractiveCanvas
           key={cameraView}

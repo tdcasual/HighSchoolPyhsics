@@ -76,7 +76,7 @@ describe('SceneLayout five-zone', () => {
       <SceneLayout
         controls={<div>params</div>}
         viewport={<div>canvas</div>}
-        playback={<div>播放控件</div>}
+        playbackActions={[{ key: 'play', label: '播放控件', onClick: () => {} }]}
       />,
     )
     expect(screen.getByText('播放控件')).toBeInTheDocument()

@@ -13,11 +13,26 @@ type SegmentedControlProps = {
 export function SegmentedControl({ options, value, onChange, columns }: SegmentedControlProps) {
   const cols = columns ?? (options.length <= 2 ? 2 : 3)
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const idx = options.findIndex((o) => o.key === value)
+    if (idx < 0) return
+    let nextIdx = -1
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      nextIdx = (idx + 1) % options.length
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      nextIdx = (idx - 1 + options.length) % options.length
+    }
+    if (nextIdx >= 0) onChange(options[nextIdx].key)
+  }
+
   return (
     <div
       className="grid gap-0"
       style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       role="radiogroup"
+      onKeyDown={handleKeyDown}
     >
       {options.map((option, i) => {
         const active = option.key === value
@@ -28,6 +43,7 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
             key={option.key}
             role="radio"
             aria-checked={active}
+            tabIndex={active ? 0 : -1}
             className={[
               'min-h-[34px] md:min-h-[38px] text-[0.72rem] md:text-[0.82rem] font-medium transition-colors duration-150 select-none',
               'border border-[#8caec8] dark:border-[#3d5a75]',

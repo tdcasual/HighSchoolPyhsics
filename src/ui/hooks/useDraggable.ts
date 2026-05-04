@@ -6,6 +6,7 @@ type DragBounds = { left?: number; top?: number; right?: number; bottom?: number
 type UseDraggableOptions = {
   initialPosition?: Position
   bounds?: DragBounds | (() => DragBounds)
+  offsetX?: number
 }
 
 function clampPos(pos: Position, bounds: DragBounds | undefined): Position {
@@ -23,17 +24,47 @@ function resolveBounds(bounds: DragBounds | (() => DragBounds) | undefined): Dra
 }
 
 export function useDraggable(options?: UseDraggableOptions) {
-  const { initialPosition = { x: 0, y: 0 }, bounds } = options ?? {}
+  const { initialPosition = { x: 0, y: 0 }, bounds, offsetX } = options ?? {}
   const [position, setPositionRaw] = useState<Position>(initialPosition)
-  const posRef = useRef(position)
+  const [effectiveOffsetX, setEffectiveOffsetX] = useState(offsetX)
+  const basePositionRef = useRef(initialPosition)
+  const prevOffsetXRef = useRef(offsetX)
   const boundsRef = useRef(bounds)
   const draggingRef = useRef(false)
 
-  useEffect(() => { posRef.current = position })
-  useEffect(() => { boundsRef.current = bounds })
+  useEffect(() => { boundsRef.current = bounds }, [bounds])
+
+  // Adjust base position when offsetX changes so displayed position stays stable.
+  /* eslint-disable react-hooks/set-state-in-effect -- syncs offsetX prop to state */
+  useEffect(() => {
+    if (offsetX === undefined) {
+      prevOffsetXRef.current = undefined
+      setEffectiveOffsetX(undefined)
+      return
+    }
+
+    const prevOffsetX = prevOffsetXRef.current
+    prevOffsetXRef.current = offsetX
+    setEffectiveOffsetX(offsetX)
+
+    if (prevOffsetX !== undefined && offsetX !== prevOffsetX) {
+      const dx = offsetX - prevOffsetX
+      const clamped = clampPos(
+        { x: basePositionRef.current.x + dx, y: basePositionRef.current.y },
+        resolveBounds(boundsRef.current),
+      )
+      basePositionRef.current = clamped
+      setPositionRaw(clamped)
+    }
+  }, [offsetX])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const setPosition = useCallback(
-    (pos: Position) => setPositionRaw(clampPos(pos, resolveBounds(boundsRef.current))),
+    (pos: Position) => {
+      const clamped = clampPos(pos, resolveBounds(boundsRef.current))
+      basePositionRef.current = clamped
+      setPositionRaw(clamped)
+    },
     [],
   )
 
@@ -44,13 +75,15 @@ export function useDraggable(options?: UseDraggableOptions) {
       draggingRef.current = true
       const target = event.currentTarget as HTMLElement
       target.setPointerCapture(event.pointerId)
-      const startPos = { ...posRef.current }
+      const startPos = { ...basePositionRef.current }
       const startPointer = { x: event.clientX, y: event.clientY }
       const onMove = (e: PointerEvent) => {
         const dx = e.clientX - startPointer.x
         const dy = e.clientY - startPointer.y
         const resolved = resolveBounds(boundsRef.current)
-        setPositionRaw(clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved))
+        const clamped = clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved)
+        basePositionRef.current = clamped
+        setPositionRaw(clamped)
       }
       const onUp = () => {
         draggingRef.current = false
@@ -63,8 +96,10 @@ export function useDraggable(options?: UseDraggableOptions) {
     [],
   )
 
+  const finalX = position.x + (effectiveOffsetX ?? 0)
+
   return {
-    style: { transform: `translate(${position.x}px, ${position.y}px)` } as CSSProperties,
+    style: { transform: `translate(${finalX}px, ${position.y}px)` } as CSSProperties,
     handlers: { onPointerDown },
     position,
     setPosition,

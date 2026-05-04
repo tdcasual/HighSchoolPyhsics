@@ -1,40 +1,60 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 type SidebarPanelProps = {
   title?: string
   width?: number
-  defaultCollapsed?: boolean
   collapsed?: boolean
   onCollapsedChange?: (collapsed: boolean) => void
   children: ReactNode
 }
 
+const SIDEBAR_COLLAPSED_WIDTH = 44
+const HEADER_BAR_HEIGHT = 52
+const VIEWPORT_MARGIN = 8
+const MIN_MAX_HEIGHT = 120
+
 export function SidebarPanel({
   title,
   width = 320,
-  defaultCollapsed = false,
-  collapsed: controlledCollapsed,
+  collapsed = false,
   onCollapsedChange,
   children,
 }: SidebarPanelProps) {
-  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
-  const collapsed = controlledCollapsed ?? internalCollapsed
-  const setCollapsed = (value: boolean) => {
-    setInternalCollapsed(value)
-    onCollapsedChange?.(value)
-  }
+  const [maxContentHeight, setMaxContentHeight] = useState<number | undefined>()
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = panelRef.current
+    if (!el) return
+
+    const update = () => {
+      const rect = el.getBoundingClientRect()
+      const available = window.innerHeight - rect.top - VIEWPORT_MARGIN
+      setMaxContentHeight(Math.max(MIN_MAX_HEIGHT, available - HEADER_BAR_HEIGHT))
+    }
+
+    update()
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    observer?.observe(el)
+    window.addEventListener('resize', update)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', update)
+    }
+  }, [collapsed])
 
   return (
     <div
+      ref={panelRef}
       role="complementary"
       aria-label={title ?? '侧边栏'}
       className="absolute left-0 top-0 bottom-0 z-30 flex bg-white/90 dark:bg-[#0c1826]/90 backdrop-blur-sm border-r border-gray-200 dark:border-[#2f4863] transition-all duration-200"
-      style={{ width: collapsed ? 40 : width }}
+      style={{ width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : width }}
     >
       {collapsed ? (
         <button
-          className="flex flex-col items-center justify-center w-full gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          onClick={() => setCollapsed(false)}
+          className="flex flex-col items-center justify-center w-full gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-h-[44px]"
+          onClick={() => onCollapsedChange?.(false)}
           aria-label="展开参数面板"
         >
           <span className="text-sm">→</span>
@@ -46,17 +66,20 @@ export function SidebarPanel({
         </button>
       ) : (
         <div className="flex flex-col w-full overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f4863]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f4863] shrink-0">
             {title && <span className="text-sm font-medium dark:text-[#ecf4ff]">{title}</span>}
             <button
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              onClick={() => setCollapsed(true)}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              onClick={() => onCollapsedChange?.(true)}
               aria-label="折叠参数面板"
             >
               ←
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
+          <div
+            className="flex-1 overflow-y-auto p-4"
+            style={{ maxHeight: maxContentHeight }}
+          >
             {children}
           </div>
         </div>

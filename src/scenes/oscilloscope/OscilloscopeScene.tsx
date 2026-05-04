@@ -6,7 +6,6 @@ import { OscilloscopeDisplay } from './OscilloscopeDisplay'
 import { COMMON_ELECTRIC_FIELD_PRESETS, CUSTOM_PRESET_VALUE, derivePresetValue } from './presets'
 import { buildDisplayTracePoints, buildDisplayTraceSegments } from './scopeTrace'
 import { useOscilloscopeSimulation } from './useOscilloscopeSimulation'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SelectField } from '../../ui/controls/SelectField'
 import { TextField } from '../../ui/controls/TextField'
@@ -142,22 +141,18 @@ export function OscilloscopeScene() {
           running={simulation.running}
         />
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: simulation.running ? '暂停' : '播放',
-              onClick: simulation.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: simulation.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: simulation.running ? '暂停' : '播放',
+          onClick: simulation.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: simulation.reset,
+        },
+      ]}
       chartVisible={true}
       viewport={
         <OscilloscopeCrt3D

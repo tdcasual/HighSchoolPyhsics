@@ -37,4 +37,33 @@ describe('useDraggable', () => {
     const { result } = renderHook(() => useDraggable())
     expect(result.current.position).toEqual({ x: 0, y: 0 })
   })
+
+  it('adjusts base position when offsetX changes', () => {
+    const { result, rerender } = renderHook(
+      ({ offsetX }) => useDraggable({ initialPosition: { x: 100, y: 50 }, offsetX }),
+      { initialProps: { offsetX: 200 } },
+    )
+    // base position stays at 100 (offsetX is additive in style, not in position state)
+    expect(result.current.position.x).toBe(100)
+    expect(result.current.style.transform).toBe('translate(300px, 50px)')
+
+    // offsetX increases by 60 → base position shifts by 60
+    rerender({ offsetX: 260 })
+    expect(result.current.position.x).toBe(160)
+    expect(result.current.style.transform).toBe('translate(420px, 50px)')
+  })
+
+  it('includes offsetX in transform when defined', () => {
+    const { result } = renderHook(() =>
+      useDraggable({ initialPosition: { x: 50, y: 30 }, offsetX: 100 }),
+    )
+    expect(result.current.style.transform).toBe('translate(150px, 30px)')
+  })
+
+  it('uses raw position in transform when offsetX is undefined', () => {
+    const { result } = renderHook(() =>
+      useDraggable({ initialPosition: { x: 50, y: 30 } }),
+    )
+    expect(result.current.style.transform).toBe('translate(50px, 30px)')
+  })
 })

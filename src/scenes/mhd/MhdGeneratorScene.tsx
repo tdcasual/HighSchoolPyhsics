@@ -1,5 +1,4 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MhdControls } from './MhdControls'
 import { MhdGeneratorRig3D } from './MhdGeneratorRig3D'
@@ -45,22 +44,18 @@ export function MhdGeneratorScene() {
           <p><span>v</span><strong>{state.plasmaVelocityMps.toFixed(0)} m/s</strong></p>
         </div>
       }
-      playback={
-        <SceneActions
-          actions={[
-            {
-              key: 'toggle-running',
-              label: state.running ? '暂停' : '播放',
-              onClick: state.toggleRunning,
-            },
-            {
-              key: 'reset',
-              label: '重置',
-              onClick: state.reset,
-            },
-          ]}
-        />
-      }
+      playbackActions={[
+        {
+          key: 'toggle-running',
+          label: state.running ? '暂停' : '播放',
+          onClick: state.toggleRunning,
+        },
+        {
+          key: 'reset',
+          label: '重置',
+          onClick: state.reset,
+        },
+      ]}
     />
   )
 }

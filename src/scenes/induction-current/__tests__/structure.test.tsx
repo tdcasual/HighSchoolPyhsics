@@ -11,12 +11,12 @@ describe('induction-current structure', () => {
     render(<InductionCurrentScene />)
 
     expect(await screen.findByText('感应电流实验控制')).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '↓ 向下运动 (接近)' })).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '↑ 向上运动 (远离)' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: '↓ 接近' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: '↑ 远离' })).toBeInTheDocument()
     expect(screen.getByText('暂无实验记录')).toBeInTheDocument()
 
-    const moveTowardButton = await screen.findByRole('button', { name: '↓ 向下运动 (接近)' })
-    const moveAwayButton = await screen.findByRole('button', { name: '↑ 向上运动 (远离)' })
+    const moveTowardButton = await screen.findByRole('button', { name: '↓ 接近' })
+    const moveAwayButton = await screen.findByRole('button', { name: '↑ 远离' })
 
     fireEvent.click(moveTowardButton)
 
@@ -27,7 +27,7 @@ describe('induction-current structure', () => {
 
     await waitFor(() => expect(queryRecordLabels()).toHaveLength(2))
 
-    fireEvent.click(screen.getByRole('button', { name: '↺ 重置实验' }))
+    fireEvent.click(screen.getByRole('button', { name: '↺ 重置' }))
     expect(screen.getByText('暂无实验记录')).toBeInTheDocument()
   })
 })

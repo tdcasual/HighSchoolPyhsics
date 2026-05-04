@@ -547,6 +547,59 @@ body {
     padding: 0.5rem;
   }
 
+  .app-header h1 {
+    display: none;
+  }
+
+  .app-header {
+    gap: 0.4rem;
+  }
+
+  .app-controls {
+    gap: 0.4rem;
+  }
+
+  .theme-switch button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .scene-actions-btn {
+    border: 1px solid var(--action-border);
+    background: var(--action-bg);
+    color: var(--action-ink);
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+  }
+
+  .scene-actions-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--action-hover-border);
+    box-shadow: var(--action-hover-shadow);
+  }
+
+  .scene-actions-btn:active {
+    transform: scale(0.96);
+  }
+
+  .scene-actions-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .scene-actions-btn:disabled:hover {
+    transform: none;
+    border-color: var(--action-border);
+    box-shadow: none;
+  }
+
+  .scene-actions-btn:disabled:active {
+    transform: none;
+  }
+
   .overview-page {
     padding: 0.8rem 0.25rem 1rem;
   }

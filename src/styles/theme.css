@@ -13,6 +13,7 @@
 }
 
 .app-shell.theme-night .scene-actions button,
+.app-shell.theme-night .scene-actions-btn,
 .app-shell.theme-night .theme-switch button,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
@@ -22,10 +23,16 @@
 }
 
 .app-shell.theme-night .scene-actions button.active,
+.app-shell.theme-night .scene-actions-btn.active,
 .app-shell.theme-night .theme-switch button.active {
   background: #2d5277;
   border-color: #6e95bf;
   color: #eef6ff;
+}
+
+.app-shell.theme-night .scene-actions-btn:hover {
+  border-color: #6e95bf;
+  box-shadow: 0 6px 14px rgba(13, 64, 112, 0.3);
 }
 
 .app-shell.theme-night .scene-core-summary-stack p {
