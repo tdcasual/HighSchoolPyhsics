@@ -27,6 +27,33 @@
     }
   },
   {
+    "pageId": "double-slit",
+    "label": "双缝干涉",
+    "meta": {
+      "tag": "波动光学",
+      "summary": "双缝干涉实验仪 3D 还原 + 实时条纹模拟",
+      "highlights": [
+        "波长/缝距/屏距三参数实时联动",
+        "2D 干涉图样与 3D 仪器同步变化"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "双缝干涉控制",
+      "screenshotName": "double-slit"
+    }
+  },
+  {
     "pageId": "cyclotron",
     "label": "回旋加速器",
     "meta": {

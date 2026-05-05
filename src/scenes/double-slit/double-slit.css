@@ -1,0 +1,48 @@
+.double-slit-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.double-slit-chart h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #e5e7eb);
+}
+
+.double-slit-canvas {
+  display: block;
+  width: 100%;
+  max-width: min(360px, 80vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.04);
+}
+
+.double-slit-formula {
+  margin: 0;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #9ca3af);
+  font-style: italic;
+}
+
+/* 3D Labels inside R3F Html */
+.double-slit-label {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}

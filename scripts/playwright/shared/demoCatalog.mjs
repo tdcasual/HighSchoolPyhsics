@@ -29,6 +29,22 @@ export function parseSceneCatalog() {
   return parsed
 }
 
+const SCENE_REGION_MAP = {
+  oscilloscope: '波动与振动',
+  'double-slit': '波动与振动',
+  cyclotron: '电磁学',
+  mhd: '电磁感应',
+  oersted: '电磁学',
+  equipotential: '静电学',
+  'potential-energy': '静电学',
+  'electrostatic-lab': '静电学',
+  'induction-current': '电磁感应',
+  'motional-emf': '电磁感应',
+  'electromagnetic-drive': '电磁感应',
+  'rotational-emf': '电磁感应',
+  alternator: '电磁感应',
+}
+
 export function buildDemoCatalog(scenes) {
   if (!Array.isArray(scenes)) {
     throw new Error('config/demo-scenes.json must be an array')
@@ -62,10 +78,16 @@ export function buildDemoCatalog(scenes) {
     assertNonBlankText(scene.playwright.readyText, `${sceneField}.playwright.readyText`)
     assertNonBlankText(scene.playwright.screenshotName, `${sceneField}.playwright.screenshotName`)
 
+    const regionName = SCENE_REGION_MAP[scene.pageId]
+    if (!regionName) {
+      throw new Error(`Unknown region for scene "${scene.pageId}"`)
+    }
+
     return {
       pageId: scene.pageId,
       path: `/${scene.pageId}`,
-      enterButton: `进入${scene.label}`,
+      label: scene.label,
+      regionName,
       readyText: scene.playwright.readyText,
       screenshotName: scene.playwright.screenshotName,
     }
