@@ -37,26 +37,84 @@ function buildRoute(overrides: Partial<DemoRoute> = {}): DemoRoute {
   }
 }
 
-describe('NavigationPage warmup behavior', () => {
+describe('NavigationPage Linear layout', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
     mockedShouldWarmRouteOnOverview.mockReturnValue(true)
   })
 
   afterEach(() => {
-    vi.runOnlyPendingTimers()
-    vi.useRealTimers()
     vi.clearAllMocks()
   })
 
-  it('preloads scene module only after hover dwell', () => {
+  it('renders the overview with title', () => {
+    render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
+
+    expect(screen.getByRole('heading', { name: '物理演示' })).toBeInTheDocument()
+    expect(screen.getByText('高中物理课堂 3D 交互演示')).toBeInTheDocument()
+  })
+
+  it('renders sidebar with all regions', () => {
+    render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
+
+    const sidebar = screen.getByRole('navigation', { name: '物理区域' })
+    expect(sidebar).toBeInTheDocument()
+    expect(sidebar.textContent).toContain('静电学')
+    expect(sidebar.textContent).toContain('电磁学')
+    expect(sidebar.textContent).toContain('电磁感应')
+    expect(sidebar.textContent).toContain('波动与振动')
+    expect(sidebar.textContent).toContain('力学')
+    expect(sidebar.textContent).toContain('热学')
+  })
+
+  it('shows scenes in the main list grouped by region', () => {
+    render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
+
+    const main = screen.getByRole('main')
+    expect(main.textContent).toContain('示波器')
+    expect(main.textContent).toContain('波形合成')
+  })
+
+  it('opens a scene when its row is clicked', () => {
+    const onOpenRoute = vi.fn()
+    const routes = [
+      buildRoute(),
+      buildRoute({
+        pageId: 'cyclotron',
+        path: '/cyclotron',
+        label: '回旋加速器',
+        meta: {
+          tag: '粒子动力学',
+          summary: '交变电场加速 + 磁场轨道约束',
+          highlights: ['U-t / Ek-t 双曲线'],
+          tone: 'cyclotron',
+        },
+      }),
+    ]
+
+    render(<NavigationPage routes={routes} onOpenRoute={onOpenRoute} />)
+
+    fireEvent.click(screen.getAllByText('示波器')[0])
+    expect(onOpenRoute).toHaveBeenCalledWith('/oscilloscope')
+
+    fireEvent.click(screen.getAllByText('回旋加速器')[0])
+    expect(onOpenRoute).toHaveBeenCalledWith('/cyclotron')
+  })
+
+  it('shows empty state for regions with no scenes', () => {
+    render(<NavigationPage routes={[]} onOpenRoute={vi.fn()} />)
+
+    expect(screen.getAllByText('该区域暂无演示场景').length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('preloads scene module on hover dwell', () => {
+    vi.useFakeTimers()
     const preload = vi.fn().mockResolvedValue(undefined)
     const route = buildRoute({ preload })
 
     render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
 
-    const button = screen.getByRole('button', { name: '进入示波器' })
-    fireEvent.pointerEnter(button)
+    const sceneButton = screen.getAllByText('示波器')[0]
+    fireEvent.pointerEnter(sceneButton)
 
     expect(preload).not.toHaveBeenCalled()
     vi.advanceTimersByTime(119)
@@ -64,100 +122,69 @@ describe('NavigationPage warmup behavior', () => {
 
     vi.advanceTimersByTime(1)
     expect(preload).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
   })
 
   it('cancels pending warmup when hover leaves before dwell threshold', () => {
+    vi.useFakeTimers()
     const preload = vi.fn().mockResolvedValue(undefined)
     const route = buildRoute({ preload })
 
     render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
 
-    const button = screen.getByRole('button', { name: '进入示波器' })
-    fireEvent.pointerEnter(button)
+    const sceneButton = screen.getAllByText('示波器')[0]
+    fireEvent.pointerEnter(sceneButton)
     vi.advanceTimersByTime(60)
-    fireEvent.pointerLeave(button)
+    fireEvent.pointerLeave(sceneButton)
     vi.advanceTimersByTime(200)
 
     expect(preload).not.toHaveBeenCalled()
+
+    vi.useRealTimers()
   })
 
-  it('keeps keyboard focus warmup immediate for accessibility', () => {
+  it('warms route immediately on keyboard focus for accessibility', () => {
+    vi.useFakeTimers()
     const preload = vi.fn().mockResolvedValue(undefined)
     const route = buildRoute({ preload })
 
     render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
 
-    fireEvent.focus(screen.getByRole('button', { name: '进入示波器' }))
-
+    fireEvent.focus(screen.getAllByText('示波器')[0])
     expect(preload).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
   })
 
-  it('shows shortcut hint aligned with the number of available routes', () => {
-    const routes = Array.from({ length: 8 }, (_, index) =>
-      buildRoute({
-        pageId: `demo-${index + 1}`,
-        path: `/demo-${index + 1}`,
-        label: `演示 ${index + 1}`,
-      }),
-    )
-
-    render(<NavigationPage routes={routes} onOpenRoute={vi.fn()} />)
-
-    expect(screen.getByText('快捷键: 1-8 进入演示, D/N 切换昼夜。')).toBeInTheDocument()
-  })
-
-  it('warms route immediately on touch pointer down for touch-first navigation', () => {
+  it('warms route immediately on touch pointer down', () => {
+    vi.useFakeTimers()
     const preload = vi.fn().mockResolvedValue(undefined)
     const route = buildRoute({ preload })
 
     render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
 
-    fireEvent.pointerDown(screen.getByRole('button', { name: '进入示波器' }), {
+    fireEvent.pointerDown(screen.getAllByText('示波器')[0], {
       pointerType: 'touch',
     })
 
     expect(preload).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
   })
 
   it('swallows warmup preload rejection to avoid unhandled errors', async () => {
+    vi.useFakeTimers()
     const preload = vi.fn().mockRejectedValue(new Error('transient warmup failure'))
     const route = buildRoute({ preload })
 
     render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
-    fireEvent.focus(screen.getByRole('button', { name: '进入示波器' }))
+
+    fireEvent.focus(screen.getAllByText('示波器')[0])
 
     await Promise.resolve()
     expect(preload).toHaveBeenCalledTimes(1)
-  })
 
-  it('renders a safe overview card when route meta is malformed', () => {
-    const route = buildRoute({
-      label: null as unknown as DemoRoute['label'],
-      meta: {
-        tag: 42,
-        summary: null,
-        highlights: null,
-        tone: 'broken-tone',
-      } as unknown as DemoRoute['meta'],
-    })
-
-    render(<NavigationPage routes={[route]} onOpenRoute={vi.fn()} />)
-
-    expect(screen.getByRole('heading', { name: '演示' })).toBeInTheDocument()
-    expect(screen.getByText('课堂演示')).toBeInTheDocument()
-    expect(screen.getByText('课堂演示信息待补充')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '进入演示' })).toBeInTheDocument()
-  })
-
-  it('passes a safe fallback path when route path metadata is malformed', () => {
-    const onOpenRoute = vi.fn()
-    const route = buildRoute({
-      path: { broken: 'path' } as unknown as DemoRoute['path'],
-    })
-
-    render(<NavigationPage routes={[route]} onOpenRoute={onOpenRoute} />)
-    fireEvent.click(screen.getByRole('button', { name: '进入示波器' }))
-
-    expect(onOpenRoute).toHaveBeenCalledWith('/')
+    vi.useRealTimers()
   })
 })

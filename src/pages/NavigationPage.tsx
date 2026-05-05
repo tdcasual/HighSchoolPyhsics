@@ -1,183 +1,209 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
+import { PHYSICS_REGIONS } from '../ui/navigation/regionData'
 
-type NavigationPageProps = {
+export type NavigationPageProps = {
   routes: DemoRoute[]
   onOpenRoute: (path: string) => void
 }
 
+const THEME: Record<string, { dot: string }> = {
+  electrostatics: { dot: '#818cf8' },
+  electromagnetism: { dot: '#fbbf24' },
+  'electromagnetic-induction': { dot: '#facc15' },
+  waves: { dot: '#2dd4bf' },
+  mechanics: { dot: '#a3e635' },
+  thermal: { dot: '#f87171' },
+}
+
 const WARMUP_HOVER_DELAY_MS = 120
-const MAX_SHORTCUT_ROUTE_COUNT = 9
-const FALLBACK_OVERVIEW_LABEL = '演示'
-const FALLBACK_OVERVIEW_TAG = '课堂演示'
-const FALLBACK_OVERVIEW_SUMMARY = '课堂演示信息待补充'
-const FALLBACK_OVERVIEW_TONE = 'scope'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-function isNonBlankText(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0
-}
-
-function isOverviewTone(value: unknown): value is 'scope' | 'cyclotron' | 'mhd' | 'oersted' {
-  return value === 'scope' || value === 'cyclotron' || value === 'mhd' || value === 'oersted'
-}
-
-function resolveOverviewLabel(label: unknown): string {
-  return isNonBlankText(label) ? label : FALLBACK_OVERVIEW_LABEL
-}
-
-function resolveOverviewPath(path: unknown): string {
-  return isNonBlankText(path) ? path : '/'
-}
-
-function resolveOverviewMeta(meta: unknown): {
-  tag: string
-  summary: string
-  highlights: string[]
-  tone: 'scope' | 'cyclotron' | 'mhd' | 'oersted'
-} {
-  if (!isRecord(meta)) {
-    return {
-      tag: FALLBACK_OVERVIEW_TAG,
-      summary: FALLBACK_OVERVIEW_SUMMARY,
-      highlights: [],
-      tone: FALLBACK_OVERVIEW_TONE,
-    }
-  }
-
-  const highlights = Array.isArray(meta.highlights) ? meta.highlights.filter(isNonBlankText) : []
-
-  return {
-    tag: isNonBlankText(meta.tag) ? meta.tag : FALLBACK_OVERVIEW_TAG,
-    summary: isNonBlankText(meta.summary) ? meta.summary : FALLBACK_OVERVIEW_SUMMARY,
-    highlights,
-    tone: isOverviewTone(meta.tone) ? meta.tone : FALLBACK_OVERVIEW_TONE,
-  }
-}
-
-function formatShortcutTip(routeCount: number): string {
-  const shortcutCount = Math.min(routeCount, MAX_SHORTCUT_ROUTE_COUNT)
-
-  if (shortcutCount <= 0) {
-    return '快捷键: D/N 切换昼夜。'
-  }
-
-  if (shortcutCount === 1) {
-    return '快捷键: 1 进入演示, D/N 切换昼夜。'
-  }
-
-  if (routeCount > MAX_SHORTCUT_ROUTE_COUNT) {
-    return '快捷键: 1-9 进入前 9 个演示, D/N 切换昼夜。'
-  }
-
-  return `快捷键: 1-${shortcutCount} 进入演示, D/N 切换昼夜。`
-}
 
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const canWarmRoutes = shouldWarmRouteOnOverview()
   const warmupTimerRef = useRef<number | null>(null)
-
-  const clearWarmupTimer = () => {
-    if (warmupTimerRef.current === null) {
-      return
-    }
-    window.clearTimeout(warmupTimerRef.current)
-    warmupTimerRef.current = null
-  }
+  const groupRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   useEffect(() => {
     return () => {
-      clearWarmupTimer()
+      if (warmupTimerRef.current !== null) {
+        window.clearTimeout(warmupTimerRef.current)
+      }
     }
   }, [])
 
-  const warmRouteNow = (route: DemoRoute) => {
-    if (!canWarmRoutes) {
-      return
-    }
-
-    safePreload(route.preload)
-  }
-
-  const scheduleWarmRoute = (route: DemoRoute) => {
-    if (!canWarmRoutes) {
-      return
-    }
-
-    clearWarmupTimer()
-    warmupTimerRef.current = window.setTimeout(() => {
+  const cancelWarmRoute = useCallback(() => {
+    if (warmupTimerRef.current !== null) {
+      window.clearTimeout(warmupTimerRef.current)
       warmupTimerRef.current = null
+    }
+  }, [])
+
+  const warmRouteNow = useCallback(
+    (route: DemoRoute) => {
+      if (!canWarmRoutes) return
       safePreload(route.preload)
-    }, WARMUP_HOVER_DELAY_MS)
-  }
+    },
+    [canWarmRoutes],
+  )
+
+  const handlePointerEnter = useCallback(
+    (route: DemoRoute) => {
+      if (!canWarmRoutes) return
+      cancelWarmRoute()
+      warmupTimerRef.current = window.setTimeout(() => {
+        warmupTimerRef.current = null
+        warmRouteNow(route)
+      }, WARMUP_HOVER_DELAY_MS)
+    },
+    [canWarmRoutes, cancelWarmRoute, warmRouteNow],
+  )
+
+  const handlePointerLeave = useCallback(() => {
+    cancelWarmRoute()
+  }, [cancelWarmRoute])
+
+  const handleClick = useCallback(
+    (route: DemoRoute) => {
+      handlePointerLeave()
+      onOpenRoute(route.path)
+    },
+    [handlePointerLeave, onOpenRoute],
+  )
+
+  const scrollToRegion = useCallback((regionId: string) => {
+    const el = groupRefs.current[regionId]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [])
+
+  const totalScenes = routes.length
 
   return (
-    <section className="overview-page" data-testid="overview-page">
-      <div className="overview-shell">
-        <div className="overview-hero">
-          <div className="overview-hero-main">
-            <p className="overview-kicker">课堂演示入口</p>
-            <h2>演示导航</h2>
-            <p className="overview-lead">从单入口进入各个演示页面，避免课堂演示中跨页干扰。</p>
-          </div>
-          <div className="overview-hero-note">
-            <p className="overview-note-title">课堂建议</p>
-            <p className="overview-note-text">先看结构，再调参数，最后做对比。</p>
-            <p className="overview-shortcut-tip">{formatShortcutTip(routes.length)}</p>
+    <section className="overview-page linear-explorer" data-testid="overview-page">
+      {/* Header */}
+      <div className="linear-header">
+        <h1 className="linear-title">物理演示</h1>
+        <p className="linear-subtitle">高中物理课堂 3D 交互演示</p>
+      </div>
+
+      {/* Product Preview */}
+      <div className="linear-preview" aria-hidden="true">
+        <div className="linear-preview-frame">
+          <div className="linear-preview-left" />
+          <div className="linear-preview-right">
+            <div className="linear-preview-topbar" />
+            <div className="linear-preview-viewport">
+              <div className="linear-preview-orb" />
+              <div className="linear-preview-ring" />
+              <div className="linear-preview-ring-2" />
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="overview-grid">
-          {routes.map((route, index) => {
-            const routePath = resolveOverviewPath(route.path)
-            const label = resolveOverviewLabel(route.label)
-            const meta = resolveOverviewMeta(route.meta)
-
-            return (
-              <article key={`${routePath}-${index}`} className={`overview-card tone-${meta.tone}`}>
-                <div className="overview-card-head">
-                  <p className="overview-card-index">{String(index + 1).padStart(2, '0')}</p>
-                  <p className="overview-card-tag">{meta.tag}</p>
-                </div>
-                <h3>{label}</h3>
-                <p className="overview-card-summary">{meta.summary}</p>
-                {meta.highlights.length > 0 ? (
-                  <ul className="overview-points">
-                    {meta.highlights.map((item, itemIndex) => (
-                      <li key={`${routePath}-${itemIndex}-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
+      {/* Workspace */}
+      <div className="linear-workspace">
+        {/* Sidebar */}
+        <nav className="linear-sidebar" aria-label="物理区域">
+          <div className="linear-sidebar-header">
+            <span className="linear-sidebar-title">区域</span>
+            <span className="linear-sidebar-count">{PHYSICS_REGIONS.length}</span>
+          </div>
+          <div className="linear-sidebar-list">
+            {PHYSICS_REGIONS.map((region) => {
+              const theme = THEME[region.id] ?? THEME.electrostatics
+              const sceneCount = region.scenePageIds.length
+              return (
                 <button
-                  className="touch-target overview-enter"
-                  aria-keyshortcuts={String(index + 1)}
-                  title={`快捷键 ${index + 1}`}
-                  onPointerDown={(event) => {
-                    if (event.pointerType !== 'mouse') {
-                      warmRouteNow(route)
-                    }
-                  }}
-                  onPointerEnter={() => scheduleWarmRoute(route)}
-                  onPointerLeave={clearWarmupTimer}
-                  onBlur={clearWarmupTimer}
-                  onFocus={() => warmRouteNow(route)}
-                  onClick={() => {
-                    clearWarmupTimer()
-                    onOpenRoute(routePath)
-                  }}
+                  key={region.id}
+                  className="linear-sidebar-item touch-target"
+                  onClick={() => scrollToRegion(region.id)}
                 >
-                  <span>进入{label}</span>
-                  <span aria-hidden="true">↗</span>
+                  <span
+                    className="linear-sidebar-dot"
+                    style={{ backgroundColor: theme.dot }}
+                  />
+                  <span className="linear-sidebar-name">{region.name}</span>
+                  {sceneCount > 0 && (
+                    <span className="linear-sidebar-badge">{sceneCount}</span>
+                  )}
                 </button>
-              </article>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        </nav>
+
+        {/* Main */}
+        <main className="linear-main">
+          <div className="linear-main-header">
+            <span className="linear-main-title">全部演示</span>
+            <span className="linear-main-count">{totalScenes} 个场景</span>
+          </div>
+
+          <div className="linear-list">
+            {PHYSICS_REGIONS.map((region) => {
+              const theme = THEME[region.id] ?? THEME.electrostatics
+              const regionRoutes = routes.filter((r) =>
+                region.scenePageIds.includes(r.pageId),
+              )
+
+              return (
+                <div
+                  key={region.id}
+                  ref={(el) => { groupRefs.current[region.id] = el }}
+                  className="linear-group"
+                >
+                  <div className="linear-group-header">
+                    <span
+                      className="linear-group-dot"
+                      style={{ backgroundColor: theme.dot }}
+                    />
+                    <span className="linear-group-name">{region.name}</span>
+                    <span className="linear-group-desc">{region.description}</span>
+                  </div>
+
+                  {regionRoutes.length === 0 ? (
+                    <div className="linear-row linear-row-empty">
+                      <span>该区域暂无演示场景</span>
+                    </div>
+                  ) : (
+                    regionRoutes.map((route) => {
+                      const label = route.label || '演示'
+                      const tag = route.meta?.tag || '课堂演示'
+
+                      return (
+                        <button
+                          key={route.pageId}
+                          className="linear-row touch-target"
+                          onPointerEnter={() => handlePointerEnter(route)}
+                          onPointerLeave={handlePointerLeave}
+                          onPointerDown={(event) => {
+                            if (event.pointerType !== 'mouse') {
+                              warmRouteNow(route)
+                            }
+                          }}
+                          onFocus={() => warmRouteNow(route)}
+                          onBlur={handlePointerLeave}
+                          onClick={() => handleClick(route)}
+                        >
+                          <span
+                            className="linear-row-dot"
+                            style={{ backgroundColor: theme.dot }}
+                          />
+                          <span className="linear-row-name">{label}</span>
+                          <span className="linear-row-tag">{tag}</span>
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </main>
       </div>
     </section>
   )

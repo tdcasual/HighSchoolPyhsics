@@ -25,14 +25,16 @@ describe('App shell', () => {
     expect(
       screen.getByRole('heading', { name: '教学动画演示' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('从单入口进入各个演示页面，避免课堂演示中跨页干扰。')).toBeInTheDocument()
-    expect(screen.getByText('双通道电压驱动 + 李萨如图形')).toBeInTheDocument()
+    expect(screen.getByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
-    expect(screen.getByText('快捷键: 1-9 进入前 9 个演示, D/N 切换昼夜。')).toBeInTheDocument()
 
-    for (const route of DEMO_ROUTES) {
-      expect(screen.getByRole('button', { name: `进入${route.label}` })).toBeInTheDocument()
-    }
+    // All 6 physics regions should be visible
+    expect(screen.getAllByText('静电学')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('电磁学')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('电磁感应')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('波动与振动')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('力学')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('热学')[0]).toBeInTheDocument()
   })
 
   it('supports day/night mode across the app shell', () => {
@@ -66,7 +68,7 @@ describe('App shell', () => {
     render(<App />)
 
     expect(window.location.pathname).toBe('/')
-    expect(await screen.findByRole('heading', { name: '演示导航' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '物理演示' })).toBeInTheDocument()
   })
 
   it('keeps scene action controls isolated from shell navigation styles', async () => {

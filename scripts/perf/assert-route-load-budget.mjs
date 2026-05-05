@@ -36,11 +36,12 @@ async function measureRouteLoad(page, demo) {
     )
   }
   await page
-    .getByRole('heading', { name: '演示导航' })
+    .getByRole('heading', { name: '物理演示' })
     .waitFor({ state: 'visible', timeout: 15000 })
 
   const startTime = performance.now()
-  await page.getByRole('button', { name: demo.enterButton }).click()
+  // All scenes are visible directly on the whiteboard overview
+  await page.getByText(demo.label).click()
   await page.waitForURL(`${BASE_URL}${demo.path}`, { timeout: 15000 })
   await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
   return performance.now() - startTime

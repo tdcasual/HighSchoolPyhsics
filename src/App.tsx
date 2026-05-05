@@ -104,7 +104,7 @@ function App() {
     () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
     [activeTouchProfile],
   )
-  const shellClassName = `app-shell theme-${theme}`
+  const shellClassName = `app-shell theme-${theme}${isOverviewPage ? ' glass-theme' : ''}`
 
   if (!runtimeCapabilities.supported) {
     return (

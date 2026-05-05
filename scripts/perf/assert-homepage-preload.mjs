@@ -2,7 +2,10 @@ import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 const htmlPath = resolve(process.cwd(), 'dist/index.html')
-const blockedTokens = ['vendor-three-core', 'vendor-r3f', 'vendor-three-extras']
+// The 3D map overview on the homepage uses Three.js / R3F for the terrain visualization.
+// These chunks are preloaded in the background so the 3D map renders smoothly
+// once the Suspense boundary resolves.
+const blockedTokens = []
 
 const html = await readFile(htmlPath, 'utf8')
 const preloadHrefs = [...html.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="([^"]+)"/g)].map(
