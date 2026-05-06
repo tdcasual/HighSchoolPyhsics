@@ -32,7 +32,14 @@ async function run() {
       try {
         browser = await chromium.launch({
           headless: true,
-          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+          args: [
+            '--use-angle=swiftshader',
+            '--use-gl=angle',
+            '--enable-webgl',
+            '--ignore-gpu-blocklist',
+            '--enable-features=Vulkan',
+            '--disable-gpu-sandbox',
+          ],
         })
         const context = await browser.newContext({
           viewport: { width: 390, height: 844 },

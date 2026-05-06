@@ -32,7 +32,14 @@ async function run() {
       try {
         browser = await chromium.launch({
           headless: true,
-          args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+          args: [
+            '--use-angle=swiftshader',
+            '--use-gl=angle',
+            '--enable-webgl',
+            '--ignore-gpu-blocklist',
+            '--enable-features=Vulkan',
+            '--disable-gpu-sandbox',
+          ],
         })
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
 
