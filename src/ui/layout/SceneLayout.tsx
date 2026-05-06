@@ -148,6 +148,11 @@ export function SceneLayout({
         </div>
 
         <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '40vh' }}>
+          {dataOverlay && (
+            <div className="mobile-data-strip">
+              {dataOverlay}
+            </div>
+          )}
           <div className="px-2 pt-1.5 shrink-0">
             <SegmentedControl
               options={mobileTabOptions}

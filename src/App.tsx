@@ -12,6 +12,7 @@ import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize } from './app/touchProfile'
 import { useMediaQuery, MOBILE_BREAKPOINT } from './ui/hooks/useMediaQuery'
+import { ShortcutHelpOverlay } from './ui/overlays/ShortcutHelpOverlay'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -40,6 +41,7 @@ function App() {
 
     return normalizeDemoPath(window.location.pathname)
   })
+  const [helpVisible, setHelpVisible] = useState(false)
 
   const navigateTo = useCallback((nextPath: string, replace = false) => {
     if (typeof window === 'undefined') {
@@ -93,6 +95,7 @@ function App() {
     pathname,
     setTheme,
     navigateTo,
+    onToggleHelp: () => setHelpVisible((v) => !v),
   })
 
   const isOverviewPage = pathname === '/'
@@ -177,6 +180,15 @@ function App() {
               {isMobile ? '夜间' : '夜间模式'}
             </button>
           </div>
+          <button
+            type="button"
+            className="touch-target shortcut-help-btn"
+            title="快捷键帮助 (?)"
+            aria-label="快捷键帮助"
+            onClick={() => setHelpVisible(true)}
+          >
+            ?
+          </button>
         </div>
       </header>
       <section className="scene-container" id="scene-content">
@@ -219,6 +231,7 @@ function App() {
           )}
         </Suspense>
       </section>
+      <ShortcutHelpOverlay visible={helpVisible} onClose={() => setHelpVisible(false)} />
     </main>
   )
 }

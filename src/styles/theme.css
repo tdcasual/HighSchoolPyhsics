@@ -125,6 +125,54 @@
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.app-shell.theme-night .mobile-data-strip {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(20, 22, 28, 0.75);
+}
+
+.app-shell.theme-night .shortcut-help-panel {
+  background: rgba(28, 30, 38, 0.92);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.app-shell.theme-night .shortcut-help-header h2 {
+  color: #e5e7eb;
+}
+
+.app-shell.theme-night .shortcut-help-close {
+  color: #9ca3af;
+}
+
+.app-shell.theme-night .shortcut-help-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+}
+
+.app-shell.theme-night .shortcut-help-group h3 {
+  color: #9ca3af;
+}
+
+.app-shell.theme-night .shortcut-help-group li {
+  color: #e5e7eb;
+}
+
+.app-shell.theme-night .shortcut-help-group kbd {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.app-shell.theme-night .shortcut-help-btn {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #9ca3af;
+}
+
+.app-shell.theme-night .shortcut-help-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+}
+
 .app-shell.theme-night .readout-panel {
   background: rgba(20, 22, 28, 0.65);
   border-color: rgba(255, 255, 255, 0.08);
@@ -238,7 +286,7 @@
 }
 
 .app-shell.theme-night .overview-shortcut-tip {
-  color: #4b5563;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-card {
@@ -246,7 +294,7 @@
 }
 
 .app-shell.theme-night .overview-card-index {
-  color: #4b5563;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-card::before {
@@ -327,8 +375,8 @@
   --magazine-ink-muted: #888888;
   --magazine-border: rgba(255, 255, 255, 0.06);
   --magazine-item-hover-bg: rgba(255, 255, 255, 0.035);
-  --magazine-item-index: #666666;
-  --magazine-item-index-hover: #888888;
+  --magazine-item-index: #9ca3af;
+  --magazine-item-index-hover: #d1d5db;
   --magazine-item-name: #c8c8c8;
   --magazine-item-name-hover: #f0f0f0;
   --magazine-item-tag-bg: rgba(255, 255, 255, 0.04);
