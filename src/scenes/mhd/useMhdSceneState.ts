@@ -19,7 +19,6 @@ export type MhdSceneState = {
   running: boolean
   toggleRunning: () => void
   reset: () => void
-  phase: number
   chargeSeparation: number
   driveRatio: number
   voltageDisplayV: number
@@ -32,7 +31,6 @@ export function useMhdSceneState(): MhdSceneState {
   const [electrodeGapM, setElectrodeGapM] = useState(0.4)
   const [conductivitySPerM, setConductivitySPerM] = useState(18)
   const [running, setRunning] = useState(false)
-  const [phase, setPhase] = useState(0)
   const [chargeSeparation, setChargeSeparation] = useState(0)
 
   const driveRatio = useMemo(
@@ -55,7 +53,6 @@ export function useMhdSceneState(): MhdSceneState {
     const frame = (now: number) => {
       const deltaS = Math.min(0.05, (now - previous) / 1000)
       previous = now
-      setPhase((value) => (value + deltaS * 0.36) % 1)
       setChargeSeparation((value) =>
         deriveChargeSeparation({
           previous: value,
@@ -87,7 +84,6 @@ export function useMhdSceneState(): MhdSceneState {
 
   const reset = () => {
     setRunning(false)
-    setPhase(0)
     setChargeSeparation(0)
   }
 
@@ -105,7 +101,6 @@ export function useMhdSceneState(): MhdSceneState {
     running,
     toggleRunning: () => setRunning((value) => !value),
     reset,
-    phase,
     chargeSeparation,
     driveRatio,
     voltageDisplayV,
