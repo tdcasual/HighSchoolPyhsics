@@ -135,7 +135,6 @@ export function MotionalEmfScene() {
       ]}
       viewport={
         <InteractiveCanvas
-          key={cameraView}
           camera={activeCameraPreset.camera}
           controls={activeCameraPreset.controls}
           frameloop="always"

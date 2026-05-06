@@ -28,7 +28,6 @@ export function MhdGeneratorScene() {
           frameloop={state.running ? 'always' : 'demand'}
         >
           <MhdGeneratorRig3D
-            phase={state.phase}
             running={state.running}
             chargeSeparation={state.chargeSeparation}
             driveRatio={state.driveRatio}

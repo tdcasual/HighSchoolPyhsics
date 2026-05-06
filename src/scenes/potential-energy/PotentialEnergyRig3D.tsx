@@ -1,6 +1,6 @@
 import { Line } from '@react-three/drei/core/Line'
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { LatheGeometry } from 'three'
 import {
   buildLatheProfile,
@@ -65,14 +65,34 @@ export function PotentialEnergyRig3D({
     )
   }, [latheGeometry, latheProfile.length, sweepAngle])
 
+  const sweepAngleRef = useRef(sweepAngle)
+  const lastReactUpdateRef = useRef(0)
+  useEffect(() => {
+    sweepAngleRef.current = sweepAngle
+  }, [sweepAngle])
+
   useFrame((_, delta) => {
     if (!rotationInProgress) {
       return
     }
 
-    const nextSweepAngle = Math.min(POTENTIAL_SURFACE_FULL_ANGLE, sweepAngle + delta * 2.3)
-    if (nextSweepAngle !== sweepAngle) {
-      onSweepAngleChange(nextSweepAngle)
+    const nextSweepAngle = Math.min(POTENTIAL_SURFACE_FULL_ANGLE, sweepAngleRef.current + delta * 2.3)
+    if (nextSweepAngle !== sweepAngleRef.current) {
+      latheGeometry.setDrawRange(
+        0,
+        resolveLatheDrawCount(nextSweepAngle, {
+          radialSegments: LATHE_RADIAL_SEGMENTS,
+          profilePointCount: latheProfile.length,
+        }),
+      )
+      sweepAngleRef.current = nextSweepAngle
+
+      // Throttle React state updates to ~10 Hz to avoid per-frame re-renders
+      const now = performance.now()
+      if (now - lastReactUpdateRef.current > 100) {
+        lastReactUpdateRef.current = now
+        onSweepAngleChange(nextSweepAngle)
+      }
     }
     if (nextSweepAngle >= POTENTIAL_SURFACE_FULL_ANGLE) {
       onRotationComplete()

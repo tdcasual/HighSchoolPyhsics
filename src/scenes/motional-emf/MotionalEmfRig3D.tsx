@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { CatmullRomCurve3, Euler, Quaternion, Vector3 } from 'three'
+import { CatmullRomCurve3, Euler, Quaternion, TubeGeometry, Vector3 } from 'three'
 import { MOTIONAL_EMF_LAYOUT, type Vec3 } from './layout'
 import {
   resolveInducedCurrentDirection,
@@ -161,6 +161,15 @@ export function MotionalEmfRig3D({
   const wireACurve = useMemo(() => createCurve(wireAPoints), [wireAPoints])
   const wireBCurve = useMemo(() => createCurve(wireBPoints), [wireBPoints])
 
+  const wireGeoA = useMemo(
+    () => new TubeGeometry(wireACurve, 42, WIRE_RADIUS, 12, false),
+    [wireACurve],
+  )
+  const wireGeoB = useMemo(
+    () => new TubeGeometry(wireBCurve, 42, WIRE_RADIUS, 12, false),
+    [wireBCurve],
+  )
+
   return (
     <group>
       <ambientLight intensity={0.68} />
@@ -203,12 +212,10 @@ export function MotionalEmfRig3D({
         </group>
       ))}
 
-      <mesh>
-        <tubeGeometry args={[wireACurve, 42, WIRE_RADIUS, 12, false]} />
+      <mesh geometry={wireGeoA}>
         <meshStandardMaterial color="#cf4b42" metalness={0.12} roughness={0.82} />
       </mesh>
-      <mesh>
-        <tubeGeometry args={[wireBCurve, 42, WIRE_RADIUS, 12, false]} />
+      <mesh geometry={wireGeoB}>
         <meshStandardMaterial color="#1f2328" metalness={0.16} roughness={0.8} />
       </mesh>
 

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -10,11 +11,15 @@ import './cyclotron.css'
 
 export function CyclotronScene() {
   const state = useCyclotronSceneState()
-  const presentationFocus: PresentationFocus = state.particleInGap
-    ? { mode: 'focus', primary: state.particlePoint }
-    : state.simulation.running
-      ? { mode: 'compare', primary: state.particlePoint, secondary: [0, state.particlePoint[1], 0] }
-      : { mode: 'overview' }
+  const presentationFocus: PresentationFocus = useMemo(() => {
+    if (state.particleInGap) {
+      return { mode: 'focus', primary: state.particlePoint }
+    }
+    if (state.simulation.running) {
+      return { mode: 'compare', primary: state.particlePoint, secondary: [0, state.particlePoint[1], 0] }
+    }
+    return { mode: 'overview' }
+  }, [state.particleInGap, state.particlePoint, state.simulation.running])
 
   return (
     <SceneLayout

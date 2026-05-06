@@ -82,9 +82,11 @@ export function useInductionCurrentSceneState(): InductionCurrentSceneState {
       return
     }
 
-    const startedAt = Date.now()
-    const timerId = window.setInterval(() => {
-      const elapsedMs = Date.now() - startedAt
+    const startedAt = performance.now()
+    let frameId = 0
+
+    const frame = () => {
+      const elapsedMs = performance.now() - startedAt
       const nextProgress = Math.min(1, elapsedMs / MOTION_DURATION_MS)
       setMotionProgress(nextProgress)
 
@@ -107,10 +109,14 @@ export function useInductionCurrentSceneState(): InductionCurrentSceneState {
         setMotionDirection(null)
         setMotionProgress(0)
         setCoilCurrent(0)
-        window.clearInterval(timerId)
+        return
       }
-    }, 16)
-    return () => window.clearInterval(timerId)
+
+      frameId = requestAnimationFrame(frame)
+    }
+
+    frameId = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(frameId)
   }, [magnetPosition, motionDirection, poleSetting])
 
   const magnetY = useMemo(

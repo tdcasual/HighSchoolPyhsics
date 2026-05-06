@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   deriveOerstedNeedleState,
   describeDiscoveryLevel,
@@ -137,6 +137,11 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
     [activeNeedleStates, initialHeadingDeg, needleHeadingsDeg, needlePlacements],
   )
 
+  const needleHeadingsRef = useRef(needleHeadingsDeg)
+  useEffect(() => {
+    needleHeadingsRef.current = needleHeadingsDeg
+  }, [needleHeadingsDeg])
+
   useEffect(() => {
     let frameId = 0
     let previous = performance.now()
@@ -145,23 +150,27 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
       const deltaS = Math.min(0.05, (now - previous) / 1000)
       previous = now
 
-      setNeedleHeadingsDeg((previousHeadings) =>
-        previousHeadings.map((heading, index) =>
-          stepNeedleHeading(
-            heading,
-            activeNeedleStates[index]?.targetHeadingDeg ?? heading,
-            deltaS,
-            running ? 8 : 4.5,
-          ),
-        ),
-      )
-
-      setPhase((value) => {
-        const speed = running ? 0.34 * (currentA >= 0 ? 1 : -1) : 0
-        return wrapPhase(value + deltaS * speed)
+      let changed = false
+      const currentHeadings = needleHeadingsRef.current
+      const nextHeadings = currentHeadings.map((heading, index) => {
+        const target = activeNeedleStates[index]?.targetHeadingDeg ?? heading
+        const next = stepNeedleHeading(heading, target, deltaS, running ? 8 : 4.5)
+        if (Math.abs(next - heading) > 0.001) changed = true
+        return next
       })
 
-      frameId = requestAnimationFrame(frame)
+      needleHeadingsRef.current = nextHeadings
+
+      if (changed) {
+        setNeedleHeadingsDeg(nextHeadings)
+      }
+
+      if (running) {
+        setPhase((value) => wrapPhase(value + deltaS * 0.34 * (currentA >= 0 ? 1 : -1)))
+        frameId = requestAnimationFrame(frame)
+      } else if (changed) {
+        frameId = requestAnimationFrame(frame)
+      }
     }
 
     frameId = requestAnimationFrame(frame)

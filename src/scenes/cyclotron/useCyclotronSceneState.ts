@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { deriveGapWidthScene, projectParticleToScene, TRAJECTORY_Y, type Point3 } from './layout'
 import { deriveCyclotronLaunchState, deriveCyclotronReadings } from './model'
 import {
@@ -141,23 +141,25 @@ export function useCyclotronSceneState(): CyclotronSceneState {
     return () => cancelAnimationFrame(frameId)
   }, [launchPoint])
 
+  const particlePointRef = useRef(particlePoint)
+  useEffect(() => {
+    particlePointRef.current = particlePoint
+  }, [particlePoint])
+
   useEffect(() => {
     if (!simulation.running) {
       return
     }
 
-    const frameId = requestAnimationFrame(() => {
-      setSimulationTimeS((value) => value + SIMULATION_DT_S)
-    })
+    let frameId = 0
+    const loop = () => {
+      setSimulationTimeS((time) => time + SIMULATION_DT_S)
+      setTrailPoints((previous) => appendTrailPoint(previous, particlePointRef.current, MAX_TRAIL_POINTS))
+      frameId = requestAnimationFrame(loop)
+    }
+    frameId = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(frameId)
-  }, [simulation.running, simulation.state.position, simulation.state.velocity])
-
-  useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setTrailPoints((previous) => appendTrailPoint(previous, particlePoint, MAX_TRAIL_POINTS))
-    })
-    return () => cancelAnimationFrame(frameId)
-  }, [particlePoint])
+  }, [simulation.running])
 
   const reset = () => {
     simulation.reset()

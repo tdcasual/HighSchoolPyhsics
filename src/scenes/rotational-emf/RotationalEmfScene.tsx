@@ -58,7 +58,6 @@ export function RotationalEmfScene() {
       ]}
       viewport={
         <InteractiveCanvas
-          key={state.viewMode}
           camera={activeCameraPreset.camera}
           controls={activeCameraPreset.controls}
           frameloop={state.running ? 'always' : 'demand'}

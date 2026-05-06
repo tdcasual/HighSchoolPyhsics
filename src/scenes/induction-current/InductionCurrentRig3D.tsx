@@ -49,18 +49,23 @@ function buildCoilCurve(): CatmullRomCurve3 {
   return new CatmullRomCurve3(points)
 }
 
+const _v3Dir = new Vector3()
+const _v3Up = new Vector3(0, 1, 0)
+const _quat = new Quaternion()
+const _euler = new Euler()
+
 function resolveArrowRotation(
   tangent: [number, number, number],
   currentSign: -1 | 0 | 1,
 ): [number, number, number] {
-  const direction = new Vector3(tangent[0], tangent[1], tangent[2]).normalize()
+  _v3Dir.set(tangent[0], tangent[1], tangent[2]).normalize()
   if (currentSign < 0) {
-    direction.multiplyScalar(-1)
+    _v3Dir.multiplyScalar(-1)
   }
 
-  const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction)
-  const euler = new Euler().setFromQuaternion(quaternion)
-  return [euler.x, euler.y, euler.z]
+  _quat.setFromUnitVectors(_v3Up, _v3Dir)
+  _euler.setFromQuaternion(_quat)
+  return [_euler.x, _euler.y, _euler.z]
 }
 
 function buildNeedleGeometry(): BufferGeometry {

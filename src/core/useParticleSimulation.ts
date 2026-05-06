@@ -102,6 +102,7 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
 
     let cancelled = false
     let frameId = 0
+    let frameCount = 0
 
     const loop = async () => {
       if (cancelled || !stepperRef.current) {
@@ -119,7 +120,12 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
         if (cancelled) {
           return
         }
-        setState(next)
+        frameCount++
+        if (frameCount % 2 === 0) {
+          setState(next)
+        } else {
+          stateRef.current = next
+        }
         setStatus((prev) => ({ ...prev, error: null }))
       } catch (error) {
         if (cancelled) {
