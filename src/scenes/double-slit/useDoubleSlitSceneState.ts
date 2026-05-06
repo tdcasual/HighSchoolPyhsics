@@ -14,6 +14,7 @@ export type DoubleSlitSceneState = DoubleSlitParams & {
   setWavelength: (value: number) => void
   setSlitDistance: (value: number) => void
   setScreenDistance: (value: number) => void
+  setSlitWidth: (value: number) => void
   toggleChart: () => void
   toggleLight: () => void
   reset: () => void
@@ -39,6 +40,10 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setParams((prev) => ({ ...prev, screenDistance: value }))
   }, [])
 
+  const setSlitWidth = useCallback((value: number) => {
+    setParams((prev) => ({ ...prev, slitWidth: value }))
+  }, [])
+
   const toggleChart = useCallback(() => {
     setShowChart((prev) => !prev)
   }, [])
@@ -62,6 +67,7 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setWavelength,
     setSlitDistance,
     setScreenDistance,
+    setSlitWidth,
     toggleChart,
     toggleLight,
     reset,

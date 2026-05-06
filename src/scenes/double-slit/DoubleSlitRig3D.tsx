@@ -1,7 +1,15 @@
 import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { CylinderGeometry } from 'three'
-import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
+import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
+
+function readSceneBackgroundColor(): string {
+  if (typeof window === 'undefined') return '#222222'
+  const shell = document.querySelector('.app-shell')
+  if (!shell) return '#222222'
+  const computed = getComputedStyle(shell)
+  return computed.getPropertyValue('--scene-optical-bg').trim() || '#222222'
+}
 
 const TUBE_START_X = -4
 const OPTICAL_AXIS_Y = 4.5
@@ -17,7 +25,7 @@ type DoubleSlitRig3DProps = {
  * Stand — 精确还原原始 createStand() 的层级结构。
  * rod 在 (0, height/2+0.5, 0)，base 和 knob 是 rod 的子元素。
  */
-function Stand({ xPos, height = 3.5 }: { xPos: number; height?: number }) {
+function Stand({ xPos, height = 3.5, radialSegments = 16 }: { xPos: number; height?: number; radialSegments?: number }) {
   const metalMat = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
   const blackPlasticMat = { color: 0x151515, metalness: 0.3, roughness: 0.7 }
 
@@ -25,7 +33,7 @@ function Stand({ xPos, height = 3.5 }: { xPos: number; height?: number }) {
     <group position={[xPos, 0, 0]}>
       {/* rod — base 和 knob 是它的子元素 */}
       <mesh position={[0, height / 2 + 0.5, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.15, 0.15, height, 16]} />
+        <cylinderGeometry args={[0.15, 0.15, height, radialSegments]} />
         <meshStandardMaterial {...metalMat} />
 
         {/* base — 相对于 rod 的偏移 */}
@@ -40,7 +48,7 @@ function Stand({ xPos, height = 3.5 }: { xPos: number; height?: number }) {
           rotation={[Math.PI / 2, 0, 0]}
           castShadow
         >
-          <cylinderGeometry args={[0.2, 0.2, 0.4, 16]} />
+          <cylinderGeometry args={[0.2, 0.2, 0.4, radialSegments]} />
           <meshStandardMaterial {...blackPlasticMat} />
         </mesh>
       </mesh>
@@ -80,17 +88,19 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
     : {}
 
   // Tube geometry with translate(0, 0.5, 0) — 保持与原始一致
+  const geoDetail = getGeometryDetail()
+
   const tubeGeo = useMemo(() => {
-    const geo = new CylinderGeometry(0.8, 0.8, 1, 32)
+    const geo = new CylinderGeometry(0.8, 0.8, 1, geoDetail.cylinderRadialSegments)
     geo.translate(0, 0.5, 0)
     return geo
-  }, [])
+  }, [geoDetail.cylinderRadialSegments])
 
   return (
     <group data-rig-scene="double-slit">
       {/* Background & fog */}
-      <color attach="background" args={['#222222']} />
-      <fog attach="fog" args={['#222222', 20, 80]} />
+      <color attach="background" args={[readSceneBackgroundColor()]} />
+      <fog attach="fog" args={[readSceneBackgroundColor(), 20, 80]} />
 
       {/* Lights */}
       <ambientLight intensity={shadowsEnabled ? 0.4 : 0.6} />
@@ -135,31 +145,31 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       </mesh>
 
       {/* ====== Light source at x = -13 ====== */}
-      <Stand xPos={-13} height={3.0} />
+      <Stand xPos={-13} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
       <mesh position={[-13, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
-        <cylinderGeometry args={[1.2, 1.2, 2, 32]} />
+        <cylinderGeometry args={[1.2, 1.2, 2, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <mesh position={[-12.2, OPTICAL_AXIS_Y, 0]}>
-        <sphereGeometry args={[0.5, 16, 16]} />
+        <sphereGeometry args={[0.5, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
         <meshBasicMaterial color={isLightOn ? lightColorHex : 0x111111} />
       </mesh>
       <Label text="光源" position={[-13, OPTICAL_AXIS_Y + 2, 0]} />
 
       {/* ====== Lens at x = -9.5 ====== */}
-      <Stand xPos={-9.5} height={3.0} />
+      <Stand xPos={-9.5} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
       <mesh position={[-9.5, OPTICAL_AXIS_Y, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[1, 0.15, 16, 32]} />
+        <torusGeometry args={[1, 0.15, geoDetail.torusRadialSegments, geoDetail.torusTubularSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <mesh position={[-9.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.95, 0.95, 0.1, 32]} />
+        <cylinderGeometry args={[0.95, 0.95, 0.1, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...glassMat} />
       </mesh>
       <Label text="透镜" position={[-9.5, OPTICAL_AXIS_Y + 2, 0]} />
 
       {/* ====== Head group components at tubeStartX ====== */}
-      <Stand xPos={TUBE_START_X - 0.75} height={3.0} />
+      <Stand xPos={TUBE_START_X - 0.75} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
 
       {/* Single slit cap */}
       <mesh
@@ -167,7 +177,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
         rotation={[0, 0, Math.PI / 2]}
         {...(shadowsEnabled ? { castShadow: true } : {})}
       >
-        <cylinderGeometry args={[1, 1, 1.5, 32]} />
+        <cylinderGeometry args={[1, 1, 1.5, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <Label text="单缝" position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y + 2, 0]} />
@@ -177,7 +187,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
         position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y, 0]}
         rotation={[0, 0, Math.PI / 2]}
       >
-        <cylinderGeometry args={[1.1, 1.1, 0.8, 32]} />
+        <cylinderGeometry args={[1.1, 1.1, 0.8, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...darkMetalMat} />
       </mesh>
 
@@ -186,19 +196,19 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
         position={[TUBE_START_X + 2, OPTICAL_AXIS_Y + 1.5, 0]}
         rotation={[0, 0, Math.PI / 2]}
       >
-        <cylinderGeometry args={[0.05, 0.05, 4, 16]} />
+        <cylinderGeometry args={[0.05, 0.05, 4, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...metalMat} />
       </mesh>
 
       {/* Rod support (vertical) */}
       <mesh position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 0.75, 0]}>
-        <cylinderGeometry args={[0.1, 0.1, 1.5, 16]} />
+        <cylinderGeometry args={[0.1, 0.1, 1.5, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...metalMat} />
       </mesh>
 
       {/* Rod knob */}
       <mesh position={[TUBE_START_X + 4, OPTICAL_AXIS_Y + 1.5, 0]}>
-        <sphereGeometry args={[0.3, 16, 16]} />
+        <sphereGeometry args={[0.3, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <Label text="双缝" position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 2.5, 0]} />
@@ -219,24 +229,24 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       />
 
       {/* ====== Tail group components (scene-level, world coords) ====== */}
-      <Stand xPos={tailX - 1} height={3.5} />
+      <Stand xPos={tailX - 1} height={3.5} radialSegments={geoDetail.cylinderRadialSegments} />
 
       {/* Ground glass holder */}
       <mesh position={[tailX + 1, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
-        <cylinderGeometry args={[1.2, 1.2, 2, 32]} />
+        <cylinderGeometry args={[1.2, 1.2, 2, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <Label text="毛玻璃" position={[tailX + 1, OPTICAL_AXIS_Y + 2.5, 0]} />
 
       {/* Wheel */}
       <mesh position={[tailX + 2, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[1.5, 1.5, 0.4, 32]} />
+        <cylinderGeometry args={[1.5, 1.5, 0.4, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
 
       {/* Eyepiece */}
       <mesh position={[tailX + 3.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
-        <cylinderGeometry args={[0.6, 0.6, 2.5, 32]} />
+        <cylinderGeometry args={[0.6, 0.6, 2.5, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
       <Label text="目镜" position={[tailX + 3.5, OPTICAL_AXIS_Y + 1.5, 0]} />

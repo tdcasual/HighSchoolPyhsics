@@ -39,19 +39,14 @@
 
 /* 3D Labels inside R3F Html */
 .double-slit-label {
-  --double-slit-label-text: #ffffff;
-  --double-slit-label-bg: rgba(0, 0, 0, 0.7);
-  --double-slit-label-border: rgba(255, 255, 255, 0.3);
-  --double-slit-label-shadow: rgba(0, 0, 0, 0.5);
-
-  color: var(--double-slit-label-text);
-  background: var(--double-slit-label-bg);
+  color: var(--magazine-ink, #e5e7eb);
+  background: var(--glass-bg-night, rgba(20, 22, 28, 0.75));
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
   pointer-events: none;
   white-space: nowrap;
-  border: 1px solid var(--double-slit-label-border);
-  box-shadow: 0 2px 4px var(--double-slit-label-shadow);
+  border: 1px solid var(--glass-border-outer-night, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   user-select: none;
 }

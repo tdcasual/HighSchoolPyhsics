@@ -304,6 +304,10 @@
   background: rgba(20, 22, 28, 0.65);
 }
 
+.app-shell.theme-night {
+  --scene-optical-bg: #1a1a1a;
+}
+
 .app-shell.theme-night .scene-missing h2,
 .app-shell.theme-night .scene-missing p {
   color: #e5e7eb;

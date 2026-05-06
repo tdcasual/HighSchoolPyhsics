@@ -108,6 +108,7 @@
   --scene-loading-ink: #334155;
   --scene-missing-border: rgba(203, 213, 225, 0.5);
   --scene-missing-bg: rgba(255, 255, 255, 0.55);
+  --scene-optical-bg: #222222;
   --interaction-hint-bg: rgba(241, 245, 249, 0.85);
   --interaction-hint-border: rgba(203, 213, 225, 0.55);
   --interaction-hint-ink: #1e293b;

@@ -12,6 +12,8 @@ type DoubleSlitControlsProps = {
     | 'setSlitDistance'
     | 'screenDistance'
     | 'setScreenDistance'
+    | 'slitWidth'
+    | 'setSlitWidth'
     | 'showChart'
     | 'toggleChart'
     | 'isLightOn'
@@ -53,6 +55,16 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           step={0.05}
           value={state.screenDistance}
           onChange={state.setScreenDistance}
+        />
+        <RangeField
+          id="double-slit-width"
+          label="单缝宽度 a"
+          unit="mm"
+          min={0.01}
+          max={0.10}
+          step={0.005}
+          value={state.slitWidth}
+          onChange={state.setSlitWidth}
         />
       </ControlSection>
       <SceneActions

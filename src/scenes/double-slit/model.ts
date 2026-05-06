@@ -123,38 +123,40 @@ export function drawInterferencePattern(
   ctx.arc(cx, cy, radius, 0, Math.PI * 2)
   ctx.clip()
 
-  const imgData = ctx.createImageData(width, 1)
+  // Single ImageData for entire canvas — much faster than 800 putImageData calls
+  const imgData = ctx.createImageData(width, height)
   const data = imgData.data
 
-  for (let i = 0; i < width; i++) {
-    const x = (i / width - 0.5) * physicalViewWidth
-    const sinTheta = x / L
-
-    // Double-slit interference: cos²(π d sinθ / λ)
-    const phaseInterference = (Math.PI * d * sinTheta) / lambda
-    const interferenceIntensity = Math.pow(Math.cos(phaseInterference), 2)
-
-    // Single-slit diffraction envelope: sinc²(π a sinθ / λ)
-    let diffractionIntensity = 1.0
-    if (Math.abs(x) > 1e-12) {
-      const phaseDiffraction = (Math.PI * a * sinTheta) / lambda
-      const sinc = Math.sin(phaseDiffraction) / phaseDiffraction
-      diffractionIntensity = Math.pow(sinc, 2)
-    }
-
-    let intensity = interferenceIntensity * diffractionIntensity
-    intensity = Math.pow(intensity, 0.8)
-
-    const idx = i * 4
-    data[idx] = rgb[0] * intensity
-    data[idx + 1] = rgb[1] * intensity
-    data[idx + 2] = rgb[2] * intensity
-    data[idx + 3] = 255
-  }
-
   for (let y = 0; y < height; y++) {
-    ctx.putImageData(imgData, 0, y)
+    const rowOffset = y * width * 4
+    for (let i = 0; i < width; i++) {
+      const x = (i / width - 0.5) * physicalViewWidth
+      const sinTheta = x / L
+
+      // Double-slit interference: cos²(π d sinθ / λ)
+      const phaseInterference = (Math.PI * d * sinTheta) / lambda
+      const interferenceIntensity = Math.pow(Math.cos(phaseInterference), 2)
+
+      // Single-slit diffraction envelope: sinc²(π a sinθ / λ)
+      let diffractionIntensity = 1.0
+      if (Math.abs(x) > 1e-12) {
+        const phaseDiffraction = (Math.PI * a * sinTheta) / lambda
+        const sinc = Math.sin(phaseDiffraction) / phaseDiffraction
+        diffractionIntensity = Math.pow(sinc, 2)
+      }
+
+      let intensity = interferenceIntensity * diffractionIntensity
+      intensity = Math.pow(intensity, 0.8)
+
+      const idx = rowOffset + i * 4
+      data[idx] = rgb[0] * intensity
+      data[idx + 1] = rgb[1] * intensity
+      data[idx + 2] = rgb[2] * intensity
+      data[idx + 3] = 255
+    }
   }
+
+  ctx.putImageData(imgData, 0, 0)
 
   ctx.restore()
 
