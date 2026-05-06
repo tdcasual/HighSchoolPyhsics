@@ -13,7 +13,7 @@ import {
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
-import { resolveCanvasQualityProfile } from './canvasQuality'
+import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
 import {
   DEFAULT_ADAPTIVE_FRAMING,
   resolveAdaptiveFramingTarget,
@@ -279,6 +279,7 @@ export function InteractiveCanvas({
           dpr={quality.dpr}
           gl={{ antialias: quality.antialias, powerPreference: 'high-performance' }}
           performance={{ min: 0.5, debounce: 250 }}
+          shadows={resolvePerformanceProfile().shadowMapSize !== null}
         >
           {children}
           <OrbitControls

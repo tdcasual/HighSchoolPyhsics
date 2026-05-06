@@ -1,6 +1,7 @@
 import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { CylinderGeometry } from 'three'
+import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 const TUBE_START_X = -4
 const OPTICAL_AXIS_Y = 4.5
@@ -59,6 +60,9 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
   const current3DLength = BASE_3D_LENGTH * screenDistance
   const tailX = TUBE_START_X + current3DLength
 
+  const perf = resolvePerformanceProfile()
+  const shadowsEnabled = perf.shadowMapSize !== null
+
   const metalMat = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
   const darkMetalMat = { color: 0x333333, metalness: 0.6, roughness: 0.4 }
   const blackPlasticMat = { color: 0x151515, metalness: 0.3, roughness: 0.7 }
@@ -70,6 +74,10 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
     metalness: 0.9,
     roughness: 0.1,
   }
+
+  const shadowProps = shadowsEnabled
+    ? { castShadow: true as const, receiveShadow: true as const }
+    : {}
 
   // Tube geometry with translate(0, 0.5, 0) — 保持与原始一致
   const tubeGeo = useMemo(() => {
@@ -85,13 +93,13 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       <fog attach="fog" args={['#222222', 20, 80]} />
 
       {/* Lights */}
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={shadowsEnabled ? 0.4 : 0.6} />
       <directionalLight
         position={[5, 20, 15]}
         intensity={0.8}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        castShadow={shadowsEnabled}
+        shadow-mapSize-width={perf.shadowMapSize ?? 1024}
+        shadow-mapSize-height={perf.shadowMapSize ?? 1024}
         shadow-camera-left={-20}
         shadow-camera-right={20}
         shadow-camera-top={10}
@@ -105,7 +113,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       />
 
       {/* ====== Rail ====== */}
-      <mesh position={[0, 0, 0]} receiveShadow castShadow>
+      <mesh position={[0, 0, 0]} {...shadowProps}>
         <boxGeometry args={[32, 1, 3]} />
         <meshStandardMaterial {...metalMat} />
       </mesh>
@@ -117,18 +125,18 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       </mesh>
 
       {/* Rail feet */}
-      <mesh position={[-14, -1, 0]} castShadow>
+      <mesh position={[-14, -1, 0]} {...(shadowsEnabled ? { castShadow: true } : {})}>
         <boxGeometry args={[2, 2, 4]} />
         <meshStandardMaterial {...metalMat} />
       </mesh>
-      <mesh position={[14, -1, 0]} castShadow>
+      <mesh position={[14, -1, 0]} {...(shadowsEnabled ? { castShadow: true } : {})}>
         <boxGeometry args={[2, 2, 4]} />
         <meshStandardMaterial {...metalMat} />
       </mesh>
 
       {/* ====== Light source at x = -13 ====== */}
       <Stand xPos={-13} height={3.0} />
-      <mesh position={[-13, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh position={[-13, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
         <cylinderGeometry args={[1.2, 1.2, 2, 32]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
@@ -157,7 +165,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       <mesh
         position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y, 0]}
         rotation={[0, 0, Math.PI / 2]}
-        castShadow
+        {...(shadowsEnabled ? { castShadow: true } : {})}
       >
         <cylinderGeometry args={[1, 1, 1.5, 32]} />
         <meshStandardMaterial {...blackPlasticMat} />
@@ -200,7 +208,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
         position={[TUBE_START_X, OPTICAL_AXIS_Y, 0]}
         rotation={[0, 0, -Math.PI / 2]}
         scale={[1, current3DLength, 1]}
-        castShadow
+        {...(shadowsEnabled ? { castShadow: true } : {})}
         geometry={tubeGeo}
       >
         <meshStandardMaterial {...whiteTubeMat} />
@@ -214,7 +222,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       <Stand xPos={tailX - 1} height={3.5} />
 
       {/* Ground glass holder */}
-      <mesh position={[tailX + 1, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh position={[tailX + 1, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
         <cylinderGeometry args={[1.2, 1.2, 2, 32]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>
@@ -227,7 +235,7 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn }: Do
       </mesh>
 
       {/* Eyepiece */}
-      <mesh position={[tailX + 3.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh position={[tailX + 3.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
         <cylinderGeometry args={[0.6, 0.6, 2.5, 32]} />
         <meshStandardMaterial {...blackPlasticMat} />
       </mesh>

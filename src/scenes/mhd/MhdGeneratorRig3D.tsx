@@ -2,9 +2,11 @@ import { useFrame } from '@react-three/fiber'
 import { Line } from '@react-three/drei/core/Line'
 import { Text } from '@react-three/drei/core/Text'
 import { memo, useEffect, useMemo, useRef } from 'react'
-import type { Group, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import type { Group, InstancedMesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import { Object3D } from 'three'
 import { MHD_LAYOUT } from './layout'
 import { deriveChannelVisibilityConfig } from './model'
+import { getGeometryDetail, resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 type MhdGeneratorRig3DProps = {
   running: boolean
@@ -20,15 +22,18 @@ const FlowMarkers = memo(function FlowMarkers({ running }: { running: boolean })
   useEffect(() => { runningRef.current = running }, [running])
   const phaseRef = useRef(0)
 
+  const perf = resolvePerformanceProfile()
+  const markersPerLane = perf.level === 'low' ? 5 : perf.level === 'medium' ? 8 : 10
+
   const markers = useMemo(() => {
     const result: Array<{ lane: number; laneIndex: number; i: number }> = []
     MHD_LAYOUT.flow.lanes.forEach((lane, laneIndex) => {
-      for (let i = 0; i < 10; i += 1) {
+      for (let i = 0; i < markersPerLane; i += 1) {
         result.push({ lane, laneIndex, i })
       }
     })
     return result
-  }, [])
+  }, [markersPerLane])
 
   const groupRefs = useRef<(Group | null)[]>([])
 
@@ -42,38 +47,42 @@ const FlowMarkers = memo(function FlowMarkers({ running }: { running: boolean })
       if (!group) return
 
       const marker = markers[idx]
-      const progress = (marker.i / 10 + phaseRef.current) % 1
+      const progress = (marker.i / markersPerLane + phaseRef.current) % 1
       const x = MHD_LAYOUT.flow.startX + progress * MHD_LAYOUT.flow.spanX
       const pulse = 0.55 + 0.45 * Math.sin((phaseRef.current * 2 + marker.i * 0.11 + marker.laneIndex * 0.17) * Math.PI * 2)
 
       group.position.set(x, 0, marker.lane)
 
-      const shaft = group.children[0] as Mesh
-      const tip = group.children[1] as Mesh
+      const shaft = group.children[0] as { material?: MeshBasicMaterial }
+      const tip = group.children[1] as { material?: MeshBasicMaterial }
       const baseOpacity = runningRef.current ? 0.45 : 0.25
       const tipBaseOpacity = runningRef.current ? 0.48 : 0.26
       if (shaft?.material) {
-        ;(shaft.material as MeshBasicMaterial).opacity = baseOpacity + pulse * 0.5
+        shaft.material.opacity = baseOpacity + pulse * 0.5
       }
       if (tip?.material) {
-        ;(tip.material as MeshBasicMaterial).opacity = tipBaseOpacity + pulse * 0.42
+        tip.material.opacity = tipBaseOpacity + pulse * 0.42
       }
     })
   })
 
+  const geoDetail = getGeometryDetail()
+
   return markers.map((_, index) => (
     <group key={`flow-${index}`} ref={(el) => { groupRefs.current[index] = el }}>
       <mesh position={[-0.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.34, 14]} />
+        <cylinderGeometry args={[0.02, 0.02, 0.34, geoDetail.cylinderRadialSegments]} />
         <meshBasicMaterial color="#ff84c8" transparent />
       </mesh>
       <mesh position={[0.1, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-        <coneGeometry args={[0.08, 0.24, 18]} />
+        <coneGeometry args={[0.08, 0.24, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#ff5ea8" transparent />
       </mesh>
     </group>
   ))
 })
+
+const _dummy = new Object3D()
 
 const ChargeCarriers = memo(function ChargeCarriers({
   running,
@@ -95,19 +104,26 @@ const ChargeCarriers = memo(function ChargeCarriers({
 
   const phaseRef = useRef(0)
 
+  const perf = resolvePerformanceProfile()
+  const carrierCount = Math.max(
+    perf.mhdCarrierCountBase,
+    Math.round(perf.mhdCarrierCountBase + plasmaDensityRatio * perf.mhdCarrierCountScale),
+  )
+
   const carriers = useMemo(() => {
-    const result: Array<{ lane: number; laneIndex: number; i: number; carrierCount: number }> = []
-    const carrierCount = Math.max(4, Math.round(5 + plasmaDensityRatio * 6))
+    const result: Array<{ lane: number; laneIndex: number; i: number }> = []
     MHD_LAYOUT.flow.lanes.forEach((lane, laneIndex) => {
       for (let i = 0; i < carrierCount; i += 1) {
-        result.push({ lane, laneIndex, i, carrierCount })
+        result.push({ lane, laneIndex, i })
       }
     })
     return result
-  }, [plasmaDensityRatio])
+  }, [carrierCount])
 
-  const posRefs = useRef<(Mesh | null)[]>([])
-  const negRefs = useRef<(Mesh | null)[]>([])
+  const posMeshRef = useRef<InstancedMesh>(null)
+  const negMeshRef = useRef<InstancedMesh>(null)
+
+  const totalCount = carriers.length
 
   useFrame((_, delta) => {
     if (runningRef.current) {
@@ -120,67 +136,78 @@ const ChargeCarriers = memo(function ChargeCarriers({
     const carrierOpacity = 0.35 + 0.55 * Math.max(cs, dr * 0.4)
     const emissiveIntensity = 0.35 + cs * 0.95
 
-    carriers.forEach((carrier, idx) => {
-      const progress = (carrier.i / carrier.carrierCount + phaseRef.current * 0.86) % 1
+    const posMesh = posMeshRef.current
+    const negMesh = negMeshRef.current
+    if (!posMesh || !negMesh) return
+
+    let needsUpdate = false
+
+    for (let idx = 0; idx < totalCount; idx += 1) {
+      const carrier = carriers[idx]
+      const progress = (carrier.i / carrierCount + phaseRef.current * 0.86) % 1
       const x = MHD_LAYOUT.flow.startX + progress * MHD_LAYOUT.flow.spanX
       const jitter = (((carrier.i + carrier.laneIndex * 2) % 7) - 3) * 0.009
       const zOffset = (((carrier.laneIndex + carrier.i) % 5) - 2) * 0.009
 
-      const posMesh = posRefs.current[idx]
-      const negMesh = negRefs.current[idx]
+      _dummy.position.set(x, jitter + transientDeflectionY * progress, carrier.lane + zOffset - 0.06)
+      _dummy.updateMatrix()
+      posMesh.setMatrixAt(idx, _dummy.matrix)
 
-      if (posMesh) {
-        posMesh.position.set(x, jitter + transientDeflectionY * progress, carrier.lane + zOffset - 0.06)
-        const mat = posMesh.material as MeshStandardMaterial
-        mat.opacity = carrierOpacity
-        mat.emissiveIntensity = emissiveIntensity
-      }
-      if (negMesh) {
-        negMesh.position.set(x, jitter - transientDeflectionY * progress, carrier.lane + zOffset + 0.06)
-        const mat = negMesh.material as MeshStandardMaterial
-        mat.opacity = carrierOpacity
-        mat.emissiveIntensity = emissiveIntensity
-      }
-    })
+      _dummy.position.set(x, jitter - transientDeflectionY * progress, carrier.lane + zOffset + 0.06)
+      _dummy.updateMatrix()
+      negMesh.setMatrixAt(idx, _dummy.matrix)
+      needsUpdate = true
+    }
+
+    if (needsUpdate) {
+      posMesh.instanceMatrix.needsUpdate = true
+      negMesh.instanceMatrix.needsUpdate = true
+
+      const posMat = (Array.isArray(posMesh.material) ? posMesh.material[0] : posMesh.material) as MeshStandardMaterial
+      const negMat = (Array.isArray(negMesh.material) ? negMesh.material[0] : negMesh.material) as MeshStandardMaterial
+      posMat.opacity = carrierOpacity
+      posMat.emissiveIntensity = emissiveIntensity
+      negMat.opacity = carrierOpacity
+      negMat.emissiveIntensity = emissiveIntensity
+    }
   })
 
-  return carriers.map((carrier, index) => {
-    const jitter = (((carrier.i + carrier.laneIndex * 2) % 7) - 3) * 0.009
-    return (
-      <group key={`carrier-${index}`}>
-        <mesh
-          ref={(el) => { posRefs.current[index] = el }}
-          position={[0, jitter, carrier.lane - 0.06]}
-          renderOrder={channelVisibility.particleRenderOrder}
-        >
-          <sphereGeometry args={[0.03, 14, 14]} />
-          <meshStandardMaterial
-            color="#ff6f91"
-            emissive="#ff2f65"
-            emissiveIntensity={0.35}
-            transparent
-            opacity={0.35}
-            depthWrite={false}
-          />
-        </mesh>
-        <mesh
-          ref={(el) => { negRefs.current[index] = el }}
-          position={[0, jitter, carrier.lane + 0.06]}
-          renderOrder={channelVisibility.particleRenderOrder}
-        >
-          <sphereGeometry args={[0.03, 14, 14]} />
-          <meshStandardMaterial
-            color="#6db5ff"
-            emissive="#2a74ff"
-            emissiveIntensity={0.35}
-            transparent
-            opacity={0.35}
-            depthWrite={false}
-          />
-        </mesh>
-      </group>
-    )
-  })
+  const geoDetail = getGeometryDetail()
+
+  return (
+    <>
+      <instancedMesh
+        ref={posMeshRef}
+        args={[undefined, undefined, totalCount]}
+        renderOrder={channelVisibility.particleRenderOrder}
+      >
+        <sphereGeometry args={[0.03, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
+        <meshStandardMaterial
+          color="#ff6f91"
+          emissive="#ff2f65"
+          emissiveIntensity={0.35}
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+        />
+      </instancedMesh>
+      <instancedMesh
+        ref={negMeshRef}
+        args={[undefined, undefined, totalCount]}
+        renderOrder={channelVisibility.particleRenderOrder}
+      >
+        <sphereGeometry args={[0.03, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
+        <meshStandardMaterial
+          color="#6db5ff"
+          emissive="#2a74ff"
+          emissiveIntensity={0.35}
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+        />
+      </instancedMesh>
+    </>
+  )
 })
 
 const PlateCharges = memo(function PlateCharges({
@@ -206,32 +233,69 @@ const PlateCharges = memo(function PlateCharges({
 
   const plateChargeFill = chargeSeparation * plateChargeSites.length
 
-  return plateChargeSites.map((site, index) => {
-    const siteFill = Math.min(1, Math.max(0, plateChargeFill - index))
-    if (siteFill < 0.02) return null
-    const scale = 0.82 + siteFill * 0.34
-    const opacity = 0.12 + siteFill * 0.82
-    return (
-      <group key={`plate-charge-${index}`}>
-        <mesh
-          position={[site.x, topChargeY, site.z]}
-          scale={[scale, scale, scale]}
-          renderOrder={channelVisibility.particleRenderOrder}
-        >
-          <sphereGeometry args={[0.026, 12, 12]} />
-          <meshBasicMaterial color="#ff4f7b" transparent opacity={opacity} depthWrite={false} />
-        </mesh>
-        <mesh
-          position={[site.x, bottomChargeY, site.z]}
-          scale={[scale, scale, scale]}
-          renderOrder={channelVisibility.particleRenderOrder}
-        >
-          <sphereGeometry args={[0.026, 12, 12]} />
-          <meshBasicMaterial color="#5da8ff" transparent opacity={opacity} depthWrite={false} />
-        </mesh>
-      </group>
-    )
-  })
+  const posMeshRef = useRef<InstancedMesh>(null)
+  const negMeshRef = useRef<InstancedMesh>(null)
+
+  const totalSites = plateChargeSites.length
+
+  useEffect(() => {
+    const posMesh = posMeshRef.current
+    const negMesh = negMeshRef.current
+    if (!posMesh || !negMesh) return
+
+    let activeCount = 0
+    for (let index = 0; index < totalSites; index += 1) {
+      const siteFill = Math.min(1, Math.max(0, plateChargeFill - index))
+      if (siteFill < 0.02) {
+        _dummy.scale.set(0, 0, 0)
+      } else {
+        const scale = 0.82 + siteFill * 0.34
+        _dummy.scale.set(scale, scale, scale)
+        activeCount += 1
+      }
+
+      const site = plateChargeSites[index]
+      _dummy.position.set(site.x, topChargeY, site.z)
+      _dummy.updateMatrix()
+      posMesh.setMatrixAt(index, _dummy.matrix)
+
+      _dummy.position.set(site.x, bottomChargeY, site.z)
+      _dummy.updateMatrix()
+      negMesh.setMatrixAt(index, _dummy.matrix)
+    }
+
+    posMesh.instanceMatrix.needsUpdate = true
+    negMesh.instanceMatrix.needsUpdate = true
+
+    const posMat = (Array.isArray(posMesh.material) ? posMesh.material[0] : posMesh.material) as MeshBasicMaterial
+    const negMat = (Array.isArray(negMesh.material) ? negMesh.material[0] : negMesh.material) as MeshBasicMaterial
+    const opacity = activeCount > 0 ? 0.12 + (activeCount / totalSites) * 0.82 : 0
+    posMat.opacity = opacity
+    negMat.opacity = opacity
+  }, [plateChargeFill, plateChargeSites, topChargeY, bottomChargeY, totalSites])
+
+  const geoDetail = getGeometryDetail()
+
+  return (
+    <>
+      <instancedMesh
+        ref={posMeshRef}
+        args={[undefined, undefined, totalSites]}
+        renderOrder={channelVisibility.particleRenderOrder}
+      >
+        <sphereGeometry args={[0.026, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
+        <meshBasicMaterial color="#ff4f7b" transparent opacity={0} depthWrite={false} />
+      </instancedMesh>
+      <instancedMesh
+        ref={negMeshRef}
+        args={[undefined, undefined, totalSites]}
+        renderOrder={channelVisibility.particleRenderOrder}
+      >
+        <sphereGeometry args={[0.026, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
+        <meshBasicMaterial color="#5da8ff" transparent opacity={0} depthWrite={false} />
+      </instancedMesh>
+    </>
+  )
 })
 
 const magneticGuides = MHD_LAYOUT.magneticField.xGuides.map((x) => ({
@@ -253,6 +317,8 @@ export function MhdGeneratorRig3D({
   const magneticDeflectionOpacity = (0.2 + (1 - chargeSeparation) * 0.72) * Math.max(0.38, driveRatio)
   const topChargeY = MHD_LAYOUT.electrodes.topCenter[1] + MHD_LAYOUT.electrodes.size[1] / 2 + 0.024
   const bottomChargeY = MHD_LAYOUT.electrodes.bottomCenter[1] - MHD_LAYOUT.electrodes.size[1] / 2 - 0.024
+
+  const geoDetail = getGeometryDetail()
 
   return (
     <group>
@@ -355,7 +421,7 @@ export function MhdGeneratorRig3D({
             opacity={0.9}
           />
           <mesh position={guide.tip} rotation={[Math.PI / 2, 0, 0]}>
-            <coneGeometry args={[0.045, 0.18, 14]} />
+            <coneGeometry args={[0.045, 0.18, geoDetail.coneRadialSegments]} />
             <meshBasicMaterial color="#fff090" />
           </mesh>
         </group>
@@ -374,7 +440,7 @@ export function MhdGeneratorRig3D({
             opacity={innerFieldOpacity}
           />
           <mesh position={[x, MHD_LAYOUT.electrodes.bottomCenter[1] + 0.05, 0.18]} rotation={[0, 0, 0]}>
-            <coneGeometry args={[0.034, 0.14, 12]} />
+            <coneGeometry args={[0.034, 0.14, geoDetail.coneRadialSegments]} />
             <meshBasicMaterial color="#90f5ff" transparent opacity={innerFieldOpacity} />
           </mesh>
         </group>
@@ -391,7 +457,7 @@ export function MhdGeneratorRig3D({
         opacity={magneticDeflectionOpacity}
       />
       <mesh position={[-0.54, 0.24, -0.22]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.04, 0.16, 12]} />
+        <coneGeometry args={[0.04, 0.16, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
       <Line
@@ -405,7 +471,7 @@ export function MhdGeneratorRig3D({
         opacity={magneticDeflectionOpacity}
       />
       <mesh position={[0.54, -0.24, 0.22]} rotation={[0, 0, 0]}>
-        <coneGeometry args={[0.04, 0.16, 12]} />
+        <coneGeometry args={[0.04, 0.16, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
 

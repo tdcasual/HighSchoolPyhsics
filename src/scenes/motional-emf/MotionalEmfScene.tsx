@@ -137,7 +137,7 @@ export function MotionalEmfScene() {
         <InteractiveCanvas
           camera={activeCameraPreset.camera}
           controls={activeCameraPreset.controls}
-          frameloop="always"
+          frameloop={state.running ? 'always' : 'demand'}
         >
           <MotionalEmfRig3D
             motionOffset={state.motionOffset}

@@ -4,6 +4,7 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { EquipotentialControls } from './EquipotentialControls'
 import { EquipotentialRig3D } from './EquipotentialRig3D'
 import { buildEquipotentialClouds, type EquipotentialCharge } from './model'
+import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 const SCENE_BOUNDS = 5
 const SOFTENING_FACTOR = 0.34
@@ -64,6 +65,8 @@ export function EquipotentialScene() {
     [charges, selectedChargeId],
   )
 
+  const perf = resolvePerformanceProfile()
+
   const cloudResult = useMemo(
     () =>
       buildEquipotentialClouds({
@@ -73,8 +76,9 @@ export function EquipotentialScene() {
         shellCount,
         softeningFactor: SOFTENING_FACTOR,
         softPotentialLimit: SOFT_POTENTIAL_LIMIT,
+        maxPointsPerSurface: perf.equipotentialMaxPointsPerSurface,
       }),
-    [charges, sampleResolution, shellCount],
+    [charges, sampleResolution, shellCount, perf.equipotentialMaxPointsPerSurface],
   )
 
   const addCharge = (magnitude: number) => {

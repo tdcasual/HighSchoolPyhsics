@@ -23,9 +23,9 @@ vi.mock('../MotionalEmfRig3D', () => ({
 import { MotionalEmfScene } from '../MotionalEmfScene'
 
 describe('motional-emf frameloop policy', () => {
-  it('keeps always frameloop to avoid visible flicker during direction changes and analog updates', () => {
+  it('uses demand frameloop when paused to save GPU resources', () => {
     render(<MotionalEmfScene />)
 
-    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
+    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 })

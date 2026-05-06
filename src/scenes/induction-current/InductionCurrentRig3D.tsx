@@ -9,6 +9,7 @@ import {
   Vector3,
 } from 'three'
 import type { PoleSetting } from './model'
+import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
 
 type InductionCurrentRig3DProps = {
   poleSetting: PoleSetting
@@ -27,12 +28,11 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-function buildCoilCurve(): CatmullRomCurve3 {
+function buildCoilCurve(segments: number): CatmullRomCurve3 {
   const points: Vector3[] = []
   const radius = 4
   const height = 12
   const turns = 10
-  const segments = 500
 
   for (let index = 0; index <= segments; index += 1) {
     const t = index / segments
@@ -84,8 +84,14 @@ export function InductionCurrentRig3D({
   coilCurrentSign,
   needleAngleRad,
 }: InductionCurrentRig3DProps) {
-  const coilCurve = useMemo(() => buildCoilCurve(), [])
-  const coilGeometry = useMemo(() => new TubeGeometry(coilCurve, 400, 0.25, 8, false), [coilCurve])
+  const perf = resolvePerformanceProfile()
+  const geo = getGeometryDetail()
+
+  const coilCurve = useMemo(() => buildCoilCurve(perf.inductionCoilCurveSegments), [perf.inductionCoilCurveSegments])
+  const coilGeometry = useMemo(
+    () => new TubeGeometry(coilCurve, perf.inductionCoilTubularSegments, 0.25, geo.tubeRadialSegments, false),
+    [coilCurve, perf.inductionCoilTubularSegments, geo.tubeRadialSegments],
+  )
 
   const coilArrowSamples = useMemo<CoilArrowSample[]>(() => {
     const samples: CoilArrowSample[] = []
@@ -123,8 +129,11 @@ export function InductionCurrentRig3D({
       new Vector3(16.8, -4.5, -0.5),
     ])
 
-    return [new TubeGeometry(pathA, 64, 0.1, 8, false), new TubeGeometry(pathB, 64, 0.1, 8, false)]
-  }, [coilCurve])
+    return [
+      new TubeGeometry(pathA, perf.inductionWireTubularSegments, 0.1, geo.tubeRadialSegments, false),
+      new TubeGeometry(pathB, perf.inductionWireTubularSegments, 0.1, geo.tubeRadialSegments, false),
+    ]
+  }, [coilCurve, perf.inductionWireTubularSegments, geo.tubeRadialSegments])
 
   const needleGeometry = useMemo(() => buildNeedleGeometry(), [])
 

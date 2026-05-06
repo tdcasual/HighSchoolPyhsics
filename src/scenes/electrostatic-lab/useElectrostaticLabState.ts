@@ -10,6 +10,7 @@ import {
   type ElectrostaticCharge,
   type PresetKey,
 } from './model'
+import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 export const ELECTROSTATIC_LAB_SCENE_BOUNDS = 7
 
@@ -87,7 +88,10 @@ export function useElectrostaticLabState(): ElectrostaticLabState {
   const [overlayFieldLines, setOverlayFieldLines] = useState(true)
   const [showContourLines, setShowContourLines] = useState(true)
   const [invertHeight, setInvertHeight] = useState(false)
-  const [resolution, setResolution] = useState(30)
+  const perf = resolvePerformanceProfile()
+  const [resolution, setResolution] = useState(() =>
+    Math.min(30, perf.electrostaticTerrainResolution),
+  )
   const [probeMode, setProbeMode] = useState(false)
   const [probePoint, setProbePoint] = useState<ProbePoint | null>(null)
   const [advancedInteractionsEnabled, setAdvancedInteractionsEnabled] = useState(false)

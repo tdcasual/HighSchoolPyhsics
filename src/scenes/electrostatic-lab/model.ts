@@ -189,7 +189,7 @@ export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): Po
     sample = {},
   } = options
   const safeBounds = Math.max(1, bounds)
-  const safeResolution = Math.max(12, Math.min(56, Math.round(resolution)))
+  const safeResolution = Math.max(12, Math.min(100, Math.round(resolution)))
   const vertexCount = safeResolution * safeResolution
   const vertexPositions = new Float32Array(vertexCount * 3)
   const vertexColors = new Float32Array(vertexCount * 3)

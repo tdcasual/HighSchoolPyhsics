@@ -66,7 +66,7 @@ export function EquipotentialRig3D({
           return null
         }
         return (
-          <points key={`positive-surface-${index}`} frustumCulled={false}>
+          <points key={`positive-surface-${index}`}>
             <bufferGeometry>
               <bufferAttribute attach="attributes-position" args={[buffer, 3]} />
             </bufferGeometry>
@@ -87,7 +87,7 @@ export function EquipotentialRig3D({
           return null
         }
         return (
-          <points key={`negative-surface-${index}`} frustumCulled={false}>
+          <points key={`negative-surface-${index}`}>
             <bufferGeometry>
               <bufferAttribute attach="attributes-position" args={[buffer, 3]} />
             </bufferGeometry>
