@@ -147,7 +147,7 @@ export function SceneLayout({
           {viewport}
         </div>
 
-        <div className="shrink-0 flex flex-col border-t border-gray-200 dark:border-[#2f4863]" style={{ height: '40vh' }}>
+        <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '40vh' }}>
           <div className="px-2 pt-1.5 shrink-0">
             <SegmentedControl
               options={mobileTabOptions}

@@ -105,7 +105,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
         </button>
         {closable && onClose && (
           <button
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[#e11d48] hover:bg-[rgba(225,29,72,0.08)] transition-all duration-150"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[var(--control-accent)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onClose}
             aria-label="关闭"

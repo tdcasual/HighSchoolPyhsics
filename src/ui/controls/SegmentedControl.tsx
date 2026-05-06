@@ -32,8 +32,6 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
       className="segmented-control grid gap-[3px] p-[3px] rounded-[12px]"
       style={{
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        background: 'rgba(14, 165, 233, 0.08)',
-        border: '1px solid rgba(14, 165, 233, 0.12)',
       }}
       role="radiogroup"
       onKeyDown={handleKeyDown}
@@ -47,14 +45,13 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
             aria-checked={active}
             tabIndex={active ? 0 : -1}
             className={[
-              'min-h-[32px] md:min-h-[36px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
+              'min-h-[44px] md:min-h-[36px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
               active
-                ? 'active text-white shadow-sm'
+                ? 'active shadow-sm'
                 : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',
             ].join(' ')}
             style={active ? {
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #2dd4bf 100%)',
-              boxShadow: '0 2px 8px rgba(14, 165, 233, 0.25), inset 0 1px 0 0 rgba(255,255,255,0.2)',
+              boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.2)',
             } : {}}
             onClick={() => onChange(option.key)}
           >

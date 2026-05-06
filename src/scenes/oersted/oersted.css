@@ -1,41 +1,44 @@
 .oersted-card {
+  --oersted-card-border: #a07854;
+  --oersted-card-bg-start: #fff7e8;
+  --oersted-card-bg-end: #f3e9d9;
+  --oersted-text-primary: #53351f;
+  --oersted-text-strong: #2f1809;
+
   margin-top: 0.25rem;
-  border: 1px solid #a07854;
+  border: 1px solid var(--oersted-card-border);
   border-radius: 12px;
-  background: linear-gradient(165deg, #fff7e8 0%, #f3e9d9 100%);
+  background: linear-gradient(165deg, var(--oersted-card-bg-start) 0%, var(--oersted-card-bg-end) 100%);
   padding: 0.68rem 0.74rem;
 }
 
 .oersted-card p {
   margin: 0.16rem 0;
   font-size: 0.84rem;
-  color: #53351f;
+  color: var(--oersted-text-primary);
 }
 
 .oersted-card strong {
   font-family: 'SF Mono', Menlo, monospace;
-  color: #2f1809;
+  color: var(--oersted-text-strong);
 }
 
 .oersted-preset-tip {
+  --oersted-text-secondary: #66401f;
+
   margin: 0.1rem 0 0;
   font-size: 0.78rem;
-  color: #66401f;
+  color: var(--oersted-text-secondary);
 }
 
 .app-shell.theme-night .oersted-card {
-  border-color: #70553a;
-  background: linear-gradient(165deg, #312319 0%, #21180f 100%);
-}
-
-.app-shell.theme-night .oersted-card p {
-  color: #f1decd;
-}
-
-.app-shell.theme-night .oersted-card strong {
-  color: #ffe8cc;
+  --oersted-card-border: #70553a;
+  --oersted-card-bg-start: #312319;
+  --oersted-card-bg-end: #21180f;
+  --oersted-text-primary: #f1decd;
+  --oersted-text-strong: #ffe8cc;
 }
 
 .app-shell.theme-night .oersted-preset-tip {
-  color: #ecd6bf;
+  --oersted-text-secondary: #ecd6bf;
 }

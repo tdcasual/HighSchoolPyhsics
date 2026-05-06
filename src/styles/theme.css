@@ -4,36 +4,71 @@
 }
 
 .app-shell.theme-night {
-  color: #e0f2fe;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(45, 212, 191, 0.05) 0%, transparent 50%),
-    #060e1a;
+  color: #e5e7eb;
+  background: #0f1115;
 }
 
 /* ── Night Glass Panels ── */
 .app-shell.theme-night .floating-panel {
-  background: rgba(8, 20, 38, 0.68);
-  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(20, 22, 28, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    0 4px 16px rgba(0, 0, 0, 0.25),
-    0 12px 40px rgba(14, 165, 233, 0.08);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .app-shell.theme-night .sidebar-panel {
-  background: rgba(8, 20, 38, 0.68);
-  border-right-color: rgba(56, 189, 248, 0.2);
+  background: rgba(20, 22, 28, 0.75);
+  border-right-color: rgba(255, 255, 255, 0.08);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-    4px 0 24px rgba(0, 0, 0, 0.2);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    4px 0 24px rgba(0, 0, 0, 0.3);
 }
 
 .app-shell.theme-night .floating-panel .panel-header,
 .app-shell.theme-night .sidebar-panel .panel-header {
-  color: #bae6fd;
-  border-color: rgba(56, 189, 248, 0.15);
+  color: #9ca3af;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.app-shell.theme-night .app-header {
+  background: rgba(20, 22, 28, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.app-shell.theme-night .app-header h1 {
+  color: #e5e7eb;
+}
+
+.app-shell.theme-night .map-overlay-title-content,
+.app-shell.theme-night .map-overlay-legend {
+  background: rgba(20, 22, 28, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-shell.theme-night .region-scene-panel {
+  background: rgba(20, 22, 28, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-shell.theme-night .region-scene-panel-header {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.app-shell.theme-night .region-scene-panel-close {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+}
+
+.app-shell.theme-night .region-scene-panel-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
 }
 
 /* ── Night Actions ── */
@@ -42,34 +77,34 @@
 .app-shell.theme-night .theme-switch button,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
-  border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(12, 26, 48, 0.75);
-  color: #bae6fd;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 32, 40, 0.8);
+  color: #d1d5db;
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.15);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .app-shell.theme-night .scene-actions button:hover,
 .app-shell.theme-night .scene-actions-btn:hover,
 .app-shell.theme-night .theme-switch button:hover,
 .app-shell.theme-night .overview-link:hover {
-  border-color: rgba(56, 189, 248, 0.55);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-    0 4px 12px rgba(14, 165, 233, 0.2),
-    0 0 0 1px rgba(14, 165, 233, 0.1);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .app-shell.theme-night .scene-actions button.active,
 .app-shell.theme-night .scene-actions-btn.active,
 .app-shell.theme-night .theme-switch button.active {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.55) 0%, rgba(45, 212, 191, 0.45) 100%);
-  border-color: rgba(56, 189, 248, 0.55);
-  color: #f0f9ff;
+  background: #2563eb;
+  border-color: rgba(37, 99, 235, 0.6);
+  color: #ffffff;
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-    0 0 16px rgba(14, 165, 233, 0.25);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .app-shell.theme-night .scene-actions-btn:active {
@@ -78,97 +113,100 @@
 
 /* ── Night Controls ── */
 .app-shell.theme-night .control-section-title {
-  color: #7dd3fc;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .control-section-body {
-  background: rgba(12, 26, 48, 0.45);
-  border-color: rgba(56, 189, 248, 0.15);
+  background: rgba(20, 22, 28, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.app-shell.theme-night .mobile-bottom-panel {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .readout-panel {
-  background: rgba(8, 24, 44, 0.65);
-  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(20, 22, 28, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .readout-item-label {
-  color: #7dd3fc;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .readout-item-value {
-  color: #e0f2fe;
+  color: #e5e7eb;
 }
 
 .app-shell.theme-night .readout-divider {
-  border-color: rgba(56, 189, 248, 0.15);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .app-shell.theme-night .segmented-control button {
-  border-color: rgba(56, 189, 248, 0.25);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .segmented-control button.active {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.55) 0%, rgba(45, 212, 191, 0.4) 100%);
-  border-color: rgba(56, 189, 248, 0.45);
-  color: #f0f9ff;
-  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
+  background: #2563eb;
+  border-color: rgba(37, 99, 235, 0.5);
+  color: #ffffff;
 }
 
 .app-shell.theme-night .segmented-control button:not(.active) {
-  background: rgba(12, 26, 48, 0.6);
-  color: #93c5fd;
+  background: rgba(30, 32, 40, 0.6);
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .segmented-control button:not(.active):hover {
-  background: rgba(14, 45, 80, 0.7);
+  background: rgba(40, 42, 52, 0.7);
 }
 
 /* ── Night Scene Core ── */
 .app-shell.theme-night .scene-core-summary-stack p {
-  color: #bae6fd;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .scene-legend {
-  border-color: rgba(56, 189, 248, 0.2);
-  background: rgba(8, 24, 44, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(20, 22, 28, 0.55);
 }
 
 .app-shell.theme-night .scene-legend-item {
-  color: #7dd3fc;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .formula-input,
 .app-shell.theme-night .preset-select {
-  background: rgba(8, 20, 38, 0.65);
-  border-color: rgba(56, 189, 248, 0.25);
-  color: #e0f2fe;
+  background: rgba(20, 22, 28, 0.65);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
 }
 
 .app-shell.theme-night .formula-help {
-  color: #7dd3fc;
-  background: rgba(8, 24, 44, 0.55);
+  color: #9ca3af;
+  background: rgba(20, 22, 28, 0.55);
 }
 
 /* ── Night Overview ── */
 .app-shell.theme-night .overview-page {
-  --overview-ink: #f0f9ff;
-  --overview-soft-ink: #93c5fd;
-  --overview-card-bg-start: rgba(8, 20, 38, 0.72);
-  --overview-card-bg-end: rgba(8, 20, 38, 0.58);
-  --overview-card-border: rgba(56, 189, 248, 0.22);
-  --overview-shell-border: rgba(56, 189, 248, 0.22);
+  --overview-ink: #f3f4f6;
+  --overview-soft-ink: #9ca3af;
+  --overview-card-bg-start: rgba(20, 22, 28, 0.72);
+  --overview-card-bg-end: rgba(20, 22, 28, 0.58);
+  --overview-card-border: rgba(255, 255, 255, 0.08);
+  --overview-shell-border: rgba(255, 255, 255, 0.08);
   --overview-shell-bg:
-    linear-gradient(165deg, rgba(8, 20, 38, 0.72) 0%, rgba(6, 16, 32, 0.65) 50%, rgba(8, 24, 44, 0.62) 100%);
+    linear-gradient(165deg, rgba(20, 22, 28, 0.72) 0%, rgba(18, 20, 26, 0.65) 50%, rgba(22, 24, 30, 0.62) 100%);
   --overview-shadow:
     0 1px 2px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(14, 165, 233, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.15),
     0 24px 64px rgba(0, 0, 0, 0.35);
-  --overview-card-accent: #38bdf8;
-  --overview-card-glow: rgba(14, 165, 233, 0.12);
-  --overview-kicker: #2dd4bf;
-  --overview-note-bg: rgba(8, 24, 44, 0.55);
-  --overview-note-border: rgba(56, 189, 248, 0.25);
-  --overview-note-ink: #bae6fd;
+  --overview-card-accent: #3b82f6;
+  --overview-card-glow: rgba(37, 99, 235, 0.08);
+  --overview-kicker: #9ca3af;
+  --overview-note-bg: rgba(20, 22, 28, 0.55);
+  --overview-note-border: rgba(255, 255, 255, 0.08);
+  --overview-note-ink: #d1d5db;
 }
 
 .app-shell.theme-night .overview-page::before {
@@ -178,103 +216,134 @@
 
 .app-shell.theme-night .overview-hero {
   background:
-    radial-gradient(circle at 95% 6%, rgba(14, 165, 233, 0.15) 0%, transparent 48%),
-    radial-gradient(circle at 12% 90%, rgba(45, 212, 191, 0.1) 0%, transparent 45%),
-    linear-gradient(145deg, rgba(8, 20, 38, 0.9) 0%, rgba(6, 18, 36, 0.88) 45%, rgba(8, 24, 44, 0.85) 100%);
-  border-color: rgba(56, 189, 248, 0.25);
+    linear-gradient(145deg, rgba(20, 22, 28, 0.92) 0%, rgba(18, 20, 26, 0.9) 45%, rgba(22, 24, 30, 0.88) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .overview-kicker {
-  color: #2dd4bf;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-hero-note {
-  border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(8, 24, 44, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 22, 28, 0.5);
 }
 
 .app-shell.theme-night .overview-note-title {
-  color: #7dd3fc;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-note-text {
-  color: #bae6fd;
+  color: #d1d5db;
 }
 
 .app-shell.theme-night .overview-shortcut-tip {
-  color: #64748b;
+  color: #4b5563;
 }
 
 .app-shell.theme-night .overview-card {
-  border-color: rgba(56, 189, 248, 0.2);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .overview-card-index {
-  color: #64748b;
+  color: #4b5563;
 }
 
 .app-shell.theme-night .overview-card::before {
-  background: linear-gradient(90deg, #38bdf8 0%, rgba(56, 189, 248, 0) 88%);
-  opacity: 0.5;
+  background: linear-gradient(90deg, #3b82f6 0%, rgba(59, 130, 246, 0) 88%);
+  opacity: 0.4;
 }
 
 .app-shell.theme-night .overview-card-summary {
-  color: #93c5fd;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-card-tag {
-  color: #7dd3fc;
-  background: rgba(14, 165, 233, 0.12);
-  border-color: rgba(14, 165, 233, 0.3);
+  color: #9ca3af;
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 .app-shell.theme-night .overview-points {
-  color: #93c5fd;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .overview-card:hover {
-  border-color: rgba(56, 189, 248, 0.45);
+  border-color: rgba(255, 255, 255, 0.15);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.15),
-    0 8px 24px rgba(14, 165, 233, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.1),
     0 24px 64px rgba(0, 0, 0, 0.3);
 }
 
 .app-shell.theme-night .overview-enter {
-  background: rgba(8, 24, 44, 0.7);
-  border-color: rgba(56, 189, 248, 0.4);
-  color: #bae6fd;
+  background: rgba(20, 22, 28, 0.7);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #d1d5db;
 }
 
 .app-shell.theme-night .overview-enter:hover {
-  border-color: rgba(56, 189, 248, 0.65);
+  border-color: rgba(255, 255, 255, 0.2);
   box-shadow:
-    0 4px 12px rgba(14, 165, 233, 0.15),
-    0 0 0 1px rgba(14, 165, 233, 0.1);
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .app-shell.theme-night .interaction-hint {
-  color: #7dd3fc;
-  background: rgba(6, 16, 32, 0.9);
-  border-top-color: rgba(56, 189, 248, 0.2);
+  color: #9ca3af;
+  background: rgba(15, 17, 21, 0.92);
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .app-shell.theme-night .canvas-fallback {
-  color: #93c5fd;
+  color: #9ca3af;
 }
 
 .app-shell.theme-night .scene-missing {
-  border-color: rgba(56, 189, 248, 0.2);
-  background: rgba(8, 20, 38, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(20, 22, 28, 0.65);
 }
 
 .app-shell.theme-night .scene-missing h2,
 .app-shell.theme-night .scene-missing p {
-  color: #e0f2fe;
+  color: #e5e7eb;
 }
 
 .app-shell.theme-night .scene-missing-links button {
-  border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(12, 26, 48, 0.75);
-  color: #bae6fd;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 32, 40, 0.8);
+  color: #d1d5db;
+}
+
+/* ── Night Magazine ── */
+.app-shell.theme-night .magazine-overview {
+  --magazine-bg: #080808;
+  --magazine-ink: #e8e8e8;
+  --magazine-ink-soft: #c8c8c8;
+  --magazine-ink-muted: #888888;
+  --magazine-border: rgba(255, 255, 255, 0.06);
+  --magazine-item-hover-bg: rgba(255, 255, 255, 0.035);
+  --magazine-item-index: #666666;
+  --magazine-item-index-hover: #888888;
+  --magazine-item-name: #c8c8c8;
+  --magazine-item-name-hover: #f0f0f0;
+  --magazine-item-tag-bg: rgba(255, 255, 255, 0.04);
+  --magazine-item-tag: #888888;
+  --magazine-item-tag-hover-bg: rgba(255, 255, 255, 0.07);
+  --magazine-item-tag-hover: #aaaaaa;
+  --magazine-item-arrow: #555555;
+  --magazine-item-arrow-hover: #888888;
+  --magazine-preview-bg: #0e0e0e;
+  --magazine-preview-border: rgba(255, 255, 255, 0.06);
+  --magazine-preview-meta-bg: #0a0a0a;
+  --magazine-preview-placeholder: #888888;
+  --magazine-preview-placeholder-title: #888888;
+  --magazine-preview-empty-bg: #0c0c0c;
+  --magazine-preview-empty-border: rgba(255, 255, 255, 0.04);
+  --magazine-preview-empty-hint: #888888;
+  --magazine-preview-empty-sub: #555555;
+  --magazine-group-name: #888888;
+  --magazine-group-desc: #888888;
+  --magazine-kicker: #888888;
+  --magazine-scrollbar: rgba(255, 255, 255, 0.08);
 }

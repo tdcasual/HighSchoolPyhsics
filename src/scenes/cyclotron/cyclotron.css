@@ -1,8 +1,21 @@
 .cyclotron-plot-card {
+  --cyclotron-card-border: #9fc2db;
+  --cyclotron-card-bg-start: #f7fcff;
+  --cyclotron-card-bg-end: #edf6fe;
+  --cyclotron-text-primary: #22445f;
+  --cyclotron-screen-border: #a6c4da;
+  --cyclotron-screen-bg-start: #ffffff;
+  --cyclotron-screen-bg-end: #ebf4fb;
+  --cyclotron-chart-grid-line: rgba(89, 125, 153, 0.25);
+  --cyclotron-chart-axis-line: rgba(60, 91, 114, 0.42);
+  --cyclotron-chart-voltage-line: #d14f57;
+  --cyclotron-chart-energy-line: #2f6996;
+  --cyclotron-text-status: #35586f;
+
   margin-top: 0.25rem;
   border-radius: 10px;
-  border: 1px solid #9fc2db;
-  background: linear-gradient(180deg, #f7fcff 0%, #edf6fe 100%);
+  border: 1px solid var(--cyclotron-card-border);
+  background: linear-gradient(180deg, var(--cyclotron-card-bg-start) 0%, var(--cyclotron-card-bg-end) 100%);
   padding: 0.52rem;
   display: flex;
   flex-direction: column;
@@ -12,14 +25,14 @@
 .cyclotron-plot-card h3 {
   margin: 0;
   font-size: 0.92rem;
-  color: #22445f;
+  color: var(--cyclotron-text-primary);
 }
 
 .cyclotron-plot-screen {
-  border: 1px solid #a6c4da;
+  border: 1px solid var(--cyclotron-screen-border);
   border-radius: 8px;
   overflow: hidden;
-  background: radial-gradient(circle at center, #ffffff 0%, #ebf4fb 78%);
+  background: radial-gradient(circle at center, var(--cyclotron-screen-bg-start) 0%, var(--cyclotron-screen-bg-end) 78%);
 }
 
 .cyclotron-plot-svg {
@@ -29,12 +42,12 @@
 }
 
 .cyclotron-plot-grid line {
-  stroke: rgba(89, 125, 153, 0.25);
+  stroke: var(--cyclotron-chart-grid-line);
   stroke-width: 0.8;
 }
 
 .cyclotron-plot-axis {
-  stroke: rgba(60, 91, 114, 0.42);
+  stroke: var(--cyclotron-chart-axis-line);
   stroke-width: 1.2;
 }
 
@@ -46,42 +59,29 @@
 }
 
 .cyclotron-plot-line.voltage-line {
-  stroke: #d14f57;
+  stroke: var(--cyclotron-chart-voltage-line);
 }
 
 .cyclotron-plot-line.energy-line {
-  stroke: #2f6996;
+  stroke: var(--cyclotron-chart-energy-line);
 }
 
 .cyclotron-plot-status {
   margin: 0;
   font-size: 0.78rem;
-  color: #35586f;
+  color: var(--cyclotron-text-status);
   font-family: 'SF Mono', Menlo, monospace;
 }
 
 .app-shell.theme-night .cyclotron-plot-card {
-  border-color: #3f6584;
-  background: linear-gradient(180deg, #12283d 0%, #0f2032 100%);
-}
-
-.app-shell.theme-night .cyclotron-plot-card h3 {
-  color: #deedff;
-}
-
-.app-shell.theme-night .cyclotron-plot-screen {
-  border-color: #3f6584;
-  background: radial-gradient(circle at center, #1a3349 0%, #111f30 78%);
-}
-
-.app-shell.theme-night .cyclotron-plot-grid line {
-  stroke: rgba(127, 168, 196, 0.25);
-}
-
-.app-shell.theme-night .cyclotron-plot-axis {
-  stroke: rgba(179, 210, 232, 0.48);
-}
-
-.app-shell.theme-night .cyclotron-plot-status {
-  color: #bad6ef;
+  --cyclotron-card-border: #3f6584;
+  --cyclotron-card-bg-start: #12283d;
+  --cyclotron-card-bg-end: #0f2032;
+  --cyclotron-text-primary: #deedff;
+  --cyclotron-screen-border: #3f6584;
+  --cyclotron-screen-bg-start: #1a3349;
+  --cyclotron-screen-bg-end: #111f30;
+  --cyclotron-chart-grid-line: rgba(127, 168, 196, 0.25);
+  --cyclotron-chart-axis-line: rgba(179, 210, 232, 0.48);
+  --cyclotron-text-status: #bad6ef;
 }

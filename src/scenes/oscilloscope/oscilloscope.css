@@ -1,8 +1,22 @@
 .scope-card {
+  --scope-card-border: #335c67;
+  --scope-card-bg-start: #0a1117;
+  --scope-card-bg-end: #03070b;
+  --scope-text-primary: #d9f7e4;
+  --scope-screen-border: #2f4552;
+  --scope-screen-bg-start: #0d3a25;
+  --scope-screen-bg-end: #03140d;
+  --scope-chart-grid-line: rgba(94, 216, 168, 0.2);
+  --scope-chart-axis-line: rgba(176, 250, 212, 0.38);
+  --scope-trace-halo: rgba(149, 255, 185, 0.34);
+  --scope-trace-core: #d7ffad;
+  --scope-cursor: #e9ffca;
+  --scope-text-status: #a7ccb4;
+
   margin-top: 0.3rem;
   border-radius: 10px;
-  border: 1px solid #335c67;
-  background: linear-gradient(180deg, #0a1117 0%, #03070b 100%);
+  border: 1px solid var(--scope-card-border);
+  background: linear-gradient(180deg, var(--scope-card-bg-start) 0%, var(--scope-card-bg-end) 100%);
   padding: 0.55rem;
   display: flex;
   flex-direction: column;
@@ -12,14 +26,14 @@
 .scope-card h3 {
   margin: 0;
   font-size: 0.92rem;
-  color: #d9f7e4;
+  color: var(--scope-text-primary);
 }
 
 .scope-screen {
-  border: 1px solid #2f4552;
+  border: 1px solid var(--scope-screen-border);
   border-radius: 8px;
   overflow: hidden;
-  background: radial-gradient(circle at center, #0d3a25 0%, #03140d 74%);
+  background: radial-gradient(circle at center, var(--scope-screen-bg-start) 0%, var(--scope-screen-bg-end) 74%);
 }
 
 .scope-svg {
@@ -29,18 +43,18 @@
 }
 
 .scope-grid line {
-  stroke: rgba(94, 216, 168, 0.2);
+  stroke: var(--scope-chart-grid-line);
   stroke-width: 0.8;
 }
 
 .scope-axis {
-  stroke: rgba(176, 250, 212, 0.38);
+  stroke: var(--scope-chart-axis-line);
   stroke-width: 1.2;
 }
 
 .scope-trace-halo {
   fill: none;
-  stroke: rgba(149, 255, 185, 0.34);
+  stroke: var(--scope-trace-halo);
   stroke-width: 5.6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -48,24 +62,24 @@
 
 .scope-trace-core {
   fill: none;
-  stroke: #d7ffad;
+  stroke: var(--scope-trace-core);
   stroke-width: 2.05;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .scope-cursor {
-  fill: #e9ffca;
+  fill: var(--scope-cursor);
   filter: url(#scopeGlow);
 }
 
 .scope-status {
   margin: 0;
   font-size: 0.78rem;
-  color: #a7ccb4;
+  color: var(--scope-text-status);
   text-align: right;
 }
 
 .app-shell.theme-night .scope-card {
-  border-color: #4a6986;
+  --scope-card-border: #4a6986;
 }

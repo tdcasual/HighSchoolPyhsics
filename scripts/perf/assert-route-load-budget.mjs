@@ -36,7 +36,7 @@ async function measureRouteLoad(page, demo) {
     )
   }
   await page
-    .getByRole('heading', { name: '物理演示' })
+    .getByText('物理演示')
     .waitFor({ state: 'visible', timeout: 15000 })
 
   const startTime = performance.now()

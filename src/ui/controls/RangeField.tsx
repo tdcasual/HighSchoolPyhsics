@@ -59,7 +59,7 @@ export function RangeField({
         onChange={handleChange}
         className="w-full"
         style={{
-          background: `linear-gradient(90deg, #38bdf8 ${progress}%, rgba(14,165,233,0.15) ${progress}%)`,
+          background: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, rgba(14,165,233,0.15) ${progress}%)`,
         }}
       />
       {showMinMax && (

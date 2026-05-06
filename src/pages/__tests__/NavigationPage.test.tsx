@@ -49,21 +49,17 @@ describe('NavigationPage Linear layout', () => {
   it('renders the overview with title', () => {
     render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
 
-    expect(screen.getByRole('heading', { name: '物理演示' })).toBeInTheDocument()
-    expect(screen.getByText('高中物理课堂 3D 交互演示')).toBeInTheDocument()
+    expect(screen.getByText('物理演示')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '高中物理 3D 课堂' })).toBeInTheDocument()
   })
 
-  it('renders sidebar with all regions', () => {
+  it('renders all regions with scenes in the list', () => {
     render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
 
-    const sidebar = screen.getByRole('navigation', { name: '物理区域' })
-    expect(sidebar).toBeInTheDocument()
-    expect(sidebar.textContent).toContain('静电学')
-    expect(sidebar.textContent).toContain('电磁学')
-    expect(sidebar.textContent).toContain('电磁感应')
-    expect(sidebar.textContent).toContain('波动与振动')
-    expect(sidebar.textContent).toContain('力学')
-    expect(sidebar.textContent).toContain('热学')
+    const main = screen.getByRole('main')
+    expect(main.textContent).toContain('波动与振动')
+    expect(main.textContent).toContain('示波器')
+    expect(main.textContent).toContain('波形合成')
   })
 
   it('shows scenes in the main list grouped by region', () => {
@@ -100,10 +96,12 @@ describe('NavigationPage Linear layout', () => {
     expect(onOpenRoute).toHaveBeenCalledWith('/cyclotron')
   })
 
-  it('shows empty state for regions with no scenes', () => {
+  it('hides regions with no scenes', () => {
     render(<NavigationPage routes={[]} onOpenRoute={vi.fn()} />)
 
-    expect(screen.getAllByText('该区域暂无演示场景').length).toBeGreaterThanOrEqual(2)
+    const main = screen.getByRole('main')
+    expect(main.textContent).not.toContain('力学')
+    expect(main.textContent).not.toContain('热学')
   })
 
   it('preloads scene module on hover dwell', () => {

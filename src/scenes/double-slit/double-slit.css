@@ -14,6 +14,10 @@
 }
 
 .double-slit-canvas {
+  --double-slit-canvas-border: rgba(255, 255, 255, 0.12);
+  --double-slit-canvas-shadow-inset: rgba(0, 0, 0, 0.6);
+  --double-slit-canvas-shadow: rgba(255, 255, 255, 0.04);
+
   display: block;
   width: 100%;
   max-width: min(360px, 80vw);
@@ -21,8 +25,8 @@
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   image-rendering: pixelated;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--double-slit-canvas-border);
+  box-shadow: inset 0 0 12px var(--double-slit-canvas-shadow-inset), 0 0 8px var(--double-slit-canvas-shadow);
 }
 
 .double-slit-formula {
@@ -35,14 +39,19 @@
 
 /* 3D Labels inside R3F Html */
 .double-slit-label {
-  color: #ffffff;
-  background: rgba(0, 0, 0, 0.7);
+  --double-slit-label-text: #ffffff;
+  --double-slit-label-bg: rgba(0, 0, 0, 0.7);
+  --double-slit-label-border: rgba(255, 255, 255, 0.3);
+  --double-slit-label-shadow: rgba(0, 0, 0, 0.5);
+
+  color: var(--double-slit-label-text);
+  background: var(--double-slit-label-bg);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
   pointer-events: none;
   white-space: nowrap;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--double-slit-label-border);
+  box-shadow: 0 2px 4px var(--double-slit-label-shadow);
   user-select: none;
 }

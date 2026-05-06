@@ -18,7 +18,7 @@ describe('scene switching', () => {
     const { container } = render(<App />)
     const asyncWait = { timeout: 8000 }
 
-    expect(await screen.findByRole('heading', { name: '物理演示' }, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('物理演示', {}, asyncWait)).toBeInTheDocument()
 
     // Navigate to oscilloscope
     fireEvent.click(screen.getByText('示波器'))

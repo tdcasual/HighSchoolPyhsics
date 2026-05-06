@@ -1,35 +1,23 @@
-.motional-emf-view-button {
-  border: 1px solid rgba(73, 104, 140, 0.3);
-  background: rgba(245, 249, 255, 0.9);
-  color: #17304b;
-  border-radius: 12px;
-  padding: 0.52rem 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease, background 170ms ease;
-  min-height: 40px;
-}
-
-.motional-emf-view-button:hover {
-  transform: translateY(-1px);
-  border-color: rgba(71, 116, 162, 0.52);
-  box-shadow: 0 8px 18px rgba(36, 66, 102, 0.14);
-}
-
-.motional-emf-view-button.active {
-  background: rgba(77, 132, 191, 0.16);
-  border-color: rgba(71, 116, 162, 0.58);
-  color: #0f2440;
-}
-
 .motional-emf-view-card {
+  --motional-emf-card-bg: rgba(13, 27, 43, 0.62);
+  --motional-emf-card-border: rgba(197, 223, 247, 0.22);
+  --motional-emf-card-text: #eef7ff;
+  --motional-emf-button-border: rgba(73, 104, 140, 0.3);
+  --motional-emf-button-bg: rgba(245, 249, 255, 0.9);
+  --motional-emf-button-text: #17304b;
+  --motional-emf-button-hover-border: rgba(71, 116, 162, 0.52);
+  --motional-emf-button-hover-shadow: rgba(36, 66, 102, 0.14);
+  --motional-emf-button-active-bg: rgba(77, 132, 191, 0.16);
+  --motional-emf-button-active-border: rgba(71, 116, 162, 0.58);
+  --motional-emf-button-active-text: #0f2440;
+
   min-width: 10.5rem;
   padding: 0.72rem 0.85rem;
   border-radius: 14px;
-  background: rgba(13, 27, 43, 0.62);
-  border: 1px solid rgba(197, 223, 247, 0.22);
+  background: var(--motional-emf-card-bg);
+  border: 1px solid var(--motional-emf-card-border);
   backdrop-filter: blur(8px);
-  color: #eef7ff;
+  color: var(--motional-emf-card-text);
 }
 
 .motional-emf-view-card-title {
@@ -43,14 +31,35 @@
   gap: 0.45rem;
 }
 
-.app-shell.theme-night .motional-emf-view-button {
-  border-color: #4f6f98;
-  background: #101c30;
-  color: #dcecff;
+.motional-emf-view-button {
+  border: 1px solid var(--motional-emf-button-border);
+  background: var(--motional-emf-button-bg);
+  color: var(--motional-emf-button-text);
+  border-radius: 12px;
+  padding: 0.52rem 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease, background 170ms ease;
+  min-height: 40px;
 }
 
-.app-shell.theme-night .motional-emf-view-button.active {
-  background: #2d5277;
-  border-color: #6e95bf;
-  color: #eef6ff;
+.motional-emf-view-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--motional-emf-button-hover-border);
+  box-shadow: 0 8px 18px var(--motional-emf-button-hover-shadow);
+}
+
+.motional-emf-view-button.active {
+  background: var(--motional-emf-button-active-bg);
+  border-color: var(--motional-emf-button-active-border);
+  color: var(--motional-emf-button-active-text);
+}
+
+.app-shell.theme-night .motional-emf-view-card {
+  --motional-emf-button-border: #4f6f98;
+  --motional-emf-button-bg: #101c30;
+  --motional-emf-button-text: #dcecff;
+  --motional-emf-button-active-bg: #2d5277;
+  --motional-emf-button-active-border: #6e95bf;
+  --motional-emf-button-active-text: #eef6ff;
 }

@@ -1,8 +1,15 @@
 .alternator-telemetry {
-  border: 1px solid rgba(180, 170, 156, 0.7);
-  background: rgba(252, 248, 242, 0.92);
-  color: #3b2e24;
-  box-shadow: 0 10px 24px rgba(140, 128, 110, 0.1);
+  --alternator-telemetry-border: rgba(180, 170, 156, 0.7);
+  --alternator-telemetry-bg: rgba(252, 248, 242, 0.92);
+  --alternator-telemetry-text: #3b2e24;
+  --alternator-telemetry-shadow: rgba(140, 128, 110, 0.1);
+  --alternator-telemetry-secondary: #7a6e62;
+  --alternator-telemetry-strong: #2e2218;
+
+  border: 1px solid var(--alternator-telemetry-border);
+  background: var(--alternator-telemetry-bg);
+  color: var(--alternator-telemetry-text);
+  box-shadow: 0 10px 24px var(--alternator-telemetry-shadow);
   padding: 0.82rem 0.9rem;
   border-radius: 14px;
   display: grid;
@@ -20,11 +27,11 @@
 }
 
 .alternator-telemetry span {
-  color: #7a6e62;
+  color: var(--alternator-telemetry-secondary);
 }
 
 .alternator-telemetry strong {
-  color: #2e2218;
+  color: var(--alternator-telemetry-strong);
   font-family: 'SF Mono', Menlo, monospace;
 }
 
@@ -38,6 +45,7 @@
   --alternator-chart-axis-subtext: #9a8e82;
   --alternator-chart-wave-line: #3088d0;
   --alternator-chart-current-point: #dc3c3c;
+  --alternator-chart-time: #8a7e72;
 }
 
 .alternator-chart-title-row {
@@ -55,7 +63,7 @@
 
 .alternator-chart-time {
   margin: 0;
-  color: #8a7e72;
+  color: var(--alternator-chart-time);
   font-size: 0.88rem;
   font-weight: 700;
 }
@@ -69,17 +77,11 @@
 }
 
 .app-shell.theme-night .alternator-telemetry {
-  border-color: rgba(100, 110, 130, 0.5);
-  background: rgba(24, 30, 44, 0.82);
-  color: #e0d8cc;
-}
-
-.app-shell.theme-night .alternator-telemetry span {
-  color: #a0988c;
-}
-
-.app-shell.theme-night .alternator-telemetry strong {
-  color: #f0e8dc;
+  --alternator-telemetry-border: rgba(100, 110, 130, 0.5);
+  --alternator-telemetry-bg: rgba(24, 30, 44, 0.82);
+  --alternator-telemetry-text: #e0d8cc;
+  --alternator-telemetry-secondary: #a0988c;
+  --alternator-telemetry-strong: #f0e8dc;
 }
 
 .app-shell.theme-night .alternator-chart-shell {
@@ -90,6 +92,7 @@
   --alternator-chart-axis-subtext: #8a8278;
   --alternator-chart-wave-line: #58a8e8;
   --alternator-chart-current-point: #e87070;
+  --alternator-chart-time: #8a8278;
 }
 
 @media (max-width: 900px) {

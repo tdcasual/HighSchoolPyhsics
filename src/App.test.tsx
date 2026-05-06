@@ -28,13 +28,14 @@ describe('App shell', () => {
     expect(screen.getByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
 
-    // All 6 physics regions should be visible
-    expect(screen.getAllByText('静电学')[0]).toBeInTheDocument()
-    expect(screen.getAllByText('电磁学')[0]).toBeInTheDocument()
+    // Regions with scenes should be visible
+    expect(screen.getByText('静电学')).toBeInTheDocument()
+    expect(screen.getByText('电磁学')).toBeInTheDocument()
     expect(screen.getAllByText('电磁感应')[0]).toBeInTheDocument()
-    expect(screen.getAllByText('波动与振动')[0]).toBeInTheDocument()
-    expect(screen.getAllByText('力学')[0]).toBeInTheDocument()
-    expect(screen.getAllByText('热学')[0]).toBeInTheDocument()
+    expect(screen.getByText('波动与振动')).toBeInTheDocument()
+    // Regions without scenes are hidden in magazine layout
+    expect(screen.queryByText('力学')).not.toBeInTheDocument()
+    expect(screen.queryByText('热学')).not.toBeInTheDocument()
   })
 
   it('supports day/night mode across the app shell', () => {
@@ -68,7 +69,7 @@ describe('App shell', () => {
     render(<App />)
 
     expect(window.location.pathname).toBe('/')
-    expect(await screen.findByRole('heading', { name: '物理演示' })).toBeInTheDocument()
+    expect(await screen.findByText('物理演示')).toBeInTheDocument()
   })
 
   it('keeps scene action controls isolated from shell navigation styles', async () => {

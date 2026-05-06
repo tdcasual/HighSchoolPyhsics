@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
@@ -20,10 +20,99 @@ const THEME: Record<string, { dot: string }> = {
 
 const WARMUP_HOVER_DELAY_MS = 120
 
+function resolveScreenshotUrl(pageId: string): string {
+  return `/screenshots/${pageId}-screenshot.png`
+}
+
+const MagazineItem = memo(function MagazineItem({
+  route,
+  index,
+  isHovered,
+  onPointerEnter,
+  onPointerLeave,
+  onPointerDown,
+  onFocus,
+  onBlur,
+  onClick,
+}: {
+  route: DemoRoute
+  index: number
+  isHovered: boolean
+  onPointerEnter: (route: DemoRoute) => void
+  onPointerLeave: () => void
+  onPointerDown: (route: DemoRoute) => void
+  onFocus: (route: DemoRoute) => void
+  onBlur: () => void
+  onClick: (route: DemoRoute) => void
+}) {
+  const indexStr = String(index).padStart(2, '0')
+  return (
+    <button
+      className={`magazine-item touch-target${isHovered ? ' active' : ''}`}
+      onPointerEnter={() => onPointerEnter(route)}
+      onPointerLeave={onPointerLeave}
+      onPointerDown={(event) => {
+        if (event.pointerType !== 'mouse') {
+          onPointerDown(route)
+        }
+      }}
+      onFocus={() => onFocus(route)}
+      onBlur={onBlur}
+      onClick={() => onClick(route)}
+    >
+      <span className="magazine-item-index">{indexStr}</span>
+      <span className="magazine-item-name">{route.label}</span>
+      <span className="magazine-item-tag">{route.meta?.tag}</span>
+      <span className="magazine-item-arrow" aria-hidden="true">→</span>
+    </button>
+  )
+})
+
+function PreviewImage({ route }: { route: DemoRoute }) {
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+
+  return (
+    <>
+      <div className="magazine-preview-img-wrap">
+        {!error ? (
+          <img
+            src={resolveScreenshotUrl(route.pageId)}
+            alt={route.label}
+            className={`magazine-preview-img${loaded ? ' loaded' : ''}`}
+            onLoad={() => setLoaded(true)}
+            onError={() => setError(true)}
+          />
+        ) : null}
+        {(!loaded || error) ? (
+          <div className="magazine-preview-placeholder">
+            <span className="magazine-preview-placeholder-title">
+              {route.label}
+            </span>
+            <span className="magazine-preview-placeholder-hint">
+              {error ? '预览图加载失败' : '加载中…'}
+            </span>
+          </div>
+        ) : null}
+      </div>
+      <div className="magazine-preview-meta">
+        <span className="magazine-preview-name">
+          {route.label}
+        </span>
+        <span className="magazine-preview-tag">
+          {route.meta?.tag}
+        </span>
+      </div>
+    </>
+  )
+}
+
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const canWarmRoutes = shouldWarmRouteOnOverview()
   const warmupTimerRef = useRef<number | null>(null)
-  const groupRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const [hoveredRoute, setHoveredRoute] = useState<DemoRoute | null>(null)
+
+  const previewRoute = hoveredRoute
 
   useEffect(() => {
     return () => {
@@ -50,6 +139,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
 
   const handlePointerEnter = useCallback(
     (route: DemoRoute) => {
+      setHoveredRoute(route)
       if (!canWarmRoutes) return
       cancelWarmRoute()
       warmupTimerRef.current = window.setTimeout(() => {
@@ -72,139 +162,82 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     [handlePointerLeave, onOpenRoute],
   )
 
-  const scrollToRegion = useCallback((regionId: string) => {
-    const el = groupRefs.current[regionId]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+  const indexedGroups = PHYSICS_REGIONS.reduce<
+    { region: typeof PHYSICS_REGIONS[number]; theme: { dot: string }; routes: { route: DemoRoute; index: number }[] }[]
+  >((acc, region) => {
+    const theme = THEME[region.id] ?? THEME.electrostatics
+    const regionRoutes = routes.filter((r) =>
+      region.scenePageIds.includes(r.pageId),
+    )
+    if (regionRoutes.length === 0) return acc
+    const indexed = regionRoutes.map((route) => {
+      const index = acc.reduce((sum, g) => sum + g.routes.length, 0) + regionRoutes.indexOf(route) + 1
+      return { route, index }
+    })
+    acc.push({ region, theme, routes: indexed })
+    return acc
   }, [])
 
-  const totalScenes = routes.length
-
   return (
-    <section className="overview-page linear-explorer" data-testid="overview-page">
+    <section className="magazine-overview" data-testid="overview-page">
       {/* Header */}
-      <div className="linear-header">
-        <h1 className="linear-title">物理演示</h1>
-        <p className="linear-subtitle">高中物理课堂 3D 交互演示</p>
-      </div>
+      <header className="magazine-header">
+        <span className="magazine-kicker">物理演示</span>
+        <h1 className="magazine-title">高中物理 3D 课堂</h1>
+        <p className="magazine-count">
+          {routes.length} 个交互演示场景
+        </p>
+      </header>
 
-      {/* Product Preview */}
-      <div className="linear-preview" aria-hidden="true">
-        <div className="linear-preview-frame">
-          <div className="linear-preview-left" />
-          <div className="linear-preview-right">
-            <div className="linear-preview-topbar" />
-            <div className="linear-preview-viewport">
-              <div className="linear-preview-orb" />
-              <div className="linear-preview-ring" />
-              <div className="linear-preview-ring-2" />
+      {/* Scene list */}
+      <main className="magazine-list">
+        {indexedGroups.map(({ region, theme, routes: regionRoutes }) => (
+          <div key={region.id} className="magazine-group">
+            <div className="magazine-group-header">
+              <span
+                className="magazine-group-dot"
+                style={{ backgroundColor: theme.dot }}
+              />
+              <h2 className="magazine-group-name">{region.name}</h2>
+              <span className="magazine-group-desc">
+                {region.description}
+              </span>
+            </div>
+            <div className="magazine-items">
+              {regionRoutes.map(({ route, index }) => (
+                <MagazineItem
+                  key={route.pageId}
+                  route={route}
+                  index={index}
+                  isHovered={hoveredRoute?.pageId === route.pageId}
+                  onPointerEnter={handlePointerEnter}
+                  onPointerLeave={handlePointerLeave}
+                  onPointerDown={warmRouteNow}
+                  onFocus={warmRouteNow}
+                  onBlur={handlePointerLeave}
+                  onClick={handleClick}
+                />
+              ))}
             </div>
           </div>
+        ))}
+      </main>
+
+      {/* Screenshot preview — fixed right panel */}
+      <aside className="magazine-preview" aria-hidden="true">
+        <div className={`magazine-preview-frame${previewRoute ? ' show' : ''}`}>
+          {previewRoute ? (
+            <PreviewImage key={previewRoute.pageId} route={previewRoute} />
+          ) : (
+            <div className="magazine-preview-empty">
+              <span className="magazine-preview-empty-hint">悬停列表查看预览</span>
+              <span className="magazine-preview-empty-sub">
+                鼠标移至场景名称上
+              </span>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Workspace */}
-      <div className="linear-workspace">
-        {/* Sidebar */}
-        <nav className="linear-sidebar" aria-label="物理区域">
-          <div className="linear-sidebar-header">
-            <span className="linear-sidebar-title">区域</span>
-            <span className="linear-sidebar-count">{PHYSICS_REGIONS.length}</span>
-          </div>
-          <div className="linear-sidebar-list">
-            {PHYSICS_REGIONS.map((region) => {
-              const theme = THEME[region.id] ?? THEME.electrostatics
-              const sceneCount = region.scenePageIds.length
-              return (
-                <button
-                  key={region.id}
-                  className="linear-sidebar-item touch-target"
-                  onClick={() => scrollToRegion(region.id)}
-                >
-                  <span
-                    className="linear-sidebar-dot"
-                    style={{ backgroundColor: theme.dot }}
-                  />
-                  <span className="linear-sidebar-name">{region.name}</span>
-                  {sceneCount > 0 && (
-                    <span className="linear-sidebar-badge">{sceneCount}</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </nav>
-
-        {/* Main */}
-        <main className="linear-main">
-          <div className="linear-main-header">
-            <span className="linear-main-title">全部演示</span>
-            <span className="linear-main-count">{totalScenes} 个场景</span>
-          </div>
-
-          <div className="linear-list">
-            {PHYSICS_REGIONS.map((region) => {
-              const theme = THEME[region.id] ?? THEME.electrostatics
-              const regionRoutes = routes.filter((r) =>
-                region.scenePageIds.includes(r.pageId),
-              )
-
-              return (
-                <div
-                  key={region.id}
-                  ref={(el) => { groupRefs.current[region.id] = el }}
-                  className="linear-group"
-                >
-                  <div className="linear-group-header">
-                    <span
-                      className="linear-group-dot"
-                      style={{ backgroundColor: theme.dot }}
-                    />
-                    <span className="linear-group-name">{region.name}</span>
-                    <span className="linear-group-desc">{region.description}</span>
-                  </div>
-
-                  {regionRoutes.length === 0 ? (
-                    <div className="linear-row linear-row-empty">
-                      <span>该区域暂无演示场景</span>
-                    </div>
-                  ) : (
-                    regionRoutes.map((route) => {
-                      const label = route.label || '演示'
-                      const tag = route.meta?.tag || '课堂演示'
-
-                      return (
-                        <button
-                          key={route.pageId}
-                          className="linear-row touch-target"
-                          onPointerEnter={() => handlePointerEnter(route)}
-                          onPointerLeave={handlePointerLeave}
-                          onPointerDown={(event) => {
-                            if (event.pointerType !== 'mouse') {
-                              warmRouteNow(route)
-                            }
-                          }}
-                          onFocus={() => warmRouteNow(route)}
-                          onBlur={handlePointerLeave}
-                          onClick={() => handleClick(route)}
-                        >
-                          <span
-                            className="linear-row-dot"
-                            style={{ backgroundColor: theme.dot }}
-                          />
-                          <span className="linear-row-name">{label}</span>
-                          <span className="linear-row-tag">{tag}</span>
-                        </button>
-                      )
-                    })
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </main>
-      </div>
+      </aside>
     </section>
   )
 }
