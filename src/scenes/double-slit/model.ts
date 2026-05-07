@@ -3,6 +3,14 @@
  * Pure physics — no React dependencies
  */
 
+export type FilterColor = 'none' | 'red' | 'green' | 'blue'
+
+export const FILTER_PROFILES: Record<Exclude<FilterColor, 'none'>, { center: number; halfWidth: number }> = {
+  red: { center: 620, halfWidth: 30 },
+  green: { center: 540, halfWidth: 25 },
+  blue: { center: 460, halfWidth: 25 },
+}
+
 export type DoubleSlitParams = {
   wavelength: number // nm (400 ~ 700)
   slitDistance: number // mm (0.1 ~ 0.5)

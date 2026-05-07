@@ -3,6 +3,7 @@ import {
   computeFringeSpacing,
   DEFAULT_PARAMS,
   drawInterferencePattern,
+  FILTER_PROFILES,
   formatFringeSpacing,
   waveLengthToHex,
   waveLengthToRGB,
@@ -121,5 +122,20 @@ describe('drawInterferencePattern', () => {
     expect(ctx.putImageData).toHaveBeenCalledTimes(1)
     expect(ctx.restore).toHaveBeenCalled()
     expect(ctx.stroke).toHaveBeenCalled()
+  })
+})
+
+describe('FILTER_PROFILES', () => {
+  it('defines red, green, blue profiles with positive center and halfWidth', () => {
+    for (const [name, profile] of Object.entries(FILTER_PROFILES)) {
+      expect(profile.center).toBeGreaterThan(400)
+      expect(profile.center).toBeLessThan(700)
+      expect(profile.halfWidth).toBeGreaterThan(0)
+    }
+  })
+
+  it('red center is longer wavelength than green, green longer than blue', () => {
+    expect(FILTER_PROFILES.red.center).toBeGreaterThan(FILTER_PROFILES.green.center)
+    expect(FILTER_PROFILES.green.center).toBeGreaterThan(FILTER_PROFILES.blue.center)
   })
 })
