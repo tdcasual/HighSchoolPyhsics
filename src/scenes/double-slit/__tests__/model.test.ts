@@ -6,6 +6,7 @@ import {
   drawWhiteLightPattern,
   FILTER_PROFILES,
   formatFringeSpacing,
+  setPatternCacheMax,
   waveLengthToHex,
   waveLengthToRGB,
   type DoubleSlitParams,
@@ -221,5 +222,12 @@ describe('drawWhiteLightPattern with wavelengthStep', () => {
     const ctx = mockCtx()
     drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'none', 0, 0, 20)
     expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('setPatternCacheMax', () => {
+  it('does not throw for valid values', () => {
+    expect(() => setPatternCacheMax(1)).not.toThrow()
+    expect(() => setPatternCacheMax(3)).not.toThrow()
   })
 })

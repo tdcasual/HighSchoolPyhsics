@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react'
-import { drawInterferencePattern, drawWhiteLightPattern, type DoubleSlitParams, type FilterColor } from './model'
+import { drawInterferencePattern, drawWhiteLightPattern, setPatternCacheMax, type DoubleSlitParams, type FilterColor } from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import './double-slit.css'
 
@@ -19,6 +19,11 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
   const reticleCanvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasSize, setCanvasSize] = useState(0)
   const perf = useMemo(() => resolvePerformanceProfile(), [])
+
+  // Apply configurable pattern cache limit from performance profile
+  useEffect(() => {
+    setPatternCacheMax(perf.doubleSlitPatternCacheMax)
+  }, [perf.doubleSlitPatternCacheMax])
 
   // Responsive canvas sizing
   useEffect(() => {

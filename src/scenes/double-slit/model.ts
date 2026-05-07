@@ -165,7 +165,8 @@ interface CachedPattern {
   accB: Float32Array
 }
 
-const PATTERN_CACHE_MAX = 3
+const PATTERN_CACHE_DEFAULT_MAX = 3
+let _patternCacheMax = PATTERN_CACHE_DEFAULT_MAX
 const patternCache: CachedPattern[] = []
 
 function getCachedPattern(key: string, n: number): CachedPattern | null {
@@ -183,13 +184,20 @@ function getCachedPattern(key: string, n: number): CachedPattern | null {
 }
 
 function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array, accB: Float32Array): void {
-  if (patternCache.length >= PATTERN_CACHE_MAX) patternCache.pop()
+  if (patternCache.length >= _patternCacheMax) patternCache.pop()
   patternCache.unshift({
     key,
     accR: new Float32Array(accR),
     accG: new Float32Array(accG),
     accB: new Float32Array(accB),
   })
+}
+
+export function setPatternCacheMax(max: number): void {
+  while (patternCache.length > max) {
+    patternCache.pop()
+  }
+  _patternCacheMax = max
 }
 
 function buildPatternCacheKey(params: DoubleSlitParams, filterColor: FilterColor, doubleSlitAngle: number, singleSlitAngle: number, wavelengthStep: number, width: number, height: number): string {
