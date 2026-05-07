@@ -30,6 +30,10 @@ export function DoubleSlitScene() {
             <strong>{Math.round(state.wavelength)} nm</strong>
           </p>
           <p>
+            <span>单缝宽度 a</span>
+            <strong>{state.slitWidth.toFixed(3)} mm</strong>
+          </p>
+          <p>
             <span>双缝间距 d</span>
             <strong>{state.slitDistance.toFixed(2)} mm</strong>
           </p>
@@ -65,6 +69,11 @@ export function DoubleSlitScene() {
             screenDistance={state.screenDistance}
             lightColorHex={state.lightColorHex}
             isLightOn={state.isLightOn}
+            isWhiteLight={state.isWhiteLight}
+            filterColor={state.filterColor}
+            singleSlitAngle={state.singleSlitAngle}
+            doubleSlitAngle={state.doubleSlitAngle}
+            eyepieceAngle={state.eyepieceAngle}
           />
         </InteractiveCanvas>
       }
