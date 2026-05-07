@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   DEFAULT_PARAMS,
   type DoubleSlitParams,
+  type FilterColor,
   formatFringeSpacing,
   waveLengthToHex,
 } from './model'
@@ -18,12 +19,27 @@ export type DoubleSlitSceneState = DoubleSlitParams & {
   toggleChart: () => void
   toggleLight: () => void
   reset: () => void
+  isWhiteLight: boolean
+  toggleWhiteLight: () => void
+  filterColor: FilterColor
+  setFilterColor: (value: FilterColor) => void
+  singleSlitAngle: number
+  setSingleSlitAngle: (value: number) => void
+  doubleSlitAngle: number
+  setDoubleSlitAngle: (value: number) => void
+  eyepieceAngle: number
+  setEyepieceAngle: (value: number) => void
 }
 
 export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const [params, setParams] = useState<DoubleSlitParams>(DEFAULT_PARAMS)
   const [showChart, setShowChart] = useState(true)
   const [isLightOn, setIsLightOn] = useState(false)
+  const [isWhiteLight, setIsWhiteLight] = useState(false)
+  const [filterColor, setFilterColorState] = useState<FilterColor>('none')
+  const [singleSlitAngle, setSingleSlitAngle] = useState(0)
+  const [doubleSlitAngle, setDoubleSlitAngle] = useState(0)
+  const [eyepieceAngle, setEyepieceAngle] = useState(0)
 
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const fringeSpacingLabel = useMemo(() => formatFringeSpacing(params), [params])
@@ -52,10 +68,26 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setIsLightOn((prev) => !prev)
   }, [])
 
+  const toggleWhiteLight = useCallback(() => {
+    setIsWhiteLight((prev) => {
+      if (prev) setFilterColorState('none') // switching off white light clears filter
+      return !prev
+    })
+  }, [])
+
+  const setFilterColor = useCallback((value: FilterColor) => {
+    setFilterColorState(value)
+  }, [])
+
   const reset = useCallback(() => {
     setParams(DEFAULT_PARAMS)
     setShowChart(true)
     setIsLightOn(false)
+    setIsWhiteLight(false)
+    setFilterColorState('none')
+    setSingleSlitAngle(0)
+    setDoubleSlitAngle(0)
+    setEyepieceAngle(0)
   }, [])
 
   return {
@@ -71,5 +103,15 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     toggleChart,
     toggleLight,
     reset,
+    isWhiteLight,
+    toggleWhiteLight,
+    filterColor,
+    setFilterColor,
+    singleSlitAngle,
+    setSingleSlitAngle,
+    doubleSlitAngle,
+    setDoubleSlitAngle,
+    eyepieceAngle,
+    setEyepieceAngle,
   }
 }
