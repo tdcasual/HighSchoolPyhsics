@@ -27,6 +27,9 @@ export type PerformanceProfile = {
   inductionCoilCurveSegments: number
   inductionCoilTubularSegments: number
   inductionWireTubularSegments: number
+  doubleSlitChartScale: number
+  doubleSlitWhiteLightWavelengthStep: number
+  doubleSlitPatternCacheMax: number
 }
 
 function readDeviceMemory(): number | null {
@@ -88,6 +91,9 @@ const PROFILE_CONFIG: Record<PerformanceLevel, PerformanceProfile> = {
     inductionCoilCurveSegments: 500,
     inductionCoilTubularSegments: 400,
     inductionWireTubularSegments: 64,
+    doubleSlitChartScale: 1.0,
+    doubleSlitWhiteLightWavelengthStep: 5,
+    doubleSlitPatternCacheMax: 3,
   },
   medium: {
     level: 'medium',
@@ -109,6 +115,9 @@ const PROFILE_CONFIG: Record<PerformanceLevel, PerformanceProfile> = {
     inductionCoilCurveSegments: 300,
     inductionCoilTubularSegments: 250,
     inductionWireTubularSegments: 48,
+    doubleSlitChartScale: 0.75,
+    doubleSlitWhiteLightWavelengthStep: 10,
+    doubleSlitPatternCacheMax: 2,
   },
   low: {
     level: 'low',
@@ -130,6 +139,9 @@ const PROFILE_CONFIG: Record<PerformanceLevel, PerformanceProfile> = {
     inductionCoilCurveSegments: 150,
     inductionCoilTubularSegments: 150,
     inductionWireTubularSegments: 32,
+    doubleSlitChartScale: 0.5,
+    doubleSlitWhiteLightWavelengthStep: 20,
+    doubleSlitPatternCacheMax: 1,
   },
 }
 
