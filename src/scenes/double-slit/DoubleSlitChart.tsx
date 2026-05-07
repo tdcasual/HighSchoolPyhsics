@@ -8,10 +8,11 @@ type DoubleSlitChartProps = {
   isWhiteLight: boolean
   filterColor: FilterColor
   doubleSlitAngle: number
+  singleSlitAngle: number
   eyepieceAngle: number
 }
 
-export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
+export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -67,19 +68,11 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       return
     }
 
-    // Apply rotation for stripe orientation
-    ctx.save()
-    ctx.translate(cx, cy)
-    ctx.rotate(doubleSlitAngle * Math.PI / 180)
-    ctx.translate(-cx, -cy)
-
     if (isWhiteLight) {
-      drawWhiteLightPattern(ctx, params, filterColor)
+      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle)
     } else {
-      drawInterferencePattern(ctx, params)
+      drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
     }
-
-    ctx.restore()
 
     // Overlay reticle crosshair on top of pattern (rotated by eyepiece angle)
     ctx.save()
@@ -121,7 +114,7 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, eyepieceAngle])
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle])
 
   return (
     <div className="double-slit-chart">

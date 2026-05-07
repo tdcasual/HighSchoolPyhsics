@@ -97,13 +97,48 @@ export function formatFringeSpacing(params: DoubleSlitParams): string {
   return spacingMm < 0.01 ? spacingMm.toExponential(2) + ' mm' : spacingMm.toFixed(3) + ' mm'
 }
 
+/** Compute double-slit interference intensity: cos²(π d sinθ / λ) */
+function computeInterference(x: number, lambda: number, d: number, L: number): number {
+  const sinTheta = x / L
+  const phase = (Math.PI * d * sinTheta) / lambda
+  return Math.cos(phase) ** 2
+}
+
+/** Compute single-slit diffraction envelope intensity: sinc²(π a sinθ / λ) */
+function computeDiffraction(x: number, lambda: number, a: number, L: number): number {
+  if (Math.abs(x) < 1e-12) return 1.0
+  const sinTheta = x / L
+  const phase = (Math.PI * a * sinTheta) / lambda
+  const sinc = Math.sin(phase) / phase
+  return sinc ** 2
+}
+
+function drawEyepieceBorder(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
+  ctx.beginPath()
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  const edgeGradient = ctx.createRadialGradient(cx, cy, radius * 0.9, cx, cy, radius)
+  edgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
+  edgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
+  ctx.fillStyle = edgeGradient
+  ctx.beginPath()
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+  ctx.fill()
+}
+
 /**
  * Draw the interference pattern onto a canvas context with a circular eyepiece viewport.
- * The canvas is assumed to have width/height set.
+ * Interference fringes are rotated by doubleSlitAngle.
+ * Diffraction envelope is rotated by singleSlitAngle.
  */
 export function drawInterferencePattern(
   ctx: CanvasRenderingContext2D,
   params: DoubleSlitParams,
+  doubleSlitAngle = 0,
+  singleSlitAngle = 0,
 ): void {
   const width = ctx.canvas.width
   const height = ctx.canvas.height
@@ -115,48 +150,43 @@ export function drawInterferencePattern(
   const d = params.slitDistance * 1e-3
   const L = params.screenDistance
   const a = params.slitWidth * 1e-3
-
   const rgb = waveLengthToRGB(params.wavelength)
-
-  // Physical width represented by the viewport diameter (e.g. 1.5 cm)
   const physicalViewWidth = 0.015
 
-  // Clear background (black outside the eyepiece)
+  const fringeAngleRad = doubleSlitAngle * Math.PI / 180
+  const envAngleRad = singleSlitAngle * Math.PI / 180
+  const cosF = Math.cos(fringeAngleRad)
+  const sinF = Math.sin(fringeAngleRad)
+  const cosE = Math.cos(envAngleRad)
+  const sinE = Math.sin(envAngleRad)
+
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)
-
-  // Create circular clipping region for the eyepiece viewport
   ctx.save()
   ctx.beginPath()
   ctx.arc(cx, cy, radius, 0, Math.PI * 2)
   ctx.clip()
 
-  // Single ImageData for entire canvas — much faster than 800 putImageData calls
   const imgData = ctx.createImageData(width, height)
   const data = imgData.data
 
-  for (let y = 0; y < height; y++) {
-    const rowOffset = y * width * 4
-    for (let i = 0; i < width; i++) {
-      const x = (i / width - 0.5) * physicalViewWidth
-      const sinTheta = x / L
+  for (let py = 0; py < height; py++) {
+    const rowOffset = py * width * 4
+    for (let px = 0; px < width; px++) {
+      // Position relative to center in physical units
+      const dx = (px / width - 0.5) * physicalViewWidth
+      const dy = (py / height - 0.5) * physicalViewWidth
 
-      // Double-slit interference: cos²(π d sinθ / λ)
-      const phaseInterference = (Math.PI * d * sinTheta) / lambda
-      const interferenceIntensity = Math.pow(Math.cos(phaseInterference), 2)
+      // Rotate position to fringe coordinate system (inverse rotation)
+      const xFringe = dx * cosF + dy * sinF
+      // Rotate position to envelope coordinate system (inverse rotation)
+      const xEnv = dx * cosE + dy * sinE
 
-      // Single-slit diffraction envelope: sinc²(π a sinθ / λ)
-      let diffractionIntensity = 1.0
-      if (Math.abs(x) > 1e-12) {
-        const phaseDiffraction = (Math.PI * a * sinTheta) / lambda
-        const sinc = Math.sin(phaseDiffraction) / phaseDiffraction
-        diffractionIntensity = Math.pow(sinc, 2)
-      }
+      const interference = computeInterference(xFringe, lambda, d, L)
+      const diffraction = computeDiffraction(xEnv, lambda, a, L)
+      const intensity = Math.pow(interference * diffraction, 0.8)
 
-      let intensity = interferenceIntensity * diffractionIntensity
-      intensity = Math.pow(intensity, 0.8)
-
-      const idx = rowOffset + i * 4
+      const idx = rowOffset + px * 4
       data[idx] = rgb[0] * intensity
       data[idx + 1] = rgb[1] * intensity
       data[idx + 2] = rgb[2] * intensity
@@ -165,34 +195,22 @@ export function drawInterferencePattern(
   }
 
   ctx.putImageData(imgData, 0, 0)
-
   ctx.restore()
 
-  // Eyepiece ring border
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-
-  // Subtle inner glow at the edge
-  const edgeGradient = ctx.createRadialGradient(cx, cy, radius * 0.9, cx, cy, radius)
-  edgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
-  edgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
-  ctx.fillStyle = edgeGradient
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.fill()
+  drawEyepieceBorder(ctx, cx, cy, radius)
 }
 
 /**
  * Draw white-light interference pattern with optional filter.
  * Composites visible spectrum (400-700nm) at 5nm steps.
+ * Interference fringes rotated by doubleSlitAngle, envelope by singleSlitAngle.
  */
 export function drawWhiteLightPattern(
   ctx: CanvasRenderingContext2D,
   params: DoubleSlitParams,
   filterColor: FilterColor,
+  doubleSlitAngle = 0,
+  singleSlitAngle = 0,
 ): void {
   const width = ctx.canvas.width
   const height = ctx.canvas.height
@@ -207,6 +225,13 @@ export function drawWhiteLightPattern(
 
   const filterProfile = filterColor !== 'none' ? FILTER_PROFILES[filterColor] : null
 
+  const fringeAngleRad = doubleSlitAngle * Math.PI / 180
+  const envAngleRad = singleSlitAngle * Math.PI / 180
+  const cosF = Math.cos(fringeAngleRad)
+  const sinF = Math.sin(fringeAngleRad)
+  const cosE = Math.cos(envAngleRad)
+  const sinE = Math.sin(envAngleRad)
+
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)
 
@@ -218,13 +243,11 @@ export function drawWhiteLightPattern(
   const imgData = ctx.createImageData(width, height)
   const data = imgData.data
 
-  // Accumulate per-pixel RGB from all sampled wavelengths
   const accR = new Float32Array(width * height)
   const accG = new Float32Array(width * height)
   const accB = new Float32Array(width * height)
 
   for (let wl = 400; wl <= 700; wl += 5) {
-    // Filter attenuation
     let filterWeight = 1.0
     if (filterProfile) {
       const dist = Math.abs(wl - filterProfile.center)
@@ -237,25 +260,19 @@ export function drawWhiteLightPattern(
     const rgb = waveLengthToRGB(wl)
     if (rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) continue
 
-    for (let y = 0; y < height; y++) {
-      for (let i = 0; i < width; i++) {
-        const x = (i / width - 0.5) * physicalViewWidth
-        const sinTheta = x / L
+    for (let py = 0; py < height; py++) {
+      for (let px = 0; px < width; px++) {
+        const dx = (px / width - 0.5) * physicalViewWidth
+        const dy = (py / height - 0.5) * physicalViewWidth
 
-        const phaseI = (Math.PI * d * sinTheta) / lambda
-        const interference = Math.cos(phaseI) ** 2
+        const xFringe = dx * cosF + dy * sinF
+        const xEnv = dx * cosE + dy * sinE
 
-        let diffraction = 1.0
-        if (Math.abs(x) > 1e-12) {
-          const phaseD = (Math.PI * a * sinTheta) / lambda
-          const sinc = Math.sin(phaseD) / phaseD
-          diffraction = sinc ** 2
-        }
+        const interference = computeInterference(xFringe, lambda, d, L)
+        const diffraction = computeDiffraction(xEnv, lambda, a, L)
+        const intensity = Math.pow(interference * diffraction, 0.8) * filterWeight
 
-        let intensity = interference * diffraction
-        intensity = Math.pow(intensity, 0.8) * filterWeight
-
-        const idx = y * width + i
+        const idx = py * width + px
         accR[idx] += rgb[0] * intensity
         accG[idx] += rgb[1] * intensity
         accB[idx] += rgb[2] * intensity
@@ -263,7 +280,6 @@ export function drawWhiteLightPattern(
     }
   }
 
-  // Normalize and write to ImageData
   let maxVal = 0
   for (let i = 0; i < accR.length; i++) {
     const v = Math.max(accR[i], accG[i], accB[i])
@@ -286,20 +302,7 @@ export function drawWhiteLightPattern(
   ctx.putImageData(imgData, 0, 0)
   ctx.restore()
 
-  // Eyepiece ring border
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-
-  const edgeGradient = ctx.createRadialGradient(cx, cy, radius * 0.9, cx, cy, radius)
-  edgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
-  edgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
-  ctx.fillStyle = edgeGradient
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.fill()
+  drawEyepieceBorder(ctx, cx, cy, radius)
 }
 
 export function formatWavelengthLabel(wavelength: number): string {

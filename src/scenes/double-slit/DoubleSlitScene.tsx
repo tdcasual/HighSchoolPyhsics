@@ -60,7 +60,7 @@ export function DoubleSlitScene() {
           </p>
         </div>
       }
-      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} eyepieceAngle={state.eyepieceAngle} /> : undefined}
+      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} singleSlitAngle={state.singleSlitAngle} eyepieceAngle={state.eyepieceAngle} /> : undefined}
       chartVisible={state.showChart}
       playbackActions={[
         { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
