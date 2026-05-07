@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import type { FilterColor } from './model'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DoubleSlitChart } from './DoubleSlitChart'
@@ -9,6 +10,14 @@ import './double-slit.css'
 
 export function DoubleSlitScene() {
   const state = useDoubleSlitSceneState()
+
+  const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = { red: 0xff4444, green: 0x44cc44, blue: 0x4488ff }
+
+  const beamColorHex = useMemo(() => {
+    if (!state.isWhiteLight) return state.lightColorHex
+    if (state.filterColor === 'none') return 0xffffff
+    return FILTER_HEX[state.filterColor]
+  }, [state.isWhiteLight, state.filterColor, state.lightColorHex])
 
   const chartParams = useMemo(
     () => ({
@@ -51,7 +60,7 @@ export function DoubleSlitScene() {
           </p>
         </div>
       }
-      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} /> : undefined}
+      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} eyepieceAngle={state.eyepieceAngle} /> : undefined}
       chartVisible={state.showChart}
       playbackActions={[
         { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
@@ -71,13 +80,10 @@ export function DoubleSlitScene() {
         >
           <DoubleSlitRig3D
             screenDistance={state.screenDistance}
-            lightColorHex={state.lightColorHex}
+            lightColorHex={beamColorHex}
             isLightOn={state.isLightOn}
             isWhiteLight={state.isWhiteLight}
             filterColor={state.filterColor}
-            singleSlitAngle={state.singleSlitAngle}
-            doubleSlitAngle={state.doubleSlitAngle}
-            eyepieceAngle={state.eyepieceAngle}
           />
         </InteractiveCanvas>
       }

@@ -8,9 +8,10 @@ type DoubleSlitChartProps = {
   isWhiteLight: boolean
   filterColor: FilterColor
   doubleSlitAngle: number
+  eyepieceAngle: number
 }
 
-export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle }: DoubleSlitChartProps) {
+export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -44,20 +45,24 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.lineWidth = 1.5
       ctx.stroke()
 
-      // Reticle crosshair
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'
-      ctx.lineWidth = 0.8
+      // Reticle crosshair (rotated by eyepiece angle)
+      ctx.save()
+      ctx.translate(cx, cy)
+      ctx.rotate(eyepieceAngle * Math.PI / 180)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'
+      ctx.lineWidth = 1.2
       ctx.beginPath()
-      ctx.moveTo(cx - radius * 0.35, cy)
-      ctx.lineTo(cx + radius * 0.35, cy)
-      ctx.moveTo(cx, cy - radius * 0.35)
-      ctx.lineTo(cx, cy + radius * 0.35)
+      ctx.moveTo(-radius * 0.45, 0)
+      ctx.lineTo(radius * 0.45, 0)
+      ctx.moveTo(0, -radius * 0.45)
+      ctx.lineTo(0, radius * 0.45)
       ctx.stroke()
+      ctx.restore()
 
       // Small center dot
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
       ctx.beginPath()
-      ctx.arc(cx, cy, 1.5, 0, Math.PI * 2)
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2)
       ctx.fill()
       return
     }
@@ -76,15 +81,19 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
 
     ctx.restore()
 
-    // Overlay reticle crosshair on top of pattern
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)'
-    ctx.lineWidth = 0.8
+    // Overlay reticle crosshair on top of pattern (rotated by eyepiece angle)
+    ctx.save()
+    ctx.translate(cx, cy)
+    ctx.rotate(eyepieceAngle * Math.PI / 180)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'
+    ctx.lineWidth = 1.2
     ctx.beginPath()
-    ctx.moveTo(cx - radius * 0.3, cy)
-    ctx.lineTo(cx + radius * 0.3, cy)
-    ctx.moveTo(cx, cy - radius * 0.3)
-    ctx.lineTo(cx, cy + radius * 0.3)
+    ctx.moveTo(-radius * 0.4, 0)
+    ctx.lineTo(radius * 0.4, 0)
+    ctx.moveTo(0, -radius * 0.4)
+    ctx.lineTo(0, radius * 0.4)
     ctx.stroke()
+    ctx.restore()
 
     // Scale bar: 1mm at bottom
     const spacingM = (params.screenDistance * params.wavelength * 1e-9) / (params.slitDistance * 1e-3)
@@ -112,7 +121,7 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle])
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, eyepieceAngle])
 
   return (
     <div className="double-slit-chart">

@@ -22,9 +22,6 @@ type DoubleSlitRig3DProps = {
   isLightOn: boolean
   isWhiteLight: boolean
   filterColor: 'none' | 'red' | 'green' | 'blue'
-  singleSlitAngle: number
-  doubleSlitAngle: number
-  eyepieceAngle: number
 }
 
 /**
@@ -70,7 +67,7 @@ function Label({ text, position }: { text: string; position: [number, number, nu
   )
 }
 
-export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn, isWhiteLight, filterColor, singleSlitAngle, doubleSlitAngle, eyepieceAngle }: DoubleSlitRig3DProps) {
+export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn, isWhiteLight, filterColor }: DoubleSlitRig3DProps) {
   const current3DLength = BASE_3D_LENGTH * screenDistance
   const tailX = TUBE_START_X + current3DLength
 
@@ -246,50 +243,46 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn, isWh
       <Stand xPos={TUBE_START_X - 0.75} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
 
       {/* ====== Single slit ====== */}
-      <group rotation={[singleSlitAngle * Math.PI / 180, 0, 0]}>
-        <mesh
-          position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-          {...(shadowsEnabled ? { castShadow: true } : {})}
-        >
-          <cylinderGeometry args={[1, 1, 1.5, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial {...blackPlasticMat} />
-        </mesh>
-        <Label text="单缝" position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y + 2, 0]} />
-      </group>
+      <mesh
+        position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+        {...(shadowsEnabled ? { castShadow: true } : {})}
+      >
+        <cylinderGeometry args={[1, 1, 1.5, geoDetail.cylinderRadialSegments]} />
+        <meshStandardMaterial {...blackPlasticMat} />
+      </mesh>
+      <Label text="单缝" position={[TUBE_START_X - 0.75, OPTICAL_AXIS_Y + 2, 0]} />
 
       {/* ====== Double slit ====== */}
-      <group rotation={[doubleSlitAngle * Math.PI / 180, 0, 0]}>
-        <mesh
-          position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-        >
-          <cylinderGeometry args={[1.1, 1.1, 0.8, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial {...darkMetalMat} />
-        </mesh>
+      <mesh
+        position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[1.1, 1.1, 0.8, geoDetail.cylinderRadialSegments]} />
+        <meshStandardMaterial {...darkMetalMat} />
+      </mesh>
 
-        {/* Rod (horizontal) */}
-        <mesh
-          position={[TUBE_START_X + 2, OPTICAL_AXIS_Y + 1.5, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-        >
-          <cylinderGeometry args={[0.05, 0.05, 4, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial {...metalMat} />
-        </mesh>
+      {/* Rod (horizontal) */}
+      <mesh
+        position={[TUBE_START_X + 2, OPTICAL_AXIS_Y + 1.5, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[0.05, 0.05, 4, geoDetail.cylinderRadialSegments]} />
+        <meshStandardMaterial {...metalMat} />
+      </mesh>
 
-        {/* Rod support (vertical) */}
-        <mesh position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 0.75, 0]}>
-          <cylinderGeometry args={[0.1, 0.1, 1.5, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial {...metalMat} />
-        </mesh>
+      {/* Rod support (vertical) */}
+      <mesh position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 0.75, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 1.5, geoDetail.cylinderRadialSegments]} />
+        <meshStandardMaterial {...metalMat} />
+      </mesh>
 
-        {/* Rod knob */}
-        <mesh position={[TUBE_START_X + 4, OPTICAL_AXIS_Y + 1.5, 0]}>
-          <sphereGeometry args={[0.3, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
-          <meshStandardMaterial {...blackPlasticMat} />
-        </mesh>
-        <Label text="双缝" position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 2.5, 0]} />
-      </group>
+      {/* Rod knob */}
+      <mesh position={[TUBE_START_X + 4, OPTICAL_AXIS_Y + 1.5, 0]}>
+        <sphereGeometry args={[0.3, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
+        <meshStandardMaterial {...blackPlasticMat} />
+      </mesh>
+      <Label text="双缝" position={[TUBE_START_X + 0.5, OPTICAL_AXIS_Y + 2.5, 0]} />
 
       {/* ====== Main tube (dynamic length) ====== */}
       <mesh
@@ -331,13 +324,11 @@ export function DoubleSlitRig3D({ screenDistance, lightColorHex, isLightOn, isWh
       </mesh>
 
       {/* ====== Eyepiece ====== */}
-      <group rotation={[eyepieceAngle * Math.PI / 180, 0, 0]}>
-        <mesh position={[tailX + 3.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
-          <cylinderGeometry args={[0.6, 0.6, 2.5, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial {...blackPlasticMat} />
-        </mesh>
-        <Label text="目镜" position={[tailX + 3.5, OPTICAL_AXIS_Y + 1.5, 0]} />
-      </group>
+      <mesh position={[tailX + 3.5, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
+        <cylinderGeometry args={[0.6, 0.6, 2.5, geoDetail.cylinderRadialSegments]} />
+        <meshStandardMaterial {...blackPlasticMat} />
+      </mesh>
+      <Label text="目镜" position={[tailX + 3.5, OPTICAL_AXIS_Y + 1.5, 0]} />
     </group>
   )
 }
