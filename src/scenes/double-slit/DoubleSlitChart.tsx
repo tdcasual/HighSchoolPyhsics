@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, memo } from 'react'
+import { useEffect, useRef, useState, memo, useMemo } from 'react'
 import { drawInterferencePattern, drawWhiteLightPattern, type DoubleSlitParams, type FilterColor } from './model'
+import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import './double-slit.css'
 
 type DoubleSlitChartProps = {
@@ -17,6 +18,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
   const patternCanvasRef = useRef<HTMLCanvasElement>(null)
   const reticleCanvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasSize, setCanvasSize] = useState(0)
+  const perf = useMemo(() => resolvePerformanceProfile(), [])
 
   // Responsive canvas sizing
   useEffect(() => {
@@ -41,26 +43,27 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1
     const cssSize = canvasSize || 800
-    if (canvas.width !== cssSize * dpr || canvas.height !== cssSize * dpr) {
-      canvas.width = cssSize * dpr
-      canvas.height = cssSize * dpr
+    const renderCssSize = Math.round(cssSize * perf.doubleSlitChartScale)
+    if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
+      canvas.width = renderCssSize * dpr
+      canvas.height = renderCssSize * dpr
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
     if (!isLightOn) {
       ctx.fillStyle = '#000'
-      ctx.fillRect(0, 0, cssSize, cssSize)
+      ctx.fillRect(0, 0, renderCssSize, renderCssSize)
       return
     }
 
     if (isWhiteLight) {
-      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle)
+      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle, perf.doubleSlitWhiteLightWavelengthStep)
     } else {
       drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize])
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf])
 
   // Reticle overlay (depends ONLY on eyepieceAngle and canvas size)
   useEffect(() => {
@@ -69,19 +72,20 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1
     const cssSize = canvasSize || 800
-    if (canvas.width !== cssSize * dpr || canvas.height !== cssSize * dpr) {
-      canvas.width = cssSize * dpr
-      canvas.height = cssSize * dpr
+    const renderCssSize = Math.round(cssSize * perf.doubleSlitChartScale)
+    if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
+      canvas.width = renderCssSize * dpr
+      canvas.height = renderCssSize * dpr
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-    ctx.clearRect(0, 0, cssSize, cssSize)
+    ctx.clearRect(0, 0, renderCssSize, renderCssSize)
 
-    const cx = cssSize / 2
-    const cy = cssSize / 2
-    const radius = Math.min(cssSize, cssSize) / 2 - 2
+    const cx = renderCssSize / 2
+    const cy = renderCssSize / 2
+    const radius = Math.min(renderCssSize, renderCssSize) / 2 - 2
 
     if (!isLightOn) {
       // Dark circle border
@@ -129,7 +133,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
 
     // Scale bar: 1 fringe spacing at bottom
     const spacingM = (params.screenDistance * params.wavelength * 1e-9) / (params.slitDistance * 1e-3)
-    const spacingPx = (spacingM / 0.02) * cssSize
+    const spacingPx = (spacingM / 0.02) * renderCssSize
     if (spacingPx > 8) {
       const barY = cy + radius * 0.72
       const barStartX = cx - spacingPx / 2
@@ -152,7 +156,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize])
+  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, perf])
 
   return (
     <div className="double-slit-chart" ref={containerRef}>

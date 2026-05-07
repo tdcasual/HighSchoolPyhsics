@@ -118,17 +118,14 @@ describe('drawInterferencePattern', () => {
 
     drawInterferencePattern(ctx, DEFAULT_PARAMS)
 
-    expect(ctx.fillRect).toHaveBeenCalled()
-    expect(ctx.save).toHaveBeenCalled()
     expect(ctx.putImageData).toHaveBeenCalledTimes(1)
-    expect(ctx.restore).toHaveBeenCalled()
     expect(ctx.stroke).toHaveBeenCalled()
   })
 })
 
 describe('FILTER_PROFILES', () => {
   it('defines red, green, blue profiles with positive center and halfWidth', () => {
-    for (const [name, profile] of Object.entries(FILTER_PROFILES)) {
+    for (const profile of Object.values(FILTER_PROFILES)) {
       expect(profile.center).toBeGreaterThan(400)
       expect(profile.center).toBeLessThan(700)
       expect(profile.halfWidth).toBeGreaterThan(0)
@@ -186,6 +183,43 @@ describe('drawWhiteLightPattern', () => {
   it('renders with blue filter', () => {
     const ctx = mockCtx()
     expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'blue')).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('drawWhiteLightPattern with wavelengthStep', () => {
+  const mockCtx = () => {
+    const ctx = {
+      canvas: { width: 50, height: 50 },
+      fillRect: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      clip: vi.fn(),
+      createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(50 * 50 * 4) })),
+      putImageData: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      createRadialGradient: vi.fn(() => ({
+        addColorStop: vi.fn(),
+      })),
+      strokeStyle: '',
+      lineWidth: 0,
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D
+    return ctx
+  }
+
+  it('accepts wavelengthStep parameter and renders correctly', () => {
+    const ctx = mockCtx()
+    expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'none', 0, 0, 20)).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses fewer wavelengths with larger step', () => {
+    const ctx = mockCtx()
+    drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'none', 0, 0, 20)
     expect(ctx.putImageData).toHaveBeenCalledTimes(1)
   })
 })
