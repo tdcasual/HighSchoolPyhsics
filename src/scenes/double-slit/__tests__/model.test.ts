@@ -3,11 +3,13 @@ import {
   computeFringeSpacing,
   DEFAULT_PARAMS,
   drawInterferencePattern,
+  drawWhiteLightPattern,
   FILTER_PROFILES,
   formatFringeSpacing,
   waveLengthToHex,
   waveLengthToRGB,
   type DoubleSlitParams,
+  type FilterColor,
 } from '../model'
 
 describe('waveLengthToRGB', () => {
@@ -137,5 +139,54 @@ describe('FILTER_PROFILES', () => {
   it('red center is longer wavelength than green, green longer than blue', () => {
     expect(FILTER_PROFILES.red.center).toBeGreaterThan(FILTER_PROFILES.green.center)
     expect(FILTER_PROFILES.green.center).toBeGreaterThan(FILTER_PROFILES.blue.center)
+  })
+})
+
+describe('drawWhiteLightPattern', () => {
+  const mockCtx = () => {
+    const ctx = {
+      canvas: { width: 50, height: 50 },
+      fillRect: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      clip: vi.fn(),
+      createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(50 * 50 * 4) })),
+      putImageData: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      createRadialGradient: vi.fn(() => ({
+        addColorStop: vi.fn(),
+      })),
+      strokeStyle: '',
+      lineWidth: 0,
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D
+    return ctx
+  }
+
+  it('renders without filter', () => {
+    const ctx = mockCtx()
+    expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'none')).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders with red filter', () => {
+    const ctx = mockCtx()
+    expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'red')).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders with green filter', () => {
+    const ctx = mockCtx()
+    expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'green')).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders with blue filter', () => {
+    const ctx = mockCtx()
+    expect(() => drawWhiteLightPattern(ctx, DEFAULT_PARAMS, 'blue')).not.toThrow()
+    expect(ctx.putImageData).toHaveBeenCalledTimes(1)
   })
 })

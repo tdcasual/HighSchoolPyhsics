@@ -185,6 +185,123 @@ export function drawInterferencePattern(
   ctx.fill()
 }
 
+/**
+ * Draw white-light interference pattern with optional filter.
+ * Composites visible spectrum (400-700nm) at 5nm steps.
+ */
+export function drawWhiteLightPattern(
+  ctx: CanvasRenderingContext2D,
+  params: DoubleSlitParams,
+  filterColor: FilterColor,
+): void {
+  const width = ctx.canvas.width
+  const height = ctx.canvas.height
+  const cx = width / 2
+  const cy = height / 2
+  const radius = Math.min(width, height) / 2 - 2
+
+  const d = params.slitDistance * 1e-3
+  const L = params.screenDistance
+  const a = params.slitWidth * 1e-3
+  const physicalViewWidth = 0.015
+
+  const filterProfile = filterColor !== 'none' ? FILTER_PROFILES[filterColor] : null
+
+  ctx.fillStyle = '#000'
+  ctx.fillRect(0, 0, width, height)
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+  ctx.clip()
+
+  const imgData = ctx.createImageData(width, height)
+  const data = imgData.data
+
+  // Accumulate per-pixel RGB from all sampled wavelengths
+  const accR = new Float32Array(width * height)
+  const accG = new Float32Array(width * height)
+  const accB = new Float32Array(width * height)
+
+  for (let wl = 400; wl <= 700; wl += 5) {
+    // Filter attenuation
+    let filterWeight = 1.0
+    if (filterProfile) {
+      const dist = Math.abs(wl - filterProfile.center)
+      filterWeight = dist <= filterProfile.halfWidth
+        ? 1.0 - 0.7 * (dist / filterProfile.halfWidth) ** 2
+        : 0.15
+    }
+
+    const lambda = wl * 1e-9
+    const rgb = waveLengthToRGB(wl)
+    if (rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) continue
+
+    for (let y = 0; y < height; y++) {
+      for (let i = 0; i < width; i++) {
+        const x = (i / width - 0.5) * physicalViewWidth
+        const sinTheta = x / L
+
+        const phaseI = (Math.PI * d * sinTheta) / lambda
+        const interference = Math.cos(phaseI) ** 2
+
+        let diffraction = 1.0
+        if (Math.abs(x) > 1e-12) {
+          const phaseD = (Math.PI * a * sinTheta) / lambda
+          const sinc = Math.sin(phaseD) / phaseD
+          diffraction = sinc ** 2
+        }
+
+        let intensity = interference * diffraction
+        intensity = Math.pow(intensity, 0.8) * filterWeight
+
+        const idx = y * width + i
+        accR[idx] += rgb[0] * intensity
+        accG[idx] += rgb[1] * intensity
+        accB[idx] += rgb[2] * intensity
+      }
+    }
+  }
+
+  // Normalize and write to ImageData
+  let maxVal = 0
+  for (let i = 0; i < accR.length; i++) {
+    const v = Math.max(accR[i], accG[i], accB[i])
+    if (v > maxVal) maxVal = v
+  }
+  const scale = maxVal > 0 ? 255 / maxVal : 1
+
+  for (let y = 0; y < height; y++) {
+    const rowOffset = y * width * 4
+    for (let i = 0; i < width; i++) {
+      const idx = y * width + i
+      const pi = rowOffset + i * 4
+      data[pi] = Math.min(255, accR[idx] * scale)
+      data[pi + 1] = Math.min(255, accG[idx] * scale)
+      data[pi + 2] = Math.min(255, accB[idx] * scale)
+      data[pi + 3] = 255
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0)
+  ctx.restore()
+
+  // Eyepiece ring border
+  ctx.beginPath()
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  const edgeGradient = ctx.createRadialGradient(cx, cy, radius * 0.9, cx, cy, radius)
+  edgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
+  edgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
+  ctx.fillStyle = edgeGradient
+  ctx.beginPath()
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+  ctx.fill()
+}
+
 export function formatWavelengthLabel(wavelength: number): string {
   return `${Math.round(wavelength)} nm`
 }
