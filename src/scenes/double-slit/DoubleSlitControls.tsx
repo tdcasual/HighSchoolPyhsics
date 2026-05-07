@@ -1,6 +1,8 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
+import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import type { FilterColor } from './model'
 import type { DoubleSlitSceneState } from './useDoubleSlitSceneState'
 
 type DoubleSlitControlsProps = {
@@ -18,6 +20,16 @@ type DoubleSlitControlsProps = {
     | 'toggleChart'
     | 'isLightOn'
     | 'toggleLight'
+    | 'isWhiteLight'
+    | 'toggleWhiteLight'
+    | 'filterColor'
+    | 'setFilterColor'
+    | 'singleSlitAngle'
+    | 'setSingleSlitAngle'
+    | 'doubleSlitAngle'
+    | 'setDoubleSlitAngle'
+    | 'eyepieceAngle'
+    | 'setEyepieceAngle'
   >
 }
 
@@ -25,6 +37,28 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
   return (
     <div className="grid gap-[0.8rem] content-start">
       <h2>双缝干涉控制</h2>
+      <ControlSection title="光源">
+        <SegmentedControl
+          options={[
+            { key: 'mono', label: '单色光' },
+            { key: 'white', label: '白光' },
+          ]}
+          value={state.isWhiteLight ? 'white' : 'mono'}
+          onChange={() => state.toggleWhiteLight()}
+        />
+        {state.isWhiteLight && (
+          <SegmentedControl
+            options={[
+              { key: 'none', label: '无滤光片' },
+              { key: 'red', label: '红' },
+              { key: 'green', label: '绿' },
+              { key: 'blue', label: '蓝' },
+            ]}
+            value={state.filterColor}
+            onChange={(key) => state.setFilterColor(key as FilterColor)}
+          />
+        )}
+      </ControlSection>
       <ControlSection title="实验参数">
         <RangeField
           id="double-slit-wavelength"
@@ -81,6 +115,38 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           },
         ]}
       />
+      <ControlSection title="组件旋转">
+        <RangeField
+          id="single-slit-angle"
+          label="单缝角度"
+          unit="°"
+          min={0}
+          max={360}
+          step={1}
+          value={state.singleSlitAngle}
+          onChange={state.setSingleSlitAngle}
+        />
+        <RangeField
+          id="double-slit-angle"
+          label="双缝角度"
+          unit="°"
+          min={0}
+          max={360}
+          step={1}
+          value={state.doubleSlitAngle}
+          onChange={state.setDoubleSlitAngle}
+        />
+        <RangeField
+          id="eyepiece-angle"
+          label="目镜角度"
+          unit="°"
+          min={0}
+          max={360}
+          step={1}
+          value={state.eyepieceAngle}
+          onChange={state.setEyepieceAngle}
+        />
+      </ControlSection>
     </div>
   )
 }
