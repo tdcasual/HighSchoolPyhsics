@@ -27,7 +27,11 @@ export function DoubleSlitScene() {
         <div className="scene-core-summary-stack">
           <p>
             <span>波长 λ</span>
-            <strong>{Math.round(state.wavelength)} nm</strong>
+            <strong>
+              {state.isWhiteLight
+                ? `白光 400-700nm${state.filterColor !== 'none' ? ` (${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片)` : ''}`
+                : `${Math.round(state.wavelength)} nm`}
+            </strong>
           </p>
           <p>
             <span>单缝宽度 a</span>
@@ -47,7 +51,7 @@ export function DoubleSlitScene() {
           </p>
         </div>
       }
-      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} /> : undefined}
+      chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} /> : undefined}
       chartVisible={state.showChart}
       playbackActions={[
         { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
