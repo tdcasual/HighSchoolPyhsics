@@ -13,6 +13,29 @@
   color: var(--text-primary, #e5e7eb);
 }
 
+.double-slit-canvas-stack {
+  position: relative;
+  width: 100%;
+  max-width: min(360px, 80vw);
+  aspect-ratio: 1 / 1;
+  /* Fallback for browsers without aspect-ratio support */
+  height: auto;
+  min-height: 100%;
+}
+
+@supports (aspect-ratio: 1) {
+  .double-slit-canvas-stack {
+    height: auto;
+  }
+}
+
+@supports not (aspect-ratio: 1) {
+  .double-slit-canvas-stack {
+    height: 0;
+    padding-bottom: 100%;
+  }
+}
+
 .double-slit-canvas {
   --double-slit-canvas-border: rgba(255, 255, 255, 0.12);
   --double-slit-canvas-shadow-inset: rgba(0, 0, 0, 0.6);
@@ -20,13 +43,28 @@
 
   display: block;
   width: 100%;
-  max-width: min(360px, 80vw);
   height: auto;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   image-rendering: pixelated;
   border: 1px solid var(--double-slit-canvas-border);
   box-shadow: inset 0 0 12px var(--double-slit-canvas-shadow-inset), 0 0 8px var(--double-slit-canvas-shadow);
+}
+
+@supports not (aspect-ratio: 1) {
+  .double-slit-canvas {
+    height: 100%;
+  }
+}
+
+.double-slit-canvas-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.double-slit-canvas-layer:first-child {
+  position: relative;
 }
 
 .double-slit-formula {

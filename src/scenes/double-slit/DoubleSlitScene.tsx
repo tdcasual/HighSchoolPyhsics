@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { FilterColor } from './model'
+import { FILTER_HEX, FILTER_LABEL } from './model'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DoubleSlitChart } from './DoubleSlitChart'
@@ -8,14 +9,21 @@ import { DoubleSlitRig3D } from './DoubleSlitRig3D'
 import { useDoubleSlitSceneState } from './useDoubleSlitSceneState'
 import './double-slit.css'
 
-const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = {
-  red: 0xff4444,
-  green: 0x44cc44,
-  blue: 0x4488ff,
+const CAMERA = { position: [0, 15, 35] as const, fov: 45 }
+const CAMERA_CONTROLS = {
+  target: [0, 3, 0] as const,
+  minDistance: 10,
+  maxDistance: 60,
+  maxPolarAngle: Math.PI / 2 + 0.1,
 }
 
 export function DoubleSlitScene() {
   const state = useDoubleSlitSceneState()
+
+  const playbackActions = useMemo(() => [
+    { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
+    { key: 'reset', label: '重置', onClick: state.reset },
+  ], [state.isLightOn, state.toggleLight, state.reset])
 
   const beamColorHex = useMemo(() => {
     if (!state.isWhiteLight) return state.lightColorHex
@@ -42,7 +50,7 @@ export function DoubleSlitScene() {
             <span>波长 λ</span>
             <strong>
               {state.isWhiteLight
-                ? `白光 400-700nm${state.filterColor !== 'none' ? ` (${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片)` : ''}`
+                ? `白光 400-700nm${state.filterColor !== 'none' ? ` (${FILTER_LABEL[state.filterColor]}滤光片)` : ''}`
                 : `${Math.round(state.wavelength)} nm`}
             </strong>
           </p>
@@ -66,19 +74,11 @@ export function DoubleSlitScene() {
       }
       chart={state.showChart ? <DoubleSlitChart params={chartParams} isLightOn={state.isLightOn} isWhiteLight={state.isWhiteLight} filterColor={state.filterColor} doubleSlitAngle={state.doubleSlitAngle} singleSlitAngle={state.singleSlitAngle} eyepieceAngle={state.eyepieceAngle} /> : undefined}
       chartVisible={state.showChart}
-      playbackActions={[
-        { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={playbackActions}
       viewport={
         <InteractiveCanvas
-          camera={{ position: [0, 15, 35], fov: 45 }}
-          controls={{
-            target: [0, 3, 0],
-            minDistance: 10,
-            maxDistance: 60,
-            maxPolarAngle: Math.PI / 2 + 0.1,
-          }}
+          camera={CAMERA}
+          controls={CAMERA_CONTROLS}
           frameloop="demand"
           adaptiveFraming={false}
         >

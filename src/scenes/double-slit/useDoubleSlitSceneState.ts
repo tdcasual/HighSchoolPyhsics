@@ -4,6 +4,7 @@ import {
   type DoubleSlitParams,
   type FilterColor,
   formatFringeSpacing,
+  formatWhiteLightFringeRange,
   waveLengthToHex,
 } from './model'
 
@@ -34,7 +35,7 @@ export type DoubleSlitSceneState = DoubleSlitParams & {
 export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const [params, setParams] = useState<DoubleSlitParams>(DEFAULT_PARAMS)
   const [showChart, setShowChart] = useState(true)
-  const [isLightOn, setIsLightOn] = useState(false)
+  const [isLightOn, setIsLightOn] = useState(true)
   const [isWhiteLight, setIsWhiteLight] = useState(false)
   const [filterColor, setFilterColorState] = useState<FilterColor>('none')
   const [singleSlitAngle, setSingleSlitAngle] = useState(0)
@@ -42,7 +43,10 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const [eyepieceAngle, setEyepieceAngle] = useState(0)
 
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
-  const fringeSpacingLabel = useMemo(() => formatFringeSpacing(params), [params])
+  const fringeSpacingLabel = useMemo(
+    () => isWhiteLight ? formatWhiteLightFringeRange(params) : formatFringeSpacing(params),
+    [isWhiteLight, params],
+  )
 
   const setWavelength = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, wavelength: value }))
@@ -82,7 +86,7 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const reset = useCallback(() => {
     setParams(DEFAULT_PARAMS)
     setShowChart(true)
-    setIsLightOn(false)
+    setIsLightOn(true)
     setIsWhiteLight(false)
     setFilterColorState('none')
     setSingleSlitAngle(0)

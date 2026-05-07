@@ -2,18 +2,15 @@ import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
 import { memo, useMemo } from 'react'
 import { CylinderGeometry } from 'three'
-import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
-
-let _cachedBg: string | null = null
+import { FILTER_HEX } from './model'
+import type { FilterColor } from './model'
+import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 function readSceneBackgroundColor(): string {
-  if (_cachedBg) return _cachedBg
   if (typeof window === 'undefined') return '#222222'
   const shell = document.querySelector('.app-shell')
   if (!shell) return '#222222'
-  const computed = getComputedStyle(shell)
-  _cachedBg = computed.getPropertyValue('--scene-optical-bg').trim() || '#222222'
-  return _cachedBg
+  return getComputedStyle(shell).getPropertyValue('--scene-optical-bg').trim() || '#222222'
 }
 
 const MAT_METAL = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
@@ -84,15 +81,14 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({ screenDistance, l
   const current3DLength = BASE_3D_LENGTH * screenDistance
   const tailX = TUBE_START_X + current3DLength
 
-  const perf = resolvePerformanceProfile()
+  const perf = useMemo(() => resolvePerformanceProfile(), [])
+  const geoDetail = useMemo(() => perf.geometry, [perf])
+  const bgColor = useMemo(() => readSceneBackgroundColor(), [])
   const shadowsEnabled = perf.shadowMapSize !== null
 
   const shadowProps = shadowsEnabled
     ? { castShadow: true as const, receiveShadow: true as const }
     : {}
-
-  // Tube geometry with translate(0, 0.5, 0) — 保持与原始一致
-  const geoDetail = getGeometryDetail()
 
   const tubeGeo = useMemo(() => {
     const geo = new CylinderGeometry(0.8, 0.8, 1, geoDetail.cylinderRadialSegments)
@@ -103,8 +99,8 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({ screenDistance, l
   return (
     <group data-rig-scene="double-slit">
       {/* Background & fog */}
-      <color attach="background" args={[readSceneBackgroundColor()]} />
-      <fog attach="fog" args={[readSceneBackgroundColor(), 20, 80]} />
+      <color attach="background" args={[bgColor]} />
+      <fog attach="fog" args={[bgColor, 20, 80]} />
 
       {/* Lights */}
       <ambientLight intensity={shadowsEnabled ? 0.4 : 0.6} />
@@ -228,11 +224,11 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({ screenDistance, l
           <mesh position={[TUBE_START_X - 2.5, OPTICAL_AXIS_Y, 0]}>
             <planeGeometry args={[1.6, 1.6]} />
             <meshStandardMaterial
-              color={filterColor === 'red' ? 0xff2222 : filterColor === 'green' ? 0x22cc22 : 0x2266ff}
+              color={FILTER_HEX[filterColor as Exclude<FilterColor, 'none'>]}
               transparent
               opacity={0.55}
               side={2}
-              emissive={filterColor === 'red' ? 0xff2222 : filterColor === 'green' ? 0x22cc22 : 0x2266ff}
+              emissive={FILTER_HEX[filterColor as Exclude<FilterColor, 'none'>]}
               emissiveIntensity={0.2}
             />
           </mesh>

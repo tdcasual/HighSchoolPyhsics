@@ -4,6 +4,7 @@ import {
   DEFAULT_PARAMS,
   drawInterferencePattern,
   drawWhiteLightPattern,
+  fastPow08,
   FILTER_PROFILES,
   formatFringeSpacing,
   setPatternCacheMax,
@@ -229,5 +230,99 @@ describe('setPatternCacheMax', () => {
   it('does not throw for valid values', () => {
     expect(() => setPatternCacheMax(1)).not.toThrow()
     expect(() => setPatternCacheMax(3)).not.toThrow()
+  })
+})
+
+describe('fastPow08', () => {
+  it('returns 0 for x <= 0', () => {
+    expect(fastPow08(0)).toBe(0)
+    expect(fastPow08(-1)).toBe(0)
+  })
+
+  it('returns 1 for x >= 1', () => {
+    expect(fastPow08(1)).toBe(1)
+    expect(fastPow08(2)).toBe(1)
+  })
+
+  it('approximates x^0.8 within 10% for visible range', () => {
+    for (const x of [0.5, 0.75, 0.9]) {
+      const expected = Math.pow(x, 0.8)
+      const actual = fastPow08(x)
+      expect(Math.abs(actual - expected) / expected).toBeLessThan(0.10)
+    }
+  })
+
+  it('stays within 25% across full range', () => {
+    for (const x of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      const expected = Math.pow(x, 0.8)
+      const actual = fastPow08(x)
+      expect(Math.abs(actual - expected) / expected).toBeLessThan(0.25)
+    }
+  })
+
+  it('is monotonically increasing in (0, 1)', () => {
+    let prev = fastPow08(0.01)
+    for (let x = 0.05; x < 1; x += 0.05) {
+      const cur = fastPow08(x)
+      expect(cur).toBeGreaterThan(prev)
+      prev = cur
+    }
+  })
+})
+
+describe('drawInterferencePattern pixel output', () => {
+  it('produces non-zero pixels at center for default params', () => {
+    const size = 100
+    const data = new Uint8ClampedArray(size * size * 4)
+    const ctx = {
+      canvas: { width: size, height: size },
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      createImageData: vi.fn(() => ({ data })),
+      putImageData: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+      strokeStyle: '',
+      lineWidth: 0,
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D
+
+    drawInterferencePattern(ctx, DEFAULT_PARAMS)
+
+    // Center pixel should be bright (constructive interference at center)
+    const centerIdx = (50 * size + 50) * 4
+    expect(data[centerIdx]).toBeGreaterThan(0)
+  })
+
+  it('produces symmetric output', () => {
+    const size = 100
+    const data = new Uint8ClampedArray(size * size * 4)
+    const ctx = {
+      canvas: { width: size, height: size },
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      createImageData: vi.fn(() => ({ data })),
+      putImageData: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+      strokeStyle: '',
+      lineWidth: 0,
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D
+
+    drawInterferencePattern(ctx, DEFAULT_PARAMS)
+
+    // Left-right symmetry: pixel at (40,50) should equal pixel at (60,50)
+    const leftIdx = (50 * size + 40) * 4
+    const rightIdx = (50 * size + 60) * 4
+    expect(data[leftIdx]).toBe(data[rightIdx])
+    expect(data[leftIdx + 1]).toBe(data[rightIdx + 1])
+    expect(data[leftIdx + 2]).toBe(data[rightIdx + 2])
   })
 })

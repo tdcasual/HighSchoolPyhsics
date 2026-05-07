@@ -17,6 +17,19 @@
 
 export type FilterColor = 'none' | 'red' | 'green' | 'blue'
 
+export const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = {
+  red: 0xff4444,
+  green: 0x44cc44,
+  blue: 0x4488ff,
+}
+
+export const FILTER_LABEL: Record<FilterColor, string> = {
+  none: '',
+  red: '红',
+  green: '绿',
+  blue: '蓝',
+}
+
 export const FILTER_PROFILES: Record<Exclude<FilterColor, 'none'>, { center: number; halfWidth: number }> = {
   red: { center: 620, halfWidth: 30 },
   green: { center: 540, halfWidth: 25 },
@@ -36,6 +49,8 @@ export const DEFAULT_PARAMS: DoubleSlitParams = {
   screenDistance: 1.0,
   slitWidth: 0.035,
 }
+
+export const PHYSICAL_VIEW_WIDTH = 0.02
 
 export function waveLengthToRGB(wl: number): [number, number, number] {
   let r = 0
@@ -95,6 +110,15 @@ export function formatFringeSpacing(params: DoubleSlitParams): string {
   return spacingMm < 0.01 ? spacingMm.toExponential(2) + ' mm' : spacingMm.toFixed(3) + ' mm'
 }
 
+export function formatWhiteLightFringeRange(params: DoubleSlitParams): string {
+  const d = params.slitDistance * 1e-3
+  const L = params.screenDistance
+  const minMm = (L * 400e-9 / d) * 1000
+  const maxMm = (L * 700e-9 / d) * 1000
+  const fmt = (v: number) => v < 0.01 ? v.toExponential(2) : v.toFixed(3)
+  return `${fmt(minMm)}–${fmt(maxMm)} mm`
+}
+
 function drawEyepieceBorder(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
   ctx.beginPath()
   ctx.arc(cx, cy, radius, 0, Math.PI * 2)
@@ -114,12 +138,13 @@ function drawEyepieceBorder(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
 // ========== Performance: reusable buffers ==========
 
 let _imgData: ImageData | null = null
+let _imgDataU32: Uint32Array | null = null
 let _accR: Float32Array | null = null
 let _accG: Float32Array | null = null
 let _accB: Float32Array | null = null
 let _bufCapacity = 0
 
-function ensureBuffers(ctx: CanvasRenderingContext2D, n: number): { imgData: ImageData; accR: Float32Array; accG: Float32Array; accB: Float32Array } {
+function ensureBuffers(ctx: CanvasRenderingContext2D, n: number): { imgData: ImageData; imgDataU32: Uint32Array; accR: Float32Array; accG: Float32Array; accB: Float32Array } {
   if (n > _bufCapacity) {
     _accR = new Float32Array(n)
     _accG = new Float32Array(n)
@@ -129,8 +154,9 @@ function ensureBuffers(ctx: CanvasRenderingContext2D, n: number): { imgData: Ima
   }
   if (!_imgData || _imgData.width !== ctx.canvas.width || _imgData.height !== ctx.canvas.height) {
     _imgData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height)
+    _imgDataU32 = new Uint32Array(_imgData.data.buffer)
   }
-  return { imgData: _imgData!, accR: _accR!, accG: _accG!, accB: _accB! }
+  return { imgData: _imgData!, imgDataU32: _imgDataU32!, accR: _accR!, accG: _accG!, accB: _accB! }
 }
 
 // ========== Performance: module-level reusable LUT buffers ==========
@@ -165,14 +191,20 @@ interface CachedPattern {
   accB: Float32Array
 }
 
-const PATTERN_CACHE_DEFAULT_MAX = 3
-let _patternCacheMax = PATTERN_CACHE_DEFAULT_MAX
+const PATTERN_CACHE_BUDGET = 30 * 1024 * 1024 // 30MB
+let _patternCacheBudget = PATTERN_CACHE_BUDGET
+let _patternCacheBytes = 0
 const patternCache: CachedPattern[] = []
+
+function entryBytes(entry: CachedPattern): number {
+  return entry.accR.byteLength + entry.accG.byteLength + entry.accB.byteLength
+}
 
 function getCachedPattern(key: string, n: number): CachedPattern | null {
   const idx = patternCache.findIndex((c) => c.key === key)
   if (idx === -1) return null
   if (patternCache[idx].accR.length < n) {
+    _patternCacheBytes -= entryBytes(patternCache[idx])
     patternCache.splice(idx, 1)
     return null
   }
@@ -184,20 +216,28 @@ function getCachedPattern(key: string, n: number): CachedPattern | null {
 }
 
 function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array, accB: Float32Array): void {
-  if (patternCache.length >= _patternCacheMax) patternCache.pop()
-  patternCache.unshift({
+  const newEntry: CachedPattern = {
     key,
     accR: new Float32Array(accR),
     accG: new Float32Array(accG),
     accB: new Float32Array(accB),
-  })
+  }
+  const newBytes = entryBytes(newEntry)
+  // Evict oldest entries until budget allows new entry
+  while (_patternCacheBytes + newBytes > _patternCacheBudget && patternCache.length > 0) {
+    const evicted = patternCache.pop()!
+    _patternCacheBytes -= entryBytes(evicted)
+  }
+  patternCache.unshift(newEntry)
+  _patternCacheBytes += newBytes
 }
 
-export function setPatternCacheMax(max: number): void {
-  while (patternCache.length > max) {
-    patternCache.pop()
+export function setPatternCacheMax(maxEntries: number): void {
+  // Clamp cache to at most maxEntries entries (byte budget is computed from actual sizes).
+  while (patternCache.length > maxEntries) {
+    const evicted = patternCache.pop()!
+    _patternCacheBytes -= entryBytes(evicted)
   }
-  _patternCacheMax = max
 }
 
 function buildPatternCacheKey(params: DoubleSlitParams, filterColor: FilterColor, doubleSlitAngle: number, singleSlitAngle: number, wavelengthStep: number, width: number, height: number): string {
@@ -251,14 +291,23 @@ function readLutFast(lut: Float32Array, physCoord: number, lutScale: number, hal
   return i + 1 < lut.length ? v0 + frac * (lut[i + 1] - v0) : v0
 }
 
-function fastPow08(x: number): number {
+// No bounds check — caller guarantees index is in [0, lut.length-2]
+function readLutUnsafe(lut: Float32Array, physCoord: number, lutScale: number, halfN: number): number {
+  const idx = (physCoord * lutScale + halfN) | 0
+  const v0 = lut[idx]
+  return v0 + (physCoord * lutScale + halfN - idx) * (lut[idx + 1] - v0)
+}
+
+export function fastPow08(x: number): number {
   if (x <= 0) return 0
   if (x >= 1) return 1
   const x2 = x * x
   return x * (1.0 + 0.21875 * (1 - x) + 0.3125 * x * (1 - x) + 0.0625 * x2 * (1 - x))
 }
 
-// LUT must cover diagonal for rotated coordinates: |cos(α)| + |sin(α)| ≤ √2
+// LUT must cover full rotated coordinate range.
+// For angle α, max rotated coord = 0.5 * viewWidth * (|cos α| + |sin α|) ≤ 0.5 * viewWidth * √2.
+// The scale lutSize/(viewWidth*√2) maps the LUT to [-0.5*viewWidth*√2, +0.5*viewWidth*√2].
 const SQRT2 = Math.sqrt(2)
 function computeLutSize(width: number, height: number): number {
   return Math.ceil(Math.max(width, height) * SQRT2)
@@ -278,9 +327,16 @@ function normalizeToImageData(
 ): void {
   const n = width * height
   let maxVal = 0
-  for (let i = 0; i < n; i++) {
-    const v = srcR[i] > srcG[i] ? (srcR[i] > srcB[i] ? srcR[i] : srcB[i]) : (srcG[i] > srcB[i] ? srcG[i] : srcB[i])
-    if (v > maxVal) maxVal = v
+  for (let y = 0; y < height; y++) {
+    const minX = rowMinX[y]
+    const maxX = rowMaxX[y]
+    if (minX > maxX) continue
+    const rowBase = y * width
+    for (let px = minX; px <= maxX; px++) {
+      const i = rowBase + px
+      const v = srcR[i] > srcG[i] ? (srcR[i] > srcB[i] ? srcR[i] : srcB[i]) : (srcG[i] > srcB[i] ? srcG[i] : srcB[i])
+      if (v > maxVal) maxVal = v
+    }
   }
   const scale = maxVal > 0 ? 255 / maxVal : 1
   const data = imgData.data
@@ -293,12 +349,9 @@ function normalizeToImageData(
     for (let px = minX; px <= maxX; px++) {
       const idx = rowBase + px
       const pi = rowOffset + px * 4
-      const rv = srcR[idx] * scale
-      const gv = srcG[idx] * scale
-      const bv = srcB[idx] * scale
-      data[pi] = rv < 0 ? 0 : rv > 255 ? 255 : rv
-      data[pi + 1] = gv < 0 ? 0 : gv > 255 ? 255 : gv
-      data[pi + 2] = bv < 0 ? 0 : bv > 255 ? 255 : bv
+      data[pi] = srcR[idx] * scale
+      data[pi + 1] = srcG[idx] * scale
+      data[pi + 2] = srcB[idx] * scale
       data[pi + 3] = 255
     }
   }
@@ -325,12 +378,12 @@ export function drawInterferencePattern(
   const L = params.screenDistance
   const a = params.slitWidth * 1e-3
   const rgb = waveLengthToRGB(params.wavelength)
-  const physicalViewWidth = 0.02
+  const physicalViewWidth = PHYSICAL_VIEW_WIDTH
 
   const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, radius)
 
   const lutSize = computeLutSize(width, height)
-  const lutScale = lutSize / physicalViewWidth
+  const lutScale = lutSize / (physicalViewWidth * SQRT2)
   const halfN = lutSize / 2
   const { interferenceLut, diffractionLut, colDx } = ensureLutBuffers(lutSize, width)
 
@@ -356,7 +409,7 @@ export function drawInterferencePattern(
     colDx[px] = (px / width - 0.5) * physicalViewWidth
   }
 
-  const { imgData } = ensureBuffers(ctx, n)
+  const { imgData, imgDataU32 } = ensureBuffers(ctx, n)
   const data = imgData.data
   const cosF = Math.cos(doubleSlitAngle * Math.PI / 180)
   const sinF = Math.sin(doubleSlitAngle * Math.PI / 180)
@@ -365,7 +418,7 @@ export function drawInterferencePattern(
   const rR = rgb[0], rG = rgb[1], rB = rgb[2]
 
   // Fill entire ImageData with black (faster than per-pixel zeroing)
-  new Uint32Array(data.buffer).fill(0)
+  imgDataU32.fill(0)
 
   if (doubleSlitAngle === 0 && singleSlitAngle === 0) {
     for (let py = 0; py < height; py++) {
@@ -374,9 +427,9 @@ export function drawInterferencePattern(
       if (minX > maxX) continue
       const rowOffset = py * width * 4
       const dy = (py / height - 0.5) * physicalViewWidth
-      const envVal = readLutFast(diffractionLut, dy, lutScale, halfN)
+      const envVal = readLutUnsafe(diffractionLut, dy, lutScale, halfN)
       for (let px = minX; px <= maxX; px++) {
-        const intVal = readLutFast(interferenceLut, colDx[px], lutScale, halfN)
+        const intVal = readLutUnsafe(interferenceLut, colDx[px], lutScale, halfN)
         const intensity = fastPow08(intVal * envVal)
         const p4 = rowOffset + px * 4
         data[p4] = rR * intensity
@@ -436,13 +489,10 @@ export function drawWhiteLightPattern(
   const d = params.slitDistance * 1e-3
   const L = params.screenDistance
   const a = params.slitWidth * 1e-3
-  const physicalViewWidth = 0.02
+  const physicalViewWidth = PHYSICAL_VIEW_WIDTH
 
   const filterProfile = filterColor !== 'none' ? FILTER_PROFILES[filterColor] : null
   const cacheKey = buildPatternCacheKey(params, filterColor, doubleSlitAngle, singleSlitAngle, wavelengthStep, width, height)
-
-  ctx.fillStyle = '#000'
-  ctx.fillRect(0, 0, width, height)
 
   const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, radius)
   const { imgData } = ensureBuffers(ctx, n)
@@ -468,7 +518,7 @@ export function drawWhiteLightPattern(
   const sinE = Math.sin(singleSlitAngle * Math.PI / 180)
 
   const lutSize = computeLutSize(width, height)
-  const lutScale = lutSize / physicalViewWidth
+  const lutScale = lutSize / (physicalViewWidth * SQRT2)
   const halfN = lutSize / 2
   const { interferenceLut, diffractionLut, colDx, colInt } = ensureLutBuffers(lutSize, width)
 
@@ -513,14 +563,14 @@ export function drawWhiteLightPattern(
 
     if (doubleSlitAngle === 0 && singleSlitAngle === 0) {
       for (let px = 0; px < width; px++) {
-        colInt[px] = readLutFast(interferenceLut, colDx[px], lutScale, halfN)
+        colInt[px] = readLutUnsafe(interferenceLut, colDx[px], lutScale, halfN)
       }
       for (let py = 0; py < height; py++) {
         const minX = rowMinX[py]
         const maxX = rowMaxX[py]
         if (minX > maxX) continue
         const dy = (py / height - 0.5) * physicalViewWidth
-        const envVal = readLutFast(diffractionLut, dy, lutScale, halfN)
+        const envVal = readLutUnsafe(diffractionLut, dy, lutScale, halfN)
         const rowBase = py * width
         for (let px = minX; px <= maxX; px++) {
           const intensity = fastPow08(colInt[px] * envVal)
@@ -559,16 +609,4 @@ export function drawWhiteLightPattern(
   normalizeToImageData(imgData, accR, accG, accB, width, height, rowMinX, rowMaxX)
   ctx.putImageData(imgData, 0, 0)
   drawEyepieceBorder(ctx, cx, cy, radius)
-}
-
-export function formatWavelengthLabel(wavelength: number): string {
-  return `${Math.round(wavelength)} nm`
-}
-
-export function formatSlitDistanceLabel(slitDistance: number): string {
-  return `${slitDistance.toFixed(2)} mm`
-}
-
-export function formatScreenDistanceLabel(screenDistance: number): string {
-  return `${screenDistance.toFixed(2)} m`
 }
