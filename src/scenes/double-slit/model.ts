@@ -177,10 +177,10 @@ export function drawInterferencePattern(
       const dx = (px / width - 0.5) * physicalViewWidth
       const dy = (py / height - 0.5) * physicalViewWidth
 
-      // Position along the direction perpendicular to the double slit (fringes vary here)
-      const xFringe = -dx * sinF + dy * cosF
-      // Position along the direction perpendicular to the single slit width (envelope varies here)
-      const xEnv = -dx * sinE + dy * cosE
+      // Position along the double slit separation direction (fringes vary along this)
+      const xFringe = dx * cosF + dy * sinF
+      // Position along the single slit width direction (envelope varies along this)
+      const xEnv = dx * cosE + dy * sinE
 
       const interference = computeInterference(xFringe, lambda, d, L)
       const diffraction = computeDiffraction(xEnv, lambda, a, L)
@@ -265,8 +265,8 @@ export function drawWhiteLightPattern(
         const dx = (px / width - 0.5) * physicalViewWidth
         const dy = (py / height - 0.5) * physicalViewWidth
 
-        const xFringe = -dx * sinF + dy * cosF
-        const xEnv = -dx * sinE + dy * cosE
+        const xFringe = dx * cosF + dy * sinF
+        const xEnv = dx * cosE + dy * sinE
 
         const interference = computeInterference(xFringe, lambda, d, L)
         const diffraction = computeDiffraction(xEnv, lambda, a, L)
