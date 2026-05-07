@@ -33,7 +33,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
       const entry = entries[0]
       if (!entry) return
       const w = Math.round(Math.min(entry.contentRect.width, 800))
-      if (w > 0 && w !== canvasSize) {
+      if (w > 0) {
         setCanvasSize(w)
       }
     })
