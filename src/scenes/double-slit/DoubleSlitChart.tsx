@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, memo } from 'react'
 import { drawInterferencePattern, drawWhiteLightPattern, type DoubleSlitParams, type FilterColor } from './model'
 import './double-slit.css'
 
@@ -12,41 +12,86 @@ type DoubleSlitChartProps = {
   eyepieceAngle: number
 }
 
-export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const patternCanvasRef = useRef<HTMLCanvasElement>(null)
+  const reticleCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [canvasSize, setCanvasSize] = useState(0)
 
+  // Responsive canvas sizing
   useEffect(() => {
-    const canvas = canvasRef.current
+    const container = containerRef.current
+    if (!container) return
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      const w = Math.round(Math.min(entry.contentRect.width, 800))
+      if (w > 0 && w !== canvasSize) {
+        setCanvasSize(w)
+      }
+    })
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  // Pattern rendering (depends on physics params, NOT eyepieceAngle)
+  useEffect(() => {
+    const canvas = patternCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1
-    const cssSize = 800
-    // Sync canvas internal resolution to DPR for crisp rendering
-    if (canvas.width !== cssSize * dpr) {
+    const cssSize = canvasSize || 800
+    if (canvas.width !== cssSize * dpr || canvas.height !== cssSize * dpr) {
       canvas.width = cssSize * dpr
       canvas.height = cssSize * dpr
     }
-    ctx.scale(dpr, dpr)
-
-    const width = cssSize
-    const height = cssSize
-    const cx = width / 2
-    const cy = height / 2
-    const radius = Math.min(width, height) / 2 - 2
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
     if (!isLightOn) {
-      // Light off: draw dark circle with reticle crosshair
       ctx.fillStyle = '#000'
-      ctx.fillRect(0, 0, width, height)
+      ctx.fillRect(0, 0, cssSize, cssSize)
+      return
+    }
+
+    if (isWhiteLight) {
+      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle)
+    } else {
+      drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
+    }
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize])
+
+  // Reticle overlay (depends ONLY on eyepieceAngle and canvas size)
+  useEffect(() => {
+    const canvas = reticleCanvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1
+    const cssSize = canvasSize || 800
+    if (canvas.width !== cssSize * dpr || canvas.height !== cssSize * dpr) {
+      canvas.width = cssSize * dpr
+      canvas.height = cssSize * dpr
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    ctx.clearRect(0, 0, cssSize, cssSize)
+
+    const cx = cssSize / 2
+    const cy = cssSize / 2
+    const radius = Math.min(cssSize, cssSize) / 2 - 2
+
+    if (!isLightOn) {
+      // Dark circle border
       ctx.beginPath()
       ctx.arc(cx, cy, radius, 0, Math.PI * 2)
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
       ctx.lineWidth = 1.5
       ctx.stroke()
 
-      // Reticle crosshair (rotated by eyepiece angle)
+      // Reticle crosshair
       ctx.save()
       ctx.translate(cx, cy)
       ctx.rotate(eyepieceAngle * Math.PI / 180)
@@ -60,7 +105,7 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.stroke()
       ctx.restore()
 
-      // Small center dot
+      // Center dot
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
       ctx.beginPath()
       ctx.arc(cx, cy, 2, 0, Math.PI * 2)
@@ -68,13 +113,7 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       return
     }
 
-    if (isWhiteLight) {
-      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle)
-    } else {
-      drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
-    }
-
-    // Overlay reticle crosshair on top of pattern (rotated by eyepiece angle)
+    // Reticle crosshair on top of pattern
     ctx.save()
     ctx.translate(cx, cy)
     ctx.rotate(eyepieceAngle * Math.PI / 180)
@@ -88,9 +127,9 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
     ctx.stroke()
     ctx.restore()
 
-    // Scale bar: 1mm at bottom
+    // Scale bar: 1 fringe spacing at bottom
     const spacingM = (params.screenDistance * params.wavelength * 1e-9) / (params.slitDistance * 1e-3)
-    const spacingPx = (spacingM / 0.02) * width
+    const spacingPx = (spacingM / 0.02) * cssSize
     if (spacingPx > 8) {
       const barY = cy + radius * 0.72
       const barStartX = cx - spacingPx / 2
@@ -101,7 +140,6 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.lineTo(barStartX + spacingPx, barY)
       ctx.stroke()
 
-      // Ticks
       ctx.beginPath()
       ctx.moveTo(barStartX, barY - 3)
       ctx.lineTo(barStartX, barY + 3)
@@ -114,18 +152,22 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle])
+  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize])
 
   return (
-    <div className="double-slit-chart">
+    <div className="double-slit-chart" ref={containerRef}>
       <h3>毛玻璃上的干涉图样</h3>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={800}
-        className="double-slit-canvas"
-      />
+      <div className="double-slit-canvas-stack">
+        <canvas
+          ref={patternCanvasRef}
+          className="double-slit-canvas double-slit-canvas-layer"
+        />
+        <canvas
+          ref={reticleCanvasRef}
+          className="double-slit-canvas double-slit-canvas-layer"
+        />
+      </div>
       <p className="double-slit-formula">Δx = Lλ / d</p>
     </div>
   )
-}
+})
