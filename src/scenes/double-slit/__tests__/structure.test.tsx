@@ -49,6 +49,7 @@ describe('double-slit structure', () => {
     render(<DoubleSlitScene />)
 
     expect(screen.getByText(/波长 λ/)).toBeInTheDocument()
+    expect(screen.getByText(/单缝宽度 a/)).toBeInTheDocument()
     expect(screen.getByText(/双缝间距 d/)).toBeInTheDocument()
     expect(screen.getByText(/缝屏距 L/)).toBeInTheDocument()
     expect(screen.getByText(/条纹间距 Δx/)).toBeInTheDocument()
