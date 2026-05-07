@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { OerstedScene } from '../OerstedScene'
 
 describe('oersted controls', () => {
@@ -27,7 +27,10 @@ describe('oersted controls', () => {
     const parseSwing = (text: string) => Number(text.match(/([-+]?\d+(?:\.\d+)?)°/)?.[1] ?? '0')
     const before = Math.abs(parseSwing(beforeText))
 
+    vi.useFakeTimers()
     fireEvent.change(screen.getByLabelText('电流 I'), { target: { value: '8' } })
+    vi.advanceTimersToNextTimer()
+    vi.useRealTimers()
 
     const afterText = (await screen.findByTestId('oersted-swing-1')).textContent ?? ''
     const after = Math.abs(parseSwing(afterText))
@@ -63,9 +66,14 @@ describe('oersted controls', () => {
     const azimuth = await screen.findByLabelText('导线方位角 ψ')
     const pitch = await screen.findByLabelText('导线俯仰角 β')
 
+    vi.useFakeTimers()
     fireEvent.change(azimuth, { target: { value: '120' } })
+    act(() => { vi.advanceTimersByTime(16) })
     fireEvent.change(pitch, { target: { value: '18' } })
+    act(() => { vi.advanceTimersByTime(16) })
     fireEvent.change(height, { target: { value: '0.12' } })
+    act(() => { vi.advanceTimersByTime(16) })
+    vi.useRealTimers()
 
     expect(azimuth).toHaveValue('120')
     expect(pitch).toHaveValue('18')

@@ -1,4 +1,5 @@
 import type { ChangeEvent, ReactNode } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 type RangeFieldProps = {
   id: string
@@ -25,9 +26,34 @@ export function RangeField({
   displayValue,
   showMinMax = false,
 }: RangeFieldProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(Number(event.target.value))
-  }
+  const rafRef = useRef(0)
+  const latestRef = useRef(value)
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
+
+  const throttledOnChange = useCallback((v: number) => {
+    latestRef.current = v
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        onChangeRef.current(latestRef.current)
+      })
+    }
+  }, [])
+
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    throttledOnChange(Number(event.target.value))
+  }, [throttledOnChange])
+
+  const handlePointerUp = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+      onChangeRef.current(latestRef.current)
+    }
+  }, [])
 
   const valueText = displayValue ?? (unit ? `${value} ${unit}` : String(value))
   const progress = ((value - min) / (max - min)) * 100
@@ -57,6 +83,7 @@ export function RangeField({
         step={step}
         value={value}
         onChange={handleChange}
+        onPointerUp={handlePointerUp}
         className="w-full"
         style={{
           background: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, rgba(14,165,233,0.15) ${progress}%)`,

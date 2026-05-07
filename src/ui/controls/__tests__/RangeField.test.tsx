@@ -23,6 +23,7 @@ describe('RangeField', () => {
   })
 
   it('parses next value as number and calls onChange', () => {
+    vi.useFakeTimers()
     const onChange = vi.fn()
 
     render(
@@ -38,6 +39,8 @@ describe('RangeField', () => {
     )
 
     fireEvent.change(screen.getByLabelText('电流'), { target: { value: '3.6' } })
+    vi.advanceTimersToNextTimer()
     expect(onChange).toHaveBeenCalledWith(3.6)
+    vi.useRealTimers()
   })
 })

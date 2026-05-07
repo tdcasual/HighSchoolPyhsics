@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MhdGeneratorScene } from '../MhdGeneratorScene'
 
 describe('mhd controls', () => {
@@ -22,7 +22,11 @@ describe('mhd controls', () => {
     const parseVoltage = (text: string) => Number(text.match(/([0-9.]+)\s*V/)?.[1] ?? '0')
     const before = parseVoltage(display.textContent ?? '')
 
+    vi.useFakeTimers()
     fireEvent.change(screen.getByLabelText('磁场 B'), { target: { value: '3' } })
+    vi.advanceTimersToNextTimer()
+    vi.useRealTimers()
+
     const after = parseVoltage((await screen.findAllByTestId('mhd-voltage-display'))[0].textContent ?? '')
 
     expect(after).toBeGreaterThan(before)

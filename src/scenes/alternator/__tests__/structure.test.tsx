@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -41,12 +41,15 @@ describe('alternator structure', () => {
   })
 
   it('updates the speed readout and frameloop when playback pauses', () => {
+    vi.useFakeTimers()
     render(<AlternatorScene />)
 
     fireEvent.change(screen.getByLabelText('转速 ω'), { target: { value: '9' } })
+    act(() => { vi.advanceTimersByTime(16) })
     expect(screen.getByTestId('alternator-speed')).toHaveTextContent('9.00 rad/s')
 
     fireEvent.click(screen.getByRole('button', { name: '暂停' }))
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
+    vi.useRealTimers()
   })
 })

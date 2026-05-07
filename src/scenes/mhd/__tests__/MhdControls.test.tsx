@@ -25,6 +25,7 @@ describe('MhdControls', () => {
   })
 
   it('emits callbacks for slider changes', () => {
+    vi.useFakeTimers()
     const onMagneticFieldChange = vi.fn()
 
     render(
@@ -43,6 +44,8 @@ describe('MhdControls', () => {
     )
 
     fireEvent.change(screen.getByLabelText('磁场 B'), { target: { value: '2.2' } })
+    vi.advanceTimersToNextTimer()
     expect(onMagneticFieldChange).toHaveBeenCalledWith(2.2)
+    vi.useRealTimers()
   })
 })
