@@ -9,7 +9,6 @@ import {
   waveLengthToHex,
   waveLengthToRGB,
   type DoubleSlitParams,
-  type FilterColor,
 } from '../model'
 
 describe('waveLengthToRGB', () => {
