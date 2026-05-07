@@ -8,10 +8,14 @@ import { DoubleSlitRig3D } from './DoubleSlitRig3D'
 import { useDoubleSlitSceneState } from './useDoubleSlitSceneState'
 import './double-slit.css'
 
+const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = {
+  red: 0xff4444,
+  green: 0x44cc44,
+  blue: 0x4488ff,
+}
+
 export function DoubleSlitScene() {
   const state = useDoubleSlitSceneState()
-
-  const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = { red: 0xff4444, green: 0x44cc44, blue: 0x4488ff }
 
   const beamColorHex = useMemo(() => {
     if (!state.isWhiteLight) return state.lightColorHex
