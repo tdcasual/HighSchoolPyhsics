@@ -22,7 +22,7 @@ export const DEFAULT_PARAMS: DoubleSlitParams = {
   wavelength: 532,
   slitDistance: 0.2,
   screenDistance: 1.0,
-  slitWidth: 0.05,
+  slitWidth: 0.035,
 }
 
 /**
@@ -151,7 +151,7 @@ export function drawInterferencePattern(
   const L = params.screenDistance
   const a = params.slitWidth * 1e-3
   const rgb = waveLengthToRGB(params.wavelength)
-  const physicalViewWidth = 0.015
+  const physicalViewWidth = 0.02
 
   const fringeAngleRad = doubleSlitAngle * Math.PI / 180
   const envAngleRad = singleSlitAngle * Math.PI / 180
@@ -221,7 +221,7 @@ export function drawWhiteLightPattern(
   const d = params.slitDistance * 1e-3
   const L = params.screenDistance
   const a = params.slitWidth * 1e-3
-  const physicalViewWidth = 0.015
+  const physicalViewWidth = 0.02
 
   const filterProfile = filterColor !== 'none' ? FILTER_PROFILES[filterColor] : null
 

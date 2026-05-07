@@ -90,7 +90,7 @@ export function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, 
 
     // Scale bar: 1mm at bottom
     const spacingM = (params.screenDistance * params.wavelength * 1e-9) / (params.slitDistance * 1e-3)
-    const spacingPx = (spacingM / 0.015) * width
+    const spacingPx = (spacingM / 0.02) * width
     if (spacingPx > 8) {
       const barY = cy + radius * 0.72
       const barStartX = cx - spacingPx / 2
