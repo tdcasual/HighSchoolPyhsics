@@ -1,0 +1,41 @@
+.wedge-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.wedge-chart h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #e5e7eb);
+}
+
+.wedge-chart-canvas {
+  display: block;
+  width: 100%;
+  max-width: min(480px, 80vw);
+  aspect-ratio: 2 / 1;
+  height: auto;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 0 0 6px rgba(255, 255, 255, 0.04);
+}
+
+@supports not (aspect-ratio: 2 / 1) {
+  .wedge-chart-canvas {
+    height: 0;
+    padding-bottom: 50%;
+  }
+}
+
+.wedge-formula {
+  margin: 0;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #9ca3af);
+  font-style: italic;
+}
