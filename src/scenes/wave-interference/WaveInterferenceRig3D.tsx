@@ -3,7 +3,7 @@ import { Line } from '@react-three/drei/core/Line'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'
-import type { Mesh } from 'three'
+import type { Mesh, ShaderMaterial } from 'three'
 import {
   waveVertexShader,
   waveFragmentShader,
@@ -49,7 +49,7 @@ const WaveSurface = memo(function WaveSurface({
   amplitude1, amplitude2, phaseDiff, waveSpeed,
   isPlaying, playSpeed,
 }: WaveParams & { isPlaying: boolean; playSpeed: number }) {
-  const matRef = useRef<THREE.ShaderMaterial>(null)
+  const matRef = useRef<ShaderMaterial>(null)
   const timeRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
   const playSpeedRef = useRef(playSpeed)

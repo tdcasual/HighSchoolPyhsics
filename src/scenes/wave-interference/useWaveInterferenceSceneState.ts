@@ -33,6 +33,7 @@ export type WaveInterferenceSceneState = WaveParams & {
   toggleConstructive: () => void
   toggleDestructive: () => void
   reset: () => void
+  _tickSyncRef: { current: () => void }
 }
 
 const SYNC_INTERVAL = 6

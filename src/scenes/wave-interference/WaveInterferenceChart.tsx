@@ -61,24 +61,24 @@ export const WaveInterferenceChart = memo(function WaveInterferenceChart({ obser
     const midY = h / 2
     const scaleY = (h / 2 - 10) / (maxAmp * 1.2 || 1)
 
-    function drawLine(data: number[], color: string, dashed: boolean, lineWidth: number) {
-      ctx.strokeStyle = color
-      ctx.lineWidth = lineWidth
-      ctx.setLineDash(dashed ? [4, 3] : [])
-      ctx.beginPath()
+    function drawLine(c: CanvasRenderingContext2D, data: number[], color: string, dashed: boolean, lineWidth: number) {
+      c.strokeStyle = color
+      c.lineWidth = lineWidth
+      c.setLineDash(dashed ? [4, 3] : [])
+      c.beginPath()
       for (let i = 0; i < data.length; i++) {
         const x = (i / (maxHistory - 1)) * w
         const y = midY - data[i] * scaleY
-        if (i === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
+        if (i === 0) c.moveTo(x, y)
+        else c.lineTo(x, y)
       }
-      ctx.stroke()
-      ctx.setLineDash([])
+      c.stroke()
+      c.setLineDash([])
     }
 
-    drawLine(observer.history1, 'rgba(239, 68, 68, 0.5)', true, 1.5)
-    drawLine(observer.history2, 'rgba(59, 130, 246, 0.5)', true, 1.5)
-    drawLine(observer.history, '#8b5cf6', false, 3)
+    drawLine(ctx, observer.history1, 'rgba(239, 68, 68, 0.5)', true, 1.5)
+    drawLine(ctx, observer.history2, 'rgba(59, 130, 246, 0.5)', true, 1.5)
+    drawLine(ctx, observer.history, '#8b5cf6', false, 3)
 
     // Time axis
     ctx.strokeStyle = '#9ca3af'

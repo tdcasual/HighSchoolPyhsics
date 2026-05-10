@@ -124,7 +124,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     const cssSize = canvasSize || 800
-    const renderCssSize = Math.round(cssSize * adaptiveScale)
+    const renderCssSize = Math.round(cssSize * adaptiveScaleRef.current)
     if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
       canvas.width = renderCssSize * dpr
       canvas.height = renderCssSize * dpr
