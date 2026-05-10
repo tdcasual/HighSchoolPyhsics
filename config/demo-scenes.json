@@ -54,6 +54,60 @@
     }
   },
   {
+    "pageId": "wedge-interference",
+    "label": "劈尖干涉",
+    "meta": {
+      "tag": "薄膜干涉",
+      "summary": "楔形空气膜等厚干涉条纹与表面检测",
+      "highlights": [
+        "劈尖角/波长参数联动",
+        "凸起缺陷使条纹弯曲"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "劈尖干涉控制",
+      "screenshotName": "wedge-interference"
+    }
+  },
+  {
+    "pageId": "wave-interference",
+    "label": "波干涉",
+    "meta": {
+      "tag": "机械波",
+      "summary": "双点波源水面干涉与振动图像实时联动",
+      "highlights": [
+        "波长/振幅/相位差参数联动",
+        "观察点 X-t 振动图像同步绘制"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "波干涉控制",
+      "screenshotName": "wave-interference"
+    }
+  },
+  {
     "pageId": "cyclotron",
     "label": "回旋加速器",
     "meta": {
