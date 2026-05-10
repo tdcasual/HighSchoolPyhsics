@@ -194,7 +194,7 @@ interface CachedPattern {
 }
 
 const PATTERN_CACHE_BUDGET = 30 * 1024 * 1024 // 30MB
-let _patternCacheBudget = PATTERN_CACHE_BUDGET
+const _patternCacheBudget = PATTERN_CACHE_BUDGET
 let _patternCacheBytes = 0
 const patternCache: CachedPattern[] = []
 
@@ -327,7 +327,6 @@ function normalizeToImageData(
   rowMinX: Int32Array,
   rowMaxX: Int32Array,
 ): void {
-  const n = width * height
   let maxVal = 0
   for (let y = 0; y < height; y++) {
     const minX = rowMinX[y]
@@ -387,7 +386,7 @@ export function drawInterferencePattern(
   const lutSize = computeLutSize(width, height)
   const lutScale = lutSize / (physicalViewWidth * SQRT2)
   const halfN = lutSize / 2
-  const { interferenceLut, diffractionLut, colDx, colInt, colEnv } = ensureLutBuffers(lutSize, width)
+  const { interferenceLut, diffractionLut, colDx, colInt } = ensureLutBuffers(lutSize, width)
 
   // Pre-compute 1D LUTs
   const intFactor = (Math.PI * d) / (lambda * L)

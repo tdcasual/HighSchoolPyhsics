@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import type { FilterColor } from './model'
 import { FILTER_HEX, FILTER_LABEL } from './model'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
