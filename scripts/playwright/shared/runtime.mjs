@@ -105,6 +105,7 @@ export async function runWithManagedViteServer(options, run) {
     port: devPort,
     logPath,
     host,
+    mode: options.mode,
   })
 
   try {

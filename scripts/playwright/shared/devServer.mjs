@@ -3,8 +3,8 @@ import { createWriteStream } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { setTimeout as delay } from 'node:timers/promises'
 
-export function createViteDevServerCommand({ host, port }) {
-  return ['run', 'dev', '--', '--host', host, '--port', String(port), '--strictPort']
+export function createViteDevServerCommand({ host, port, mode = 'dev' }) {
+  return ['run', mode, '--', '--host', host, '--port', String(port), '--strictPort']
 }
 
 export function startViteDevServer({
@@ -12,11 +12,12 @@ export function startViteDevServer({
   port,
   logPath,
   host = '127.0.0.1',
+  mode = 'dev',
 }, runtime = {}) {
   const spawnImpl = runtime.spawnImpl ?? spawn
   const createWriteStreamImpl = runtime.createWriteStreamImpl ?? createWriteStream
   const env = runtime.env ?? process.env
-  const child = spawnImpl('npm', createViteDevServerCommand({ host, port }), {
+  const child = spawnImpl('npm', createViteDevServerCommand({ host, port, mode }), {
     cwd: rootDir,
     env,
     stdio: ['ignore', 'pipe', 'pipe'],

@@ -5,7 +5,7 @@ import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { DEMO_CATALOG } from '../playwright/shared/demoCatalog.mjs'
-import { resolvePlaywrightRuntime, runWithManagedViteServer } from '../playwright/shared/runtime.mjs'
+import { resolveManagedPlaywrightRuntime, runWithManagedViteServer } from '../playwright/shared/runtime.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -14,7 +14,7 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/perf/route-load-budget')
 const LOG_DIR = path.join(OUTPUT_DIR, 'logs')
 const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
 
-const { baseUrl: BASE_URL, devPort: DEV_PORT } = resolvePlaywrightRuntime({
+const { baseUrl: BASE_URL, devPort: DEV_PORT } = await resolveManagedPlaywrightRuntime({
   defaultBaseUrl: 'http://127.0.0.1:4172',
   env: process.env,
 })
@@ -60,6 +60,7 @@ async function run() {
       baseUrl: BASE_URL,
       devPort: DEV_PORT,
       logPath: DEV_SERVER_LOG,
+      mode: 'preview',
     },
     async () => {
       let browser = null
