@@ -130,11 +130,13 @@ export function WaveInterferenceScene() {
             isPlaying={state.isPlaying}
             playSpeed={state.playSpeed}
             observer={state.observer}
+            observerBuffer={state.observerBuffer}
             setSource1={state.setSource1}
             setSource2={state.setSource2}
-            setObserver={state.setObserver}
+            setObserverBuffer={state.setObserverBuffer}
             showConstructive={state.showConstructive}
             showDestructive={state.showDestructive}
+            _tickSyncRef={state._tickSyncRef}
           />
         </InteractiveCanvas>
       }

@@ -18,6 +18,11 @@ const MAT_METAL = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
 const MAT_DARK_METAL = { color: 0x333333, metalness: 0.6, roughness: 0.4 }
 const MAT_GLASS_BOTTOM = { color: 0x4488cc, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.6 }
 const MAT_GLASS_TOP = { color: 0xaaddff, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.4 }
+const MAT_TABLE_EXT = { color: 0x444444, metalness: 0.3, roughness: 0.6 }
+const MAT_PAPER = { color: 0xeeeedd, roughness: 0.9 }
+const MAT_LIGHT_HOUSING = { color: 0x333333, metalness: 0.4, roughness: 0.6 }
+const SHADOW_PROPS = { castShadow: true as const, receiveShadow: true as const }
+const NO_SHADOW_PROPS = {}
 const PLATE_WIDTH = 16
 const PLATE_DEPTH = 10
 const PLATE_HEIGHT = 0.5
@@ -154,9 +159,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
   const bgColor = useMemo(() => readSceneBackgroundColor(), [])
   const shadowsEnabled = perf.shadowMapSize !== null
 
-  const shadowProps = shadowsEnabled
-    ? { castShadow: true as const, receiveShadow: true as const }
-    : {}
+  const shadowProps = shadowsEnabled ? SHADOW_PROPS : NO_SHADOW_PROPS
 
   const visualAngle = useMemo(() => {
     const fraction = (wedgeAngle - 0.01) / (0.30 - 0.01)
@@ -200,7 +203,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       </mesh>
       <mesh position={[0, -1.25, 0]}>
         <boxGeometry args={[22, 1, 12]} />
-        <meshStandardMaterial color={0x444444} metalness={0.3} roughness={0.6} />
+        <meshStandardMaterial {...MAT_TABLE_EXT} />
       </mesh>
 
       {/* ====== Bottom glass plate (flat) ====== */}
@@ -224,7 +227,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       {/* ====== Paper strip at thin end ====== */}
       <mesh position={[PLATE_WIDTH / 2 - 0.3, PLATE_Y + PLATE_HEIGHT / 2 + 0.15, 0]}>
         <boxGeometry args={[0.3, 0.3, PLATE_DEPTH * 0.8]} />
-        <meshStandardMaterial color={0xeeeedd} roughness={0.9} />
+        <meshStandardMaterial {...MAT_PAPER} />
       </mesh>
       <Label text="薄纸片" position={[PLATE_WIDTH / 2 + 0.8, PLATE_Y + 1.5, 0]} />
 
@@ -243,7 +246,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       <group position={[0, PLATE_Y + 7, 0]}>
         <mesh {...(shadowsEnabled ? { castShadow: true } : {})}>
           <cylinderGeometry args={[0.8, 1.2, 2.5, geoDetail.cylinderRadialSegments]} />
-          <meshStandardMaterial color={0x333333} metalness={0.4} roughness={0.6} />
+          <meshStandardMaterial {...MAT_LIGHT_HOUSING} />
         </mesh>
         <mesh position={[0, -1.5, 0]}>
           <sphereGeometry args={[0.4, geoDetail.sphereSegments, geoDetail.sphereSegments]} />

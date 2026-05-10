@@ -72,6 +72,8 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
       } else if (avg < 10) {
         setAdaptiveScale(prev => Math.min(perf.doubleSlitChartScale, +(prev + 0.05).toFixed(2)))
         frameTimesRef.current = []
+      } else if (times.length >= 6) {
+        frameTimesRef.current = []
       }
     }
 

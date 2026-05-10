@@ -19,6 +19,50 @@ export type Observer = {
   history2: number[]
 }
 
+export type ObserverBuffer = {
+  x: number
+  z: number
+  buf: Float32Array
+  buf1: Float32Array
+  buf2: Float32Array
+  head: number
+  count: number
+}
+
+export function createObserverBuffer(x: number, z: number): ObserverBuffer {
+  return {
+    x, z,
+    buf: new Float32Array(MAX_HISTORY),
+    buf1: new Float32Array(MAX_HISTORY),
+    buf2: new Float32Array(MAX_HISTORY),
+    head: 0,
+    count: 0,
+  }
+}
+
+export function ringPush(ring: ObserverBuffer, v: number, v1: number, v2: number) {
+  ring.buf[ring.head] = v
+  ring.buf1[ring.head] = v1
+  ring.buf2[ring.head] = v2
+  ring.head = (ring.head + 1) % MAX_HISTORY
+  if (ring.count < MAX_HISTORY) ring.count++
+}
+
+export function ringToArrays(ring: ObserverBuffer): { history: number[]; history1: number[]; history2: number[] } {
+  const { buf, buf1, buf2, head, count } = ring
+  const history = new Array<number>(count)
+  const history1 = new Array<number>(count)
+  const history2 = new Array<number>(count)
+  const start = (head - count + MAX_HISTORY) % MAX_HISTORY
+  for (let i = 0; i < count; i++) {
+    const idx = (start + i) % MAX_HISTORY
+    history[i] = buf[idx]
+    history1[i] = buf1[idx]
+    history2[i] = buf2[idx]
+  }
+  return { history, history1, history2 }
+}
+
 export const DEFAULT_PARAMS: WaveParams = {
   wavelength1: 0.6,
   wavelength2: 0.6,
