@@ -165,10 +165,11 @@ let _interferenceLut: Float32Array | null = null
 let _diffractionLut: Float32Array | null = null
 let _colDx: Float32Array | null = null
 let _colInt: Float32Array | null = null
+let _colEnv: Float32Array | null = null
 let _lutCapacity = 0
 let _colCapacity = 0
 
-function ensureLutBuffers(lutSize: number, colSize: number): { interferenceLut: Float32Array; diffractionLut: Float32Array; colDx: Float32Array; colInt: Float32Array } {
+function ensureLutBuffers(lutSize: number, colSize: number): { interferenceLut: Float32Array; diffractionLut: Float32Array; colDx: Float32Array; colInt: Float32Array; colEnv: Float32Array } {
   if (lutSize > _lutCapacity) {
     _interferenceLut = new Float32Array(lutSize + 1)
     _diffractionLut = new Float32Array(lutSize + 1)
@@ -177,9 +178,10 @@ function ensureLutBuffers(lutSize: number, colSize: number): { interferenceLut: 
   if (colSize > _colCapacity) {
     _colDx = new Float32Array(colSize)
     _colInt = new Float32Array(colSize)
+    _colEnv = new Float32Array(colSize)
     _colCapacity = colSize
   }
-  return { interferenceLut: _interferenceLut!, diffractionLut: _diffractionLut!, colDx: _colDx!, colInt: _colInt! }
+  return { interferenceLut: _interferenceLut!, diffractionLut: _diffractionLut!, colDx: _colDx!, colInt: _colInt!, colEnv: _colEnv! }
 }
 
 // ========== Performance: white light cache ==========
@@ -385,7 +387,7 @@ export function drawInterferencePattern(
   const lutSize = computeLutSize(width, height)
   const lutScale = lutSize / (physicalViewWidth * SQRT2)
   const halfN = lutSize / 2
-  const { interferenceLut, diffractionLut, colDx } = ensureLutBuffers(lutSize, width)
+  const { interferenceLut, diffractionLut, colDx, colInt, colEnv } = ensureLutBuffers(lutSize, width)
 
   // Pre-compute 1D LUTs
   const intFactor = (Math.PI * d) / (lambda * L)
@@ -421,16 +423,20 @@ export function drawInterferencePattern(
   imgDataU32.fill(0)
 
   if (doubleSlitAngle === 0 && singleSlitAngle === 0) {
+    // Both interference and diffraction vary along x (perpendicular to vertical slits)
+    for (let px = 0; px < width; px++) {
+      const dx = colDx[px]
+      const intVal = readLutUnsafe(interferenceLut, dx, lutScale, halfN)
+      const envVal = readLutUnsafe(diffractionLut, dx, lutScale, halfN)
+      colInt[px] = intVal * envVal
+    }
     for (let py = 0; py < height; py++) {
       const minX = rowMinX[py]
       const maxX = rowMaxX[py]
       if (minX > maxX) continue
       const rowOffset = py * width * 4
-      const dy = (py / height - 0.5) * physicalViewWidth
-      const envVal = readLutUnsafe(diffractionLut, dy, lutScale, halfN)
       for (let px = minX; px <= maxX; px++) {
-        const intVal = readLutUnsafe(interferenceLut, colDx[px], lutScale, halfN)
-        const intensity = fastPow08(intVal * envVal)
+        const intensity = fastPow08(colInt[px])
         const p4 = rowOffset + px * 4
         data[p4] = rR * intensity
         data[p4 + 1] = rG * intensity
@@ -520,7 +526,7 @@ export function drawWhiteLightPattern(
   const lutSize = computeLutSize(width, height)
   const lutScale = lutSize / (physicalViewWidth * SQRT2)
   const halfN = lutSize / 2
-  const { interferenceLut, diffractionLut, colDx, colInt } = ensureLutBuffers(lutSize, width)
+  const { interferenceLut, diffractionLut, colDx, colInt, colEnv } = ensureLutBuffers(lutSize, width)
 
   // Pre-compute per-column dx values
   for (let px = 0; px < width; px++) {
@@ -563,17 +569,17 @@ export function drawWhiteLightPattern(
 
     if (doubleSlitAngle === 0 && singleSlitAngle === 0) {
       for (let px = 0; px < width; px++) {
-        colInt[px] = readLutUnsafe(interferenceLut, colDx[px], lutScale, halfN)
+        const dx = colDx[px]
+        colInt[px] = readLutUnsafe(interferenceLut, dx, lutScale, halfN)
+        colEnv[px] = readLutUnsafe(diffractionLut, dx, lutScale, halfN)
       }
       for (let py = 0; py < height; py++) {
         const minX = rowMinX[py]
         const maxX = rowMaxX[py]
         if (minX > maxX) continue
-        const dy = (py / height - 0.5) * physicalViewWidth
-        const envVal = readLutUnsafe(diffractionLut, dy, lutScale, halfN)
         const rowBase = py * width
         for (let px = minX; px <= maxX; px++) {
-          const intensity = fastPow08(colInt[px] * envVal)
+          const intensity = fastPow08(colInt[px] * colEnv[px])
           const idx = rowBase + px
           accR[idx] += rR * intensity
           accG[idx] += rG * intensity

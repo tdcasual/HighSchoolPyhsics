@@ -221,7 +221,7 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({ screenDistance, l
       {isWhiteLight && filterColor !== 'none' && (
         <>
           <Stand xPos={TUBE_START_X - 2.5} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
-          <mesh position={[TUBE_START_X - 2.5, OPTICAL_AXIS_Y, 0]}>
+          <mesh position={[TUBE_START_X - 2.5, OPTICAL_AXIS_Y, 0]} rotation={[0, Math.PI / 2, 0]}>
             <planeGeometry args={[1.6, 1.6]} />
             <meshStandardMaterial
               color={FILTER_HEX[filterColor as Exclude<FilterColor, 'none'>]}
