@@ -3,6 +3,7 @@ import { Line } from '@react-three/drei/core/Line'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'
+import type { Mesh } from 'three'
 import {
   waveVertexShader,
   waveFragmentShader,
@@ -12,9 +13,7 @@ import {
   calcWaveDisplacement,
   createObserverBuffer,
   GRID_SIZE,
-  MAX_HISTORY,
   ringPush,
-  type Observer,
   type ObserverBuffer,
   type Vec2,
   type WaveParams,
@@ -23,7 +22,6 @@ import {
 type RigProps = WaveParams & {
   isPlaying: boolean
   playSpeed: number
-  observer: Observer | null
   observerBuffer: ObserverBuffer | null
   setSource1: (v: Vec2) => void
   setSource2: (v: Vec2) => void
@@ -58,7 +56,7 @@ const WaveSurface = memo(function WaveSurface({
   useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
   useEffect(() => { playSpeedRef.current = playSpeed }, [playSpeed])
 
-  const uniforms = useMemo(() => ({
+  const [uniforms] = useState(() => ({
     uTime: { value: 0 },
     uSource1: { value: new Vector2(source1.x, source1.z) },
     uSource2: { value: new Vector2(source2.x, source2.z) },
@@ -68,7 +66,7 @@ const WaveSurface = memo(function WaveSurface({
     uAmplitude2: { value: amplitude2 },
     uPhaseDiff: { value: phaseDiff },
     uWaveSpeed: { value: waveSpeed },
-  }), [])
+  }))
 
   useEffect(() => {
     const u = matRef.current?.uniforms
@@ -204,7 +202,7 @@ function ObserverPoint({
   tickSyncRef: { current: () => void }
 }) {
   const timeRef = useRef(0)
-  const headYRef = useRef(1.5)
+  const headMeshRef = useRef<Mesh>(null)
   const [dragging, setDragging] = useState(false)
   const isPlayingRef = useRef(isPlaying)
   const playSpeedRef = useRef(playSpeed)
@@ -235,7 +233,9 @@ function ObserverPoint({
     const yTotal = y1 + y2
 
     ringPush(buf, yTotal, y1, y2)
-    headYRef.current = 1 + yTotal * 3
+    if (headMeshRef.current) {
+      headMeshRef.current.position.y = 1 + yTotal * 3
+    }
 
     // Throttled React sync
     tickSyncRef.current()
@@ -266,7 +266,7 @@ function ObserverPoint({
       </mesh>
 
       {/* head sphere */}
-      <mesh position={[0, headYRef.current, 0]}>
+      <mesh ref={headMeshRef} position={[0, 1.5, 0]}>
         <sphereGeometry args={[0.06, 12, 12]} />
         <meshBasicMaterial color="#8b5cf6" />
       </mesh>
@@ -314,14 +314,13 @@ function ObserverPoint({
 /* ─── Interference Lines (hyperbolas via drei Line) ─── */
 
 const InterferenceLines = memo(function InterferenceLines({
-  source1, source2, wavelength1, wavelength2, phaseDiff,
+  source1, source2, wavelength1, wavelength2,
   showConstructive, showDestructive,
 }: {
   source1: Vec2
   source2: Vec2
   wavelength1: number
   wavelength2: number
-  phaseDiff: number
   showConstructive: boolean
   showDestructive: boolean
 }) {
@@ -387,7 +386,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
   const {
     source1, source2, wavelength1, wavelength2,
     amplitude1, amplitude2, phaseDiff, waveSpeed,
-    isPlaying, playSpeed, observer, observerBuffer,
+    isPlaying, playSpeed, observerBuffer,
     setSource1, setSource2, setObserverBuffer,
     showConstructive, showDestructive,
     _tickSyncRef,
@@ -434,7 +433,6 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
       <InterferenceLines
         source1={source1} source2={source2}
         wavelength1={wavelength1} wavelength2={wavelength2}
-        phaseDiff={phaseDiff}
         showConstructive={showConstructive}
         showDestructive={showDestructive}
       />

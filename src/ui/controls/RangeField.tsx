@@ -29,7 +29,7 @@ export function RangeField({
   const rafRef = useRef(0)
   const latestRef = useRef(value)
   const onChangeRef = useRef(onChange)
-  onChangeRef.current = onChange
+  useEffect(() => { onChangeRef.current = onChange }, [onChange])
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
 

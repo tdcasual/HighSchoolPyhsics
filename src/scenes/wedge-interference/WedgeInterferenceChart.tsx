@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, memo } from 'react'
 import { drawWedgePattern, PHYSICAL_VIEW_WIDTH, type WedgeParams } from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import './wedge-interference.css'
@@ -11,20 +11,18 @@ type WedgeInterferenceChartProps = {
 export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ params, isLightOn }: WedgeInterferenceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [canvasWidth, setCanvasWidth] = useState(0)
+  const [canvasWidth, setCanvasWidth] = useState(() =>
+    typeof ResizeObserver === 'undefined' ? 800 : 0
+  )
   const perf = useMemo(() => resolvePerformanceProfile(), [])
   const dpr = useMemo(() => typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1, [perf])
 
-  const [adaptiveScale, setAdaptiveScale] = useState(perf.doubleSlitChartScale)
+  const adaptiveScaleRef = useRef(perf.doubleSlitChartScale)
   const frameTimesRef = useRef<number[]>([])
 
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
-    if (typeof ResizeObserver === 'undefined') {
-      setCanvasWidth(800)
-      return
-    }
+    if (!container || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (!entry) return
@@ -43,8 +41,9 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
 
     const cssW = canvasWidth || 800
     const cssH = Math.round(cssW / 2)
-    const renderW = Math.round(cssW * adaptiveScale)
-    const renderH = Math.round(cssH * adaptiveScale)
+    const scale = adaptiveScaleRef.current
+    const renderW = Math.round(cssW * scale)
+    const renderH = Math.round(cssH * scale)
 
     if (canvas.width !== renderW * dpr || canvas.height !== renderH * dpr) {
       canvas.width = renderW * dpr
@@ -67,10 +66,10 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
     if (times.length >= 3) {
       const avg = times.reduce((a, b) => a + b, 0) / times.length
       if (avg > 25) {
-        setAdaptiveScale(prev => Math.max(0.35, +(prev - 0.1).toFixed(2)))
+        adaptiveScaleRef.current = Math.max(0.35, +(adaptiveScaleRef.current - 0.1).toFixed(2))
         frameTimesRef.current = []
       } else if (avg < 10) {
-        setAdaptiveScale(prev => Math.min(perf.doubleSlitChartScale, +(prev + 0.05).toFixed(2)))
+        adaptiveScaleRef.current = Math.min(perf.doubleSlitChartScale, +(adaptiveScaleRef.current + 0.05).toFixed(2))
         frameTimesRef.current = []
       } else if (times.length >= 6) {
         frameTimesRef.current = []
@@ -102,7 +101,7 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
       ctx.textAlign = 'center'
       ctx.fillText('l', renderW / 2, barY + 12)
     }
-  }, [params, isLightOn, canvasWidth, perf, dpr, adaptiveScale])
+  }, [params, isLightOn, canvasWidth, perf, dpr])
 
   return (
     <div className="wedge-chart" ref={containerRef}>

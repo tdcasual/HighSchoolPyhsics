@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DEFAULT_PARAMS,
   type WaveParams,
   type Observer,
   type Vec2,
   OBSERVER_DEFAULT,
-  MAX_HISTORY,
   createObserverBuffer,
   type ObserverBuffer,
   ringToArrays,
@@ -53,8 +52,9 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const [showDestructive, setShowDestructive] = useState(true)
 
   // Mutable ring buffer — animation loop writes here, no React state churn
-  const bufferRef = useRef<ObserverBuffer | null>(createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z))
-  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(bufferRef.current)
+  const initialBuffer = createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z)
+  const bufferRef = useRef<ObserverBuffer | null>(initialBuffer)
+  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(initialBuffer)
 
   // Throttle counter: only sync to React state every N frames
   const syncCounterRef = useRef(0)
@@ -87,7 +87,7 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
 
   // Expose tickSync via a stable ref so the animation loop can call it
   const tickSyncRef = useRef(tickSync)
-  tickSyncRef.current = tickSync
+  useEffect(() => { tickSyncRef.current = tickSync }, [tickSync])
 
   const setWavelength1 = useCallback((v: number) => setParams(p => ({ ...p, wavelength1: v })), [])
   const setWavelength2 = useCallback((v: number) => setParams(p => ({ ...p, wavelength2: v })), [])

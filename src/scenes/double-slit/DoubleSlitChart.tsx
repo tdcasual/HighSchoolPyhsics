@@ -17,29 +17,33 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
   const containerRef = useRef<HTMLDivElement>(null)
   const patternCanvasRef = useRef<HTMLCanvasElement>(null)
   const reticleCanvasRef = useRef<HTMLCanvasElement>(null)
-  const [canvasSize, setCanvasSize] = useState(0)
+  const [canvasSize, setCanvasSize] = useState(() =>
+    typeof ResizeObserver === 'undefined' ? 800 : 0
+  )
   const perf = useMemo(() => resolvePerformanceProfile(), [])
   const dpr = useMemo(() => typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1, [perf])
 
   // Runtime adaptive resolution: measures draw time and auto-adjusts scale
-  const [adaptiveScale, setAdaptiveScale] = useState(perf.doubleSlitChartScale)
+  const adaptiveScaleRef = useRef(perf.doubleSlitChartScale)
   const frameTimesRef = useRef<number[]>([])
 
   // White-light adaptive quality: coarse during interaction, full after settling
-  const [wlFullQuality, setWlFullQuality] = useState(true)
+  const wlFullQualityRef = useRef(true)
   const qualityTimerRef = useRef(0)
 
   useEffect(() => {
     if (!isWhiteLight) {
       clearTimeout(qualityTimerRef.current)
-      setWlFullQuality(true)
+      wlFullQualityRef.current = true
       return
     }
     // Coarse immediately, schedule full quality after settling
-    setWlFullQuality(false)
+    wlFullQualityRef.current = false
     clearTimeout(qualityTimerRef.current)
     qualityTimerRef.current = window.setTimeout(() => {
-      setWlFullQuality(true)
+      wlFullQualityRef.current = true
+      // Trigger re-render so the draw effect picks up the quality change
+      setCanvasSize(s => s)
     }, 200)
     return () => clearTimeout(qualityTimerRef.current)
   }, [params, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle])
@@ -52,11 +56,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
   // Responsive canvas sizing
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
-    if (typeof ResizeObserver === 'undefined') {
-      setCanvasSize(800)
-      return
-    }
+    if (!container || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (!entry) return
@@ -77,7 +77,8 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     if (!ctx) return
 
     const cssSize = canvasSize || 800
-    const renderCssSize = Math.round(cssSize * adaptiveScale)
+    const scale = adaptiveScaleRef.current
+    const renderCssSize = Math.round(cssSize * scale)
     if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
       canvas.width = renderCssSize * dpr
       canvas.height = renderCssSize * dpr
@@ -93,7 +94,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     const t0 = performance.now()
 
     if (isWhiteLight) {
-      const step = wlFullQuality
+      const step = wlFullQualityRef.current
         ? perf.doubleSlitWhiteLightWavelengthStep
         : perf.doubleSlitWhiteLightWavelengthStep * 4
       drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle, step)
@@ -107,14 +108,14 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     if (times.length >= 3) {
       const avg = times.reduce((a, b) => a + b, 0) / times.length
       if (avg > 25) {
-        setAdaptiveScale(prev => Math.max(0.35, +(prev - 0.1).toFixed(2)))
+        adaptiveScaleRef.current = Math.max(0.35, +(adaptiveScaleRef.current - 0.1).toFixed(2))
         frameTimesRef.current = []
       } else if (avg < 10) {
-        setAdaptiveScale(prev => Math.min(perf.doubleSlitChartScale, +(prev + 0.05).toFixed(2)))
+        adaptiveScaleRef.current = Math.min(perf.doubleSlitChartScale, +(adaptiveScaleRef.current + 0.05).toFixed(2))
         frameTimesRef.current = []
       }
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf, dpr, wlFullQuality, adaptiveScale])
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf, dpr])
 
   // Reticle overlay (depends ONLY on eyepieceAngle and canvas size)
   useEffect(() => {
@@ -211,7 +212,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf, adaptiveScale])
+  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf])
 
   return (
     <div className="double-slit-chart" ref={containerRef}>

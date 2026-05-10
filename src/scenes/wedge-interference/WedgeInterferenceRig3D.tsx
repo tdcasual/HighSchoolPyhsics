@@ -2,9 +2,8 @@ import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
 import { memo, useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { CanvasTexture, LinearFilter, type Group, type Mesh } from 'three'
+import { CanvasTexture, LinearFilter, type Mesh } from 'three'
 import { drawWedgePattern, type WedgeParams } from './model'
-import type { WedgeMode } from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 function readSceneBackgroundColor(): string {
@@ -39,39 +38,29 @@ function Label({ text, position }: { text: string; position: [number, number, nu
 }
 
 /** Renders the interference fringe pattern as a texture on the top plate surface */
+const fringeCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null
+if (fringeCanvas) { fringeCanvas.width = TEX_W; fringeCanvas.height = TEX_H }
+const fringeTexture = fringeCanvas ? (() => { const t = new CanvasTexture(fringeCanvas); t.minFilter = LinearFilter; return t })() : null
+
 function FringeSurface({ params, isLightOn }: { params: WedgeParams; isLightOn: boolean }) {
-  const refs = useRef<{ canvas: HTMLCanvasElement; texture: CanvasTexture } | null>(null)
-
-  if (!refs.current) {
-    const c = document.createElement('canvas')
-    c.width = TEX_W
-    c.height = TEX_H
-    const tex = new CanvasTexture(c)
-    tex.minFilter = LinearFilter
-    refs.current = { canvas: c, texture: tex }
-  }
-
-  const { canvas, texture } = refs.current
-
   useEffect(() => {
-    const ctx = canvas.getContext('2d')!
+    if (!fringeCanvas || !fringeTexture) return
+    const ctx = fringeCanvas.getContext('2d')!
     if (!isLightOn) {
       ctx.fillStyle = '#000'
       ctx.fillRect(0, 0, TEX_W, TEX_H)
     } else {
       drawWedgePattern(ctx, params)
     }
-    texture.needsUpdate = true
-  }, [params, isLightOn, canvas, texture])
+    fringeTexture.needsUpdate = true
+  }, [params, isLightOn])
 
-  useEffect(() => {
-    return () => { refs.current?.texture.dispose() }
-  }, [])
+  if (!fringeTexture) return null
 
   return (
     <mesh position={[0, PLATE_HEIGHT / 2 + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[PLATE_WIDTH, PLATE_DEPTH]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.85} side={2} />
+      <meshBasicMaterial map={fringeTexture} transparent opacity={0.85} side={2} />
     </mesh>
   )
 }

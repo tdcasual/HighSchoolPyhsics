@@ -129,7 +129,6 @@ export function WaveInterferenceScene() {
             waveSpeed={state.waveSpeed}
             isPlaying={state.isPlaying}
             playSpeed={state.playSpeed}
-            observer={state.observer}
             observerBuffer={state.observerBuffer}
             setSource1={state.setSource1}
             setSource2={state.setSource2}
