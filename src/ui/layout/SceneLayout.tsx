@@ -205,6 +205,7 @@ export function SceneLayout({
           offsetX={panelX}
           closable
           onClose={() => setChartDismissVersion(1)}
+          resizable
         >
           <div className="min-w-[300px]">
             {chart}

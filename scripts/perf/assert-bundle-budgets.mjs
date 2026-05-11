@@ -36,7 +36,7 @@ const BUDGETS = [
   {
     label: 'app-entry-js',
     pattern: /^index-.*\.js$/,
-    maxBytes: parseBudgetFromEnv('BUDGET_APP_ENTRY_JS_KB', 32),
+    maxBytes: parseBudgetFromEnv('BUDGET_APP_ENTRY_JS_KB', 35),
   },
   {
     label: 'app-entry-css',

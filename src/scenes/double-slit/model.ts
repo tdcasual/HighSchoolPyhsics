@@ -339,8 +339,10 @@ function normalizeToImageData(
       if (v > maxVal) maxVal = v
     }
   }
-  const scale = maxVal > 0 ? 255 / maxVal : 1
+
   const data = imgData.data
+  const noiseThreshold = maxVal * 0.0005
+
   for (let y = 0; y < height; y++) {
     const minX = rowMinX[y]
     const maxX = rowMaxX[y]
@@ -349,11 +351,22 @@ function normalizeToImageData(
     const rowOffset = rowBase * 4
     for (let px = minX; px <= maxX; px++) {
       const idx = rowBase + px
-      const pi = rowOffset + px * 4
-      data[pi] = srcR[idx] * scale
-      data[pi + 1] = srcG[idx] * scale
-      data[pi + 2] = srcB[idx] * scale
-      data[pi + 3] = 255
+      const rAcc = srcR[idx]
+      const gAcc = srcG[idx]
+      const bAcc = srcB[idx]
+      const localMax = Math.max(rAcc, gAcc, bAcc)
+
+      if (localMax > noiseThreshold) {
+        const nr = (rAcc / localMax) * 255
+        const ng = (gAcc / localMax) * 255
+        const nb = (bAcc / localMax) * 255
+        const brightness = Math.max(0.15, Math.pow(localMax / maxVal, 0.3))
+        const pi = rowOffset + px * 4
+        data[pi] = Math.min(255, nr * brightness)
+        data[pi + 1] = Math.min(255, ng * brightness)
+        data[pi + 2] = Math.min(255, nb * brightness)
+        data[pi + 3] = 255
+      }
     }
   }
 }

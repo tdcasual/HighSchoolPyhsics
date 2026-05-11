@@ -34,6 +34,8 @@ const SCENE_REGION_MAP = {
   'double-slit': '波动与振动',
   'wedge-interference': '波动与振动',
   'wave-interference': '波动与振动',
+  'light-diffraction': '波动与振动',
+  diffraction: '波动与振动',
   cyclotron: '电磁学',
   mhd: '电磁感应',
   oersted: '电磁学',

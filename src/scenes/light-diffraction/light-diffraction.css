@@ -1,0 +1,105 @@
+/* Light diffraction scene styles */
+
+.light-diffraction-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--magazine-ink, #e5e7eb);
+  background: var(--glass-bg-night, rgba(20, 22, 28, 0.75));
+  padding: 2px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  border: 1px solid var(--glass-border-outer-night, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.diffraction-chart-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.diffraction-pattern-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.diffraction-pattern-canvas {
+  border-radius: 50%;
+  background: #0a0a0a;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+  image-rendering: pixelated;
+}
+
+.diffraction-pattern-stack {
+  position: relative;
+  display: inline-block;
+}
+
+.diffraction-pattern-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.diffraction-pattern-layer[data-layer='reticle'] {
+  background: transparent;
+  pointer-events: none;
+}
+
+.diffraction-profile-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.diffraction-profile-canvas {
+  border-radius: 0.25rem;
+  background: #0a0a0a;
+}
+
+.scene-core-summary-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.scene-core-summary-stack p {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.scene-core-summary-stack p span {
+  color: var(--control-ink-soft);
+  font-weight: 500;
+}
+
+.scene-core-summary-stack p strong {
+  color: var(--readout-value);
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.diffraction-chart-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--magazine-ink, #e5e7eb);
+  margin: 0;
+  text-align: center;
+}
+
+.diffraction-formula {
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--control-ink-soft, #9ca3af);
+  text-align: center;
+  margin: 0.25rem 0 0;
+}

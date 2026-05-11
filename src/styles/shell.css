@@ -942,6 +942,24 @@ input[type="range"]::-moz-range-track {
   border-bottom: 1px solid var(--glass-border-outer-day);
 }
 
+.panel-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  border-bottom-right-radius: 12px;
+  background: linear-gradient(135deg, transparent 50%, var(--control-ink-muted) 50%);
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.panel-resize-handle:hover,
+.panel-resize-handle:focus-visible {
+  opacity: 1;
+}
+
 .sidebar-panel {
   background: var(--glass-bg-day);
   backdrop-filter: blur(8px) saturate(1.2);

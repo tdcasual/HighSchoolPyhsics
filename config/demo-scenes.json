@@ -108,6 +108,60 @@
     }
   },
   {
+    "pageId": "light-diffraction",
+    "label": "光的衍射",
+    "meta": {
+      "tag": "波动光学",
+      "summary": "单缝/圆孔/圆球/光栅四类衍射的夫琅禾费图样对比",
+      "highlights": [
+        "四种衍射障碍物一键切换",
+        "缝宽/孔径与衍射展宽的实时反比关系"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "衍射实验控制",
+      "screenshotName": "light-diffraction"
+    }
+  },
+  {
+    "pageId": "diffraction",
+    "label": "衍射演示",
+    "meta": {
+      "tag": "波动光学",
+      "summary": "线光源+障碍物+大屏幕的简洁衍射演示",
+      "highlights": [
+        "无仪器干扰，聚焦物理本质",
+        "3D 大屏幕实时显示衍射图样"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "衍射演示控制",
+      "screenshotName": "diffraction"
+    }
+  },
+  {
     "pageId": "cyclotron",
     "label": "回旋加速器",
     "meta": {
