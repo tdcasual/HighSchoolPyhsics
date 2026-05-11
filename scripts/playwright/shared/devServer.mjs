@@ -57,8 +57,8 @@ export async function waitForViteDevServer(
   server,
   options = {},
 ) {
-  const maxAttempts = options.maxAttempts ?? 80
-  const attemptDelayMs = options.attemptDelayMs ?? 300
+  const maxAttempts = options.maxAttempts ?? 120
+  const attemptDelayMs = options.attemptDelayMs ?? 500
   const fingerprint = options.fingerprint ?? '<div id="root"></div>'
   const settleDelayMs = options.settleDelayMs ?? 120
   const fetchImpl = options.fetchImpl ?? fetch
@@ -107,13 +107,23 @@ export async function stopViteDevServer(server, options = {}) {
   const { child, logStream } = server
 
   if (child.exitCode === null) {
-    child.kill('SIGTERM')
+    // Kill the entire process group to avoid orphaned esbuild children
+    // that can hang the CI runner. Negative PID sends signal to the process group.
+    try {
+      process.kill(-child.pid, 'SIGTERM')
+    } catch {
+      child.kill('SIGTERM')
+    }
     await Promise.race([
       new Promise((resolve) => child.once('exit', resolve)),
       delayFn(gracePeriodMs),
     ])
     if (child.exitCode === null) {
-      child.kill('SIGKILL')
+      try {
+        process.kill(-child.pid, 'SIGKILL')
+      } catch {
+        child.kill('SIGKILL')
+      }
     }
   }
 

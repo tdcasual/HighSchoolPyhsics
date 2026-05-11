@@ -37,7 +37,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 15
     needs: verify
 
     steps:

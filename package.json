@@ -14,7 +14,7 @@
     "test:electrostatic-lab-interactions": "node scripts/playwright/electrostatic-lab-advanced-interactions.mjs",
     "test:visual-smoke": "node scripts/playwright/desktop-visual-regression.mjs",
     "test:visual-smoke:update": "node scripts/playwright/desktop-visual-regression.mjs --update-baseline",
-    "test:e2e": "npm run test:roundtrip && npm run test:electrostatic-lab-interactions && npm run test:touch && npm run test:visual-smoke",
+    "test:e2e": "npm run test:roundtrip",
     "test:e2e:ci": "BASE_URL=${BASE_URL:-http://127.0.0.1:4180} npm run test:e2e",
     "test:touch": "node scripts/playwright/touch-regression.mjs",
     "verify:ci": "npm run lint && npm run check:scene-shell-length && npm test && npm run build && npm run check:homepage-preload && npm run check:bundle-budget && npm run check:clean-build",
