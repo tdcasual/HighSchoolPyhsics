@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { type DiffractionMode, type DiffractionParams, type FilterColor } from '../light-diffraction/model'
 import { DiffractionScreen } from './DiffractionScreen'
@@ -48,6 +48,10 @@ function HoleObstacle({ holeDiameterM }: { holeDiameterM: number }) {
   const geometry = useMemo(() => {
     return new THREE.ExtrudeGeometry(shape, { depth: BOARD_THICKNESS, bevelEnabled: false })
   }, [shape])
+
+  useEffect(() => {
+    return () => { geometry.dispose() }
+  }, [geometry])
 
   return (
     <mesh geometry={geometry} position={[0, 0, -BOARD_THICKNESS / 2]}>

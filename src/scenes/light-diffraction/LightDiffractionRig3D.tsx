@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
-import { memo, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { CylinderGeometry } from 'three'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import { FILTER_HEX, type DiffractionMode, type DiffractionParams, type FilterColor } from './model'
@@ -88,6 +88,10 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
     geo.translate(0, 0.5, 0)
     return geo
   }, [geoDetail.cylinderRadialSegments])
+
+  useEffect(() => {
+    return () => { tubeGeo.dispose() }
+  }, [tubeGeo])
 
   // Aperture visual size mapping
   const apertureVisualScale = useMemo(() => {

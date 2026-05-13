@@ -141,7 +141,7 @@ export function InteractiveCanvas({
     })
 
     return () => window.cancelAnimationFrame(rafId)
-  }, [presentationFocusKey, resolvedPresentationFocus])
+  }, [presentationFocusKey])
 
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])
 

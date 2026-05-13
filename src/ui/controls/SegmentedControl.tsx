@@ -45,7 +45,7 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
             aria-checked={active}
             tabIndex={active ? 0 : -1}
             className={[
-              'min-h-[44px] md:min-h-[36px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
+              'min-h-[44px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
               active
                 ? 'active shadow-sm'
                 : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',

@@ -1,5 +1,5 @@
 import { Text } from '@react-three/drei/core/Text'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { ExtrudeGeometry, Shape } from 'three'
 
 type ArcMagnetProps = {
@@ -35,6 +35,11 @@ export function ArcMagnet({ polarity, position, color, labelColor }: ArcMagnetPr
     nextGeometry.translate(0, 0, -3.5)
     return nextGeometry
   }, [shape])
+
+  useEffect(() => {
+    return () => { geometry.dispose() }
+  }, [geometry])
+
   return (
     <group
       name={polarity === 'N' ? 'left-pole' : 'right-pole'}

@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
-import { memo, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { CylinderGeometry } from 'three'
 import { FILTER_HEX } from './model'
 import type { FilterColor } from './model'
@@ -95,6 +95,10 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({ screenDistance, l
     geo.translate(0, 0.5, 0)
     return geo
   }, [geoDetail.cylinderRadialSegments])
+
+  useEffect(() => {
+    return () => { tubeGeo.dispose() }
+  }, [tubeGeo])
 
   return (
     <group data-rig-scene="double-slit">

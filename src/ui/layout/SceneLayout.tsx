@@ -38,6 +38,11 @@ export function SceneLayout({
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed)
   const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed)
 
+  // Stable key for playback actions to avoid effect re-running on every render
+  const playbackActionsKey = useMemo(() => {
+    return playbackActions?.map((a) => `${a.key}:${a.label}:${a.disabled ?? false}`).join('|') ?? ''
+  }, [playbackActions])
+
   const prevChartVisibleRef = useRef(chartVisible)
 
   // Reset dismiss version when chartVisible transitions false→true.
@@ -55,7 +60,7 @@ export function SceneLayout({
       setMobilePlaybackActions(playbackActions ?? [])
       return () => setMobilePlaybackActions([])
     }
-  }, [isMobile, playbackActions?.length, playbackActions?.[0]?.key, playbackActions?.[0]?.label, playbackActions?.[0]?.disabled, playbackActions?.[1]?.key, playbackActions?.[1]?.label, playbackActions?.[1]?.disabled]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isMobile, playbackActionsKey])
 
   const showChart = chartVisible && chartDismissVersion === 0
   const showPlayback = playbackActions && playbackDismissVersion === 0
@@ -147,7 +152,7 @@ export function SceneLayout({
           {viewport}
         </div>
 
-        <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '40vh' }}>
+        <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '30vh' }}>
           {dataOverlay && (
             <div className="mobile-data-strip">
               {dataOverlay}

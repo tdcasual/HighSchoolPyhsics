@@ -16,6 +16,7 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: false,
     modulePreload: {
       resolveDependencies: (_filename, deps, context) => {
         if (context.hostType !== 'js') {
