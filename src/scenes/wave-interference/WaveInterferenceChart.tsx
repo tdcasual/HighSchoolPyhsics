@@ -100,9 +100,9 @@ export const WaveInterferenceChart = memo(function WaveInterferenceChart({ obser
         <canvas ref={canvasRef} className="wave-chart-canvas" />
       </div>
       <div className="wave-chart-legend">
-        <span style={{ color: 'rgba(239,68,68,0.8)' }}>— S₁</span>
-        <span style={{ color: 'rgba(59,130,246,0.8)' }}>— S₂</span>
-        <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>— 合成波</span>
+        <span style={{ color: 'var(--wave-s1-color)' }}>— S₁</span>
+        <span style={{ color: 'var(--wave-s2-color)' }}>— S₂</span>
+        <span style={{ color: 'var(--wave-composite-color)', fontWeight: 'bold' }}>— 合成波</span>
       </div>
     </div>
   )
