@@ -599,8 +599,8 @@ input[type="range"]::-moz-range-track {
   flex-direction: column;
   border-radius: 20px;
   background: var(--glass-bg-day);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
   border: 1px solid var(--glass-border-outer-day);
   box-shadow: var(--glass-highlight-day), var(--glass-shadow-day);
   animation: panel-slide-in 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
