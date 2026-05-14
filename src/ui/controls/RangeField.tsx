@@ -86,7 +86,7 @@ export function RangeField({
         onPointerUp={handlePointerUp}
         className="w-full"
         style={{
-          background: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, rgba(14,165,233,0.15) ${progress}%)`,
+          background: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, var(--range-track-unfilled) ${progress}%)`,
         }}
       />
       {showMinMax && (
