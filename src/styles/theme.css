@@ -18,6 +18,7 @@
   --night-border-strong: rgba(255, 255, 255, 0.12);
   --night-border-medium: rgba(255, 255, 255, 0.1);
   --night-shadow: rgba(0, 0, 0, 0.3);
+  --night-shadow-soft: rgba(0, 0, 0, 0.2);
   --night-glass-highlight: rgba(255, 255, 255, 0.04);
   --panel-highlight: inset 0 1px 0 0 var(--night-border-soft);
   --panel-highlight-subtle: inset 0 1px 0 0 var(--night-border-strong);
@@ -97,7 +98,7 @@
   color: var(--shell-ink-muted-night);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
-    0 1px 2px rgba(0, 0, 0, 0.2);
+    0 1px 2px var(--night-shadow-soft);
 }
 
 .app-shell.theme-night .scene-actions button:hover,
@@ -261,7 +262,7 @@
   --overview-shell-bg:
     linear-gradient(165deg, rgba(20, 22, 28, 0.72) 0%, rgba(18, 20, 26, 0.65) 50%, rgba(22, 24, 30, 0.62) 100%);
   --overview-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 1px 2px var(--night-shadow-soft),
     0 8px 24px rgba(0, 0, 0, 0.15),
     0 24px 64px rgba(0, 0, 0, 0.35);
   --overview-card-accent: var(--control-accent-soft);
@@ -348,7 +349,7 @@
 .app-shell.theme-night .overview-enter:hover {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 4px 12px var(--night-shadow-soft),
     0 0 0 1px var(--night-border-soft);
 }
 
