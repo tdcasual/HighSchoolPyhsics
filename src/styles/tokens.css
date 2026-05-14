@@ -107,6 +107,16 @@
   /* ── Accessibility ── */
   --skip-link-bg-night: #0c1826;
 
+  /* ── Accent Transparency Aliases (for shell.css gradients/shadows) ── */
+  --control-accent-6: rgba(37, 99, 235, 0.06);
+  --control-accent-8: rgba(37, 99, 235, 0.08);
+  --control-accent-10: rgba(37, 99, 235, 0.10);
+  --control-accent-12: rgba(37, 99, 235, 0.12);
+  --control-accent-15: rgba(37, 99, 235, 0.15);
+  --control-accent-20: rgba(37, 99, 235, 0.20);
+  --control-accent-25: rgba(37, 99, 235, 0.25);
+  --control-accent-30: rgba(37, 99, 235, 0.30);
+
   /* ── Scene Misc (Day) ── */
   --scene-loading-ink: #334155;
   --scene-missing-border: rgba(203, 213, 225, 0.5);
