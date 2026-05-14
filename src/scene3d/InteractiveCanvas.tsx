@@ -141,6 +141,7 @@ export function InteractiveCanvas({
     })
 
     return () => window.cancelAnimationFrame(rafId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- presentationFocusKey is a stable serialization of resolvedPresentationFocus
   }, [presentationFocusKey])
 
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])

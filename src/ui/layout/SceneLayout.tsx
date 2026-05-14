@@ -46,20 +46,19 @@ export function SceneLayout({
   const prevChartVisibleRef = useRef(chartVisible)
 
   // Reset dismiss version when chartVisible transitions false→true.
-  /* eslint-disable react-hooks/set-state-in-effect -- intentional sync on specific transition */
   useLayoutEffect(() => {
     if (chartVisible && !prevChartVisibleRef.current) {
       setChartDismissVersion(0)
     }
     prevChartVisibleRef.current = chartVisible
   }, [chartVisible])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (isMobile) {
       setMobilePlaybackActions(playbackActions ?? [])
       return () => setMobilePlaybackActions([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- playbackActionsKey is a stable serialization of playbackActions
   }, [isMobile, playbackActionsKey])
 
   const showChart = chartVisible && chartDismissVersion === 0
