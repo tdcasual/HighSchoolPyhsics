@@ -58,3 +58,5 @@ export function MhdGeneratorScene() {
     />
   )
 }
+
+export default MhdGeneratorScene

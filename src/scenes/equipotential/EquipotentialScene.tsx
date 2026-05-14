@@ -195,3 +195,5 @@ export function EquipotentialScene() {
     />
   )
 }
+
+export default EquipotentialScene

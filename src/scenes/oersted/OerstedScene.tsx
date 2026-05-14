@@ -96,3 +96,5 @@ export function OerstedScene() {
     />
   )
 }
+
+export default OerstedScene

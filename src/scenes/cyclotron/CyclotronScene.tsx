@@ -101,3 +101,5 @@ export function CyclotronScene() {
     />
   )
 }
+
+export default CyclotronScene

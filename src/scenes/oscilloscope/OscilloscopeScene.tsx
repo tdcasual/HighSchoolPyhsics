@@ -165,3 +165,5 @@ export function OscilloscopeScene() {
     />
   )
 }
+
+export default OscilloscopeScene

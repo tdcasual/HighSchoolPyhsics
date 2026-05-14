@@ -90,3 +90,5 @@ export function DiffractionScene() {
     />
   )
 }
+
+export default DiffractionScene

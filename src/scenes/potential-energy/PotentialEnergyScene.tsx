@@ -135,3 +135,5 @@ export function PotentialEnergyScene() {
     />
   )
 }
+
+export default PotentialEnergyScene
