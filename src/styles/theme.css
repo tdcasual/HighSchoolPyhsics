@@ -18,6 +18,7 @@
   --night-border-strong: rgba(255, 255, 255, 0.12);
   --night-border-medium: rgba(255, 255, 255, 0.1);
   --night-shadow: rgba(0, 0, 0, 0.3);
+  --night-glass-highlight: rgba(255, 255, 255, 0.04);
   --panel-highlight: inset 0 1px 0 0 var(--night-border-soft);
   --panel-highlight-subtle: inset 0 1px 0 0 var(--night-border-strong);
 }
@@ -27,7 +28,7 @@
   background: var(--night-panel-bg);
   border-color: var(--night-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 var(--night-glass-highlight),
     0 1px 2px var(--night-shadow),
     0 4px 16px var(--night-shadow);
 }
@@ -36,7 +37,7 @@
   background: var(--night-panel-bg);
   border-right-color: var(--night-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 var(--night-glass-highlight),
     4px 0 24px var(--night-shadow);
 }
 
@@ -50,7 +51,7 @@
   background: var(--night-panel-bg);
   border-color: var(--night-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 var(--night-glass-highlight),
     0 1px 2px var(--night-shadow),
     0 4px 16px var(--night-shadow);
 }
@@ -105,7 +106,7 @@
 .app-shell.theme-night .overview-link:hover {
   border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 var(--night-glass-highlight),
     0 4px 12px rgba(0, 0, 0, 0.25),
     0 0 0 1px var(--night-border-soft);
 }
