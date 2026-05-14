@@ -134,7 +134,7 @@ function App() {
     >
       <a
         href="#scene-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[#0c1826] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[var(--skip-link-bg-night)] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
       >
         跳转到主要内容
       </a>

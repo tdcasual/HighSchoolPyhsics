@@ -1,14 +1,14 @@
 .wave-chart {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--control-bg);
   border-radius: 8px;
   padding: 10px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--control-border);
 }
 
 .wave-chart h3 {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--control-ink-soft);
   margin-bottom: 6px;
 }
 
@@ -16,9 +16,9 @@
   position: relative;
   width: 100%;
   height: 160px;
-  background: #fff;
+  background: var(--control-bg);
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--control-border);
   overflow: hidden;
 }
 

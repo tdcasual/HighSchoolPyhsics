@@ -104,6 +104,9 @@
   --magazine-kicker: #94a3b8;
   --magazine-scrollbar: rgba(0, 0, 0, 0.1);
 
+  /* ── Accessibility ── */
+  --skip-link-bg-night: #0c1826;
+
   /* ── Scene Misc (Day) ── */
   --scene-loading-ink: #334155;
   --scene-missing-border: rgba(203, 213, 225, 0.5);

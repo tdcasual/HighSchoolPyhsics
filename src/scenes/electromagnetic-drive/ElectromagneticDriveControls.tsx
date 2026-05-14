@@ -7,11 +7,11 @@ export function ElectromagneticDriveControls() {
 
       <div className="scene-legend" aria-label="颜色图例">
         <span className="scene-legend-item">
-          <i className="scene-legend-dot bg-[#ff2f2f]" aria-hidden="true" />
+          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--electromagnetic-drive-legend-magnet)' }} aria-hidden="true" />
           磁铁
         </span>
         <span className="scene-legend-item">
-          <i className="scene-legend-dot bg-[#ffe431]" aria-hidden="true" />
+          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--electromagnetic-drive-legend-frame)' }} aria-hidden="true" />
           铝框
         </span>
       </div>

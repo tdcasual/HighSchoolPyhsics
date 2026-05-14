@@ -38,15 +38,15 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
 
       <div className="scene-legend" aria-label="颜色图例">
         <span className="scene-legend-item">
-          <i className="scene-legend-dot bg-[#ff2f2f]" aria-hidden="true" />
+          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--induction-legend-n)' }} aria-hidden="true" />
           N 极
         </span>
         <span className="scene-legend-item">
-          <i className="scene-legend-dot bg-[#1f3cff]" aria-hidden="true" />
+          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--induction-legend-s)' }} aria-hidden="true" />
           S 极
         </span>
         <span className="scene-legend-item">
-          <i className="scene-legend-dot bg-[#ffe431]" aria-hidden="true" />
+          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--induction-legend-current)' }} aria-hidden="true" />
           感应电流
         </span>
       </div>

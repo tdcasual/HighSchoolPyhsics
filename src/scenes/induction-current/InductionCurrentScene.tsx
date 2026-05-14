@@ -8,6 +8,7 @@ import {
   formatVerticalDirection,
 } from './model'
 import { useInductionCurrentSceneState } from './useInductionCurrentSceneState'
+import './induction-current.css'
 
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
