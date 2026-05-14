@@ -51,7 +51,7 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
                 : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',
             ].join(' ')}
             style={active ? {
-              boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.2)',
+              boxShadow: 'var(--panel-highlight-subtle)'
             } : {}}
             onClick={() => onChange(option.key)}
           >

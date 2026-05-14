@@ -15,7 +15,7 @@ export function DataReadout({ items, separatorAfter }: DataReadoutProps) {
       style={{
         background: 'var(--readout-bg)',
         border: '1px solid var(--readout-border)',
-        boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.4)',
+        boxShadow: 'var(--panel-highlight)'
       }}
     >
       <div className="flex flex-col gap-1">

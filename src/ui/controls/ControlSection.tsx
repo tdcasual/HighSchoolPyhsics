@@ -31,7 +31,7 @@ export function ControlSection({
       style={{
         background: 'var(--control-section-bg)',
         borderColor: 'var(--control-section-border)',
-        boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.4)',
+        boxShadow: 'var(--panel-highlight)'
       }}
     >
       <button

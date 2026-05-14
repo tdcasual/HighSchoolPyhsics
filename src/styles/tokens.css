@@ -107,6 +107,10 @@
   /* ── Accessibility ── */
   --skip-link-bg-night: #0c1826;
 
+  /* ── Panel Inner Highlights ── */
+  --panel-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+  --panel-highlight-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+
   /* ── Accent Transparency Aliases (for shell.css gradients/shadows) ── */
   --control-accent-6: rgba(37, 99, 235, 0.06);
   --control-accent-8: rgba(37, 99, 235, 0.08);
