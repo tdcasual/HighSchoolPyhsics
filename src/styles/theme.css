@@ -10,14 +10,21 @@
   --shell-ink-soft-night: #9ca3af;
   --shell-ink-muted-night: #d1d5db;
   --shell-bg-night: #0f1115;
-  --panel-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-  --panel-highlight-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  --night-panel-bg: rgba(20, 22, 28, 0.75);
+  --night-panel-bg-soft: rgba(20, 22, 28, 0.65);
+  --night-panel-bg-muted: rgba(20, 22, 28, 0.55);
+  --night-border: rgba(255, 255, 255, 0.08);
+  --night-border-soft: rgba(255, 255, 255, 0.06);
+  --night-border-strong: rgba(255, 255, 255, 0.12);
+  --night-border-medium: rgba(255, 255, 255, 0.1);
+  --panel-highlight: inset 0 1px 0 0 var(--night-border-soft);
+  --panel-highlight-subtle: inset 0 1px 0 0 var(--night-border-strong);
 }
 
 /* ── Night Glass Panels ── */
 .app-shell.theme-night .floating-panel {
-  background: rgba(20, 22, 28, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg);
+  border-color: var(--night-border);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.3),
@@ -25,8 +32,8 @@
 }
 
 .app-shell.theme-night .sidebar-panel {
-  background: rgba(20, 22, 28, 0.75);
-  border-right-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg);
+  border-right-color: var(--night-border);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
     4px 0 24px rgba(0, 0, 0, 0.3);
@@ -35,12 +42,12 @@
 .app-shell.theme-night .floating-panel .panel-header,
 .app-shell.theme-night .sidebar-panel .panel-header {
   color: var(--shell-ink-soft-night);
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--night-border-soft);
 }
 
 .app-shell.theme-night .app-header {
-  background: rgba(20, 22, 28, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg);
+  border-color: var(--night-border);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.3),
@@ -53,27 +60,27 @@
 
 .app-shell.theme-night .map-overlay-title-content,
 .app-shell.theme-night .map-overlay-legend {
-  background: rgba(20, 22, 28, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .region-scene-panel {
-  background: rgba(20, 22, 28, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .region-scene-panel-header {
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--night-border-soft);
 }
 
 .app-shell.theme-night .region-scene-panel-close {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--night-border);
+  background: var(--night-border);
   color: var(--shell-ink-soft-night);
 }
 
 .app-shell.theme-night .region-scene-panel-close:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--night-border-strong);
   color: var(--shell-ink-night);
 }
 
@@ -83,7 +90,7 @@
 .app-shell.theme-night .theme-switch button,
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--night-border-medium);
   background: rgba(30, 32, 40, 0.8);
   color: var(--shell-ink-muted-night);
   box-shadow:
@@ -99,7 +106,7 @@
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
+    0 0 0 1px var(--night-border-soft);
 }
 
 .app-shell.theme-night .scene-actions button.active,
@@ -109,7 +116,7 @@
   border-color: var(--action-active-border);
   color: var(--action-active-ink);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 0 var(--night-border-strong),
     0 2px 8px var(--control-accent-20);
 }
 
@@ -124,21 +131,21 @@
 
 .app-shell.theme-night .control-section-body {
   background: rgba(20, 22, 28, 0.5);
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--night-border-soft);
 }
 
 .app-shell.theme-night .mobile-bottom-panel {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .mobile-data-strip {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  background: rgba(20, 22, 28, 0.75);
+  border-bottom-color: var(--night-border);
+  background: var(--night-panel-bg);
 }
 
 .app-shell.theme-night .shortcut-help-panel {
   background: rgba(28, 30, 38, 0.92);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--night-border-medium);
 }
 
 .app-shell.theme-night .shortcut-help-header h2 {
@@ -150,7 +157,7 @@
 }
 
 .app-shell.theme-night .shortcut-help-close:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--night-border);
   color: var(--shell-ink-night);
 }
 
@@ -164,24 +171,24 @@
 
 .app-shell.theme-night .shortcut-help-group kbd {
   color: var(--shell-ink-night);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--night-border);
+  border-color: var(--night-border-strong);
 }
 
 .app-shell.theme-night .shortcut-help-btn {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--night-border-medium);
+  background: var(--night-border-soft);
   color: var(--shell-ink-soft-night);
 }
 
 .app-shell.theme-night .shortcut-help-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--night-border-strong);
   color: var(--shell-ink-night);
 }
 
 .app-shell.theme-night .readout-panel {
-  background: rgba(20, 22, 28, 0.65);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--night-panel-bg-soft);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .readout-item-label {
@@ -193,11 +200,11 @@
 }
 
 .app-shell.theme-night .readout-divider {
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--night-border-soft);
 }
 
 .app-shell.theme-night .segmented-control button {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .segmented-control button.active {
@@ -221,8 +228,8 @@
 }
 
 .app-shell.theme-night .scene-legend {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(20, 22, 28, 0.55);
+  border-color: var(--night-border);
+  background: var(--night-panel-bg-muted);
 }
 
 .app-shell.theme-night .scene-legend-item {
@@ -231,14 +238,14 @@
 
 .app-shell.theme-night .formula-input,
 .app-shell.theme-night .preset-select {
-  background: rgba(20, 22, 28, 0.65);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--night-panel-bg-soft);
+  border-color: var(--night-border-medium);
   color: var(--shell-ink-night);
 }
 
 .app-shell.theme-night .formula-help {
   color: var(--shell-ink-soft-night);
-  background: rgba(20, 22, 28, 0.55);
+  background: var(--night-panel-bg-muted);
 }
 
 /* ── Night Overview ── */
@@ -247,8 +254,8 @@
   --overview-soft-ink: #9ca3af;
   --overview-card-bg-start: rgba(20, 22, 28, 0.72);
   --overview-card-bg-end: rgba(20, 22, 28, 0.58);
-  --overview-card-border: rgba(255, 255, 255, 0.08);
-  --overview-shell-border: rgba(255, 255, 255, 0.08);
+  --overview-card-border: var(--night-border);
+  --overview-shell-border: var(--night-border);
   --overview-shell-bg:
     linear-gradient(165deg, rgba(20, 22, 28, 0.72) 0%, rgba(18, 20, 26, 0.65) 50%, rgba(22, 24, 30, 0.62) 100%);
   --overview-shadow:
@@ -258,8 +265,8 @@
   --overview-card-accent: var(--control-accent-soft);
   --overview-card-glow: rgba(37, 99, 235, 0.08);
   --overview-kicker: #9ca3af;
-  --overview-note-bg: rgba(20, 22, 28, 0.55);
-  --overview-note-border: rgba(255, 255, 255, 0.08);
+  --overview-note-bg: var(--night-panel-bg-muted);
+  --overview-note-border: var(--night-border);
   --overview-note-ink: #d1d5db;
 }
 
@@ -271,7 +278,7 @@
 .app-shell.theme-night .overview-hero {
   background:
     linear-gradient(145deg, rgba(20, 22, 28, 0.92) 0%, rgba(18, 20, 26, 0.9) 45%, rgba(22, 24, 30, 0.88) 100%);
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .overview-kicker {
@@ -279,7 +286,7 @@
 }
 
 .app-shell.theme-night .overview-hero-note {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--night-border-medium);
   background: rgba(20, 22, 28, 0.5);
 }
 
@@ -296,7 +303,7 @@
 }
 
 .app-shell.theme-night .overview-card {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .overview-card-index {
@@ -332,7 +339,7 @@
 
 .app-shell.theme-night .overview-enter {
   background: rgba(20, 22, 28, 0.7);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--night-border-strong);
   color: var(--shell-ink-muted-night);
 }
 
@@ -340,13 +347,13 @@
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
+    0 0 0 1px var(--night-border-soft);
 }
 
 .app-shell.theme-night .interaction-hint {
   color: var(--shell-ink-soft-night);
   background: rgba(15, 17, 21, 0.92);
-  border-top-color: rgba(255, 255, 255, 0.08);
+  border-top-color: var(--night-border);
 }
 
 .app-shell.theme-night .canvas-fallback {
@@ -354,8 +361,8 @@
 }
 
 .app-shell.theme-night .scene-missing {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(20, 22, 28, 0.65);
+  border-color: var(--night-border);
+  background: var(--night-panel-bg-soft);
 }
 
 .app-shell.theme-night {
@@ -368,7 +375,7 @@
 }
 
 .app-shell.theme-night .scene-missing-links button {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--night-border-medium);
   background: rgba(30, 32, 40, 0.8);
   color: var(--shell-ink-muted-night);
 }
@@ -379,7 +386,7 @@
   --magazine-ink: #e8e8e8;
   --magazine-ink-soft: #c8c8c8;
   --magazine-ink-muted: #888888;
-  --magazine-border: rgba(255, 255, 255, 0.06);
+  --magazine-border: var(--night-border-soft);
   --magazine-item-hover-bg: rgba(255, 255, 255, 0.035);
   --magazine-item-index: #9ca3af;
   --magazine-item-index-hover: #d1d5db;
@@ -392,7 +399,7 @@
   --magazine-item-arrow: #555555;
   --magazine-item-arrow-hover: #888888;
   --magazine-preview-bg: #0e0e0e;
-  --magazine-preview-border: rgba(255, 255, 255, 0.06);
+  --magazine-preview-border: var(--night-border-soft);
   --magazine-preview-meta-bg: #0a0a0a;
   --magazine-preview-placeholder: #888888;
   --magazine-preview-placeholder-title: #888888;
@@ -403,5 +410,5 @@
   --magazine-group-name: #888888;
   --magazine-group-desc: #888888;
   --magazine-kicker: #888888;
-  --magazine-scrollbar: rgba(255, 255, 255, 0.08);
+  --magazine-scrollbar: var(--night-border);
 }
