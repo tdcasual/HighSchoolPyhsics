@@ -308,4 +308,36 @@ min-h-[40px] md:min-h-[36px]  /* 或统一为 44px */
 
 ---
 
+## 修复完成记录（2026-05-14 批次）
+
+本次修复覆盖立即批 + 短期批 + 中期批共 50+ 个问题，产生 15 个提交：
+
+| 批次 | 问题 | 状态 | 修改文件 |
+|---|---|---|---|
+| 立即批 | sourcemap 泄露 | ✅ | `vite.config.ts` |
+| 立即批 | 移动端面板 40vh→30vh | ✅ | `SceneLayout.tsx` |
+| 立即批 | 硬编码颜色（ElectrostaticLabControls） | ✅ | `ElectrostaticLabControls.tsx` |
+| 立即批 | Effect 依赖陷阱（2 处） | ✅ | `InteractiveCanvas.tsx`, `SceneLayout.tsx` |
+| 立即批 | Three.js dispose 内存泄漏 | ✅ | 4 个 `*Rig3D.tsx` |
+| 立即批 | 触控目标 < 44px | ✅ | `shell.css`, `SegmentedControl.tsx` |
+| 立即批 | Checkbox aria-label | ✅ | `ElectrostaticLabControls.tsx` |
+| 短期批 | App skip link 夜间背景色 | ✅ | `App.tsx`, `tokens.css` |
+| 短期批 | shell.css range 样式全面变量化 | ✅ | `shell.css`, `tokens.css` |
+| 短期批 | wave-interference.css 图表色 | ✅ | `wave-interference.css` |
+| 短期批 | induction-current / electromagnetic-drive 图例色 | ✅ | 2 个 `*Controls.tsx`, 2 个 `.css` |
+| 短期批 | panel highlight boxShadow 变量化 | ✅ | `ControlSection.tsx`, `DataReadout.tsx`, `SegmentedControl.tsx`, `tokens.css`, `theme.css` |
+| 短期批 | RangeField 进度条颜色 | ✅ | `RangeField.tsx`, `tokens.css` |
+| 短期批 | ESLint warnings | ✅ | `InteractiveCanvas.tsx`, `SceneLayout.tsx` |
+| 中期批 | npm audit fix（6 漏洞） | ✅ | `package-lock.json` |
+| 中期批 | CSP meta tag | ✅ | `index.html` |
+| 中期批 | theme.css 颜色变量化（#2563eb/#3b82f6/#ffffff） | ✅ | `theme.css` |
+| 中期批 | Glassmorphism blur 20px→8px | ✅ | `shell.css` |
+| 中期批 | theme.css 夜间文本色批量变量化 | ✅ | `theme.css` |
+| 中期批 | theme.css 夜间 rgba 批量变量化 | ✅ | `theme.css` |
+| 长期批 | meta description + theme-color | ✅ | `index.html` |
+
+**验证状态**: `npm run verify:ci` 全绿（lint + 113 test files + build + bundle budget + clean build）
+
+---
+
 *报告更新于修复完成后*。建议优先修复 P0 项，然后按 P1 → P2 顺序推进。*
