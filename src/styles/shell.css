@@ -105,8 +105,8 @@ body {
     box-shadow 200ms ease,
     background 200ms ease;
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(0, 0, 0, 0.04);
+    inset 0 1px 0 0 var(--day-btn-highlight),
+    0 1px 2px var(--day-shadow-weak);
 }
 
 .scene-actions button:hover,
@@ -130,7 +130,7 @@ body {
   border-color: var(--action-active-border);
   color: var(--action-active-ink);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    inset 0 1px 0 0 var(--day-btn-highlight-strong),
     0 2px 8px var(--control-accent-15);
 }
 
@@ -190,7 +190,7 @@ body {
   background: var(--formula-input-bg);
   color: var(--control-ink);
   transition: border-color 150ms ease, box-shadow 150ms ease;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: inset 0 1px 2px var(--day-shadow-softer);
 }
 
 .formula-input:focus {
@@ -198,7 +198,7 @@ body {
   border-color: var(--formula-input-focus);
   box-shadow:
     0 0 0 3px var(--control-accent-10),
-    inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    inset 0 1px 2px var(--day-shadow-softer);
 }
 
 .preset-select {
@@ -211,7 +211,7 @@ body {
   color: var(--control-ink);
   cursor: pointer;
   transition: border-color 150ms ease, box-shadow 150ms ease;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: inset 0 1px 2px var(--day-shadow-softer);
 }
 
 .preset-select:focus {
@@ -332,8 +332,8 @@ body {
     border-color 200ms ease,
     box-shadow 200ms ease;
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-    0 1px 2px rgba(0, 0, 0, 0.04);
+    inset 0 1px 0 0 var(--day-btn-bg-medium),
+    0 1px 2px var(--day-shadow-weak);
 }
 
 .scene-missing-links button:hover {
@@ -662,7 +662,7 @@ input[type="range"]::-moz-range-track {
   height: 44px;
   border-radius: 999px;
   border: 1px solid var(--glass-border-outer-day);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--day-btn-highlight);
   color: var(--overview-soft-ink);
   cursor: pointer;
   font-size: 0.9rem;
@@ -672,7 +672,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .region-scene-panel-close:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--day-btn-bg-stronger);
   color: var(--overview-ink);
 }
 
@@ -719,7 +719,7 @@ input[type="range"]::-moz-range-track {
 .region-scene-item:hover {
   transform: translateY(-2px);
   border-color: var(--control-accent-30);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px var(--day-shadow-medium);
 }
 
 .region-scene-item:active {
@@ -802,8 +802,8 @@ input[type="range"]::-moz-range-track {
       border-color 200ms ease,
       box-shadow 200ms ease;
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-      0 1px 2px rgba(0, 0, 0, 0.04);
+      inset 0 1px 0 0 var(--day-btn-bg-medium),
+      0 1px 2px var(--day-shadow-weak);
   }
 
   .scene-actions-btn:hover {
@@ -965,7 +965,7 @@ input[type="range"]::-moz-range-track {
   backdrop-filter: blur(8px) saturate(1.2);
   -webkit-backdrop-filter: blur(8px) saturate(1.2);
   border-right: 1px solid var(--glass-border-outer-day);
-  box-shadow: var(--glass-highlight-day), 4px 0 24px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--glass-highlight-day), 4px 0 24px var(--day-shadow-softer);
 }
 
 @supports not (backdrop-filter: blur(8px)) {
@@ -1437,7 +1437,7 @@ input[type="range"]::-moz-range-track {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--day-overlay-bg);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -1449,7 +1449,7 @@ input[type="range"]::-moz-range-track {
   background: var(--glass-bg-day, rgba(255, 255, 255, 0.92));
   border: 1px solid var(--glass-border-outer-day, rgba(200, 210, 220, 0.45));
   border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 48px var(--day-shadow-strong);
   padding: 1.25rem;
 }
 
@@ -1530,9 +1530,9 @@ input[type="range"]::-moz-range-track {
   font-weight: 600;
   color: var(--shell-ink-day, #0f172a);
   background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--day-border);
   border-radius: 5px;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 0 var(--day-border-soft);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1542,9 +1542,9 @@ input[type="range"]::-moz-range-track {
   height: 44px;
   padding: 0;
   margin-left: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--day-border);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--day-btn-bg-medium);
   color: var(--control-ink-muted, #64748b);
   font-size: 0.875rem;
   font-weight: 600;
@@ -1556,6 +1556,6 @@ input[type="range"]::-moz-range-track {
 }
 
 .shortcut-help-btn:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--day-btn-bg-strong);
   color: var(--shell-ink-day, #0f172a);
 }

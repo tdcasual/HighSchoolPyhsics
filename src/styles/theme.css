@@ -22,6 +22,17 @@
   --night-glass-highlight: rgba(255, 255, 255, 0.04);
   --panel-highlight: inset 0 1px 0 0 var(--night-border-soft);
   --panel-highlight-subtle: inset 0 1px 0 0 var(--night-border-strong);
+  --night-action-bg: rgba(30, 32, 40, 0.8);
+  --night-btn-inner-highlight: rgba(255, 255, 255, 0.03);
+  --night-action-hover-border: rgba(255, 255, 255, 0.18);
+  --night-shadow-medium: rgba(0, 0, 0, 0.25);
+  --night-panel-bg-50: rgba(20, 22, 28, 0.5);
+  --night-shortcut-bg: rgba(28, 30, 38, 0.92);
+  --night-segment-bg: rgba(30, 32, 40, 0.6);
+  --night-segment-hover-bg: rgba(40, 42, 52, 0.7);
+  --night-border-lighter: rgba(255, 255, 255, 0.15);
+  --night-border-lighter-strong: rgba(255, 255, 255, 0.2);
+  --night-tooltip-bg: rgba(15, 17, 21, 0.92);
 }
 
 /* ── Night Glass Panels ── */
@@ -94,10 +105,10 @@
 .app-shell.theme-night .overview-link,
 .app-shell.theme-night .overview-card button {
   border-color: var(--night-border-medium);
-  background: rgba(30, 32, 40, 0.8);
+  background: var(--night-action-bg);
   color: var(--shell-ink-muted-night);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 0 var(--night-btn-inner-highlight),
     0 1px 2px var(--night-shadow-soft);
 }
 
@@ -105,10 +116,10 @@
 .app-shell.theme-night .scene-actions-btn:hover,
 .app-shell.theme-night .theme-switch button:hover,
 .app-shell.theme-night .overview-link:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--night-action-hover-border);
   box-shadow:
     inset 0 1px 0 0 var(--night-glass-highlight),
-    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 4px 12px var(--night-shadow-medium),
     0 0 0 1px var(--night-border-soft);
 }
 
@@ -133,7 +144,7 @@
 }
 
 .app-shell.theme-night .control-section-body {
-  background: rgba(20, 22, 28, 0.5);
+  background: var(--night-panel-bg-50);
   border-color: var(--night-border-soft);
 }
 
@@ -147,7 +158,7 @@
 }
 
 .app-shell.theme-night .shortcut-help-panel {
-  background: rgba(28, 30, 38, 0.92);
+  background: var(--night-shortcut-bg);
   border-color: var(--night-border-medium);
 }
 
@@ -217,12 +228,12 @@
 }
 
 .app-shell.theme-night .segmented-control button:not(.active) {
-  background: rgba(30, 32, 40, 0.6);
+  background: var(--night-segment-bg);
   color: var(--shell-ink-soft-night);
 }
 
 .app-shell.theme-night .segmented-control button:not(.active):hover {
-  background: rgba(40, 42, 52, 0.7);
+  background: var(--night-segment-hover-bg);
 }
 
 /* ── Night Scene Core ── */
@@ -290,7 +301,7 @@
 
 .app-shell.theme-night .overview-hero-note {
   border-color: var(--night-border-medium);
-  background: rgba(20, 22, 28, 0.5);
+  background: var(--night-panel-bg-50);
 }
 
 .app-shell.theme-night .overview-note-title {
@@ -333,7 +344,7 @@
 }
 
 .app-shell.theme-night .overview-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--night-border-lighter);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.15),
     0 8px 24px rgba(0, 0, 0, 0.1),
@@ -347,7 +358,7 @@
 }
 
 .app-shell.theme-night .overview-enter:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--night-border-lighter-strong);
   box-shadow:
     0 4px 12px var(--night-shadow-soft),
     0 0 0 1px var(--night-border-soft);
@@ -355,7 +366,7 @@
 
 .app-shell.theme-night .interaction-hint {
   color: var(--shell-ink-soft-night);
-  background: rgba(15, 17, 21, 0.92);
+  background: var(--night-tooltip-bg);
   border-top-color: var(--night-border);
 }
 
@@ -379,7 +390,7 @@
 
 .app-shell.theme-night .scene-missing-links button {
   border-color: var(--night-border-medium);
-  background: rgba(30, 32, 40, 0.8);
+  background: var(--night-action-bg);
   color: var(--shell-ink-muted-night);
 }
 

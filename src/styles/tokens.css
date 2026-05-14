@@ -34,6 +34,19 @@
   --action-active-ink: #ffffff;
   --action-pressed-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
 
+  /* ── Day Shadows & Borders (reused in shell.css) ── */
+  --day-shadow-softer: rgba(0, 0, 0, 0.03);
+  --day-shadow-weak: rgba(0, 0, 0, 0.04);
+  --day-shadow-medium: rgba(0, 0, 0, 0.06);
+  --day-shadow-strong: rgba(0, 0, 0, 0.18);
+  --day-border: rgba(0, 0, 0, 0.1);
+  --day-border-soft: rgba(0, 0, 0, 0.08);
+  --day-btn-highlight: rgba(255, 255, 255, 0.6);
+  --day-btn-bg-medium: rgba(255, 255, 255, 0.5);
+  --day-btn-bg-strong: rgba(255, 255, 255, 0.8);
+  --day-btn-bg-stronger: rgba(255, 255, 255, 0.9);
+  --day-overlay-bg: rgba(0, 0, 0, 0.5);
+
   /* ── Control Elements (Day) ── */
   --control-bg: rgba(255, 255, 255, 0.72);
   --control-border: rgba(203, 213, 225, 0.55);
