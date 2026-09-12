@@ -16,7 +16,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#818cf8',
     position: [4, 0, 3],
     description: '电场、电势与电荷分布',
-    scenePageIds: ['equipotential', 'potential-energy', 'electrostatic-lab', 'equipotential-dipole'],
+    scenePageIds: ['equipotential', 'potential-energy', 'electrostatic-lab', 'equipotential-dipole', 'same-charge'],
   },
   {
     id: 'electromagnetism',

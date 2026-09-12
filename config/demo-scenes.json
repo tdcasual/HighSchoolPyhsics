@@ -943,5 +943,32 @@
       "readyText": "双星系统动力学",
       "screenshotName": "binary-stars"
     }
+  },
+  {
+    "pageId": "same-charge",
+    "label": "等量同种电荷电场与等势面",
+    "meta": {
+      "tag": "静电场",
+      "summary": "等量同种电荷的电场线、等势面和中垂线对称性",
+      "highlights": [
+        "两颗同号电荷、电场线发散与等势面拓扑同屏呈现",
+        "电荷间距、极性和探针坐标改变时 E₁、E₂、合场强与电势实时更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "等量同种电荷场",
+      "screenshotName": "same-charge"
+    }
   }
 ]
