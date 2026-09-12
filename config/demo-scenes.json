@@ -700,5 +700,32 @@
       "readyText": "火车转弯受力分析模型",
       "screenshotName": "train-turning"
     }
+  },
+  {
+    "pageId": "faraday-disc",
+    "label": "法拉第圆盘发电机原理",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "转动铜盘切割磁感线、动生电动势与外电路能量守恒",
+      "highlights": [
+        "圆盘、中心/边缘电刷、磁场和外电路结构同步展示",
+        "B、ω、R、电阻和开关改变时 E、I、P、M 实时联动"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "法拉第圆盘发电机实验装置",
+      "screenshotName": "faraday-disc"
+    }
   }
 ]

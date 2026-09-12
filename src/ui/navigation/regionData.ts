@@ -41,6 +41,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
       'rotational-emf',
       'alternator',
       'generator-core',
+      'faraday-disc',
       'mhd',
     ],
   },

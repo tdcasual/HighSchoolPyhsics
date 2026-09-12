@@ -50,6 +50,7 @@ const SCENE_REGION_MAP = {
   'rotational-emf': '电磁感应',
   alternator: '电磁感应',
   'generator-core': '电磁感应',
+  'faraday-disc': '电磁感应',
   'force-composition': '力学',
   'dynamic-circle': '电磁学',
   'cyclotron-core': '电磁学',
