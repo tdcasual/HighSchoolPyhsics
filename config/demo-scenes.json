@@ -646,5 +646,32 @@
       "readyText": "简谐横波传播状态模型",
       "screenshotName": "wave-state"
     }
+  },
+  {
+    "pageId": "orthogonal-em-wave",
+    "label": "电磁波空间正交传播模型",
+    "meta": {
+      "tag": "电磁波传播",
+      "summary": "电场、磁场与传播方向的三维正交模型及二维点叉投影",
+      "highlights": [
+        "3D、XY、XZ、YZ 四种视角一键切换",
+        "波长、速度和场强改变时公式、波形与投影同步更新"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "正交电磁波模型",
+      "screenshotName": "orthogonal-em-wave"
+    }
   }
 ]
