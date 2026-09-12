@@ -49,6 +49,7 @@ const SCENE_REGION_MAP = {
   'rotational-emf': '电磁感应',
   alternator: '电磁感应',
   'generator-core': '电磁感应',
+  'force-composition': '力学',
   'ticker-timer': '力学',
 }
 

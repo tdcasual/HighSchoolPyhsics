@@ -538,5 +538,32 @@
       "readyText": "正弦式交变电流：发电机核心模型",
       "screenshotName": "generator-core"
     }
+  },
+  {
+    "pageId": "force-composition",
+    "label": "力的合成与分解",
+    "meta": {
+      "tag": "力学",
+      "summary": "平行四边形定则、合力范围与正交/按效果分解的矢量模型",
+      "highlights": [
+        "四种核心教学模式一键切换",
+        "分力、夹角和分解结果实时联动"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "力的合成与分解",
+      "screenshotName": "force-composition"
+    }
   }
 ]
