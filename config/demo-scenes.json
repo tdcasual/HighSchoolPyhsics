@@ -673,5 +673,32 @@
       "readyText": "正交电磁波模型",
       "screenshotName": "orthogonal-em-wave"
     }
+  },
+  {
+    "pageId": "train-turning",
+    "label": "火车转弯受力分析模型",
+    "meta": {
+      "tag": "圆周运动",
+      "summary": "倾斜轨道列车受力、向心力来源与临界安全速度模型",
+      "highlights": [
+        "受力剖面、矢量平移合成和俯视轨迹同步观察",
+        "速度、倾角、半径改变时 v₀ 与侧向力实时联动"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "火车转弯受力分析模型",
+      "screenshotName": "train-turning"
+    }
   }
 ]

@@ -55,6 +55,7 @@ const SCENE_REGION_MAP = {
   'cyclotron-core': '电磁学',
   'orthogonal-em-wave': '电磁学',
   'ticker-timer': '力学',
+  'train-turning': '力学',
 }
 
 export function buildDemoCatalog(scenes) {
