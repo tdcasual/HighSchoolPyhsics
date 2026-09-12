@@ -619,5 +619,32 @@
       "readyText": "回旋加速器核心结构与原理",
       "screenshotName": "cyclotron-core"
     }
+  },
+  {
+    "pageId": "wave-state",
+    "label": "简谐横波传播状态模型",
+    "meta": {
+      "tag": "波动传播",
+      "summary": "简谐横波传播与介质质点振动状态的时空模型",
+      "highlights": [
+        "波形传播方向与质点竖直振动同步观察",
+        "微平移虚线、速度方向和回复力方向可独立显示"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "简谐横波传播状态模型",
+      "screenshotName": "wave-state"
+    }
   }
 ]

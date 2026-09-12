@@ -51,7 +51,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#2dd4bf',
     position: [4, 0, -4],
     description: '机械波、波形与振动合成',
-    scenePageIds: ['double-slit', 'wedge-interference', 'wave-interference', 'light-diffraction', 'diffraction', 'oscilloscope', 'oscilloscope-3d'],
+    scenePageIds: ['double-slit', 'wedge-interference', 'wave-interference', 'light-diffraction', 'diffraction', 'oscilloscope', 'oscilloscope-3d', 'wave-state'],
   },
   {
     id: 'mechanics',
