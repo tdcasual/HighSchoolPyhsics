@@ -781,5 +781,32 @@
       "readyText": "理想气体等容变化（查理定律）",
       "screenshotName": "ideal-gas-isochoric"
     }
+  },
+  {
+    "pageId": "projectile-data-analysis",
+    "label": "平抛实验数据还原与轨迹分析",
+    "meta": {
+      "tag": "抛体运动",
+      "summary": "平抛轨迹、分运动速度与频闪实验数据还原",
+      "highlights": [
+        "O-A-B-C-D 等时频闪点与抛物线轨迹同步显示",
+        "v₀、g、频闪周期改变时位移差分和轨迹方程实时更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "平抛实验数据还原与轨迹分析",
+      "screenshotName": "projectile-data-analysis"
+    }
   }
 ]

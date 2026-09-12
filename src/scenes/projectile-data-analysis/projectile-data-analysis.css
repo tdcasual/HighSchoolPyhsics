@@ -1,0 +1,42 @@
+.projectile-data-analysis-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
+.projectile-data-analysis-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
+.projectile-data-analysis-data-card, .projectile-data-analysis-force-card { display: grid; gap: 0.35rem; padding: 0.7rem 0.8rem; border-left: 3px solid #1683ea; border-radius: 8px; background: rgba(235, 243, 252, 0.84); }
+.projectile-data-analysis-data-card p { display: flex; justify-content: space-between; gap: 0.8rem; margin: 0; font-size: 0.75rem; }
+.projectile-data-analysis-data-card span { color: var(--control-ink-muted); }
+.projectile-data-analysis-data-card strong { color: var(--control-ink); text-align: right; font-family: 'SF Mono', Menlo, monospace; }
+.projectile-data-analysis-force-card { border-left-color: #7036bd; grid-template-columns: auto 1fr; align-items: center; }
+.projectile-data-analysis-force-card p { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; }
+.projectile-data-analysis-force-dot { grid-row: span 2; width: 0.82rem; height: 0.82rem; border-radius: 50%; background: #7036bd; }
+.projectile-data-analysis-note { margin: 0; color: var(--control-ink-muted); font-size: 0.72rem; line-height: 1.45; }
+.projectile-data-analysis-telemetry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem 0.8rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
+.projectile-data-analysis-telemetry p { display: flex; justify-content: space-between; gap: 0.65rem; margin: 0; font-size: 0.78rem; }
+.projectile-data-analysis-telemetry span { color: #7a6e62; }
+.projectile-data-analysis-telemetry strong { color: #2e2218; font-family: 'SF Mono', Menlo, monospace; text-align: right; }
+.projectile-data-analysis-telemetry .projectile-data-analysis-conclusion { grid-column: 1 / -1; display: grid; gap: 0.18rem; }
+.projectile-data-analysis-telemetry .projectile-data-analysis-conclusion strong { text-align: left; font-family: inherit; line-height: 1.42; }
+.projectile-data-analysis-chart-shell { display: grid; gap: 0.58rem; min-width: 320px; }
+.projectile-data-analysis-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.projectile-data-analysis-chart-heading h3 { margin: 0; font-size: 1.06rem; }
+.projectile-data-analysis-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
+.projectile-data-analysis-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
+.projectile-data-analysis-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
+.projectile-data-analysis-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
+.projectile-data-analysis-chart text { fill: #8a7e72; font-size: 10px; }
+.projectile-data-analysis-curve { fill: none; stroke: #ef3948; stroke-width: 2.5; }
+.projectile-data-analysis-point { fill: #ffbd17; stroke: #5b4a00; stroke-width: 0.8; }
+.projectile-data-analysis-current { fill: #1683ea; stroke: #e9f5ff; stroke-width: 1.2; }
+.projectile-data-analysis-label { fill: #ef3948 !important; font-weight: 700; }
+.projectile-data-analysis-legend { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
+.projectile-data-analysis-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
+.projectile-data-analysis-legend-dot.curve { background: #ef3948; }
+.projectile-data-analysis-legend-dot.point { background: #ffbd17; }
+.projectile-data-analysis-legend-dot.current { background: #1683ea; }
+.app-shell.theme-night .projectile-data-analysis-data-card, .app-shell.theme-night .projectile-data-analysis-force-card { background: rgba(30, 43, 60, 0.84); }
+.app-shell.theme-night .projectile-data-analysis-telemetry { border-color: rgba(100, 110, 130, 0.5); background: rgba(24, 30, 44, 0.84); color: #e0d8cc; }
+.app-shell.theme-night .projectile-data-analysis-telemetry span { color: #a0988c; }
+.app-shell.theme-night .projectile-data-analysis-telemetry strong { color: #f0e8dc; }
+.app-shell.theme-night .projectile-data-analysis-chart { background: rgba(18, 24, 36, 0.65); }
+.app-shell.theme-night .projectile-data-analysis-chart text { fill: #b8b0a4; }
+.app-shell.theme-night .projectile-data-analysis-grid line { stroke: rgba(184, 196, 216, 0.11); }
+.app-shell.theme-night .projectile-data-analysis-axis { stroke: rgba(184, 196, 216, 0.25); }
+@media (max-width: 900px) { .projectile-data-analysis-chart-heading { flex-direction: column; align-items: flex-start; } }
