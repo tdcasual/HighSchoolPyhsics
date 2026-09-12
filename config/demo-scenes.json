@@ -808,5 +808,32 @@
       "readyText": "平抛实验数据还原与轨迹分析",
       "screenshotName": "projectile-data-analysis"
     }
+  },
+  {
+    "pageId": "bullet-block",
+    "label": "子弹打木块力学模型",
+    "meta": {
+      "tag": "动量守恒",
+      "summary": "子弹嵌入木块的非弹性碰撞与机械能转化",
+      "highlights": [
+        "光滑水平面、碰撞嵌入和共速后三阶段动画",
+        "动量守恒、动能损失、内能和 v-t 图像实时联动"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "子弹打木块力学模型",
+      "screenshotName": "bullet-block"
+    }
   }
 ]
