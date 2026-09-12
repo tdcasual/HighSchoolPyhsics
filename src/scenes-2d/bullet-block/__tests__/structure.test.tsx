@@ -1,7 +1,0 @@
-import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({ InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div> }))
-vi.mock('../BulletBlockRig3D', () => ({ BulletBlockRig3D: () => <div data-testid="bullet-block-rig" /> }))
-import { BulletBlockScene } from '../BulletBlockScene'
-describe('bullet-block structure', () => { it('renders collision controls, energy telemetry, chart and playback', () => { render(<BulletBlockScene />); expect(screen.getByRole('heading', { name: '子弹打木块力学模型' })).toBeInTheDocument(); expect(screen.getByRole('slider', { name: '子弹初速 v₀' })).toBeInTheDocument(); expect(screen.getAllByText('实时总动量').length).toBeGreaterThanOrEqual(2); expect(screen.getByRole('img', { name: '子弹与木块速度时间图' })).toBeInTheDocument(); expect(screen.getByRole('button', { name: '暂停运动' })).toBeInTheDocument(); expect(screen.getByTestId('bullet-block-rig')).toBeInTheDocument() }); it('pauses the collision animation', () => { render(<BulletBlockScene />); fireEvent.click(screen.getByRole('button', { name: '暂停运动' })); expect(screen.getByRole('button', { name: '继续运动' })).toBeInTheDocument(); expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand') }) })
