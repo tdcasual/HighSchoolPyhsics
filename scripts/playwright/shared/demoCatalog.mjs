@@ -62,6 +62,7 @@ const SCENE_REGION_MAP = {
   'projectile-data-analysis': '力学',
   'bullet-block': '力学',
   'centripetal-factors': '力学',
+  'equipotential-dipole': '静电学',
 }
 
 export function buildDemoCatalog(scenes) {

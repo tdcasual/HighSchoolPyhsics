@@ -862,5 +862,32 @@
       "readyText": "向心力演示仪",
       "screenshotName": "centripetal-factors"
     }
+  },
+  {
+    "pageId": "equipotential-dipole",
+    "label": "等量异种电荷电场线与等势面模型",
+    "meta": {
+      "tag": "静电场",
+      "summary": "等量异种电荷的电场线、等势面和场强矢量合成",
+      "highlights": [
+        "正负电荷、电场线流动、等势剖面和探针读数同屏联动",
+        "探针位置与电荷间距改变时 E₁、E₂、合场强和电势实时更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "等量异种电荷模型",
+      "screenshotName": "equipotential-dipole"
+    }
   }
 ]
