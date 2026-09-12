@@ -835,5 +835,32 @@
       "readyText": "子弹打木块力学模型",
       "screenshotName": "bullet-block"
     }
+  },
+  {
+    "pageId": "centripetal-factors",
+    "label": "向心力影响因素探究实验",
+    "meta": {
+      "tag": "圆周运动",
+      "summary": "控制质量、半径与角速度，观察向心力测量与塔轮传动",
+      "highlights": [
+        "弹簧测力标尺、塔轮皮带和圆周受力矢量三维联动",
+        "质量、半径、角速度及传动比切换时公式与关系图同步更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "向心力演示仪",
+      "screenshotName": "centripetal-factors"
+    }
   }
 ]

@@ -61,6 +61,7 @@ const SCENE_REGION_MAP = {
   'ideal-gas-isochoric': '热学',
   'projectile-data-analysis': '力学',
   'bullet-block': '力学',
+  'centripetal-factors': '力学',
 }
 
 export function buildDemoCatalog(scenes) {
