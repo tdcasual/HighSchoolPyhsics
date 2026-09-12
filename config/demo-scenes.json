@@ -543,7 +543,7 @@
     "pageId": "force-composition",
     "label": "力的合成与分解",
     "meta": {
-      "tag": "力学",
+      "tag": "矢量运算",
       "summary": "平行四边形定则、合力范围与正交/按效果分解的矢量模型",
       "highlights": [
         "四种核心教学模式一键切换",
@@ -564,6 +564,33 @@
     "playwright": {
       "readyText": "力的合成与分解",
       "screenshotName": "force-composition"
+    }
+  },
+  {
+    "pageId": "dynamic-circle",
+    "label": "动态圆·三法破临界",
+    "meta": {
+      "tag": "磁场边界问题",
+      "summary": "带电粒子在有界匀强磁场中的放缩圆、旋转圆、平移圆与临界边界",
+      "highlights": [
+        "四种动态圆方法与直线、三角形、圆形边界切换",
+        "轨道半径、回旋周期、偏转角和临界状态实时联动"
+      ],
+      "tone": "cyclotron"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "动态圆 · 三法破临界",
+      "screenshotName": "dynamic-circle"
     }
   }
 ]
