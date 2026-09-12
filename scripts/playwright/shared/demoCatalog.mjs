@@ -64,6 +64,7 @@ const SCENE_REGION_MAP = {
   'centripetal-factors': '力学',
   'equipotential-dipole': '静电学',
   'force-parallelogram': '力学',
+  'binary-stars': '力学',
 }
 
 export function buildDemoCatalog(scenes) {

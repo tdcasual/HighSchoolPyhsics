@@ -916,5 +916,32 @@
       "readyText": "验证力的平行四边形定则",
       "screenshotName": "force-parallelogram"
     }
+  },
+  {
+    "pageId": "binary-stars",
+    "label": "双星系统运动轨道-万有引力定律与航天",
+    "meta": {
+      "tag": "万有引力",
+      "summary": "双星绕质心同周期运动及质量—轨道半径反比关系",
+      "highlights": [
+        "两颗星、质心 O、连杆距离 L、轨道和速度/引力矢量动态联动",
+        "质量与星际距离调节时 r₁、r₂、ω、万有引力和关系图同步更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "双星系统动力学",
+      "screenshotName": "binary-stars"
+    }
   }
 ]
