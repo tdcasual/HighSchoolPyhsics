@@ -484,5 +484,32 @@
       "readyText": "交流发电机控制",
       "screenshotName": "alternator"
     }
+  },
+  {
+    "pageId": "oscilloscope-3d",
+    "label": "3D 示波器与波形测量",
+    "meta": {
+      "tag": "波形测量",
+      "summary": "电子枪、正交偏转板与荧光屏的结构、扫描和 X-Y 合成模型",
+      "highlights": [
+        "结构认知与电子束路径点击讲解",
+        "触发扫描、VOLTS/DIV、TIME/DIV 与 X-Y 轨迹"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "3D 示波器与波形测量",
+      "screenshotName": "oscilloscope-3d"
+    }
   }
 ]
