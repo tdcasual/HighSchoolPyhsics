@@ -889,5 +889,32 @@
       "readyText": "等量异种电荷模型",
       "screenshotName": "equipotential-dipole"
     }
+  },
+  {
+    "pageId": "force-parallelogram",
+    "label": "验证力的平行四边形定则",
+    "meta": {
+      "tag": "力的合成",
+      "summary": "双力拉伸、平行四边形作图和等效单力实验验证",
+      "highlights": [
+        "结点 O、F₁/F₂ 分力、理论合力 F 与实测 F′ 同屏呈现",
+        "绘制—合成—对比三步实验流程与误差读数、角度关系图联动"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "验证力的平行四边形定则",
+      "screenshotName": "force-parallelogram"
+    }
   }
 ]
