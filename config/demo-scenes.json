@@ -511,5 +511,32 @@
       "readyText": "3D 示波器与波形测量",
       "screenshotName": "oscilloscope-3d"
     }
+  },
+  {
+    "pageId": "generator-core",
+    "label": "正弦式交变电流：发电机核心模型",
+    "meta": {
+      "tag": "电磁感应",
+      "summary": "旋转线圈中磁通量与感应电动势的相位关系",
+      "highlights": [
+        "N/S 磁极、线圈、法向量与速度矢量联动",
+        "磁通量余弦与电动势正弦图像同步追踪"
+      ],
+      "tone": "mhd"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "正弦式交变电流：发电机核心模型",
+      "screenshotName": "generator-core"
+    }
   }
 ]

@@ -40,6 +40,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
       'electromagnetic-drive',
       'rotational-emf',
       'alternator',
+      'generator-core',
       'mhd',
     ],
   },

@@ -1,0 +1,36 @@
+import type { ReactNode } from 'react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../../scene3d/InteractiveCanvas', () => ({
+  InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div>,
+}))
+
+vi.mock('../GeneratorCoreRig3D', () => ({ GeneratorCoreRig3D: () => <div data-testid="generator-core-rig" /> }))
+
+import { GeneratorCoreScene } from '../GeneratorCoreScene'
+
+describe('generator-core structure', () => {
+  it('renders the model, telemetry, phase chart and playback actions', () => {
+    render(<GeneratorCoreScene />)
+    expect(screen.getByRole('heading', { name: '正弦式交变电流：发电机核心模型' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '模型结构' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '相位分析' })).toBeInTheDocument()
+    expect(screen.getByText('磁通量与感应电动势')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '发电机磁通量和感应电动势相位图' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '暂停旋转' })).toBeInTheDocument()
+    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
+    expect(screen.getByTestId('generator-core-rig')).toBeInTheDocument()
+    expect(screen.getByText('中性面')).toBeInTheDocument()
+    expect(screen.getByLabelText('旋转相位 θ')).toBeInTheDocument()
+  })
+
+  it('switches to phase analysis and pauses the animation', () => {
+    render(<GeneratorCoreScene />)
+    fireEvent.click(screen.getByRole('radio', { name: '相位分析' }))
+    expect(screen.getByText(/磁通量 Φ = Φₘ cosθ/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '暂停旋转' }))
+    expect(screen.getByRole('button', { name: '继续旋转' })).toBeInTheDocument()
+    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
+  })
+})
