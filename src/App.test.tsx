@@ -33,8 +33,7 @@ describe('App shell', () => {
     expect(screen.getByText('电磁学')).toBeInTheDocument()
     expect(screen.getAllByText('电磁感应')[0]).toBeInTheDocument()
     expect(screen.getByText('波动与振动')).toBeInTheDocument()
-    // Regions without scenes are hidden in magazine layout
-    expect(screen.queryByText('力学')).not.toBeInTheDocument()
+    expect(screen.getByText('力学')).toBeInTheDocument()
     expect(screen.queryByText('热学')).not.toBeInTheDocument()
   })
 
@@ -170,16 +169,17 @@ describe('App shell', () => {
         hasWorker: false,
         hasPointerEvents: true,
         hasWebGL2: false,
+        hasWebGL1: false,
         supported: false,
-        missing: ['Worker', 'WebGL2'],
+        missing: ['Worker', 'WebGL'],
       })
 
     render(<App />)
 
     expect(screen.getByRole('heading', { name: '运行环境不支持' })).toBeInTheDocument()
-    expect(screen.getByText('当前浏览器不满足 3D 演示运行要求。')).toBeInTheDocument()
+    expect(screen.getByText('当前窗口没有可用的 3D 图形接口，所以演示被拦住了。')).toBeInTheDocument()
     expect(screen.getByText('Worker')).toBeInTheDocument()
-    expect(screen.getByText('WebGL2')).toBeInTheDocument()
+    expect(screen.getByText('WebGL')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '教学动画演示' })).not.toBeInTheDocument()
   })
 })

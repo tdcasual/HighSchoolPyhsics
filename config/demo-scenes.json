@@ -432,6 +432,33 @@
     }
   },
   {
+    "pageId": "ticker-timer",
+    "label": "打点计时器",
+    "meta": {
+      "tag": "力学计时",
+      "summary": "电磁与电火花打点计时器对照，纸带点迹实时打印",
+      "highlights": [
+        "两种计时器结构、电源与阻力对照",
+        "通电后振针/电火花按 0.02 s 在纸带上打点"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "打点计时器控制",
+      "screenshotName": "ticker-timer"
+    }
+  },
+  {
     "pageId": "alternator",
     "label": "交流发电机",
     "meta": {

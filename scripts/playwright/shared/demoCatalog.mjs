@@ -47,6 +47,7 @@ const SCENE_REGION_MAP = {
   'electromagnetic-drive': '电磁感应',
   'rotational-emf': '电磁感应',
   alternator: '电磁感应',
+  'ticker-timer': '力学',
 }
 
 export function buildDemoCatalog(scenes) {

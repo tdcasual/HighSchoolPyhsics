@@ -2,23 +2,12 @@ import { OrbitControls } from '@react-three/drei/core/OrbitControls'
 import { Canvas } from '@react-three/fiber'
 import { useAppStore } from '../store/useAppStore'
 import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile } from '../app/touchProfile'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  type ComponentProps,
-  type PropsWithChildren,
-} from 'react'
+import { useCallback, useEffect, useMemo, useRef, type ComponentProps, type PropsWithChildren } from 'react'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
 import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
-import {
-  DEFAULT_ADAPTIVE_FRAMING,
-  resolveAdaptiveFramingTarget,
-  type AdaptiveFramingOptions,
-} from './adaptiveFraming'
+import { DEFAULT_ADAPTIVE_FRAMING, resolveAdaptiveFramingTarget, type AdaptiveFramingOptions } from './adaptiveFraming'
 import {
   resolvePresentationCameraDistanceHint,
   resolvePresentationCameraTarget,
@@ -56,16 +45,16 @@ export function InteractiveCanvas({
 }: InteractiveCanvasProps) {
   const activeScenePath = useAppStore((state) => state.activeScenePath)
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
-  const adaptiveBaseTargetRef = useRef<{ x: number; y: number; z: number } | null>(null)
+  const adaptiveBaseTargetRef = useRef<{
+    x: number
+    y: number
+    z: number
+  } | null>(null)
   const adaptiveZoomStartDistanceRef = useRef<number | null>(null)
   const previousDistanceRef = useRef<number | null>(null)
   const adaptiveInternalChangeRef = useRef(false)
   const presentationLockUntilRef = useRef(0)
-  const {
-    onChange: controlsOnChange,
-    onStart: controlsOnStart,
-    ...controlsProps
-  } = controls ?? {}
+  const { onChange: controlsOnChange, onStart: controlsOnStart, ...controlsProps } = controls ?? {}
   const targetProp = controls?.target
   const targetKey =
     Array.isArray(targetProp) && targetProp.length === 3
@@ -145,6 +134,7 @@ export function InteractiveCanvas({
   }, [presentationFocusKey])
 
   const quality = useMemo(() => resolveCanvasQualityProfile(), [])
+  const shadowsEnabled = resolvePerformanceProfile().shadowMapSize !== null
 
   const handleOrbitControlsStart = useCallback(
     (event?: Parameters<NonNullable<typeof controlsOnStart>>[0]) => {
@@ -190,8 +180,7 @@ export function InteractiveCanvas({
         return
       }
 
-      const zoomStartDistance =
-        adaptiveFramingOptions.zoomStartDistance ?? adaptiveZoomStartDistanceRef.current
+      const zoomStartDistance = adaptiveFramingOptions.zoomStartDistance ?? adaptiveZoomStartDistanceRef.current
       const zoomEndDistance = adaptiveFramingOptions.zoomEndDistance ?? orbit.maxDistance
       const zoomInEndDistance = adaptiveFramingOptions.zoomInEndDistance ?? orbit.minDistance
       if (!Number.isFinite(zoomEndDistance)) {
@@ -270,17 +259,17 @@ export function InteractiveCanvas({
       data-presentation-focus-mode={resolvedPresentationFocus?.mode ?? 'overview'}
       data-canvas-gesture-scope={touchProfile.canvasGestureScope}
     >
-      <div
-        className="interactive-canvas-surface"
-        data-canvas-gesture-scope={touchProfile.canvasGestureScope}
-      >
+      <div className="interactive-canvas-surface" data-canvas-gesture-scope={touchProfile.canvasGestureScope}>
         <Canvas
           camera={camera}
           frameloop={frameloop}
           dpr={quality.dpr}
-          gl={{ antialias: quality.antialias, powerPreference: 'high-performance' }}
+          gl={{
+            antialias: quality.antialias,
+            powerPreference: 'high-performance',
+          }}
           performance={{ min: 0.5, debounce: 250 }}
-          shadows={resolvePerformanceProfile().shadowMapSize !== null}
+          shadows={shadowsEnabled ? 'percentage' : false}
         >
           {children}
           <OrbitControls

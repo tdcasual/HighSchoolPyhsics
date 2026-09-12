@@ -12,6 +12,7 @@ type SceneLayoutProps = {
   dataOverlay?: ReactNode
   chart?: ReactNode
   playbackActions?: MobilePlaybackAction[]
+  playbackControls?: ReactNode
   chartVisible?: boolean
 }
 
@@ -28,6 +29,7 @@ export function SceneLayout({
   dataOverlay,
   chart,
   playbackActions,
+  playbackControls,
   chartVisible = false,
 }: SceneLayoutProps) {
   const [chartDismissVersion, setChartDismissVersion] = useState(0)
@@ -62,7 +64,6 @@ export function SceneLayout({
   }, [isMobile, playbackActionsKey])
 
   const showChart = chartVisible && chartDismissVersion === 0
-  const showPlayback = playbackActions && playbackDismissVersion === 0
   const panelX = useMemo(
     () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
     [sidebarCollapsed],
@@ -147,16 +148,10 @@ export function SceneLayout({
   if (isMobile) {
     return (
       <div className="flex flex-col w-full h-full">
-        <div className="flex-1 min-h-0">
-          {viewport}
-        </div>
+        <div className="flex-1 min-h-0">{viewport}</div>
 
         <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '30vh' }}>
-          {dataOverlay && (
-            <div className="mobile-data-strip">
-              {dataOverlay}
-            </div>
-          )}
+          {dataOverlay && <div className="mobile-data-strip">{dataOverlay}</div>}
           <div className="px-2 pt-1.5 shrink-0">
             <SegmentedControl
               options={mobileTabOptions}
@@ -164,6 +159,7 @@ export function SceneLayout({
               onChange={(key) => setActiveMobileTab(key as MobileTabKey)}
             />
           </div>
+          {playbackControls && <div className="px-2 pt-2 shrink-0">{playbackControls}</div>}
           <div className="flex-1 overflow-y-auto px-2 pb-2">
             {effectiveMobileTab === 'controls' && controls}
             {effectiveMobileTab === 'data' && dataOverlay}
@@ -176,15 +172,9 @@ export function SceneLayout({
 
   return (
     <div className="relative w-full h-full">
-      <div className="absolute inset-0 z-0">
-        {viewport}
-      </div>
+      <div className="absolute inset-0 z-0">{viewport}</div>
 
-      <SidebarPanel
-        title="参数控制"
-        collapsed={sidebarCollapsed}
-        onCollapsedChange={setSidebarCollapsed}
-      >
+      <SidebarPanel title="参数控制" collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed}>
         {controls}
       </SidebarPanel>
 
@@ -195,9 +185,7 @@ export function SceneLayout({
           defaultPosition={{ x: panelX, y: stackedYs[0] ?? 0 }}
           offsetX={panelX}
         >
-          <div className="min-w-[200px]">
-            {dataOverlay}
-          </div>
+          <div className="min-w-[200px]">{dataOverlay}</div>
         </FloatingPanel>
       )}
 
@@ -211,13 +199,11 @@ export function SceneLayout({
           onClose={() => setChartDismissVersion(1)}
           resizable
         >
-          <div className="min-w-[300px]">
-            {chart}
-          </div>
+          <div className="min-w-[300px]">{chart}</div>
         </FloatingPanel>
       )}
 
-      {showPlayback && (
+      {Boolean((playbackActions || playbackControls) && playbackDismissVersion === 0) && (
         <FloatingPanel
           title="播放控制"
           ref={stableRef2}
@@ -227,8 +213,13 @@ export function SceneLayout({
           closable
           onClose={() => setPlaybackDismissVersion(1)}
         >
-          <div className="flex items-center gap-2">
-            <SceneActions actions={playbackActions} />
+          <div className="flex flex-col gap-3">
+            {playbackControls}
+            {playbackActions && (
+              <div className="flex items-center gap-2">
+                <SceneActions actions={playbackActions} />
+              </div>
+            )}
           </div>
         </FloatingPanel>
       )}

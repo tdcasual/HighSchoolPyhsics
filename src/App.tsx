@@ -102,7 +102,7 @@ function App() {
   const activeRoute = useMemo(() => findDemoRoute(pathname), [pathname])
   const activeTouchProfile = resolveTouchProfile(activeRoute?.touchProfile, ENHANCED_TOUCH_PROFILE)
   const ActiveScene = activeRoute?.Component
-  const runtimeCapabilities = useMemo(() => getRuntimeCapabilities(), [])
+  const [runtimeCapabilities, setRuntimeCapabilities] = useState(() => getRuntimeCapabilities())
   const shellStyle = useMemo<CSSProperties>(
     () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
     [activeTouchProfile],
@@ -114,13 +114,26 @@ function App() {
       <main className={shellClassName} data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
         <section className="scene-missing" role="alert">
           <h1>运行环境不支持</h1>
-          <p>当前浏览器不满足 3D 演示运行要求。</p>
-          <p>请使用支持以下能力的 Chromium 桌面浏览器：</p>
+          <p>当前窗口没有可用的 3D 图形接口，所以演示被拦住了。</p>
+          <p>请用系统里的 Chrome / Edge 打开，不要用编辑器内置预览或微信内置浏览器。</p>
+          <p>
+            本机地址：
+            <a href="http://localhost:5173/ticker-timer">http://localhost:5173/ticker-timer</a>
+          </p>
+          <p>若仍失败，打开 Chrome 设置 → 系统 → 打开“使用硬件加速模式”，然后重启浏览器。</p>
+          <p>缺少的能力：</p>
           <ul>
             {runtimeCapabilities.missing.map((capability) => (
               <li key={capability}>{capability}</li>
             ))}
           </ul>
+          <button
+            className="touch-target"
+            type="button"
+            onClick={() => setRuntimeCapabilities(getRuntimeCapabilities())}
+          >
+            重新检测
+          </button>
         </section>
       </main>
     )
