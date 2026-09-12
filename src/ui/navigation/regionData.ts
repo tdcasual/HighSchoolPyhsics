@@ -70,7 +70,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#ef4444',
     position: [0, 0, -6],
     description: '热力学与分子动理论',
-    scenePageIds: [],
+    scenePageIds: ['ideal-gas-isochoric'],
   },
 ]
 

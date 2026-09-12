@@ -58,6 +58,7 @@ const SCENE_REGION_MAP = {
   'orthogonal-em-wave': '电磁学',
   'ticker-timer': '力学',
   'train-turning': '力学',
+  'ideal-gas-isochoric': '热学',
 }
 
 export function buildDemoCatalog(scenes) {

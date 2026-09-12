@@ -34,7 +34,7 @@ describe('App shell', () => {
     expect(screen.getAllByText('电磁感应')[0]).toBeInTheDocument()
     expect(screen.getByText('波动与振动')).toBeInTheDocument()
     expect(screen.getByText('力学')).toBeInTheDocument()
-    expect(screen.queryByText('热学')).not.toBeInTheDocument()
+    expect(screen.getByText('热学')).toBeInTheDocument()
   })
 
   it('supports day/night mode across the app shell', () => {

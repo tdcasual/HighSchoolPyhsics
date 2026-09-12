@@ -754,5 +754,32 @@
       "readyText": "机械波的形成与图像演示",
       "screenshotName": "mechanical-wave-graphs"
     }
+  },
+  {
+    "pageId": "ideal-gas-isochoric",
+    "label": "理想气体等容变化（查理定律）",
+    "meta": {
+      "tag": "热学状态方程",
+      "summary": "固定体积下压强与温度的正比关系及绝对零度图像推理",
+      "highlights": [
+        "气缸、机械锁定、温度计和分子运动三维联动",
+        "V₁/V₂/V₃ 等容线与 p-T、p-t 双图同步更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "理想气体等容变化（查理定律）",
+      "screenshotName": "ideal-gas-isochoric"
+    }
   }
 ]
