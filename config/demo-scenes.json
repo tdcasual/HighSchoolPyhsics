@@ -592,5 +592,32 @@
       "readyText": "动态圆 · 三法破临界",
       "screenshotName": "dynamic-circle"
     }
+  },
+  {
+    "pageId": "cyclotron-core",
+    "label": "回旋加速器核心结构与原理",
+    "meta": {
+      "tag": "粒子加速",
+      "summary": "D 型盒、交变电场与磁场同步加速模型",
+      "highlights": [
+        "质子、氘核和 α 粒子注入选择",
+        "加速次数、动能、周期与最大动能实时联动"
+      ],
+      "tone": "cyclotron"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "回旋加速器核心结构与原理",
+      "screenshotName": "cyclotron-core"
+    }
   }
 ]

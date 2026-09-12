@@ -25,7 +25,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#fbbf24',
     position: [-4, 0, 3],
     description: '磁场、电流与洛伦兹力',
-    scenePageIds: ['oersted', 'cyclotron', 'dynamic-circle'],
+    scenePageIds: ['oersted', 'cyclotron', 'dynamic-circle', 'cyclotron-core'],
   },
   {
     id: 'electromagnetic-induction',

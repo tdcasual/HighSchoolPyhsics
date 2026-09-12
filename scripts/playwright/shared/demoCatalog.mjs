@@ -51,6 +51,7 @@ const SCENE_REGION_MAP = {
   'generator-core': '电磁感应',
   'force-composition': '力学',
   'dynamic-circle': '电磁学',
+  'cyclotron-core': '电磁学',
   'ticker-timer': '力学',
 }
 
