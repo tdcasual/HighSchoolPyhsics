@@ -38,6 +38,7 @@ const SCENE_REGION_MAP = {
   diffraction: '波动与振动',
   'oscilloscope-3d': '波动与振动',
   'wave-state': '波动与振动',
+  'mechanical-wave-graphs': '波动与振动',
   cyclotron: '电磁学',
   mhd: '电磁感应',
   oersted: '电磁学',

@@ -727,5 +727,32 @@
       "readyText": "法拉第圆盘发电机实验装置",
       "screenshotName": "faraday-disc"
     }
+  },
+  {
+    "pageId": "mechanical-wave-graphs",
+    "label": "机械波的形成与图像演示",
+    "meta": {
+      "tag": "机械波",
+      "summary": "机械波 y-x 空间波形与选中质点 y-t 振动图像的联动模型",
+      "highlights": [
+        "空间波形抓拍与固定质点振动历程同步显示",
+        "振幅、波长、周期和探针位置改变时波速与图像实时更新"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "机械波的形成与图像演示",
+      "screenshotName": "mechanical-wave-graphs"
+    }
   }
 ]
