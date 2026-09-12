@@ -61,7 +61,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#84cc16',
     position: [-4, 0, -4],
     description: '运动、力与能量守恒',
-    scenePageIds: ['ticker-timer', 'force-composition', 'train-turning', 'projectile-data-analysis', 'bullet-block', 'centripetal-factors', 'force-parallelogram', 'binary-stars'],
+    scenePageIds: ['ticker-timer', 'train-turning', 'centripetal-factors', 'force-parallelogram', 'binary-stars'],
   },
   {
     id: 'thermal',

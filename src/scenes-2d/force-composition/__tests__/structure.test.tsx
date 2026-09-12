@@ -14,18 +14,18 @@ describe('force-composition structure', () => {
     expect(screen.getByRole('radio', { name: '合力范围' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '正交分解' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '按效果分解' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '暂停演变' })).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: '分力 F₁' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '重置参数' })).toBeInTheDocument()
     expect(screen.getByTestId('force-composition-rig')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '力的合成与分解数据图' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '矢量大小对比' })).toBeInTheDocument()
   })
 
-  it('switches mode controls and pauses the animation', () => {
+  it('switches to a scanning range mode and pauses the scan', () => {
     render(<ForceCompositionScene />)
-    fireEvent.click(screen.getByRole('radio', { name: '正交分解' }))
-    expect(screen.getByLabelText('方向角 θ')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '暂停演变' }))
-    expect(screen.getByRole('button', { name: '继续演变' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('radio', { name: '合力范围' }))
+    expect(screen.getByLabelText('夹角 θ')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '暂停扫描' }))
+    expect(screen.getByRole('button', { name: '继续扫描' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 })
-

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildRangeSweep, deriveForceReadings, magnitude, snapVector } from './model'
+import { buildRangeSweep, deriveForceReadings, magnitude, resultantMagnitude, snapVector } from './model'
 
 describe('force-composition model', () => {
   it('computes vector sum and included angle', () => {
@@ -17,11 +17,15 @@ describe('force-composition model', () => {
     expect(readings.normal).toBeCloseTo(34.64, 1)
   })
 
-  it('snaps vector length to integer units and creates a normalized sweep', () => {
+  it('snaps vector length and creates a physical resultant sweep', () => {
     expect(magnitude(snapVector({ x: 2.2, y: 1.1 }))).toBeCloseTo(2)
-    const sweep = buildRangeSweep(5)
+    const snappedSpecialAngle = snapVector({ x: 3, y: 1.8 }, { x: 1, y: 0 })
+    expect(snappedSpecialAngle.y / snappedSpecialAngle.x).toBeCloseTo(Math.tan(Math.PI / 6), 2)
+    const sweep = buildRangeSweep(40, 30, 5)
     expect(sweep).toHaveLength(5)
-    expect(sweep[0]).toEqual([0, 1])
+    expect(sweep[0]).toEqual([0, 70])
+    expect(sweep[2][1]).toBeCloseTo(resultantMagnitude(40, 30, 90))
+    expect(sweep.at(-1)?.[1]).toBe(10)
     expect(sweep.at(-1)?.[0]).toBe(180)
   })
 })

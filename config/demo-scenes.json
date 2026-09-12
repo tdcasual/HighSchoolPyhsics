@@ -540,33 +540,6 @@
     }
   },
   {
-    "pageId": "force-composition",
-    "label": "力的合成与分解",
-    "meta": {
-      "tag": "矢量运算",
-      "summary": "平行四边形定则、合力范围与正交/按效果分解的矢量模型",
-      "highlights": [
-        "四种核心教学模式一键切换",
-        "分力、夹角和分解结果实时联动"
-      ],
-      "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "力的合成与分解",
-      "screenshotName": "force-composition"
-    }
-  },
-  {
     "pageId": "dynamic-circle",
     "label": "动态圆·三法破临界",
     "meta": {
@@ -780,60 +753,6 @@
     "playwright": {
       "readyText": "理想气体等容变化（查理定律）",
       "screenshotName": "ideal-gas-isochoric"
-    }
-  },
-  {
-    "pageId": "projectile-data-analysis",
-    "label": "平抛实验数据还原与轨迹分析",
-    "meta": {
-      "tag": "抛体运动",
-      "summary": "平抛轨迹、分运动速度与频闪实验数据还原",
-      "highlights": [
-        "O-A-B-C-D 等时频闪点与抛物线轨迹同步显示",
-        "v₀、g、频闪周期改变时位移差分和轨迹方程实时更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "平抛实验数据还原与轨迹分析",
-      "screenshotName": "projectile-data-analysis"
-    }
-  },
-  {
-    "pageId": "bullet-block",
-    "label": "子弹打木块力学模型",
-    "meta": {
-      "tag": "动量守恒",
-      "summary": "子弹嵌入木块的非弹性碰撞与机械能转化",
-      "highlights": [
-        "光滑水平面、碰撞嵌入和共速后三阶段动画",
-        "动量守恒、动能损失、内能和 v-t 图像实时联动"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "子弹打木块力学模型",
-      "screenshotName": "bullet-block"
     }
   },
   {
