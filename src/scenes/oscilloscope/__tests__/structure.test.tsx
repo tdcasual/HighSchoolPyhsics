@@ -11,6 +11,6 @@ describe('oscilloscope structure', () => {
     expect(await screen.findByText('Y 电场 Uy(t)')).toBeInTheDocument()
     expect(await screen.findByLabelText('Ux(t) 函数')).toBeInTheDocument()
     expect(await screen.findByLabelText('Uy(t) 函数')).toBeInTheDocument()
-    expect(await screen.findByText(/支持: \+ - \* \/ \^/)).toBeInTheDocument()
+    expect(await screen.findByText(/支持 \+ - \* \/ \^、括号/)).toBeInTheDocument()
   })
 })

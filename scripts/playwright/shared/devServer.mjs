@@ -20,6 +20,7 @@ export function startViteDevServer({
   const child = spawnImpl('npm', createViteDevServerCommand({ host, port, mode }), {
     cwd: rootDir,
     env,
+    detached: process.platform !== 'win32',
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 

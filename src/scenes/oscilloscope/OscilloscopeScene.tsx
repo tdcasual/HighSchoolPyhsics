@@ -120,7 +120,7 @@ export function OscilloscopeScene() {
           </ControlSection>
 
           <div className="formula-help">
-            支持: + - * / ^, 括号, t, pi, sin/cos/tan, abs/sqrt, min/max, clamp
+            支持 + - * / ^、括号、t、pi/π、e；函数：sin/cos/tan、asin/acos/atan、abs/sqrt/log/exp、floor/ceil/round、min/max、clamp、square/triangle/sawtooth。三角函数参数使用弧度。
           </div>
 
           {simulation.error ? <p className="formula-error">仿真错误: {simulation.error}</p> : null}
