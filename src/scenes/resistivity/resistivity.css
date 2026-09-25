@@ -1,0 +1,47 @@
+.resistivity-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.resistivity-controls h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.resistivity-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--control-ink);
+  opacity: 0.82;
+}
+
+.resistivity-telemetry {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.resistivity-telemetry p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-size: 0.85rem;
+}
+
+.resistivity-telemetry span {
+  opacity: 0.78;
+}
+
+.resistivity-telemetry strong {
+  font-family: "SF Mono", Menlo, monospace;
+  text-align: right;
+}
+
+.resistivity-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #f7fbfb;
+  border-radius: 12px;
+}

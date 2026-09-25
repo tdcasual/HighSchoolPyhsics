@@ -889,5 +889,140 @@
       "readyText": "等量同种电荷场",
       "screenshotName": "same-charge"
     }
+  },
+  {
+    "pageId": "measuring-tools",
+    "label": "游标卡尺与螺旋测微器",
+    "meta": {
+      "tag": "测量工具",
+      "summary": "三维游标卡尺与螺旋测微器，尺框和微分筒按示数运动",
+      "highlights": [
+        "10/20/50 分度与 0.5 mm 螺距的读数同步到三维仪器",
+        "外径、内径、深度和零点误差可在课堂模式里练习"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "测量工具控制",
+      "screenshotName": "measuring-tools"
+    }
+  },
+  {
+    "pageId": "resistivity",
+    "label": "导体电阻率的测量",
+    "meta": {
+      "tag": "电学实验",
+      "summary": "螺旋测微器测直径，伏安法记录 U、I，图像求电阻率",
+      "highlights": [
+        "滑片、接线夹和电表指针随电路状态转动",
+        "外接/内接、限流/分压和伏安特性曲线对照"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "电阻率测量控制",
+      "screenshotName": "resistivity"
+    }
+  },
+  {
+    "pageId": "multimeter",
+    "label": "练习使用多用电表",
+    "meta": {
+      "tag": "电学实验",
+      "summary": "表头改装、内外接、限流分压，以及指针式多用电表的调零和测量",
+      "highlights": [
+        "指针、挡位旋钮和红黑表笔随测量对象移动",
+        "欧姆挡中值附近读数，换挡后重新调零"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "多用电表控制",
+      "screenshotName": "multimeter"
+    }
+  },
+  {
+    "pageId": "cart-velocity",
+    "label": "小车速度随时间变化",
+    "meta": {
+      "tag": "力学实验",
+      "summary": "钩码牵引小车，纸带打点测速度，v-t 图像的斜率是加速度",
+      "highlights": [
+        "小车、纸带打点和滑轮随时间运动",
+        "匀速对照、细线不平行和多组钩码对比"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "小车速度控制",
+      "screenshotName": "cart-velocity"
+    }
+  },
+  {
+    "pageId": "celestial-motion",
+    "label": "天体运动",
+    "meta": {
+      "tag": "力学实验",
+      "summary": "圆轨道、同步与静止卫星、追及相遇和霍曼变轨",
+      "highlights": [
+        "卫星沿开普勒轨道运动，视角可绕天体旋转",
+        "星下点轨迹和两次点火的变轨过程"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "天体运动控制",
+      "screenshotName": "celestial-motion"
+    }
   }
 ]

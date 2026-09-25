@@ -1,0 +1,59 @@
+import type { ReactNode } from 'react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+
+const canvasProps: { current: Record<string, unknown> | null } = { current: null }
+
+vi.mock('../../../scene3d/InteractiveCanvas', () => ({
+  InteractiveCanvas: ({ children, ...props }: { children: ReactNode }) => {
+    canvasProps.current = props
+    return <div data-testid="interactive-canvas">{children}</div>
+  },
+}))
+
+vi.mock('../CartRig3D', () => ({
+  CartRig3D: () => <div data-testid="cart-rig" />,
+}))
+
+import { CartScene } from '../CartScene'
+
+describe('cart structure', () => {
+  it('opens on the bench with the reference camera and steps one dot', () => {
+    render(<CartScene />)
+    expect(screen.getByRole('heading', { name: '小车速度控制' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '实验' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '小车 v-t 图像' })).toBeInTheDocument()
+    expect(screen.getByTestId('cart-rig')).toBeInTheDocument()
+    const readout = () => screen.getByText('时间').closest('p')?.parentElement
+    expect(readout()).toHaveTextContent('0.00 s')
+    expect(readout()).toHaveTextContent('0.100 m/s')
+    expect(readout()).toHaveTextContent('3 个 · 0.555 m/s²')
+    const camera = canvasProps.current?.camera as { fov: number }
+    const controls = canvasProps.current?.controls as { maxDistance: number; minDistance: number; target: number[] }
+    expect(camera.fov).toBe(35)
+    expect(controls.minDistance).toBe(6)
+    expect(controls.maxDistance).toBe(23)
+    expect(controls.target).toEqual([0, 0.1, 0])
+    expect(canvasProps.current?.adaptiveFraming).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: '单步' }))
+    expect(readout()).toHaveTextContent('0.02 s')
+    expect(readout()).toHaveTextContent('0.111 m/s')
+    expect(readout()).toHaveTextContent('打点2')
+  })
+
+  it('switches to the uniform preset and locks playback during assembly', () => {
+    render(<CartScene />)
+    fireEvent.click(screen.getByRole('button', { name: '匀速对照' }))
+    const readout = () => screen.getByText('时间').closest('p')?.parentElement
+    expect(readout()).toHaveTextContent('0.200 m/s')
+    expect(readout()).toHaveTextContent('不挂钩码')
+    fireEvent.click(screen.getByRole('radio', { name: '装配' }))
+    expect(screen.getByRole('button', { name: '开始实验' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: '开始实验' }))
+    expect(readout()).toHaveTextContent('0.00 s')
+    fireEvent.click(screen.getByRole('radio', { name: '正视' }))
+    const controls = canvasProps.current?.controls as { target: number[] }
+    expect(controls.target).toEqual([0, 0.1, 0])
+  })
+})

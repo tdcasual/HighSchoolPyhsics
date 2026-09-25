@@ -55,6 +55,9 @@ const SCENE_REGION_MAP = {
   'dynamic-circle': '电磁学',
   'cyclotron-core': '电磁学',
   'orthogonal-em-wave': '电磁学',
+  'measuring-tools': '电磁学',
+  resistivity: '电磁学',
+  multimeter: '电磁学',
   'ticker-timer': '力学',
   'train-turning': '力学',
   'ideal-gas-isochoric': '热学',
@@ -63,6 +66,8 @@ const SCENE_REGION_MAP = {
   'same-charge': '静电学',
   'force-parallelogram': '力学',
   'binary-stars': '力学',
+  'cart-velocity': '力学',
+  'celestial-motion': '力学',
 }
 
 export function buildDemoCatalog(scenes) {

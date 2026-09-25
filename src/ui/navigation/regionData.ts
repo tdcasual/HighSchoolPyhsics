@@ -25,7 +25,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#fbbf24',
     position: [-4, 0, 3],
     description: '磁场、电流与洛伦兹力',
-    scenePageIds: ['oersted', 'cyclotron', 'dynamic-circle', 'cyclotron-core', 'orthogonal-em-wave'],
+    scenePageIds: ['oersted', 'cyclotron', 'dynamic-circle', 'cyclotron-core', 'orthogonal-em-wave', 'measuring-tools', 'resistivity', 'multimeter'],
   },
   {
     id: 'electromagnetic-induction',
@@ -61,7 +61,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#84cc16',
     position: [-4, 0, -4],
     description: '运动、力与能量守恒',
-    scenePageIds: ['ticker-timer', 'train-turning', 'centripetal-factors', 'force-parallelogram', 'binary-stars'],
+    scenePageIds: ['ticker-timer', 'train-turning', 'centripetal-factors', 'force-parallelogram', 'binary-stars', 'cart-velocity', 'celestial-motion'],
   },
   {
     id: 'thermal',

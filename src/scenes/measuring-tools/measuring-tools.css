@@ -1,0 +1,71 @@
+.measure-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.measure-controls h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.measure-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--control-ink);
+  opacity: 0.82;
+}
+
+.measure-feedback {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.measure-feedback.ok {
+  color: #1f7a4a;
+}
+
+.measure-feedback.bad {
+  color: #a84f27;
+}
+
+.measure-telemetry {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.measure-telemetry p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-size: 0.85rem;
+}
+
+.measure-telemetry span {
+  opacity: 0.78;
+}
+
+.measure-telemetry strong {
+  font-family: "SF Mono", Menlo, monospace;
+  text-align: right;
+}
+
+.measure-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #f7fbfb;
+  border-radius: 12px;
+}
+
+.measure-3d-label {
+  padding: 2px 7px;
+  border: 1px solid #9eb4ba;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 88%);
+  color: #24525c;
+  font-size: 12px;
+  line-height: 1.4;
+}
