@@ -6,19 +6,29 @@ const WIDTH = 420
 const HEIGHT = 250
 const PAD = { left: 34, right: 14, top: 20, bottom: 28 }
 
-function mapPoint([x, y]: [number, number]): string {
+function mapX(x: number): number {
   const innerWidth = WIDTH - PAD.left - PAD.right
+  return PAD.left + (x + 1) / 2 * innerWidth
+}
+
+function mapY(y: number): number {
   const innerHeight = HEIGHT - PAD.top - PAD.bottom
-  return `${(PAD.left + (x + 1) / 2 * innerWidth).toFixed(2)},${(PAD.top + (1 - y) / 2 * innerHeight).toFixed(2)}`
+  return PAD.top + (1 - y) / 2 * innerHeight
+}
+
+function mapPoint([x, y]: [number, number]): string {
+  return `${mapX(x).toFixed(2)},${mapY(y).toFixed(2)}`
 }
 
 export function GeneratorCoreChart({ angleRad, running }: Props) {
   const trace = useMemo(() => buildPhaseTrace(240), [])
   const fluxPoints = useMemo(() => trace.flux.map(mapPoint).join(' '), [trace.flux])
   const emfPoints = useMemo(() => trace.emf.map(mapPoint).join(' '), [trace.emf])
-  const trackerX = mapPoint(phaseToPlotPoint(angleRad))[0]
-  const fluxY = mapPoint(phaseToPlotPoint(angleRad)).split(',')[1]
-  const emfY = mapPoint(emfToPlotPoint(angleRad)).split(',')[1]
+  const trackerPoint = phaseToPlotPoint(angleRad)
+  const emfPoint = emfToPlotPoint(angleRad)
+  const trackerX = mapX(trackerPoint[0])
+  const fluxY = mapY(trackerPoint[1])
+  const emfY = mapY(emfPoint[1])
   const innerWidth = WIDTH - PAD.left - PAD.right
   const innerHeight = HEIGHT - PAD.top - PAD.bottom
   const centerY = PAD.top + innerHeight / 2

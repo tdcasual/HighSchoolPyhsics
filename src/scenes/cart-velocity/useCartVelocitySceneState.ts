@@ -15,7 +15,7 @@ import {
   stepCart,
   type CartState,
 } from './state'
-import type { CartSkin, CartStage } from './pose'
+import type { CartPart, CartSkin, CartStage } from './pose'
 
 export function useCartVelocitySceneState() {
   const [simulation, setSimulation] = useState(createCartState)
@@ -59,8 +59,8 @@ export function useCartVelocitySceneState() {
     points,
     selected,
     toggleRunning: () => commit((state) => {
-      if (state.stage === 'assemble' && state.assembly < 5) {
-        return { ...state, notice: '先把钩码和滑轮装上，再开始运动。' }
+      if (state.stage === 'assemble') {
+        return { ...state, notice: '先完成装配，再开始运动。' }
       }
       if (state.time >= DURATION) return { ...state, time: 0, running: true, notice: '再做一次。' }
       return { ...state, running: !state.running, notice: state.running ? '已暂停。' : '小车运动中，纸带正在打点。' }
@@ -76,14 +76,27 @@ export function useCartVelocitySceneState() {
     setStage: (stage: CartStage) => commit((state) => ({
       ...state,
       stage,
+      view: state.focusPart && stage !== state.stage ? 'home' : state.view,
+      focusPart: stage !== state.stage ? null : state.focusPart,
       running: false,
-      time: stage === 'assemble' ? 0 : state.time,
+      time: stage === 'assemble' || stage === 'observe' ? 0 : state.time,
       assembly: stage === 'assemble' ? 0 : state.assembly,
-      notice: stage === 'assemble' ? '从长木板开始分步装配。' : stage === 'run' ? '开始实验，或单步看每一个点。' : '这里使用已经打出的点迹。',
+      notice: stage === 'assemble'
+        ? '从长木板开始分步装配。'
+        : stage === 'observe'
+          ? '装置已组装就绪，观察运动轨道、打点计时器和纸带。'
+          : stage === 'run'
+            ? '装置已就绪：开始实验记录纸带，也可单步观察每个打点。'
+            : stage === 'measure'
+              ? '选择计数间隔和计数点，用中央差分估算中间时刻速度。'
+              : '拟合纸带测得的 v–t 数据；直线斜率表示加速度。',
     })),
-    setView: (view: ViewPreset) => commit((state) => ({ ...state, view })),
+    setView: (view: ViewPreset) => commit((state) => ({ ...state, view, focusPart: null })),
+    setFocusPart: (focusPart: CartPart) => commit((state) => ({ ...state, view: 'focus', focusPart })),
     setAssembly: (assembly: number) => commit((state) => ({ ...state, assembly: Math.max(0, Math.min(5, assembly)) })),
     selectPoint: (selectedIndex: number) => commit((state) => ({ ...state, selected: selectedIndex })),
+    setShowFit: (showFit: boolean) => commit((state) => ({ ...state, showFit })),
+    setShowSlopeTriangle: (showSlopeTriangle: boolean) => commit((state) => ({ ...state, showSlopeTriangle })),
     compareAll: () => commit(compareAll),
     clearRuns: () => commit(clearRuns),
     setPreset: (preset: 'uniform' | 'accelerated') => commit((state) => applyPreset(state, preset)),
@@ -94,6 +107,8 @@ export function useCartVelocitySceneState() {
       const next = {
         ...createCartState(),
         stage: current.stage,
+        view: current.view,
+        focusPart: current.focusPart,
         hooks: current.hooks,
         v0: current.v0,
         dh: current.dh,
@@ -101,6 +116,8 @@ export function useCartVelocitySceneState() {
         skin: current.skin,
         group: current.group,
         runs: current.runs,
+        showFit: current.showFit,
+        showSlopeTriangle: current.showSlopeTriangle,
         notice: '已回到起点。',
       }
       simulationRef.current = next

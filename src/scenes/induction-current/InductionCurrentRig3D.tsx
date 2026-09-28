@@ -8,7 +8,7 @@ import {
   TubeGeometry,
   Vector3,
 } from 'three'
-import type { PoleSetting } from './model'
+import { INDUCTION_COIL_RADIUS, type PoleSetting } from './model'
 import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
 
 type InductionCurrentRig3DProps = {
@@ -30,7 +30,7 @@ function clamp(value: number, min: number, max: number): number {
 
 function buildCoilCurve(segments: number): CatmullRomCurve3 {
   const points: Vector3[] = []
-  const radius = 4
+  const radius = INDUCTION_COIL_RADIUS
   const height = 12
   const turns = 10
 
@@ -95,11 +95,13 @@ export function InductionCurrentRig3D({
 
   const coilArrowSamples = useMemo<CoilArrowSample[]>(() => {
     const samples: CoilArrowSample[] = []
-    for (let index = 0; index < 24; index += 1) {
-      const t = index / 24
-      const point = coilCurve.getPointAt(t)
-      const tangent = coilCurve.getTangentAt(t).normalize()
-      const outward = new Vector3(point.x, 0, point.z).normalize().multiplyScalar(0.45)
+    // Place one current marker per turn on the camera-facing right arc so the
+    // direction remains legible without covering the magnet poles.
+    for (let turn = 0; turn < 10; turn += 1) {
+      const t = (turn + 5 / 6) / 10
+      const point = coilCurve.getPoint(t)
+      const tangent = coilCurve.getTangent(t).normalize()
+      const outward = new Vector3(point.x, 0, point.z).normalize().multiplyScalar(0.8)
       const anchor = point.clone().add(outward)
 
       samples.push({
@@ -150,7 +152,7 @@ export function InductionCurrentRig3D({
   const topColor = northOnBottom ? '#1f3cff' : '#ff2f2f'
   const bottomColor = northOnBottom ? '#ff2f2f' : '#1f3cff'
   const arrowVisible = Math.abs(coilCurrent) > 0.01
-  const arrowScale = clamp(Math.abs(coilCurrent) * 2.5, 0.5, 1.8)
+  const arrowScale = clamp(Math.abs(coilCurrent) * 2.5, 0.75, 1.5)
 
   return (
     <group>
@@ -158,7 +160,7 @@ export function InductionCurrentRig3D({
       <directionalLight position={[10, 30, 20]} intensity={1.2} />
       <color attach="background" args={['#151515']} />
 
-      <gridHelper args={[80, 80, '#333333', '#1a1a1a']} position={[0, -12, 0]} />
+      <gridHelper args={[80, 80, '#9aa7b5', '#d5dce4']} position={[0, -12, 0]} />
 
       <mesh geometry={coilGeometry}>
         <meshStandardMaterial color="#b87333" metalness={0.6} roughness={0.3} />
@@ -172,7 +174,7 @@ export function InductionCurrentRig3D({
           rotation={resolveArrowRotation(sample.tangent, coilCurrentSign)}
           scale={[arrowScale, arrowScale, arrowScale]}
         >
-          <coneGeometry args={[0.25, 0.8, 10]} />
+          <coneGeometry args={[0.35, 1.1, 12]} />
           <meshBasicMaterial color="#ffff00" />
         </mesh>
       ))}
@@ -220,7 +222,7 @@ export function InductionCurrentRig3D({
           )
         })}
 
-        <group position={[0, -1, 2.1]} rotation={[0, 0, needleAngleRad]}>
+        <group position={[0, 0, 2.1]} rotation={[0, 0, needleAngleRad]}>
           <mesh geometry={needleGeometry}>
             <meshBasicMaterial color="#ff0000" side={2} />
           </mesh>

@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
+import { Html } from '@react-three/drei/web/Html'
 import { CurvePath, LineCurve3, Vector3 } from 'three'
 import type { AlternatorPalette } from '../palette'
 
 type ExternalCircuitProps = {
   meterNeedleAngleRad: number
+  isOverRange: boolean
   palette: AlternatorPalette
 }
 
@@ -25,8 +27,10 @@ function buildTubePath(points: [number, number, number][]) {
 function Ammeter({
   meterNeedleAngleRad,
   palette,
+  isOverRange,
 }: {
   meterNeedleAngleRad: number
+  isOverRange: boolean
   palette: AlternatorPalette
 }) {
   return (
@@ -38,7 +42,7 @@ function Ammeter({
 
       <mesh name="ammeter-border">
         <torusGeometry args={[1.5, 0.1, 16, 32]} />
-        <meshBasicMaterial color={palette.meterBorder} />
+        <meshBasicMaterial color={isOverRange ? '#dc2626' : palette.meterBorder} />
       </mesh>
 
       <mesh name="ammeter-center-dot" rotation={[Math.PI / 2, 0, 0]}>
@@ -46,6 +50,31 @@ function Ammeter({
         <meshBasicMaterial color={palette.meterBorder} />
       </mesh>
 
+      {Array.from({ length: 9 }, (_, index) => {
+        const angle = ((index - 4) / 4) * (Math.PI / 3)
+        const major = index % 2 === 0
+        return (
+          <mesh
+            key={index}
+            name={major ? 'ammeter-major-tick-' + index : 'ammeter-minor-tick-' + index}
+            position={[Math.sin(angle) * 1.13, Math.cos(angle) * 1.13, 0.16]}
+            rotation={[0, 0, -angle]}
+          >
+            <boxGeometry args={[0.045, major ? 0.25 : 0.15, 0.025]} />
+            <meshBasicMaterial color={palette.label} />
+          </mesh>
+        )
+      })}
+
+      <Html position={[-1.08, 0.52, 0.18]} center style={{ pointerEvents: 'none' }}>
+        <span style={{ color: palette.label, fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>+2</span>
+      </Html>
+      <Html position={[0, 1.13, 0.18]} center style={{ pointerEvents: 'none' }}>
+        <span style={{ color: palette.label, fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>0</span>
+      </Html>
+      <Html position={[1.08, 0.52, 0.18]} center style={{ pointerEvents: 'none' }}>
+        <span style={{ color: palette.label, fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>−2</span>
+      </Html>
       <group name="ammeter-needle" position={[0, 0, 0.2]} rotation={[0, 0, meterNeedleAngleRad]}>
         <mesh position={[0, 0.7, 0]}>
           <cylinderGeometry args={[0.04, 0.04, 1.4, 10]} />
@@ -60,7 +89,7 @@ function Ammeter({
   )
 }
 
-export function ExternalCircuit({ meterNeedleAngleRad, palette }: ExternalCircuitProps) {
+export function ExternalCircuit({ meterNeedleAngleRad, isOverRange, palette }: ExternalCircuitProps) {
   const orangeCircuit = useMemo(
     () =>
       buildTubePath([
@@ -116,7 +145,7 @@ export function ExternalCircuit({ meterNeedleAngleRad, palette }: ExternalCircui
         <meshStandardMaterial color={palette.circuit} />
       </mesh>
 
-      <Ammeter meterNeedleAngleRad={meterNeedleAngleRad} palette={palette} />
+      <Ammeter meterNeedleAngleRad={meterNeedleAngleRad} isOverRange={isOverRange} palette={palette} />
     </group>
   )
 }

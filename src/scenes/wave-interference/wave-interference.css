@@ -29,9 +29,11 @@
 }
 
 :root {
-  --wave-s1-color: rgba(239, 68, 68, 0.8);
-  --wave-s2-color: rgba(59, 130, 246, 0.8);
-  --wave-composite-color: #8b5cf6;
+  --wave-s1-color: #ef4444;
+  --wave-s2-color: #3b82f6;
+  --wave-composite-color: #1f2937;
+  --wave-constructive-color: #16a34a;
+  --wave-destructive-color: #a21caf;
 }
 
 .wave-chart-legend {

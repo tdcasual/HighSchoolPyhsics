@@ -1,7 +1,7 @@
 import { CaliperAssembly, CaliperDepthWork } from './CaliperAssembly'
 import { MicrometerAssembly } from './MicrometerAssembly'
 import type { VernierDivisions } from './model'
-import { caliperPose, micrometerPose, type CaliperMeasure, type InstrumentTool } from './pose'
+import { caliperPose, micrometerPose, type CaliperMeasure, type InstrumentTool, type ViewPreset } from './pose'
 
 export type MeasuringToolsRigProps = {
   tool: InstrumentTool
@@ -16,8 +16,12 @@ export type MeasuringToolsRigProps = {
   micLocked: boolean
   showWork: boolean
   showLabels: boolean
+  viewPreset?: ViewPreset
   objectSize?: number
   workVisible?: boolean
+  onCaliperXChange?: (value: number) => void
+  onMicGapChange?: (value: number) => void
+  onInstrumentDragChange?: (dragging: boolean) => void
 }
 
 function StageLights({ tool }: { tool: InstrumentTool }) {
@@ -30,7 +34,7 @@ function StageLights({ tool }: { tool: InstrumentTool }) {
         position={sun as [number, number, number]}
         intensity={2.1}
         color="#fff6e8"
-        castShadow
+        castShadow={false} // Avoid the oversized hard silhouette shadow on the long caliper.
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-bias={-0.0004}
@@ -79,6 +83,10 @@ export function CaliperStage(props: MeasuringToolsRigProps & { workSize: number 
         workSize={props.workSize}
         showWork={props.showWork}
         showLabels={props.showLabels}
+        viewPreset={props.viewPreset}
+        locked={props.caliperLocked}
+        onCaliperXChange={props.onCaliperXChange}
+        onInstrumentDragChange={props.onInstrumentDragChange}
       />
       <CaliperDepthWork pose={pose} size={props.workSize} showWork={props.showWork} />
       <mesh name="caliper-ground" rotation={[-Math.PI / 2, 0, 0]} position={[95, pose.groundY, 0]} receiveShadow>
@@ -100,13 +108,18 @@ function MicrometerStage(props: MeasuringToolsRigProps & { workSize: number }) {
     <>
       <MicrometerAssembly
         pose={pose}
-        showWork={props.workVisible ?? (props.showWork && props.micGap > 0.2)}
+        gap={props.micGap}
+        showWork={props.workVisible ?? (props.showWork && props.workSize > 0.2)}
         workSize={props.workSize}
         showLabels={props.showLabels}
+        viewPreset={props.viewPreset}
+        locked={props.micLocked}
+        onMicGapChange={props.onMicGapChange}
+        onInstrumentDragChange={props.onInstrumentDragChange}
       />
-      <mesh name="micrometer-ground" rotation={[-Math.PI / 2, 0, 0]} position={[30, -34, 0]} receiveShadow>
+      <mesh name="micrometer-ground" rotation={[-Math.PI / 2, 0, 0]} position={[30, -34, 0]}>
         <planeGeometry args={[4000, 4000]} />
-        <meshStandardMaterial color="#d9e3e1" roughness={0.95} metalness={0} />
+        <meshBasicMaterial color="#e7eef0" fog={false} />
       </mesh>
     </>
   )

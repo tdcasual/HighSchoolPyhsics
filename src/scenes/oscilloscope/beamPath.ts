@@ -1,6 +1,7 @@
+import { clampUnitDeflection } from './screenGeometry'
+
 export function buildBeamPathPoints(beamX: number, beamY: number): [number, number, number][] {
-  const x = Math.max(-1, Math.min(1, beamX))
-  const y = Math.max(-1, Math.min(1, beamY))
+  const [x, y] = clampUnitDeflection(beamX, beamY)
   const points: [number, number, number][] = []
 
   const p0: [number, number, number] = [-3.35, 0, 0]

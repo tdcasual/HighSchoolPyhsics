@@ -14,6 +14,15 @@ type SceneLayoutProps = {
   playbackActions?: MobilePlaybackAction[]
   playbackControls?: ReactNode
   chartVisible?: boolean
+  chartContentClassName?: string
+  /** Opt-in: place overlays immediately after the sidebar instead of using the legacy offset. */
+  panelPlacement?: 'default' | 'after-sidebar'
+  auxiliaryPanelPlacement?: 'default' | 'after-sidebar'
+  chartInitiallyCollapsed?: boolean
+  dataInitiallyCollapsed?: boolean
+  playbackInitiallyCollapsed?: boolean
+  chartOffsetY?: number
+  overlayZIndex?: 'z-10' | 'z-20'
 }
 
 type MobileTabKey = 'controls' | 'data' | 'chart'
@@ -31,6 +40,14 @@ export function SceneLayout({
   playbackActions,
   playbackControls,
   chartVisible = false,
+  chartContentClassName,
+  panelPlacement = 'default',
+  auxiliaryPanelPlacement = 'default',
+  chartInitiallyCollapsed = false,
+  dataInitiallyCollapsed = false,
+  playbackInitiallyCollapsed = false,
+  chartOffsetY = 0,
+  overlayZIndex = 'z-10',
 }: SceneLayoutProps) {
   const [chartDismissVersion, setChartDismissVersion] = useState(0)
   const [playbackDismissVersion, setPlaybackDismissVersion] = useState(0)
@@ -68,7 +85,10 @@ export function SceneLayout({
     () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
     [sidebarCollapsed],
   )
-
+  const panelBaseX = panelPlacement === 'after-sidebar' ? panelX / 2 : panelX
+  const panelOffsetX = panelPlacement === 'after-sidebar' ? panelX / 2 : panelX
+  const auxiliaryPanelBaseX = auxiliaryPanelPlacement === 'after-sidebar' ? panelX / 2 : panelBaseX
+  const auxiliaryPanelOffsetX = auxiliaryPanelPlacement === 'after-sidebar' ? panelX / 2 : panelOffsetX
   // Panel stacking: measure each panel's height and offset subsequent panels
   const [panelHeights, setPanelHeights] = useState<number[]>([])
   const panelElsRef = useRef<Map<number, HTMLDivElement>>(new Map())
@@ -85,6 +105,11 @@ export function SceneLayout({
     return result
   }, [panelHeights])
 
+  const chartPanelY = auxiliaryPanelPlacement === 'after-sidebar' ? chartOffsetY : (stackedYs[1] ?? 300) + chartOffsetY
+  const playbackPanelY = auxiliaryPanelPlacement === 'after-sidebar'
+    ? (showChart ? (panelHeights[1] ?? 0) + STACK_GAP : 0)
+    : (stackedYs[2] ?? 500)
+
   const registerPanel = useCallback((index: number, el: HTMLDivElement | null) => {
     const prev = panelElsRef.current.get(index)
     if (prev === el) return
@@ -99,8 +124,9 @@ export function SceneLayout({
     if (el) {
       panelElsRef.current.set(index, el)
       if (typeof ResizeObserver !== 'undefined') {
-        const observer = new ResizeObserver(([entry]) => {
-          const h = entry.contentRect.height
+        const observer = new ResizeObserver(() => {
+          // Stack by the rendered outer box; contentRect omits the header's border and padding.
+          const h = el.getBoundingClientRect().height
           if (h > 0) {
             setPanelHeights((prev) => {
               const next = [...prev]
@@ -150,8 +176,11 @@ export function SceneLayout({
       <div className="flex flex-col w-full h-full">
         <div className="flex-1 min-h-0">{viewport}</div>
 
-        <div className="mobile-bottom-panel shrink-0 flex flex-col border-t" style={{ height: '30vh' }}>
-          {dataOverlay && <div className="mobile-data-strip">{dataOverlay}</div>}
+        <div
+          className="mobile-bottom-panel shrink-0 flex flex-col border-t"
+          style={{ height: effectiveMobileTab === 'controls' ? '30vh' : '46vh' }}
+        >
+          {dataOverlay && effectiveMobileTab === 'controls' && <div className="mobile-data-strip">{dataOverlay}</div>}
           <div className="px-2 pt-1.5 shrink-0">
             <SegmentedControl
               options={mobileTabOptions}
@@ -180,10 +209,13 @@ export function SceneLayout({
 
       {dataOverlay && (
         <FloatingPanel
+          key={dataInitiallyCollapsed ? 'data-collapsed' : 'data-expanded'}
           title="数据"
           ref={stableRef0}
-          defaultPosition={{ x: panelX, y: stackedYs[0] ?? 0 }}
-          offsetX={panelX}
+          defaultCollapsed={dataInitiallyCollapsed}
+          defaultPosition={{ x: panelBaseX, y: stackedYs[0] ?? 0 }}
+          offsetX={panelOffsetX}
+          zIndex={overlayZIndex}
         >
           <div className="min-w-[200px]">{dataOverlay}</div>
         </FloatingPanel>
@@ -191,24 +223,29 @@ export function SceneLayout({
 
       {chart && showChart && (
         <FloatingPanel
+          key={chartInitiallyCollapsed ? 'chart-collapsed' : 'chart-expanded'}
           title="图表"
           ref={stableRef1}
-          defaultPosition={{ x: panelX, y: stackedYs[1] ?? 300 }}
-          offsetX={panelX}
+          defaultCollapsed={chartInitiallyCollapsed}
+          defaultPosition={{ x: auxiliaryPanelBaseX, y: chartPanelY }}
+          offsetX={auxiliaryPanelOffsetX}
+          zIndex={overlayZIndex}
           closable
           onClose={() => setChartDismissVersion(1)}
           resizable
         >
-          <div className="min-w-[300px]">{chart}</div>
+          <div className={chartContentClassName ? `scene-chart-content ${chartContentClassName}` : 'scene-chart-content'}>{chart}</div>
         </FloatingPanel>
       )}
 
       {Boolean((playbackActions || playbackControls) && playbackDismissVersion === 0) && (
         <FloatingPanel
+          key={playbackInitiallyCollapsed ? 'playback-collapsed' : 'playback-expanded'}
           title="播放控制"
           ref={stableRef2}
-          defaultPosition={{ x: panelX, y: stackedYs[2] ?? 500 }}
-          offsetX={panelX}
+          defaultCollapsed={playbackInitiallyCollapsed}
+          defaultPosition={{ x: auxiliaryPanelBaseX, y: playbackPanelY }}
+          offsetX={auxiliaryPanelOffsetX}
           zIndex="z-20"
           closable
           onClose={() => setPlaybackDismissVersion(1)}

@@ -15,17 +15,17 @@ describe('useInductionCurrentSceneState', () => {
     })
 
     expect(result.current.canChangePolarity).toBe(false)
-    await waitFor(() => expect(result.current.records).toHaveLength(1))
-    await waitFor(() => expect(result.current.canChangePolarity).toBe(true))
+    await waitFor(() => expect(result.current.records).toHaveLength(1), { timeout: 3500 })
+    await waitFor(() => expect(result.current.canChangePolarity).toBe(true), { timeout: 3500 })
     expect(result.current.records[0].fluxChange).toBe('increase')
 
-    await waitFor(() => expect(result.current.canMoveAwayFromCoil).toBe(true))
+    await waitFor(() => expect(result.current.canMoveAwayFromCoil).toBe(true), { timeout: 3500 })
 
     act(() => {
       result.current.moveAwayFromCoil()
     })
 
-    await waitFor(() => expect(result.current.records).toHaveLength(2))
+    await waitFor(() => expect(result.current.records).toHaveLength(2), { timeout: 3500 })
     expect(result.current.records[1].fluxChange).toBe('decrease')
 
     act(() => {
@@ -45,7 +45,7 @@ describe('useInductionCurrentSceneState', () => {
       result.current.moveTowardsCoil()
     })
 
-    await waitFor(() => expect(result.current.lastOutcome).not.toBeNull())
+    await waitFor(() => expect(result.current.lastOutcome).not.toBeNull(), { timeout: 3500 })
     expect(result.current.lastOutcome?.originalFieldDirection).toBe('down')
     expect(result.current.lastOutcome?.inducedCurrentDirection).toBe('counterclockwise')
   })

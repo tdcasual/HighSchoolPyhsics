@@ -18,21 +18,15 @@ const CAMERA_CONTROLS = {
 export function WedgeInterferenceScene() {
   const state = useWedgeInterferenceSceneState()
 
-  const playbackActions = useMemo(() => [
-    { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
-    { key: 'reset', label: '重置', onClick: state.reset },
-  ], [state.isLightOn, state.toggleLight, state.reset])
-
   const chartParams = useMemo(
     () => ({
       wavelength: state.wavelength,
       wedgeAngle: state.wedgeAngle,
-      maxThickness: state.maxThickness,
       mode: state.mode,
       bumpHeight: state.bumpHeight,
       bumpPosition: state.bumpPosition,
     }),
-    [state.wavelength, state.wedgeAngle, state.maxThickness, state.mode, state.bumpHeight, state.bumpPosition],
+    [state.wavelength, state.wedgeAngle, state.mode, state.bumpHeight, state.bumpPosition],
   )
 
   return (
@@ -46,12 +40,22 @@ export function WedgeInterferenceScene() {
           </p>
           <p>
             <span>劈尖角 θ</span>
-            <strong>{state.wedgeAngle.toFixed(2)}°</strong>
+            <strong>{state.wedgeAngle.toFixed(4)}°（{(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad）</strong>
           </p>
           <p>
             <span>条纹间距 l</span>
             <strong>{state.fringeSpacingLabel}</strong>
           </p>
+          <p>
+            <span>视场最大间隙 hmax</span>
+            <strong>{state.maxThickness.toFixed(2)} μm</strong>
+          </p>
+          {state.mode === 'bump' && (
+            <p>
+              <span>表面凸起 h</span>
+              <strong>{state.bumpHeight.toFixed(1)} μm</strong>
+            </p>
+          )}
           <p>
             <span>可见条纹数</span>
             <strong>~{state.fringeCount}</strong>
@@ -60,11 +64,13 @@ export function WedgeInterferenceScene() {
             <span>下表面</span>
             <strong>{state.mode === 'flat' ? '平整' : '凸起'}</strong>
           </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
         </div>
       }
       chart={state.showChart ? <WedgeInterferenceChart params={chartParams} isLightOn={state.isLightOn} /> : undefined}
       chartVisible={state.showChart}
-      playbackActions={playbackActions}
+      chartInitiallyCollapsed
+      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={CAMERA}

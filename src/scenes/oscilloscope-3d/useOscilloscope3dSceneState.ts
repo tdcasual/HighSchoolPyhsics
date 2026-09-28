@@ -88,7 +88,7 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
     setTrigger: (trigger) => commit({ trigger }),
     setBeamSpeed: (beamSpeed) => commit({ beamSpeed }),
     setXY: (patch) => commit({ xy: { ...simulationRef.current.xy, ...patch } }),
-    applyXYPreset: (preset) => commit({ xy: xyPresetSettings(preset) }),
+    applyXYPreset: (preset) => commit({ xy: preset === 'custom' ? { ...simulationRef.current.xy, preset } : xyPresetSettings(preset) }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
     reset: () => {
       lastTimestampRef.current = null

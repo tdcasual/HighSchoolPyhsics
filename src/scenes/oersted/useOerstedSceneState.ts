@@ -84,6 +84,7 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
     DEFAULT_NEEDLE_PLACEMENTS.map(() => EARTH_NORTH_HEADING_DEG),
   )
   const [running, setRunning] = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
   const [phase, setPhase] = useState(0)
   const [showFieldLines, setShowFieldLines] = useState(true)
   const [activePresetId, setActivePresetId] = useState<OerstedPresetId | 'custom'>('custom')
@@ -132,9 +133,12 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
         x: needle.x,
         z: needle.z,
         headingDeg: needleHeadingsDeg[index] ?? initialHeadingDeg,
-        targetHeadingDeg: activeNeedleStates[index]?.targetHeadingDeg ?? initialHeadingDeg,
+        targetHeadingDeg:
+          !running && !hasStarted
+            ? initialHeadingDeg
+            : activeNeedleStates[index]?.targetHeadingDeg ?? initialHeadingDeg,
       })),
-    [activeNeedleStates, initialHeadingDeg, needleHeadingsDeg, needlePlacements],
+    [activeNeedleStates, hasStarted, initialHeadingDeg, needleHeadingsDeg, needlePlacements, running],
   )
 
   const needleHeadingsRef = useRef(needleHeadingsDeg)
@@ -144,16 +148,22 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
 
   useEffect(() => {
     let frameId = 0
-    let previous = performance.now()
+    let previous: number | null = null
 
     const frame = (now: number) => {
-      const deltaS = Math.min(0.05, (now - previous) / 1000)
+      const deltaS =
+        previous === null
+          ? 1 / 60
+          : Math.max(0, Math.min(0.05, (now - previous) / 1000))
       previous = now
 
       let changed = false
       const currentHeadings = needleHeadingsRef.current
       const nextHeadings = currentHeadings.map((heading, index) => {
-        const target = activeNeedleStates[index]?.targetHeadingDeg ?? heading
+        const target =
+          !running && !hasStarted
+            ? initialHeadingDeg
+            : activeNeedleStates[index]?.targetHeadingDeg ?? heading
         const next = stepNeedleHeading(heading, target, deltaS, running ? 8 : 4.5)
         if (Math.abs(next - heading) > 0.001) changed = true
         return next
@@ -168,14 +178,14 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
       if (running) {
         setPhase((value) => wrapPhase(value + deltaS * 0.34 * (currentA >= 0 ? 1 : -1)))
         frameId = requestAnimationFrame(frame)
-      } else if (changed) {
+      } else if (changed || deltaS === 0) {
         frameId = requestAnimationFrame(frame)
       }
     }
 
     frameId = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(frameId)
-  }, [activeNeedleStates, currentA, running])
+  }, [activeNeedleStates, currentA, hasStarted, initialHeadingDeg, running])
 
   const setNeedlePlacementByDrag = (index: number, placement: NeedlePlacement) => {
     setActivePresetId('custom')
@@ -204,6 +214,7 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
 
   const resetNeedles = () => {
     setRunning(false)
+    setHasStarted(false)
     setInitialHeadingDeg(EARTH_NORTH_HEADING_DEG)
     setAllNeedleHeadings(EARTH_NORTH_HEADING_DEG)
     setPhase(0)
@@ -221,6 +232,7 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
     setNeedlePlacements(cloneNeedlePlacements(preset.needlePlacements))
     setNeedleHeadingsDeg(preset.needlePlacements.map(() => preset.initialHeadingDeg))
     setRunning(false)
+    setHasStarted(false)
     setPhase(0)
     setActivePresetId(preset.id)
     setDraggingNeedleIndex(null)
@@ -282,10 +294,16 @@ export function useOerstedSceneState(): UseOerstedSceneStateResult {
       markCustom()
       setInitialHeadingDeg(value)
       if (!running) {
+        setHasStarted(false)
         setAllNeedleHeadings(value)
       }
     },
-    toggleRunning: () => setRunning((value) => !value),
+    toggleRunning: () => {
+      if (!running) {
+        setHasStarted(true)
+      }
+      setRunning((value) => !value)
+    },
     resetNeedles,
     toggleFieldLines: () => setShowFieldLines((value) => !value),
     setNeedlePlacementByDrag,

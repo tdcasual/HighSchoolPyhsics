@@ -1,5 +1,6 @@
 import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../measuring-tools/pose'
 import { RANGES, type MeasureTarget, type RangeKey } from './model'
+import type { ContactMethod } from './state'
 
 export const METER_CAMERA = {
   fov: 30,
@@ -38,6 +39,9 @@ export const POSTS: Record<string, Vec3> = {
   'cell-': [-14.4, 2.7, 9],
   'loop-a': [-2.2, 2.7, 15.2],
   'loop-b': [7.8, 2.7, 15.2],
+  'va-a': [7.4, 2.7, 15.2],
+  'va-b': [10.6, 2.7, 15.2],
+  'va-before-ammeter': [-2.2, 2.7, 15.2],
   'res-a': [-2.6, 2.7, 9],
   'res-b': [2.6, 2.7, 9],
   'diode-anode': [6.6, 2.7, 9],
@@ -47,10 +51,12 @@ export const POSTS: Record<string, Vec3> = {
 const REST_RED: Vec3 = [12, 2.4, 3]
 const REST_BLACK: Vec3 = [-12, 2.4, 3]
 
-export function probeTips(target: MeasureTarget, swapped: boolean): { red: Vec3; black: Vec3 } {
+export function probeTips(target: MeasureTarget, swapped: boolean, contactMethod: ContactMethod = 'external'): { red: Vec3; black: Vec3 } {
   const pairs: Partial<Record<MeasureTarget, [Vec3, Vec3]>> = {
     cell: [POSTS['cell+'], POSTS['cell-']],
-    loopV: [POSTS['cell+'], POSTS['cell-']],
+    loopV: contactMethod === 'external'
+      ? [POSTS['va-a'], POSTS['va-b']]
+      : [POSTS['va-before-ammeter'], POSTS['va-b']],
     loopI: [POSTS['loop-a'], POSTS['loop-b']],
     resistor: [POSTS['res-a'], POSTS['res-b']],
     diode: [POSTS['diode-cathode'], POSTS['diode-anode']],
@@ -77,6 +83,8 @@ export type MeterPose = {
   knob: number
   screw: number
   ohmKnob: number
+  target: MeasureTarget
+  contactMethod: ContactMethod
   red: Vec3
   black: Vec3
 }
@@ -88,13 +96,17 @@ export function meterPose(input: {
   ohmSlider: number
   target: MeasureTarget
   swapped: boolean
+  contactMethod?: ContactMethod
 }): MeterPose {
-  const probes = probeTips(input.target, input.swapped)
+  const contactMethod = input.contactMethod ?? 'external'
+  const probes = probeTips(input.target, input.swapped, contactMethod)
   return {
     needle: needleRotation(input.fraction),
     knob: knobRotation(input.range),
     screw: screwRotation(input.mechanicalSlider),
     ohmKnob: ohmKnobRotation(input.ohmSlider),
+    target: input.target,
+    contactMethod,
     red: probes.red,
     black: probes.black,
   }

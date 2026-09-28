@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -45,8 +45,9 @@ describe('light-diffraction structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 
-  it('shows key data overlay values', () => {
+  it('shows key data overlay values when the data panel is expanded', () => {
     render(<LightDiffractionScene />)
+    fireEvent.click(screen.getByRole('button', { name: '展开' }))
 
     expect(screen.getByText(/模式/)).toBeInTheDocument()
     expect(screen.getByText(/波长 λ/)).toBeInTheDocument()

@@ -22,9 +22,9 @@ const CAMERA_PRESETS: Record<
   }
 > = {
   default: {
-    camera: { position: [2.4, 2.55, 10.8], fov: 36 },
+    camera: { position: [3.65, 2.55, 10.8], fov: 38 },
     controls: {
-      target: [0.25, 0.25, 0.7],
+      target: [1.5, 0.25, 0.7],
       minDistance: 6,
       maxDistance: 22,
       minPolarAngle: 0,
@@ -32,9 +32,9 @@ const CAMERA_PRESETS: Record<
     },
   },
   top: {
-    camera: { position: [0, 10.8, 0.001], up: [0, 0, -1], fov: 32 },
+    camera: { position: [2, 14.75, -0.999], up: [0, 0, -1], fov: 40 },
     controls: {
-      target: [0, -0.25, -0.35],
+      target: [2, -0.25, -1],
       minDistance: 6,
       maxDistance: 22,
       minPolarAngle: 0,
@@ -42,9 +42,9 @@ const CAMERA_PRESETS: Record<
     },
   },
   bottom: {
-    camera: { position: [0, -10.8, 0.001], up: [0, 0, 1], fov: 32 },
+    camera: { position: [2, -15.25, -0.999], up: [0, 0, 1], fov: 40 },
     controls: {
-      target: [0, -0.25, -0.35],
+      target: [2, -0.25, -1],
       minDistance: 6,
       maxDistance: 22,
       minPolarAngle: 0,
@@ -81,6 +81,9 @@ export function MotionalEmfScene() {
             onRodVelocityAngleChange={state.setRodVelocityAngleDeg}
             motionDirection={state.motionDirection}
             onMotionDirectionChange={state.setMotionDirection}
+            isRunning={state.running}
+            onToggleRunning={state.toggleRunning}
+            onReset={state.reset}
           />
 
           <section className="motional-emf-view-card" aria-label="视角切换">
@@ -111,32 +114,23 @@ export function MotionalEmfScene() {
           </section>
         </>
       }
+      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
+          <p>运动状态: {state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</p>
+          <p>行程: {(state.phase * 100).toFixed(0)}%</p>
           <p>电压 U_AB: {state.signedVoltageV.toFixed(2)} V</p>
           <p>极性: {state.polarityText}</p>
           <p>∠(B,L): {state.angleBetweenBLLabel}</p>
           <p>∠(L,v): {state.angleBetweenLVLabel}</p>
           <p>∠(B,v): {state.angleBetweenBVLabel}</p>
-          <p>关系: {state.relationText}</p>
         </div>
       }
-      playbackActions={[
-        {
-          key: 'toggle-running',
-          label: state.running ? '暂停' : '播放',
-          onClick: state.toggleRunning,
-        },
-        {
-          key: 'reset',
-          label: '重置',
-          onClick: state.reset,
-        },
-      ]}
       viewport={
         <InteractiveCanvas
           camera={activeCameraPreset.camera}
           controls={activeCameraPreset.controls}
+          syncCamera
           frameloop={state.running ? 'always' : 'demand'}
         >
           <MotionalEmfRig3D
@@ -148,7 +142,8 @@ export function MotionalEmfScene() {
             rodVelocityAngleDeg={state.rodVelocityAngleDeg}
             motionDirection={state.motionDirection}
             magneticFieldDirection={state.magneticFieldDirection}
-            currentActive={Math.abs(state.signedVoltageV) > 1e-9}
+            velocitySpeedMps={state.speedMps}
+            currentActive={state.running && Math.abs(state.signedVoltageV) > 1e-9}
             needleAngleRad={state.needleAngleRad}
           />
         </InteractiveCanvas>

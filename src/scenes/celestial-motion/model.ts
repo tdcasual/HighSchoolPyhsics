@@ -1,7 +1,8 @@
 export const G = 6.67430e-11
 export const SIDEREAL_DAY = 86164.0905
 export const ORBIT_NODE = 0.16
-export const SYNC_NODE = 0.18
+// Keep the tilted sync orbit aligned with groundPoint's longitude convention.
+export const SYNC_NODE = 0
 export const CIRCULAR_OFFSET = -0.6
 
 export type BodyId = 'earth' | 'moon' | 'sun'
@@ -88,6 +89,23 @@ export function solveE(meanAnomaly: number, eccentricity: number) {
     eccentric -= (eccentric - eccentricity * Math.sin(eccentric) - meanAnomaly) / (1 - eccentricity * Math.cos(eccentric))
   }
   return eccentric
+}
+
+export function transferRadius(scenario: Scenario) {
+  const progress = Math.max(0, Math.min(1, scenario.time / scenario.transT))
+  const eccentric = solveE(Math.PI * progress, scenario.eccentricity)
+  return scenario.semi * (1 - scenario.eccentricity * Math.cos(eccentric))
+}
+
+export function transferSpeed(scenario: Scenario) {
+  const radius = transferRadius(scenario)
+  return Math.sqrt(scenario.mu * (2 / radius - 1 / scenario.semi))
+}
+
+export function transferAngularSpeed(scenario: Scenario) {
+  const radius = transferRadius(scenario)
+  const angularMomentum = Math.sqrt(scenario.mu * scenario.semi * (1 - scenario.eccentricity ** 2))
+  return angularMomentum / radius ** 2
 }
 
 export function worldOrbit(radius: number, angle: number, inclination: number, node = 0): LabVec {
@@ -266,9 +284,12 @@ export function areaWedges(scenario: Scenario): Array<{ color: string; points: L
   if (scenario.mode === 'rendezvous') {
     const inner = scenario.o1.omega * scenario.time
     const outer = scenario.phase + scenario.o2.omega * scenario.time
+    const interval = 0.48 / scenario.o1.omega
+    const innerSweep = scenario.o1.omega * interval
+    const outerSweep = scenario.o2.omega * interval
     return [
-      { color: '#d9480f', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q1, inner - 0.48 + (0.48 * index) / 22, scenario.inclination, scenario.node)) },
-      { color: '#5dade2', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q2, outer - 0.24 + (0.24 * index) / 22, scenario.inclination, scenario.node)) },
+      { color: '#d9480f', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q1, inner - innerSweep + (innerSweep * index) / 22, scenario.inclination, scenario.node)) },
+      { color: '#5dade2', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q2, outer - outerSweep + (outerSweep * index) / 22, scenario.inclination, scenario.node)) },
     ]
   }
   if (scenario.mode === 'transfer') {

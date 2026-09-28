@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useParticleSimulation } from '../../core/useParticleSimulation'
 import type { ParticleState } from '../../core/types'
 import type { CyclotronConfig } from './model'
-import { computeCyclotronAcceleration } from './runtime'
+import { MAX_ORBIT_RADIUS_M } from './layout'
+import { computeCyclotronAcceleration, computeCyclotronStepAcceleration } from './runtime'
 
 export const CYCLOTRON_DEFAULT_INITIAL_SPEED_MPS = 2.4e4
 
@@ -25,6 +26,9 @@ export function useCyclotronSimulation(
     initialState,
     dt,
     computeAcceleration: acceleration,
+    computeAccelerationAtTime: (state, timeS, stepDt) =>
+      computeCyclotronStepAcceleration(state, config, timeS, stepDt),
+    shouldStop: (state) => Math.hypot(state.position.x, state.position.y) >= MAX_ORBIT_RADIUS_M,
     runningByDefault: false,
     autoResetOnInitialStateChange: true,
   })

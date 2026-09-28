@@ -47,6 +47,16 @@ describe('voltage expression compiler', () => {
     expect(negativeExponent.evaluate(0)).toBe(0.25)
   })
 
+  it('starts the default timebase sweep at the left edge and completes one left-to-right ramp', () => {
+    const timebase = compileVoltageExpression('8*sawtooth(2*pi*2*t-pi)')
+
+    expect(timebase.error).toBeNull()
+    expect(timebase.evaluate(0)).toBeCloseTo(-8)
+    expect(timebase.evaluate(0.25)).toBeCloseTo(0)
+    expect(timebase.evaluate(0.5)).toBeCloseTo(-8)
+    expect(timebase.evaluate(0.5 - 1e-6)).toBeGreaterThan(7.99)
+  })
+
   it('supports nested allowed functions and all built-in presets', () => {
     const nested = compileVoltageExpression('clamp(max(abs(-3), sqrt(16)), 0, 5)')
     expect(nested.error).toBeNull()

@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react'
-import { drawDiffractionPattern, drawWhiteLightPattern, setPatternCacheMax, drawDiffractionProfile, singleSlitCentralWidth, airyDiskRadius, gratingFirstOrderAngle, getPhysicalViewWidth, type DiffractionMode, type DiffractionParams, type FilterColor } from './model'
+import {
+  drawDiffractionPattern,
+  drawWhiteLightPattern,
+  setPatternCacheMax,
+  drawDiffractionProfile,
+  singleSlitCentralWidth,
+  airyDiskRadius,
+  poissonSpotFirstDarkRadius,
+  gratingFirstOrderDisplacement,
+  getPhysicalViewWidth,
+  type DiffractionMode,
+  type DiffractionParams,
+  type FilterColor,
+} from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import './light-diffraction.css'
 
@@ -27,6 +40,7 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
   const [canvasSize, setCanvasSize] = useState(() =>
     typeof ResizeObserver === 'undefined' ? 400 : 0,
   )
+  const [qualityRevision, setQualityRevision] = useState(0)
   const perf = useMemo(() => resolvePerformanceProfile(), [])
   const dpr = useMemo(
     () => (typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1),
@@ -37,6 +51,11 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
   const frameTimesRef = useRef<number[]>([])
   const wlStepRef = useRef(5)
   const qualityTimerRef = useRef(0)
+  const qualityFrameRef = useRef<number | null>(null)
+
+  useEffect(() => () => {
+    if (qualityFrameRef.current !== null) window.cancelAnimationFrame(qualityFrameRef.current)
+  }, [])
 
   useEffect(() => {
     const fullStep = perf.doubleSlitWhiteLightWavelengthStep ?? 5
@@ -52,7 +71,7 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
     qualityTimerRef.current = window.setTimeout(() => {
       wlStepRef.current = fullStep
       // Trigger re-render so the draw effect picks up the full quality step
-      setCanvasSize((s) => s)
+      setQualityRevision((revision) => revision + 1)
     }, 200)
     return () => clearTimeout(qualityTimerRef.current)
   }, [diffractionParams, mode, isWhiteLight, filterColor, perf])
@@ -113,14 +132,32 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
     if (times.length >= 3) {
       const avg = times.reduce((a, b) => a + b, 0) / times.length
       if (avg > 25) {
-        adaptiveScaleRef.current = Math.max(0.35, +(adaptiveScaleRef.current - 0.1).toFixed(2))
+        const nextScale = Math.max(0.35, +(adaptiveScaleRef.current - 0.1).toFixed(2))
         frameTimesRef.current = []
+        if (nextScale !== adaptiveScaleRef.current) {
+          adaptiveScaleRef.current = nextScale
+          if (qualityFrameRef.current === null) {
+            qualityFrameRef.current = window.requestAnimationFrame(() => {
+              qualityFrameRef.current = null
+              setQualityRevision((revision) => revision + 1)
+            })
+          }
+        }
       } else if (avg < 10) {
-        adaptiveScaleRef.current = Math.min(perf.doubleSlitChartScale ?? 1.0, +(adaptiveScaleRef.current + 0.05).toFixed(2))
+        const nextScale = Math.min(perf.doubleSlitChartScale ?? 1.0, +(adaptiveScaleRef.current + 0.05).toFixed(2))
         frameTimesRef.current = []
+        if (nextScale !== adaptiveScaleRef.current) {
+          adaptiveScaleRef.current = nextScale
+          if (qualityFrameRef.current === null) {
+            qualityFrameRef.current = window.requestAnimationFrame(() => {
+              qualityFrameRef.current = null
+              setQualityRevision((revision) => revision + 1)
+            })
+          }
+        }
       }
     }
-  }, [canvasSize, diffractionParams, mode, isLightOn, isWhiteLight, filterColor, dpr, perf])
+  }, [canvasSize, diffractionParams, mode, isLightOn, isWhiteLight, filterColor, dpr, perf, qualityRevision])
 
   // Reticle overlay
   useEffect(() => {
@@ -137,7 +174,7 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
     }
     canvas.style.width = `${cssSize}px`
     canvas.style.height = `${cssSize}px`
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0)
     ctx.clearRect(0, 0, cssSize, cssSize)
 
     const cx = cssSize / 2
@@ -171,18 +208,21 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
     ctx.fill()
 
     // Scale bar: central feature width
+    const viewParams = { ...diffractionParams, wavelength: isWhiteLight ? 700 : diffractionParams.wavelength }
     const featureWidthMm =
       mode === 'single-slit'
-        ? singleSlitCentralWidth(diffractionParams) * 1e3
-        : mode === 'circular-aperture' || mode === 'circular-obstacle'
-          ? airyDiskRadius(diffractionParams) * 1e3
-          : (diffractionParams.screenDistance * Math.tan((gratingFirstOrderAngle(diffractionParams) * Math.PI) / 180)) * 1e3
-    const physicalViewWidthMm = getPhysicalViewWidth(mode) * 1000
+        ? singleSlitCentralWidth(viewParams) * 1e3
+        : mode === 'circular-aperture'
+          ? airyDiskRadius(viewParams) * 1e3
+          : mode === 'circular-obstacle'
+            ? poissonSpotFirstDarkRadius(viewParams) * 1e3
+            : gratingFirstOrderDisplacement(viewParams) * 1e3
+    const physicalViewWidthMm = getPhysicalViewWidth(mode, viewParams) * 1000
     const pxPerMm = cssSize / physicalViewWidthMm
     const barPx = featureWidthMm * pxPerMm
     if (barPx > 8 && barPx < cssSize * 0.6) {
       const barY = cy + radius * 0.72
-      const barStartX = cx - barPx / 2
+      const barStartX = mode === 'single-slit' ? cx - barPx / 2 : cx
       ctx.strokeStyle = 'rgba(255,255,255,0.45)'
       ctx.lineWidth = 1.5
       ctx.beginPath()
@@ -198,9 +238,10 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
       ctx.fillStyle = 'rgba(255,255,255,0.4)'
       ctx.font = '11px ui-monospace, monospace'
       ctx.textAlign = 'center'
-      ctx.fillText('Δx', cx, barY + 12)
+      const scaleLabel = mode === 'single-slit' ? 'Δy₀' : mode === 'diffraction-grating' ? 'y₁' : 'r₁'
+      ctx.fillText(scaleLabel, barStartX + barPx / 2, barY + 12)
     }
-  }, [canvasSize, dpr, eyepieceAngle, isLightOn, mode, diffractionParams])
+  }, [canvasSize, dpr, eyepieceAngle, isLightOn, isWhiteLight, mode, diffractionParams, qualityRevision])
 
   // Profile curve rendering
   useEffect(() => {
@@ -236,17 +277,17 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
       : mode === 'circular-aperture'
         ? '圆孔衍射图样'
         : mode === 'circular-obstacle'
-          ? '圆球衍射图样'
+          ? '圆盘衍射 / 泊松亮斑'
           : '光栅衍射图样'
 
   const formula =
     mode === 'single-slit'
-      ? 'Δy = 2λL / a'
+      ? 'I(y)=sinc²(πa sinθ/λ),  Δy₀≈2λL/a'
       : mode === 'circular-aperture'
         ? 'r = 1.22λL / D'
         : mode === 'circular-obstacle'
-          ? 'r = 1.22λL / D'
-          : 'd·sinθ = mλ'
+          ? '近轴泊松亮斑：I(r)/I₀ ≈ J₀²(πDr/(λL))'
+          : 'd·sinθ = mλ；屏上位置 y = L·tanθ'
 
   return (
     <div ref={containerRef} className="diffraction-chart-stack">

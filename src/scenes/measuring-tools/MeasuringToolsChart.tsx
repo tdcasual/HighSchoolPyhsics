@@ -63,7 +63,7 @@ function CaliperStrip({ x, divisions, reveal }: { x: number; divisions: VernierD
           </g>
         )
       })}
-      <text x="20" y="168" fill="#4d646c" fontSize="12">{divisions} 分度 · 精度 {reading.precision} mm · 尺框 {reading.x.toFixed(2)} mm</text>
+      <text x="20" y="168" fill="#4d646c" fontSize="12">{divisions} 分度 · 精度 {reading.precision} mm{reveal ? ` · 尺框 ${reading.x.toFixed(2)} mm` : ""}</text>
     </svg>
   )
 }
@@ -101,17 +101,23 @@ function MicrometerStrip({ gap, zero, reveal, click }: { gap: number; zero: numb
       })}
       <rect x="454" y="46" width="242" height="96" rx="10" fill="#f4f7f8" stroke="#c5d2d6" />
       <line data-testid="thimble-datum" x1="470" y1="94" x2="680" y2="94" stroke="#c96b3f" strokeWidth="1.4" />
-      {[-2, -1, 0, 1, 2].map((offset) => {
-        const division = reading.divisions + offset
-        const y = 94 - offset * 16
+      {Array.from({ length: 22 }, (_, index) => {
+        const division = Math.floor(reading.divisions) - 10 + index
+        const major = division % 5 === 0
+        const y = 94 - (division - reading.divisions) * 4
+        if (y < 48 || y > 140) return null
+        const label = ((division % 50) + 50) % 50
         return (
-          <text key={offset} x="560" y={y} textAnchor="middle" fontSize="13" fill={offset === 0 ? '#c96b3f' : '#1b2528'}>
-            {((Math.round(division * 10) / 10 + 50) % 50).toFixed(1)}
-          </text>
+          <g key={division}>
+            <line x1={major ? 520 : 540} y1={y} x2="608" y2={y} stroke={major ? '#182124' : '#53666d'} strokeWidth={major ? 1.5 : 0.8} />
+            {major ? <text x="560" y={y - 2} textAnchor="middle" fontSize="12" fill="#1b2528">{label}</text> : null}
+          </g>
         )
       })}
       <text data-testid="micrometer-reading" x="20" y="168" fill="#4d646c" fontSize="12">
-        螺距 0.5 mm · 示数 {reading.text} mm{zero ? ` · 零点 ${zero > 0 ? '+' : ''}${zero.toFixed(3)} mm` : ''}{reading.halfLine ? ' · 半毫米已露出' : ''}
+        {reveal
+          ? `螺距 0.5 mm · 示数 ${reading.text} mm${zero ? ` · 零点 ${zero > 0 ? '+' : ''}${zero.toFixed(3)} mm` : ''}${reading.halfLine ? ' · 半毫米已露出' : ''}`
+          : '螺距 0.5 mm · 每格 0.01 mm · 根据刻线判读'}
       </text>
       {click > 0 ? <text x="700" y="168" textAnchor="end" fill="#2f7563" fontSize="12">喀喀！已接触</text> : null}
     </svg>

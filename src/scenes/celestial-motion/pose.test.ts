@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CIRCULAR_OFFSET, ORBIT_NODE, scenarioOf, worldOrbit } from './model'
-import { CELESTIAL_CAMERA, celestialPose, celestialView, diagramDepth, diagramScale, drawnOrbitRadius, labToScene, outerRadius } from './pose'
+import { CELESTIAL_CAMERA, celestialCamera, celestialPose, celestialView, diagramDepth, diagramScale, drawnOrbitRadius, labToScene, outerRadius } from './pose'
 
 describe('celestial pose', () => {
   it('maps lab north to scene up and keeps the orbit radius', () => {
@@ -40,7 +40,17 @@ describe('celestial pose', () => {
   it('frames a wide synchronous orbit and marks both burn points', () => {
     const sync = scenarioOf({ mode: 'synchronous', body: 'moon', r1: 2, r2: 4, phaseDeg: 110, inclinationDeg: 0, time: 0 })
     expect(drawnOrbitRadius(sync)).toBeCloseTo(184 / 48, 8)
-    expect(celestialView(-25, 42, drawnOrbitRadius(sync)).target).toEqual([0, 0, 0])
+    const mobileView = celestialView(-25, 42, drawnOrbitRadius(sync), { aspect: 1.36 })
+    const bound = drawnOrbitRadius(sync) * 1.22
+    expect(mobileView.target.every((value) => Math.abs(value) < 1e-10)).toBe(true)
+    expect(Math.asin(bound / mobileView.radius)).toBeLessThan((16 * Math.PI) / 180)
+    const desktopView = celestialCamera(-35, 44, drawnOrbitRadius(sync), {
+      aspect: 1.5,
+      centerOffsetPixels: 154,
+      viewportHeight: 589,
+    })
+    expect(desktopView.target).not.toEqual([0, 0, 0])
+    expect(desktopView.position).toHaveLength(3)
     expect(CELESTIAL_CAMERA.fov).toBe(32)
     expect(CELESTIAL_CAMERA.minDistance).toBe(6)
     expect(CELESTIAL_CAMERA.maxDistance).toBe(26)

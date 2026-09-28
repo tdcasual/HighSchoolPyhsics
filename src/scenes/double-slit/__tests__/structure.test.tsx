@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -45,13 +45,15 @@ describe('double-slit structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 
-  it('shows key data overlay values', () => {
+  it('keeps the data overlay collapsed by default and exposes the measurement values when opened', () => {
     render(<DoubleSlitScene />)
+    const dataPanel = screen.getByRole('region', { name: '数据' })
+    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
 
-    expect(screen.getByText(/波长 λ/)).toBeInTheDocument()
+    expect(screen.getByText(/光源波长 λ/)).toBeInTheDocument()
     expect(screen.getByText(/单缝宽度 a/)).toBeInTheDocument()
     expect(screen.getByText(/双缝间距 d/)).toBeInTheDocument()
     expect(screen.getByText(/缝屏距 L/)).toBeInTheDocument()
-    expect(screen.getByText(/条纹间距 Δx/)).toBeInTheDocument()
+    expect(screen.getByText(/理论条纹间距 Δx/)).toBeInTheDocument()
   })
 })

@@ -42,8 +42,21 @@ describe('cart structure', () => {
     expect(readout()).toHaveTextContent('打点2')
   })
 
+  it('clears a component close-up and restores the overview when assembly begins', () => {
+    render(<CartScene />)
+    const homePosition = [...(canvasProps.current?.camera as { position: number[] }).position]
+    fireEvent.click(screen.getByText('电磁打点计时器').closest('button') as HTMLButtonElement)
+    expect((canvasProps.current?.camera as { position: number[] }).position).not.toEqual(homePosition)
+    expect(screen.getByRole('radio', { name: '特写' })).toHaveAttribute('aria-checked', 'true')
+
+    fireEvent.click(screen.getByRole('radio', { name: '装配' }))
+    expect((canvasProps.current?.camera as { position: number[] }).position).toEqual(homePosition)
+    expect(screen.getByRole('radio', { name: '透视' })).toHaveAttribute('aria-checked', 'true')
+  })
+
   it('switches to the uniform preset and locks playback during assembly', () => {
     render(<CartScene />)
+    fireEvent.click(screen.getByRole('radio', { name: '实验' }))
     fireEvent.click(screen.getByRole('button', { name: '匀速对照' }))
     const readout = () => screen.getByText('时间').closest('p')?.parentElement
     expect(readout()).toHaveTextContent('0.200 m/s')
@@ -52,6 +65,11 @@ describe('cart structure', () => {
     expect(screen.getByRole('button', { name: '开始实验' })).toBeDisabled()
     fireEvent.click(screen.getByRole('button', { name: '开始实验' }))
     expect(readout()).toHaveTextContent('0.00 s')
+    fireEvent.click(screen.getByRole('radio', { name: '正视' }))
+    const beforeTop = [...(canvasProps.current?.camera as { position: number[] }).position]
+    fireEvent.click(screen.getByRole('radio', { name: '俯视' }))
+    const afterTop = (canvasProps.current?.camera as { position: number[] }).position
+    expect(afterTop).not.toEqual(beforeTop)
     fireEvent.click(screen.getByRole('radio', { name: '正视' }))
     const controls = canvasProps.current?.controls as { target: number[] }
     expect(controls.target).toEqual([0, 0.1, 0])

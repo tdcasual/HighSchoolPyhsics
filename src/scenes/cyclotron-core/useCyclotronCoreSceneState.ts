@@ -16,42 +16,102 @@ export type CyclotronCoreSceneState = {
 }
 
 type Simulation = Omit<CyclotronCoreSceneState, 'readings' | 'setParticleType' | 'setB' | 'setU' | 'toggleRunning' | 'reset'>
-const INITIAL_SIMULATION: Simulation = { particleType: 'proton', B: 3, U: 30, elapsed: 0, running: true }
+const INITIAL_SIMULATION: Simulation = { particleType: 'proton', B: 3, U: 30, elapsed: 0, running: false }
 
 export function useCyclotronCoreSceneState(): CyclotronCoreSceneState {
   const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)
+
   useEffect(() => { simulationRef.current = simulation }, [simulation])
+
   useEffect(() => {
     if (!simulation.running || frameRef.current !== null) return
+
     const tick = (timestamp: number) => {
       const previous = lastTimestampRef.current
       lastTimestampRef.current = timestamp
       if (previous !== null) {
         const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
         const current = simulationRef.current
-        simulationRef.current = { ...current, elapsed: current.elapsed + delta }
-        setSimulation(simulationRef.current)
+        const elapsed = current.elapsed + delta
+        const nextReadings = deriveCyclotronReadings({
+          type: current.particleType,
+          B: current.B,
+          U: current.U,
+          elapsed,
+          running: true,
+        })
+        const next = { ...current, elapsed, running: !nextReadings.extracted }
+        simulationRef.current = next
+        setSimulation(next)
+        if (!next.running) {
+          frameRef.current = null
+          lastTimestampRef.current = null
+          return
+        }
       }
-      if (simulationRef.current.running) frameRef.current = requestAnimationFrame(tick)
-      else frameRef.current = null
+
+      frameRef.current = requestAnimationFrame(tick)
     }
+
     frameRef.current = requestAnimationFrame(tick)
-    return () => { if (frameRef.current !== null) cancelAnimationFrame(frameRef.current); frameRef.current = null; lastTimestampRef.current = null }
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+      frameRef.current = null
+      lastTimestampRef.current = null
+    }
   }, [simulation.running])
+
   const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => { const next = { ...previous, ...patch }; simulationRef.current = next; return next })
+    setSimulation((previous) => {
+      const next = { ...previous, ...patch }
+      simulationRef.current = next
+      return next
+    })
   }, [])
-  const readings = useMemo(() => deriveCyclotronReadings({ type: simulation.particleType, B: simulation.B, U: simulation.U, elapsed: simulation.elapsed, running: simulation.running }), [simulation])
+
+  const resetForParameterChange = useCallback((patch: Partial<Simulation>) => {
+    setSimulation((previous) => {
+      const next = { ...previous, ...patch, elapsed: 0, running: false }
+      simulationRef.current = next
+      return next
+    })
+  }, [])
+
+  const readings = useMemo(() => deriveCyclotronReadings({
+    type: simulation.particleType,
+    B: simulation.B,
+    U: simulation.U,
+    elapsed: simulation.elapsed,
+    running: simulation.running,
+  }), [simulation])
+
   return {
     ...simulation,
     readings,
-    setParticleType: (particleType) => commit({ particleType }),
-    setB: (B) => commit({ B }),
-    setU: (U) => commit({ U }),
-    toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    reset: () => { lastTimestampRef.current = null; const next = { ...INITIAL_SIMULATION }; simulationRef.current = next; setSimulation(next) },
+    setParticleType: (particleType) => resetForParameterChange({ particleType }),
+    setB: (B) => resetForParameterChange({ B }),
+    setU: (U) => resetForParameterChange({ U }),
+    toggleRunning: () => {
+      const current = simulationRef.current
+      const currentReadings = deriveCyclotronReadings({
+        type: current.particleType,
+        B: current.B,
+        U: current.U,
+        elapsed: current.elapsed,
+        running: current.running,
+      })
+      if (currentReadings.extracted) return
+      lastTimestampRef.current = null
+      commit({ running: !current.running })
+    },
+    reset: () => {
+      lastTimestampRef.current = null
+      const next = { ...INITIAL_SIMULATION }
+      simulationRef.current = next
+      setSimulation(next)
+    },
   }
 }

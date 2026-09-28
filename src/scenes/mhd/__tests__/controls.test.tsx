@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { MhdGeneratorScene } from '../MhdGeneratorScene'
 
@@ -10,24 +10,36 @@ describe('mhd controls', () => {
     expect(await screen.findByLabelText('磁场 B')).toBeInTheDocument()
     expect(await screen.findByLabelText('等离子体速度 v')).toBeInTheDocument()
     expect(await screen.findByLabelText('电极间距 d')).toBeInTheDocument()
-    expect(await screen.findByLabelText('等离子浓度 n')).toBeInTheDocument()
-    expect(await screen.findByTestId('mhd-voltage-display')).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '播放' })).toBeInTheDocument()
+    expect(await screen.findByLabelText('载流子浓度 n/n₀')).toBeInTheDocument()
+    expect(await screen.findByLabelText('负载电阻 R_L')).toBeInTheDocument()
+    const dataPanel = screen.getByRole('region', { name: '数据' })
+    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+    expect(await within(dataPanel).findByTestId('mhd-voltage-display')).toBeInTheDocument()
+
+    const playbackPanel = screen.getByRole('region', { name: '播放控制' })
+    fireEvent.click(within(playbackPanel).getByRole('button', { name: '展开' }))
+    expect(await within(playbackPanel).findByRole('button', { name: '播放' })).toBeInTheDocument()
   })
 
   it('updates voltage display when magnetic field changes', async () => {
     render(<MhdGeneratorScene />)
 
-    const display = (await screen.findAllByTestId('mhd-voltage-display'))[0]
-    const parseVoltage = (text: string) => Number(text.match(/([0-9.]+)\s*V/)?.[1] ?? '0')
-    const before = parseVoltage(display.textContent ?? '')
+    const dataPanel = screen.getByRole('region', { name: '数据' })
+    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+    const display = await within(dataPanel).findByTestId('mhd-voltage-display')
+    const parseVoltageMagnitude = (text: string) => {
+      const match = text.match(/([0-9.]+)\s*(M|k)?V/)
+      const multiplier = match?.[2] === 'M' ? 1_000_000 : match?.[2] === 'k' ? 1_000 : 1
+      return Number(match?.[1] ?? '0') * multiplier
+    }
+    const before = parseVoltageMagnitude(display.textContent ?? '')
 
     vi.useFakeTimers()
     fireEvent.change(screen.getByLabelText('磁场 B'), { target: { value: '3' } })
     vi.advanceTimersToNextTimer()
     vi.useRealTimers()
 
-    const after = parseVoltage((await screen.findAllByTestId('mhd-voltage-display'))[0].textContent ?? '')
+    const after = parseVoltageMagnitude((await within(dataPanel).findByTestId('mhd-voltage-display')).textContent ?? '')
 
     expect(after).toBeGreaterThan(before)
   })

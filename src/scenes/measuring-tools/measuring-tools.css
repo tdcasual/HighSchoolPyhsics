@@ -52,6 +52,10 @@
   text-align: right;
 }
 
+.measure-chart-content {
+  min-width: min(520px, 40vw);
+}
+
 .measure-chart {
   display: block;
   width: 100%;

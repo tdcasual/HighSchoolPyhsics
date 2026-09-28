@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { deriveWaveReadings, type WaveDirection, type WaveParams } from './model'
-
-export type WaveStateSceneState = WaveParams & {
+import { DEFAULT_PROBE_X, deriveWaveReadings, type WaveDirection, type WaveParams, type WavePreset, type WaveStartDirection } from './model'
+type WaveStateParams = Omit<WaveParams, 'startDirection'> & { startDirection: WaveStartDirection }
+export type WaveStateSceneState = WaveStateParams & {
+  probeX: number
+  timeScale: number
   elapsed: number
   running: boolean
   showGhost: boolean
@@ -12,16 +14,22 @@ export type WaveStateSceneState = WaveParams & {
   setWavelength: (value: number) => void
   setPeriod: (value: number) => void
   setDirection: (value: WaveDirection) => void
+  setStartDirection: (value: WaveStartDirection) => void
+  setProbeX: (value: number) => void
+  setTimeScale: (value: number) => void
+  setPreset: (preset: WavePreset) => void
   setShowGhost: (value: boolean) => void
   setShowVelocity: (value: boolean) => void
   setShowAcceleration: (value: boolean) => void
   toggleRunning: () => void
   reset: () => void
 }
-
-type Simulation = Omit<WaveStateSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'reset'>
-const INITIAL_SIMULATION: Simulation = { amplitude: 10, wavelength: 4, period: 2, direction: 'right', elapsed: 0, running: true, showGhost: false, showVelocity: true, showAcceleration: true }
-
+type Simulation = Omit<WaveStateSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'reset'>
+const INITIAL_SIMULATION: Simulation = {
+  amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up',
+  probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0, running: false,
+  showGhost: false, showVelocity: true, showAcceleration: true,
+}
 export function useWaveStateSceneState(): WaveStateSceneState {
   const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
   const simulationRef = useRef(simulation)
@@ -34,8 +42,8 @@ export function useWaveStateSceneState(): WaveStateSceneState {
       const previous = lastTimestampRef.current
       lastTimestampRef.current = timestamp
       if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
         const current = simulationRef.current
+        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000) * current.timeScale
         simulationRef.current = { ...current, elapsed: current.elapsed + delta }
         setSimulation(simulationRef.current)
       }
@@ -43,23 +51,61 @@ export function useWaveStateSceneState(): WaveStateSceneState {
       else frameRef.current = null
     }
     frameRef.current = requestAnimationFrame(tick)
-    return () => { if (frameRef.current !== null) cancelAnimationFrame(frameRef.current); frameRef.current = null; lastTimestampRef.current = null }
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+      frameRef.current = null
+      lastTimestampRef.current = null
+    }
   }, [simulation.running])
   const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => { const next = { ...previous, ...patch }; simulationRef.current = next; return next })
+    setSimulation((previous) => {
+      const next = { ...previous, ...patch }
+      simulationRef.current = next
+      return next
+    })
   }, [])
-  const readings = useMemo(() => deriveWaveReadings(simulation.elapsed, simulation), [simulation])
+  const readings = useMemo(
+    () => deriveWaveReadings(simulation.elapsed, simulation, simulation.probeX),
+    [simulation],
+  )
+  const resetElapsedAndCommit = (patch: Partial<Simulation>) => {
+    lastTimestampRef.current = null
+    commit({ ...patch, elapsed: 0 })
+  }
+  const setPreset = (preset: WavePreset) => {
+    if (preset === 'baseline') {
+      resetElapsedAndCommit({ amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up', probeX: 6, timeScale: 0.5 })
+    } else if (preset === 'leftward') {
+      resetElapsedAndCommit({ direction: 'left', startDirection: 'down' })
+    } else if (preset === 'double-frequency') {
+      resetElapsedAndCommit({ wavelength: 2, period: 1, direction: 'right', startDirection: 'up' })
+    } else {
+      resetElapsedAndCommit({
+        amplitude: 100, wavelength: 4, period: 2, direction: 'right',
+        startDirection: 'up', probeX: 6, timeScale: 0.5,
+      })
+    }
+  }
   return {
     ...simulation,
     readings,
-    setAmplitude: (amplitude) => commit({ amplitude }),
-    setWavelength: (wavelength) => commit({ wavelength }),
-    setPeriod: (period) => commit({ period }),
-    setDirection: (direction) => commit({ direction }),
+    setAmplitude: (amplitude) => resetElapsedAndCommit({ amplitude }),
+    setWavelength: (wavelength) => resetElapsedAndCommit({ wavelength }),
+    setPeriod: (period) => resetElapsedAndCommit({ period }),
+    setDirection: (direction) => resetElapsedAndCommit({ direction }),
+    setStartDirection: (startDirection) => resetElapsedAndCommit({ startDirection }),
+    setProbeX: (probeX) => commit({ probeX }),
+    setTimeScale: (timeScale) => commit({ timeScale }),
+    setPreset,
     setShowGhost: (showGhost) => commit({ showGhost }),
     setShowVelocity: (showVelocity) => commit({ showVelocity }),
     setShowAcceleration: (showAcceleration) => commit({ showAcceleration }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    reset: () => { lastTimestampRef.current = null; const next = { ...INITIAL_SIMULATION }; simulationRef.current = next; setSimulation(next) },
+    reset: () => {
+      lastTimestampRef.current = null
+      const next = { ...INITIAL_SIMULATION }
+      simulationRef.current = next
+      setSimulation(next)
+    },
   }
 }

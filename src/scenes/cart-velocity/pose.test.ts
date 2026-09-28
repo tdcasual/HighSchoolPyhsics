@@ -33,15 +33,27 @@ describe('cart pose', () => {
     expect(cartPose({ ...base, time: 1.6 }).dots).toHaveLength(81)
   })
 
-  it('reveals parts in assembly order and hides the pulley without hooks', () => {
+  it('reveals apparatus in assembly order and shows the installed rope at the final step', () => {
     const empty = cartPose({ ...base, time: 0, stage: 'assemble', assembly: 0 })
+    expect(empty.trackVisible).toBe(false)
     expect(empty.cartVisible).toBe(false)
     expect(empty.timerVisible).toBe(false)
     expect(empty.tapeVisible).toBe(false)
-    const cartOnly = cartPose({ ...base, time: 0, stage: 'assemble', assembly: 1 })
-    expect(cartOnly.cartVisible).toBe(true)
-    expect(cartOnly.timerVisible).toBe(false)
-    expect(cartPose({ ...base, time: 0, hooks: 0 }).pulleyVisible).toBe(false)
+    expect(empty.pulleyVisible).toBe(false)
+
+    const trackInstalled = cartPose({ ...base, time: 0, stage: 'assemble', assembly: 1 })
+    expect(trackInstalled.trackVisible).toBe(true)
+    expect(trackInstalled.pulleyVisible).toBe(true)
+    expect(trackInstalled.cartVisible).toBe(false)
+
+    const cartInstalled = cartPose({ ...base, time: 0, stage: 'assemble', assembly: 2 })
+    expect(cartInstalled.cartVisible).toBe(true)
+    expect(cartInstalled.timerVisible).toBe(false)
+
+    const finalStep = cartPose({ ...base, time: 0, stage: 'assemble', assembly: 5 })
+    expect(finalStep.ropeVisible).toBe(true)
+    expect(finalStep.discCount).toBe(3)
+    expect(cartPose({ ...base, time: 0, hooks: 0 }).pulleyVisible).toBe(true)
     expect(cartPose({ ...base, time: 0, dh: 0.0025 }).guideVisible).toBe(true)
     expect(hookAcceleration(0)).toBe(0)
   })

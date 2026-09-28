@@ -2,7 +2,9 @@ import { ExtrudeGeometry, Shape, Vector2 } from 'three'
 import { buildRevolveGeometry, micrometerBowPoints, micrometerInsulatorPoints } from './geometry'
 import { MICROMETER_REF_RAD } from './pose'
 
-function extrude(points: Array<[number, number]>, depth: number, z0 = -depth / 2, bevel = 0) {
+export type InstrumentOutline = Array<[number, number]>
+
+function extrude(points: InstrumentOutline, depth: number, z0 = -depth / 2, bevel = 0) {
   const shape = new Shape(points.map(([x, y]) => new Vector2(x, y)))
   const geometry = new ExtrudeGeometry(shape, {
     depth,
@@ -16,12 +18,19 @@ function extrude(points: Array<[number, number]>, depth: number, z0 = -depth / 2
   return geometry
 }
 
-export const FIXED_OUTER_JAW = extrude([[0, 0], [0, -40], [-3, -40], [-24, -13], [-24, 0]], 3.5)
-export const FIXED_INNER_JAW = extrude([[-7, 16], [8, 16], [1.2, 31.5], [0, 31.5], [0, 20], [-7, 20]], 1.75, 0)
-export const MOVING_OUTER_JAW = extrude([[0, -5], [0, -40], [3, -40], [24, -13], [24, -5]], 3.5)
-export const MOVING_INNER_JAW = extrude([[-8, 16], [-1.2, 31.5], [0, 31.5], [0, 16], [10, 16], [10, 20], [-8, 20]], 1.75, -1.75)
-export const MICROMETER_BOW = extrude(micrometerBowPoints(), 9, -4.5, 0.6)
-export const MICROMETER_INSULATOR = extrude(micrometerInsulatorPoints(), 1.1, 5)
+export const FIXED_OUTER_JAW_OUTLINE: InstrumentOutline = [[0, 0], [0, -40], [-3, -40], [-24, -13], [-24, 0]]
+export const FIXED_INNER_JAW_OUTLINE: InstrumentOutline = [[-7, 16], [8, 16], [1.2, 31.5], [0, 31.5], [0, 20], [-7, 20]]
+export const MOVING_OUTER_JAW_OUTLINE: InstrumentOutline = [[0, -5], [0, -40], [3, -40], [24, -13], [24, -5]]
+export const MOVING_INNER_JAW_OUTLINE: InstrumentOutline = [[-8, 16], [10, 16], [10, 20], [0, 20], [0, 31.5], [-1.2, 31.5], [-8, 20]]
+export const MICROMETER_BOW_OUTLINE = micrometerBowPoints()
+export const MICROMETER_INSULATOR_OUTLINE = micrometerInsulatorPoints()
+
+export const FIXED_OUTER_JAW = extrude(FIXED_OUTER_JAW_OUTLINE, 3.5)
+export const FIXED_INNER_JAW = extrude(FIXED_INNER_JAW_OUTLINE, 1.75, 0)
+export const MOVING_OUTER_JAW = extrude(MOVING_OUTER_JAW_OUTLINE, 3.5)
+export const MOVING_INNER_JAW = extrude(MOVING_INNER_JAW_OUTLINE, 1.75, -1.75)
+export const MICROMETER_BOW = extrude(MICROMETER_BOW_OUTLINE, 9, -4.5, 0.6)
+export const MICROMETER_INSULATOR = extrude(MICROMETER_INSULATOR_OUTLINE, 1.1, 5)
 
 const REF = MICROMETER_REF_RAD
 const PH0 = REF - 55 * Math.PI / 180

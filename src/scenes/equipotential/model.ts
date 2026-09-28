@@ -1,239 +1,365 @@
-import { mapPotentialNonLinear as mapPotentialNonLinearDomain, samplePotential3D } from '../../domains/electrostatics/potential'
+import { samplePotential3D } from '../../domains/electrostatics/potential'
 import type { ElectrostaticCharge3D } from '../../domains/electrostatics/types'
 
 export type EquipotentialCharge = ElectrostaticCharge3D
 
-type FieldSample = {
-  x: number
-  y: number
-  z: number
-  potential: number
-}
-
 export type EquipotentialSurface = {
   level: number
   isoValue: number
-  points: Array<[number, number, number]>
+  positions: Float32Array
+  indices: Uint32Array
+  triangleCount: number
 }
 
 export type EquipotentialStats = {
   minPotential: number
   maxPotential: number
-  positivePointCount: number
-  negativePointCount: number
+  positiveSurfaceCount: number
+  negativeSurfaceCount: number
+  positiveTriangleCount: number
+  negativeTriangleCount: number
   positiveChargeCount: number
   negativeChargeCount: number
-  dominantPolarity: 'positive' | 'negative' | 'balanced'
 }
 
-export type EquipotentialCloudResult = {
+export type EquipotentialSurfaceResult = {
   positiveSurfaces: EquipotentialSurface[]
   negativeSurfaces: EquipotentialSurface[]
   stats: EquipotentialStats
 }
 
-export type BuildEquipotentialCloudsOptions = {
+export type BuildEquipotentialSurfacesOptions = {
   charges: ReadonlyArray<EquipotentialCharge>
   bounds: number
   resolution: number
   shellCount: number
-  softeningFactor: number
-  softPotentialLimit: number
-  maxPointsPerSurface?: number
-  toleranceRatio?: number
-  minTolerance?: number
+  softeningEpsilon: number
 }
 
-const DEFAULT_MAX_POINTS_PER_SURFACE = 1200
-const DEFAULT_TOLERANCE_RATIO = 0.03
-const DEFAULT_MIN_TOLERANCE = 0.35
+type Polarity = 'positive' | 'negative'
+type Point3 = [number, number, number]
+
+const CUBE_CORNERS = [
+  [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
+  [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1],
+] as const
+
+// A consistent six-tetrahedron split around each cube's 0→7 diagonal.
+const TETRAHEDRA = [
+  [0, 5, 1, 7], [0, 1, 3, 7], [0, 3, 2, 7],
+  [0, 2, 6, 7], [0, 6, 4, 7], [0, 4, 5, 7],
+] as const
 
 function computeIsoLevels(shellCount: number): number[] {
-  const safeCount = Math.max(1, Math.round(shellCount))
-  const levels: number[] = []
+  const safeCount = Number.isFinite(shellCount) ? Math.max(1, Math.min(8, Math.round(shellCount))) : 4
   const gamma = 1.22
-  for (let index = 0; index < safeCount; index += 1) {
-    const t = (index + 1) / (safeCount + 1)
-    levels.push(Math.pow(t, gamma))
-  }
-  return levels
+  return Array.from({ length: safeCount }, (_, index) => Math.pow((index + 1) / (safeCount + 1), gamma))
 }
 
 function clampResolution(resolution: number): number {
-  return Math.max(10, Math.min(30, Math.round(resolution)))
+  return Number.isFinite(resolution) ? Math.max(10, Math.min(32, Math.round(resolution))) : 20
 }
 
-function downsamplePoints(
-  points: Array<[number, number, number]>,
-  maxPointsPerSurface: number,
-): Array<[number, number, number]> {
-  if (points.length <= maxPointsPerSurface) {
-    return points
-  }
-
-  const stride = Math.ceil(points.length / maxPointsPerSurface)
-  const reduced: Array<[number, number, number]> = []
-  for (let index = 0; index < points.length; index += stride) {
-    reduced.push(points[index])
-    if (reduced.length >= maxPointsPerSurface) {
-      break
-    }
-  }
-  return reduced
+type DomainPotentialExtrema = {
+  positiveBoundaryMax: number
+  positiveInteriorMax: number
+  negativeBoundaryMin: number
+  negativeInteriorMin: number
 }
 
-function collectSurfacePoints(
-  samples: FieldSample[],
-  targetIso: number,
-  tolerance: number,
-  polarity: 'positive' | 'negative',
-  maxPointsPerSurface: number,
-): Array<[number, number, number]> {
-  const points: Array<[number, number, number]> = []
-  for (const sample of samples) {
-    if (polarity === 'positive' && sample.potential <= 0) {
-      continue
-    }
-    if (polarity === 'negative' && sample.potential >= 0) {
-      continue
-    }
-    if (Math.abs(sample.potential - targetIso) <= tolerance) {
-      points.push([sample.x, sample.y, sample.z])
+function findDomainPotentialExtrema(values: Float32Array, resolution: number): DomainPotentialExtrema {
+  let positiveBoundaryMax = Number.NEGATIVE_INFINITY
+  let positiveInteriorMax = Number.NEGATIVE_INFINITY
+  let negativeBoundaryMin = Number.POSITIVE_INFINITY
+  let negativeInteriorMin = Number.POSITIVE_INFINITY
+
+  for (let z = 0; z < resolution; z += 1) {
+    for (let y = 0; y < resolution; y += 1) {
+      for (let x = 0; x < resolution; x += 1) {
+        const value = values[gridIndex(x, y, z, resolution)] ?? 0
+        const isBoundary = x === 0 || y === 0 || z === 0 || x === resolution - 1 || y === resolution - 1 || z === resolution - 1
+        if (isBoundary) {
+          positiveBoundaryMax = Math.max(positiveBoundaryMax, value)
+          negativeBoundaryMin = Math.min(negativeBoundaryMin, value)
+        } else {
+          positiveInteriorMax = Math.max(positiveInteriorMax, value)
+          negativeInteriorMin = Math.min(negativeInteriorMin, value)
+        }
+      }
     }
   }
 
-  return downsamplePoints(points, maxPointsPerSurface)
+  return { positiveBoundaryMax, positiveInteriorMax, negativeBoundaryMin, negativeInteriorMin }
 }
 
-export const mapPotentialNonLinear = mapPotentialNonLinearDomain
+function interpolateIsoLevels(boundaryValue: number, interiorValue: number, levels: ReadonlyArray<number>): number[] {
+  const range = interiorValue - boundaryValue
+  if (!Number.isFinite(range) || Math.abs(range) <= 1e-6) return []
+  return levels.map((level) => boundaryValue + range * level)
+}
+
+function gridIndex(x: number, y: number, z: number, resolution: number): number {
+  return (z * resolution + y) * resolution + x
+}
+
+function interpolateEdge(
+  a: number,
+  b: number,
+  isoValue: number,
+  values: Float32Array,
+  gridPositions: Float32Array,
+): Point3 {
+  const valueA = values[a] ?? isoValue
+  const valueB = values[b] ?? isoValue
+  const denominator = valueB - valueA
+  const t = Math.abs(denominator) < 1e-12
+    ? 0.5
+    : Math.max(0, Math.min(1, (isoValue - valueA) / denominator))
+  const offsetA = a * 3
+  const offsetB = b * 3
+  return [
+    (gridPositions[offsetA] ?? 0) + ((gridPositions[offsetB] ?? 0) - (gridPositions[offsetA] ?? 0)) * t,
+    (gridPositions[offsetA + 1] ?? 0) + ((gridPositions[offsetB + 1] ?? 0) - (gridPositions[offsetA + 1] ?? 0)) * t,
+    (gridPositions[offsetA + 2] ?? 0) + ((gridPositions[offsetB + 2] ?? 0) - (gridPositions[offsetA + 2] ?? 0)) * t,
+  ]
+}
+
+function centroid(indices: ReadonlyArray<number>, gridPositions: Float32Array): Point3 {
+  const sum: Point3 = [0, 0, 0]
+  for (const index of indices) {
+    const offset = index * 3
+    sum[0] += gridPositions[offset] ?? 0
+    sum[1] += gridPositions[offset + 1] ?? 0
+    sum[2] += gridPositions[offset + 2] ?? 0
+  }
+  const count = Math.max(1, indices.length)
+  return [sum[0] / count, sum[1] / count, sum[2] / count]
+}
+
+function vertexKey(point: Point3): string {
+  return `${Math.round(point[0] * 1e5)}:${Math.round(point[1] * 1e5)}:${Math.round(point[2] * 1e5)}`
+}
+
+function addIndexedVertex(
+  point: Point3,
+  positions: number[],
+  vertexLookup: Map<string, number>,
+): number {
+  const key = vertexKey(point)
+  const existing = vertexLookup.get(key)
+  if (existing !== undefined) return existing
+  const index = positions.length / 3
+  positions.push(point[0], point[1], point[2])
+  vertexLookup.set(key, index)
+  return index
+}
+
+function appendOrientedTriangle(
+  triangle: [Point3, Point3, Point3],
+  insideCenter: Point3,
+  outsideCenter: Point3,
+  positions: number[],
+  indices: number[],
+  vertexLookup: Map<string, number>,
+): void {
+  const [a, b, c] = triangle
+  const abx = b[0] - a[0]
+  const aby = b[1] - a[1]
+  const abz = b[2] - a[2]
+  const acx = c[0] - a[0]
+  const acy = c[1] - a[1]
+  const acz = c[2] - a[2]
+  const normalX = aby * acz - abz * acy
+  const normalY = abz * acx - abx * acz
+  const normalZ = abx * acy - aby * acx
+  const outwardX = outsideCenter[0] - insideCenter[0]
+  const outwardY = outsideCenter[1] - insideCenter[1]
+  const outwardZ = outsideCenter[2] - insideCenter[2]
+  const reverse = normalX * outwardX + normalY * outwardY + normalZ * outwardZ < 0
+  const first = addIndexedVertex(a, positions, vertexLookup)
+  const second = addIndexedVertex(reverse ? c : b, positions, vertexLookup)
+  const third = addIndexedVertex(reverse ? b : c, positions, vertexLookup)
+  if (first !== second && second !== third && first !== third) indices.push(first, second, third)
+}
+
+function collectIsoSurface(
+  values: Float32Array,
+  gridPositions: Float32Array,
+  resolution: number,
+  isoValue: number,
+  polarity: Polarity,
+): Pick<EquipotentialSurface, 'positions' | 'indices' | 'triangleCount'> {
+  const positions: number[] = []
+  const indices: number[] = []
+  const vertexLookup = new Map<string, number>()
+  const cubeIndices = new Int32Array(8)
+  const insideIndices: number[] = []
+  const outsideIndices: number[] = []
+  const isInside = polarity === 'positive'
+    ? (value: number) => value >= isoValue
+    : (value: number) => value <= isoValue
+
+  for (let z = 0; z < resolution - 1; z += 1) {
+    for (let y = 0; y < resolution - 1; y += 1) {
+      for (let x = 0; x < resolution - 1; x += 1) {
+        for (let corner = 0; corner < CUBE_CORNERS.length; corner += 1) {
+          const offset = CUBE_CORNERS[corner]
+          cubeIndices[corner] = gridIndex(x + offset[0], y + offset[1], z + offset[2], resolution)
+        }
+
+        for (const tetrahedron of TETRAHEDRA) {
+          insideIndices.length = 0
+          outsideIndices.length = 0
+          for (const corner of tetrahedron) {
+            const sampleIndex = cubeIndices[corner] ?? 0
+            if (isInside(values[sampleIndex] ?? 0)) insideIndices.push(sampleIndex)
+            else outsideIndices.push(sampleIndex)
+          }
+          if (insideIndices.length === 0 || outsideIndices.length === 0) continue
+
+          const insideCenter = centroid(insideIndices, gridPositions)
+          const outsideCenter = centroid(outsideIndices, gridPositions)
+          if (insideIndices.length === 1) {
+            const a = insideIndices[0] ?? 0
+            const triangle: [Point3, Point3, Point3] = [
+              interpolateEdge(a, outsideIndices[0] ?? 0, isoValue, values, gridPositions),
+              interpolateEdge(a, outsideIndices[1] ?? 0, isoValue, values, gridPositions),
+              interpolateEdge(a, outsideIndices[2] ?? 0, isoValue, values, gridPositions),
+            ]
+            appendOrientedTriangle(triangle, insideCenter, outsideCenter, positions, indices, vertexLookup)
+          } else if (outsideIndices.length === 1) {
+            const outside = outsideIndices[0] ?? 0
+            const triangle: [Point3, Point3, Point3] = [
+              interpolateEdge(outside, insideIndices[0] ?? 0, isoValue, values, gridPositions),
+              interpolateEdge(outside, insideIndices[1] ?? 0, isoValue, values, gridPositions),
+              interpolateEdge(outside, insideIndices[2] ?? 0, isoValue, values, gridPositions),
+            ]
+            appendOrientedTriangle(triangle, insideCenter, outsideCenter, positions, indices, vertexLookup)
+          } else {
+            const insideA = insideIndices[0] ?? 0
+            const insideB = insideIndices[1] ?? 0
+            const outsideA = outsideIndices[0] ?? 0
+            const outsideB = outsideIndices[1] ?? 0
+            const a = interpolateEdge(insideA, outsideA, isoValue, values, gridPositions)
+            const b = interpolateEdge(insideA, outsideB, isoValue, values, gridPositions)
+            const c = interpolateEdge(insideB, outsideA, isoValue, values, gridPositions)
+            const d = interpolateEdge(insideB, outsideB, isoValue, values, gridPositions)
+            appendOrientedTriangle([a, b, d], insideCenter, outsideCenter, positions, indices, vertexLookup)
+            appendOrientedTriangle([a, d, c], insideCenter, outsideCenter, positions, indices, vertexLookup)
+          }
+        }
+      }
+    }
+  }
+
+  const positionArray = Float32Array.from(positions)
+  const indexArray = Uint32Array.from(indices)
+  return {
+    positions: positionArray,
+    indices: indexArray,
+    triangleCount: Math.floor(indexArray.length / 3),
+  }
+}
 
 export function samplePotentialAtPoint(
   charges: ReadonlyArray<EquipotentialCharge>,
   point: { x: number; y: number; z: number },
   softeningEpsilon: number,
-  softPotentialLimit: number,
 ): number {
-  return samplePotential3D(charges, point, {
-    softening: softeningEpsilon,
-    nonLinearLimit: softPotentialLimit,
-  })
+  const safeSoftening = Number.isFinite(softeningEpsilon) ? Math.max(1e-3, Math.abs(softeningEpsilon)) : 0.18
+  return samplePotential3D(charges, point, { softening: safeSoftening })
 }
 
-export function buildEquipotentialClouds(options: BuildEquipotentialCloudsOptions): EquipotentialCloudResult {
-  const {
-    charges,
-    bounds,
-    resolution,
-    shellCount,
-    softeningFactor,
-    softPotentialLimit,
-    maxPointsPerSurface = DEFAULT_MAX_POINTS_PER_SURFACE,
-    toleranceRatio = DEFAULT_TOLERANCE_RATIO,
-    minTolerance = DEFAULT_MIN_TOLERANCE,
-  } = options
-
-  const positiveChargeCount = charges.filter((charge) => charge.magnitude > 0).length
-  const negativeChargeCount = charges.filter((charge) => charge.magnitude < 0).length
-
+export function buildEquipotentialSurfaces(options: BuildEquipotentialSurfacesOptions): EquipotentialSurfaceResult {
+  const validCharges = options.charges.filter((charge) =>
+    Number.isFinite(charge.x) && Number.isFinite(charge.y) && Number.isFinite(charge.z) && Number.isFinite(charge.magnitude),
+  )
+  const positiveChargeCount = validCharges.filter((charge) => charge.magnitude > 0).length
+  const negativeChargeCount = validCharges.filter((charge) => charge.magnitude < 0).length
   const emptyStats: EquipotentialStats = {
     minPotential: 0,
     maxPotential: 0,
-    positivePointCount: 0,
-    negativePointCount: 0,
+    positiveSurfaceCount: 0,
+    negativeSurfaceCount: 0,
+    positiveTriangleCount: 0,
+    negativeTriangleCount: 0,
     positiveChargeCount,
     negativeChargeCount,
-    dominantPolarity: 'balanced',
   }
 
-  if (charges.length === 0) {
-    return {
-      positiveSurfaces: [],
-      negativeSurfaces: [],
-      stats: emptyStats,
-    }
+  if (validCharges.length === 0 || validCharges.every((charge) => charge.magnitude === 0)) {
+    return { positiveSurfaces: [], negativeSurfaces: [], stats: emptyStats }
   }
 
-  const safeResolution = clampResolution(resolution)
-  const safeBounds = Math.max(1, bounds)
-  const step = (safeBounds * 2) / (safeResolution - 1)
-  const softeningEpsilon = Math.max(1e-3, softeningFactor * step)
-
-  const samples: FieldSample[] = []
+  const resolution = clampResolution(options.resolution)
+  const bounds = Number.isFinite(options.bounds) ? Math.max(1, Math.abs(options.bounds)) : 5
+  const softeningEpsilon = Number.isFinite(options.softeningEpsilon)
+    ? Math.max(1e-3, Math.abs(options.softeningEpsilon))
+    : 0.18
+  const step = (bounds * 2) / (resolution - 1)
+  const sampleCount = resolution ** 3
+  const values = new Float32Array(sampleCount)
+  const gridPositions = new Float32Array(sampleCount * 3)
   let minPotential = Number.POSITIVE_INFINITY
   let maxPotential = Number.NEGATIVE_INFINITY
 
-  for (let zIndex = 0; zIndex < safeResolution; zIndex += 1) {
-    const z = -safeBounds + zIndex * step
-    for (let yIndex = 0; yIndex < safeResolution; yIndex += 1) {
-      const y = -safeBounds + yIndex * step
-      for (let xIndex = 0; xIndex < safeResolution; xIndex += 1) {
-        const x = -safeBounds + xIndex * step
-        const potential = samplePotentialAtPoint(charges, { x, y, z }, softeningEpsilon, softPotentialLimit)
-
-        if (potential < minPotential) {
-          minPotential = potential
-        }
-        if (potential > maxPotential) {
-          maxPotential = potential
-        }
-
-        samples.push({ x, y, z, potential })
+  for (let zIndex = 0; zIndex < resolution; zIndex += 1) {
+    const z = -bounds + zIndex * step
+    for (let yIndex = 0; yIndex < resolution; yIndex += 1) {
+      const y = -bounds + yIndex * step
+      for (let xIndex = 0; xIndex < resolution; xIndex += 1) {
+        const x = -bounds + xIndex * step
+        const index = gridIndex(xIndex, yIndex, zIndex, resolution)
+        const potential = samplePotentialAtPoint(validCharges, { x, y, z }, softeningEpsilon)
+        values[index] = potential
+        const positionOffset = index * 3
+        gridPositions[positionOffset] = x
+        gridPositions[positionOffset + 1] = y
+        gridPositions[positionOffset + 2] = z
+        minPotential = Math.min(minPotential, potential)
+        maxPotential = Math.max(maxPotential, potential)
       }
     }
   }
 
-  const isoLevels = computeIsoLevels(shellCount)
-  const positiveScale = Math.max(0, maxPotential)
-  const negativeScale = Math.min(0, minPotential)
-  const tolerance = Math.max(minTolerance, (maxPotential - minPotential) * toleranceRatio)
+  const domainExtrema = findDomainPotentialExtrema(values, resolution)
+  const positiveSurfaces: EquipotentialSurface[] = []
+  const negativeSurfaces: EquipotentialSurface[] = []
+  const levels = computeIsoLevels(options.shellCount)
+  const positiveBoundaryValue = Math.max(0, domainExtrema.positiveBoundaryMax)
+  const negativeBoundaryValue = Math.min(0, domainExtrema.negativeBoundaryMin)
+  const positiveIsoValues = domainExtrema.positiveInteriorMax > positiveBoundaryValue + 1e-6
+    ? interpolateIsoLevels(positiveBoundaryValue, domainExtrema.positiveInteriorMax, levels)
+    : []
+  const negativeIsoValues = domainExtrema.negativeInteriorMin < negativeBoundaryValue - 1e-6
+    ? interpolateIsoLevels(negativeBoundaryValue, domainExtrema.negativeInteriorMin, levels)
+    : []
 
-  const positiveSurfaces = isoLevels
-    .map((level) => {
-      const isoValue = positiveScale * level
-      const points = collectSurfacePoints(samples, isoValue, tolerance, 'positive', maxPointsPerSurface)
-      return {
-        level,
-        isoValue,
-        points,
-      }
-    })
-    .filter((surface) => surface.points.length > 0)
+  positiveIsoValues.forEach((isoValue, index) => {
+    const level = levels[index] ?? 0
+    const surface = collectIsoSurface(values, gridPositions, resolution, isoValue, 'positive')
+    if (surface.triangleCount > 0) positiveSurfaces.push({ level, isoValue, ...surface })
+  })
+  negativeIsoValues.forEach((isoValue, index) => {
+    const level = levels[index] ?? 0
+    const surface = collectIsoSurface(values, gridPositions, resolution, isoValue, 'negative')
+    if (surface.triangleCount > 0) negativeSurfaces.push({ level, isoValue, ...surface })
+  })
 
-  const negativeSurfaces = isoLevels
-    .map((level) => {
-      const isoValue = negativeScale * level
-      const points = collectSurfacePoints(samples, isoValue, tolerance, 'negative', maxPointsPerSurface)
-      return {
-        level,
-        isoValue,
-        points,
-      }
-    })
-    .filter((surface) => surface.points.length > 0)
-
-  const positivePointCount = positiveSurfaces.reduce((sum, surface) => sum + surface.points.length, 0)
-  const negativePointCount = negativeSurfaces.reduce((sum, surface) => sum + surface.points.length, 0)
-
-  const maxAbs = Math.abs(maxPotential)
-  const minAbs = Math.abs(minPotential)
-  const dominantPolarity: EquipotentialStats['dominantPolarity'] =
-    Math.abs(maxAbs - minAbs) < 0.25
-      ? 'balanced'
-      : maxAbs > minAbs
-        ? 'positive'
-        : 'negative'
-
+  const positiveTriangleCount = positiveSurfaces.reduce((sum, surface) => sum + surface.triangleCount, 0)
+  const negativeTriangleCount = negativeSurfaces.reduce((sum, surface) => sum + surface.triangleCount, 0)
   return {
     positiveSurfaces,
     negativeSurfaces,
     stats: {
-      minPotential,
-      maxPotential,
-      positivePointCount,
-      negativePointCount,
+      minPotential: Number.isFinite(minPotential) ? minPotential : 0,
+      maxPotential: Number.isFinite(maxPotential) ? maxPotential : 0,
+      positiveSurfaceCount: positiveSurfaces.length,
+      negativeSurfaceCount: negativeSurfaces.length,
+      positiveTriangleCount,
+      negativeTriangleCount,
       positiveChargeCount,
       negativeChargeCount,
-      dominantPolarity,
     },
   }
 }

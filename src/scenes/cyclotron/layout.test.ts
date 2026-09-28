@@ -16,12 +16,12 @@ describe('cyclotron scene layout', () => {
   })
 
   it('maps physical gap width to visible gap width with reasonable bounds', () => {
-    const nearDefault = deriveGapWidthScene(5.3125e-5)
+    const nearDefault = deriveGapWidthScene(0.02e-3)
     const tooSmall = deriveGapWidthScene(0)
     const tooLarge = deriveGapWidthScene(0.001)
 
-    expect(nearDefault).toBeCloseTo(0.28, 2)
-    expect(tooSmall).toBeGreaterThanOrEqual(0.06)
-    expect(tooLarge).toBeLessThanOrEqual(0.28)
+    expect(nearDefault).toBeCloseTo(0.128, 3)
+    expect(tooSmall).toBeGreaterThanOrEqual(0.064)
+    expect(tooLarge).toBeLessThanOrEqual(0.128)
   })
 })

@@ -25,7 +25,7 @@ describe('motional-emf layout', () => {
   })
 
   it('extends and slims magnetic field arrows for clearer classroom readability', () => {
-    expect(MOTIONAL_EMF_LAYOUT.field.lineLengthY).toBeGreaterThan(3)
+    expect(MOTIONAL_EMF_LAYOUT.field.lineLengthY).toBeCloseTo(MOTIONAL_EMF_LAYOUT.field.size[1])
     expect(MOTIONAL_EMF_LAYOUT.field.lineRadius).toBeLessThan(0.03)
   })
 })

@@ -1,19 +1,64 @@
 import { Line } from '@react-three/drei/core/Line'
-import { Text } from '@react-three/drei/core/Text'
+import { Html } from '@react-three/drei/web/Html'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { Plane, Quaternion, Vector3 } from 'three'
 import { SCENE_SCALE, WIRE_HALF_LENGTH_M } from './oerstedPresets'
+import { COMPASS_PLANE_HEIGHT_M, headingToYawRad, WIRE_RADIUS_M, wireCenterHeightM } from './oerstedGeometry'
 import type { NeedlePlacement, NeedleVisual } from './oerstedTypes'
 import { add, cross, normalize, scale, type Vec3 } from './vectorMath'
 
 type Point3 = [number, number, number]
 
+type OerstedWorldLabelProps = {
+  position: Point3
+  color: string
+  fontSize: number
+  anchorX?: 'left' | 'center' | 'right'
+  anchorY?: 'top' | 'middle' | 'bottom'
+  children: ReactNode
+}
+
+function OerstedWorldLabel({
+  position,
+  color,
+  fontSize,
+  anchorX = 'center',
+  anchorY = 'middle',
+  children,
+}: OerstedWorldLabelProps) {
+  const translateX = anchorX === 'left' ? '0' : anchorX === 'right' ? '-100%' : '-50%'
+  const translateY = anchorY === 'top' ? '0' : anchorY === 'bottom' ? '-100%' : '-50%'
+
+  return (
+    <Html position={position} distanceFactor={8} style={{ pointerEvents: 'none' }}>
+      <span
+        style={{
+          color,
+          display: 'inline-block',
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: `${Math.max(10, Math.round(fontSize * 64))}px`,
+          fontWeight: 700,
+          lineHeight: 1,
+          pointerEvents: 'none',
+          textShadow: '0 1px 2px rgba(255, 255, 255, 0.9)',
+          transform: `translate(${translateX}, ${translateY})`,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </span>
+    </Html>
+  )
+}
+
 const LOOP_RADIUS_SCENE = 0.58
 const LOOP_OFFSET_SCENE = 0.42
-const NEEDLE_PLANE_Y_SCENE = 0.08
-const NEEDLE_DRAG_MIN_M = -0.25
-const NEEDLE_DRAG_MAX_M = 0.25
+const NEEDLE_PLANE_Y_SCENE = COMPASS_PLANE_HEIGHT_M * SCENE_SCALE
+const NEEDLE_DRAG_MIN_X_M = -0.18
+const NEEDLE_DRAG_MAX_X_M = 0.22
+const NEEDLE_DRAG_MIN_Z_M = -0.22
+const NEEDLE_DRAG_MAX_Z_M = 0.22
 
 type LoopSpec = {
   offsetAlongWire: number
@@ -33,29 +78,30 @@ type OerstedRig3DProps = {
   onNeedleDragEnd: () => void
 }
 
-function toRadians(valueDeg: number): number {
-  return (valueDeg * Math.PI) / 180
-}
-
-function headingToYawRad(headingDeg: number): number {
-  return toRadians(90 - headingDeg)
-}
-
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
+type PointerCaptureTarget = EventTarget & {
+  setPointerCapture?: (pointerId: number) => void
+  releasePointerCapture?: (pointerId: number) => void
+}
+
 function capturePointer(event: ThreeEvent<PointerEvent>): void {
-  const target = event.nativeEvent.target
-  if (target instanceof Element) {
-    target.setPointerCapture(event.pointerId)
+  const target = event.target as PointerCaptureTarget | null
+  try {
+    target?.setPointerCapture?.(event.pointerId)
+  } catch {
+    // Pointer capture may be unavailable in some browser input modes.
   }
 }
 
 function releasePointer(event: ThreeEvent<PointerEvent>): void {
-  const target = event.nativeEvent.target
-  if (target instanceof Element) {
-    target.releasePointerCapture(event.pointerId)
+  const target = event.target as PointerCaptureTarget | null
+  try {
+    target?.releasePointerCapture?.(event.pointerId)
+  } catch {
+    // The browser may already have released the pointer.
   }
 }
 
@@ -102,7 +148,14 @@ export function OerstedRig3D({
   onNeedleDrag,
   onNeedleDragEnd,
 }: OerstedRig3DProps) {
-  const wireCenterScene = useMemo<Vec3>(() => ({ x: 0, y: wireHeightM * SCENE_SCALE, z: 0 }), [wireHeightM])
+  const wireCenterScene = useMemo<Vec3>(
+    () => ({
+      x: 0,
+      y: wireCenterHeightM(wireHeightM, wireDirection, WIRE_HALF_LENGTH_M) * SCENE_SCALE,
+      z: 0,
+    }),
+    [wireDirection, wireHeightM],
+  )
   const wireDirectionNorm = useMemo(() => normalize(wireDirection), [wireDirection])
 
   const wireQuaternion = useMemo(() => {
@@ -164,13 +217,19 @@ export function OerstedRig3D({
   const fieldColor = fieldActive ? (currentA >= 0 ? '#f08b53' : '#59aef2') : '#9aa6b5'
   const ringOpacity = fieldActive ? 0.42 + pulse * 0.3 : 0.06
   const flowOpacity = fieldActive ? 0.65 + pulse * 0.25 : 0
-  const positiveTerminal: Vec3 = { x: -1.8, y: 0.24, z: 0.13 }
-  const negativeTerminal: Vec3 = { x: -2.22, y: 0.08, z: -0.13 }
+  const leftTerminal: Vec3 = { x: -1.8, y: 0.24, z: 0.13 }
+  const rightTerminal: Vec3 = { x: -2.22, y: 0.24, z: -0.13 }
+  const positiveTerminal = currentSign > 0 ? leftTerminal : rightTerminal
+  const negativeTerminal = currentSign > 0 ? rightTerminal : leftTerminal
   const positiveWireColor = fieldActive ? '#ff5a5a' : '#8d6767'
   const negativeWireColor = fieldActive ? '#56a9ff' : '#667a91'
+  const leftPadColor = currentSign > 0 ? positiveWireColor : negativeWireColor
+  const rightPadColor = currentSign > 0 ? negativeWireColor : positiveWireColor
 
   const wireEndA = add(wireCenterScene, scale(wireDirectionNorm, -wireHalfLengthScene))
   const wireEndB = add(wireCenterScene, scale(wireDirectionNorm, wireHalfLengthScene))
+  const positiveWireEnd = currentSign > 0 ? wireEndA : wireEndB
+  const negativeWireEnd = currentSign > 0 ? wireEndB : wireEndA
 
   const currentVector = scale(wireDirectionNorm, currentSign)
   const currentArrowTail = add(wireCenterScene, scale(currentVector, -0.9))
@@ -192,8 +251,8 @@ export function OerstedRig3D({
       return
     }
 
-    const nextX = clamp(dragHitPoint.x / SCENE_SCALE, NEEDLE_DRAG_MIN_M, NEEDLE_DRAG_MAX_M)
-    const nextZ = clamp(dragHitPoint.z / SCENE_SCALE, NEEDLE_DRAG_MIN_M, NEEDLE_DRAG_MAX_M)
+    const nextX = clamp(dragHitPoint.x / SCENE_SCALE, NEEDLE_DRAG_MIN_X_M, NEEDLE_DRAG_MAX_X_M)
+    const nextZ = clamp(dragHitPoint.z / SCENE_SCALE, NEEDLE_DRAG_MIN_Z_M, NEEDLE_DRAG_MAX_Z_M)
 
     onNeedleDrag(index, {
       x: Number(nextX.toFixed(3)),
@@ -219,8 +278,8 @@ export function OerstedRig3D({
       <mesh position={[-1.84, 0.13, 0.12]}>
         <boxGeometry args={[0.18, 0.1, 0.14]} />
         <meshStandardMaterial
-          color="#7d2d2d"
-          emissive={positiveWireColor}
+          color={leftPadColor}
+          emissive={leftPadColor}
           emissiveIntensity={fieldActive ? 0.22 : 0.08}
           roughness={0.42}
           metalness={0.2}
@@ -229,8 +288,8 @@ export function OerstedRig3D({
       <mesh position={[-2.24, 0.13, -0.12]}>
         <boxGeometry args={[0.18, 0.1, 0.14]} />
         <meshStandardMaterial
-          color="#2c4a76"
-          emissive={negativeWireColor}
+          color={rightPadColor}
+          emissive={rightPadColor}
           emissiveIntensity={fieldActive ? 0.18 : 0.07}
           roughness={0.42}
           metalness={0.2}
@@ -256,7 +315,7 @@ export function OerstedRig3D({
           metalness={0.22}
         />
       </mesh>
-      <Text
+      <OerstedWorldLabel
         position={[positiveTerminal.x + 0.06, positiveTerminal.y + 0.13, positiveTerminal.z + 0.02]}
         color={positiveWireColor}
         fontSize={0.11}
@@ -264,8 +323,8 @@ export function OerstedRig3D({
         anchorY="middle"
       >
         正极 +
-      </Text>
-      <Text
+      </OerstedWorldLabel>
+      <OerstedWorldLabel
         position={[negativeTerminal.x - 0.06, negativeTerminal.y + 0.13, negativeTerminal.z - 0.02]}
         color={negativeWireColor}
         fontSize={0.11}
@@ -273,12 +332,12 @@ export function OerstedRig3D({
         anchorY="middle"
       >
         负极 -
-      </Text>
+      </OerstedWorldLabel>
 
       <Line
         points={[
           [positiveTerminal.x, positiveTerminal.y, positiveTerminal.z],
-          [wireEndB.x, wireEndB.y, wireEndB.z],
+          [positiveWireEnd.x, positiveWireEnd.y, positiveWireEnd.z],
         ]}
         color={positiveWireColor}
         lineWidth={2.9}
@@ -288,7 +347,7 @@ export function OerstedRig3D({
       <Line
         points={[
           [negativeTerminal.x, negativeTerminal.y, negativeTerminal.z],
-          [wireEndA.x, wireEndA.y, wireEndA.z],
+          [negativeWireEnd.x, negativeWireEnd.y, negativeWireEnd.z],
         ]}
         color={negativeWireColor}
         lineWidth={2.9}
@@ -297,7 +356,7 @@ export function OerstedRig3D({
       />
 
       <mesh position={[wireCenterScene.x, wireCenterScene.y, wireCenterScene.z]} quaternion={wireQuaternion}>
-        <cylinderGeometry args={[0.04, 0.04, wireHalfLengthScene * 2, 28]} />
+        <cylinderGeometry args={[WIRE_RADIUS_M * SCENE_SCALE, WIRE_RADIUS_M * SCENE_SCALE, wireHalfLengthScene * 2, 28]} />
         <meshStandardMaterial
           color={fieldColor}
           emissive={fieldColor}
@@ -321,7 +380,7 @@ export function OerstedRig3D({
         <coneGeometry args={[0.05, 0.16, 14]} />
         <meshBasicMaterial color={fieldColor} transparent opacity={fieldActive ? 0.95 : 0.22} />
       </mesh>
-      <Text
+      <OerstedWorldLabel
         position={[wireCenterScene.x, wireCenterScene.y + 0.22, wireCenterScene.z]}
         color={fieldColor}
         fontSize={0.11}
@@ -329,7 +388,7 @@ export function OerstedRig3D({
         anchorY="middle"
       >
         I
-      </Text>
+      </OerstedWorldLabel>
 
       {showFieldLines
         ? ringPoints.map((points, index) => (
@@ -379,38 +438,46 @@ export function OerstedRig3D({
         const scenePos: Point3 = [needle.x * SCENE_SCALE, NEEDLE_PLANE_Y_SCENE, needle.z * SCENE_SCALE]
         const isDragging = draggingNeedleIndex === index
         return (
-          <group key={`needle-${index}`}>
-            <mesh
-              position={scenePos}
-              onPointerDown={(event) => {
-                event.stopPropagation()
-                capturePointer(event)
-                onNeedleDragStart(index)
-                updateNeedleByRay(event, index)
-              }}
-              onPointerMove={(event) => {
-                if (draggingNeedleIndex !== index) {
-                  return
-                }
-                event.stopPropagation()
-                updateNeedleByRay(event, index)
-              }}
-              onPointerUp={(event) => {
-                if (draggingNeedleIndex !== index) {
-                  return
-                }
-                event.stopPropagation()
-                releasePointer(event)
-                onNeedleDragEnd()
-              }}
-              onPointerCancel={(event) => {
-                if (draggingNeedleIndex !== index) {
-                  return
-                }
-                event.stopPropagation()
-                onNeedleDragEnd()
-              }}
-            >
+          <group
+            key={`needle-${index}`}
+            onPointerDown={(event) => {
+              event.stopPropagation()
+              capturePointer(event)
+              onNeedleDragStart(index)
+              updateNeedleByRay(event, index)
+            }}
+            onPointerMove={(event) => {
+              if (draggingNeedleIndex !== index) {
+                return
+              }
+              event.stopPropagation()
+              updateNeedleByRay(event, index)
+            }}
+            onPointerUp={(event) => {
+              if (draggingNeedleIndex !== index) {
+                return
+              }
+              event.stopPropagation()
+              releasePointer(event)
+              onNeedleDragEnd()
+            }}
+            onPointerCancel={(event) => {
+              if (draggingNeedleIndex !== index) {
+                return
+              }
+              event.stopPropagation()
+              releasePointer(event)
+              onNeedleDragEnd()
+            }}
+            onLostPointerCapture={(event) => {
+              if (draggingNeedleIndex !== index) {
+                return
+              }
+              event.stopPropagation()
+              onNeedleDragEnd()
+            }}
+          >
+            <mesh position={scenePos}>
               <cylinderGeometry args={[0.18, 0.18, 0.038, 32]} />
               <meshStandardMaterial color={isDragging ? '#fff5bf' : '#f0f3f8'} roughness={0.2} metalness={0.1} />
             </mesh>
@@ -448,7 +515,7 @@ export function OerstedRig3D({
               </mesh>
             </group>
 
-            <Text
+            <OerstedWorldLabel
               position={[scenePos[0], scenePos[1] + 0.22, scenePos[2]]}
               color="#2d3748"
               fontSize={0.08}
@@ -456,7 +523,7 @@ export function OerstedRig3D({
               anchorY="middle"
             >
               磁针{index + 1}
-            </Text>
+            </OerstedWorldLabel>
           </group>
         )
       })}
@@ -471,15 +538,15 @@ export function OerstedRig3D({
           <coneGeometry args={[0.045, 0.1, 14]} />
           <meshBasicMaterial color="#2d3748" />
         </mesh>
-        <Text position={[0, 0.09, 0.24]} color="#2d3748" fontSize={0.07} anchorX="center" anchorY="middle">
+        <OerstedWorldLabel position={[0, 0.09, 0.24]} color="#2d3748" fontSize={0.07} anchorX="center" anchorY="middle">
           N
-        </Text>
+        </OerstedWorldLabel>
       </group>
-      <Text position={[1.45, 0.15, 0.78]} color="#2d3748" fontSize={0.08} anchorX="center" anchorY="middle">
+      <OerstedWorldLabel position={[1.45, 0.15, 0.78]} color="#2d3748" fontSize={0.08} anchorX="center" anchorY="middle">
         地磁北向
-      </Text>
+      </OerstedWorldLabel>
       {showFieldLines ? (
-        <Text
+        <OerstedWorldLabel
           position={[wireCenterScene.x, wireCenterScene.y - 0.44, wireCenterScene.z]}
           color={fieldColor}
           fontSize={0.07}
@@ -487,7 +554,7 @@ export function OerstedRig3D({
           anchorY="middle"
         >
           等半径磁感线
-        </Text>
+        </OerstedWorldLabel>
       ) : null}
     </group>
   )

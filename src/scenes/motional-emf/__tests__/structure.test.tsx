@@ -9,6 +9,7 @@ describe('motional-emf structure', () => {
     expect(await screen.findByText('切割磁感线实验控制')).toBeInTheDocument()
     expect(screen.getByText('速度方向预设')).toBeInTheDocument()
 
+    fireEvent.click(screen.getByRole('button', { name: '展开' }))
     const display = await screen.findByText(/电压 U_AB:/)
     expect(display).toBeInTheDocument()
 

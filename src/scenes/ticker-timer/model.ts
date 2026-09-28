@@ -31,6 +31,12 @@ export type TickerTimerState = TickerTimerConfig & {
   dotHistory: TapeDot[];
 };
 
+export type TapeSpeedSample = {
+  /** Time relative to tape release, at the midpoint of the measured interval. */
+  timeS: number;
+  speedMps: number;
+};
+
 export type TapeAnalysis = {
   periodS: number;
   frictionForceN: number;
@@ -38,7 +44,7 @@ export type TapeAnalysis = {
   effectiveAccelerationMps2: number;
   displacementM: number;
   speedMps: number;
-  speedSeriesMps: number[];
+  speedSeriesMps: TapeSpeedSample[];
   dots: TapeDot[];
   dotCount: number;
   latestIntervalM: number | null;
@@ -231,7 +237,7 @@ export function deriveInstantaneousSpeedMps(
   periodS: number,
 ): number | null {
   const series = deriveTapeSpeedSeries(dots, periodS);
-  return series.length > 0 ? series[series.length - 1] : null;
+  return series.length > 0 ? series[series.length - 1].speedMps : null;
 }
 
 function trimTerminalPlateau(dots: ReadonlyArray<TapeDot>): TapeDot[] {
@@ -252,22 +258,26 @@ function trimTerminalPlateau(dots: ReadonlyArray<TapeDot>): TapeDot[] {
 export function deriveTapeSpeedSeries(
   dots: ReadonlyArray<TapeDot>,
   periodS: number,
-): number[] {
+  timeOriginS = 0,
+): TapeSpeedSample[] {
   const usable = trimTerminalPlateau(dots);
   if (usable.length < 3 || !(periodS > 0)) {
     return [];
   }
 
-  const speeds: number[] = [];
+  const samples: TapeSpeedSample[] = [];
   for (let index = 1; index < usable.length - 1; index += 1) {
     const previous = usable[index - 1];
     const next = usable[index + 1];
     const dt = next.timeS - previous.timeS;
     if (dt > 0) {
-      speeds.push(Math.max(0, (next.positionM - previous.positionM) / dt));
+      samples.push({
+        timeS: Math.max(0, (previous.timeS + next.timeS) / 2 - timeOriginS),
+        speedMps: Math.max(0, (next.positionM - previous.positionM) / dt),
+      });
     }
   }
-  return speeds;
+  return samples;
 }
 
 export function deriveMeasuredAccelerationMps2(
@@ -281,6 +291,10 @@ export function deriveMeasuredAccelerationMps2(
 
   const intervals: number[] = [];
   for (let index = 1; index < usable.length; index += 1) {
+    const elapsedBetweenDotsS = usable[index].timeS - usable[index - 1].timeS;
+    if (Math.abs(elapsedBetweenDotsS - periodS) > Math.max(1e-9, periodS * 1e-6)) {
+      return null;
+    }
     intervals.push(usable[index].positionM - usable[index - 1].positionM);
   }
   if (intervals.length < 6) {
@@ -308,7 +322,7 @@ export function deriveTapeAnalysis(state: TickerTimerState): TapeAnalysis {
         usableDots[usableDots.length - 2].positionM
       : null;
   const printQuality = derivePrintQuality(state.kind, state.voltageV);
-  const speedSeriesMps = deriveTapeSpeedSeries(dots, periodS);
+  const speedSeriesMps = deriveTapeSpeedSeries(dots, periodS, state.releaseTimeS ?? dots[0]?.timeS ?? 0);
 
   return {
     periodS,
@@ -374,7 +388,13 @@ export function stepTickerTimerState(
     { ...state, elapsedTimeS },
     elapsedTimeS,
   );
-  const finished = state.released && displacementM >= MAX_TAPE_M - 1e-6;
+  const periodS = derivePeriodS(state.frequencyHz);
+  const pulseLimitReached =
+    state.powerOnTimeS !== null &&
+    elapsedTimeS - state.powerOnTimeS >= (MAX_DOTS - 1) * periodS - 1e-9;
+  const tapeEndReached =
+    state.released && displacementM >= MAX_TAPE_M - 1e-6;
+  const finished = pulseLimitReached || tapeEndReached;
 
   return {
     ...state,
@@ -384,6 +404,9 @@ export function stepTickerTimerState(
 }
 
 export function togglePowered(state: TickerTimerState): TickerTimerState {
+  if (!state.powered && state.finished) {
+    return state;
+  }
   if (state.powered) {
     return {
       ...state,

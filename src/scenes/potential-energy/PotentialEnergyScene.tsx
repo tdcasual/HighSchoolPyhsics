@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import {
   buildPotentialSlicePoints,
+  POTENTIAL_DISPLAY_LIMIT,
+  POTENTIAL_DISPLAY_MIN_RADIUS,
+  POTENTIAL_FIELD_SCALE,
   POTENTIAL_SURFACE_FULL_ANGLE,
   summarizeSlice,
 } from './model'
@@ -43,19 +47,13 @@ export function PotentialEnergyScene() {
 
   const toggleChargeSign = () => {
     setChargeSign((value) => (value > 0 ? -1 : 1))
-    setRotationInProgress(false)
-    if (surfaceVisible) {
+    if (surfaceVisible && !rotationInProgress) {
       setSweepAngle(POTENTIAL_SURFACE_FULL_ANGLE)
     }
   }
 
   const chargeTypeLabel = resolveChargeLabel(chargeSign)
   const sweepProgress = Math.min(100, (sweepAngle / POTENTIAL_SURFACE_FULL_ANGLE) * 100)
-  const presentationFocus = rotationInProgress
-    ? { mode: 'focus' as const, primary: [0, 5, 0] as [number, number, number] }
-    : surfaceVisible
-      ? { mode: 'compare' as const, primary: [0, 5, 0] as [number, number, number], secondary: [0, 0, 0] as [number, number, number] }
-      : { mode: 'overview' as const }
 
   return (
     <SceneLayout
@@ -77,45 +75,36 @@ export function PotentialEnergyScene() {
               }}
             />
           </ControlSection>
+          <p className="text-xs leading-relaxed text-[var(--control-ink-muted)]">
+            横轴 r 是到点电荷的距离，竖轴 φ_rel 是相对电势；模型省略库仑常量 k，使用 φ_rel(r)=sgn(Q)·{POTENTIAL_FIELD_SCALE}/r，仅显示 |φ_rel|≤{POTENTIAL_DISPLAY_LIMIT}（r≥{POTENTIAL_DISPLAY_MIN_RADIUS.toFixed(2)}）。
+            彩色球标记电荷极性；旋转切片生成轴对称函数图像，不是实际空间等势面。
+          </p>
+          <ControlSection title="三维图像构建">
+            <SceneActions
+              layout="column"
+              actions={[
+                { key: 'show-slice', label: '1. 显示电势切片', onClick: showSlice, disabled: sliceVisible },
+                { key: 'start-rotation', label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转', onClick: startRotation, disabled: !sliceVisible || rotationInProgress },
+                { key: 'reset', label: '3. 重置', onClick: resetScene, disabled: !sliceVisible && !surfaceVisible },
+              ]}
+            />
+          </ControlSection>
         </div>
       }
-      playbackActions={[
-        {
-          key: 'show-slice',
-          label: '1. 显示电势切片',
-          onClick: showSlice,
-          disabled: sliceVisible,
-        },
-        {
-          key: 'start-rotation',
-          label: rotationInProgress ? '2. 旋转中...' : '2. 开始旋转',
-          onClick: startRotation,
-          disabled: !sliceVisible || rotationInProgress,
-        },
-        {
-          key: 'reset',
-          label: '3. 重置',
-          onClick: resetScene,
-          disabled: !sliceVisible && !surfaceVisible,
-        },
-      ]}
+      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>当前电荷: {chargeTypeLabel}</p>
-          <p>
-            电势范围: {sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}
-          </p>
-          <p>旋转进度: {surfaceVisible ? `${sweepProgress.toFixed(0)}%` : '未开始'}</p>
-          <p>切片采样点: {sliceStats.sampleCount}</p>
-          <p>曲面展开角: {Math.max(0.01, sweepAngle).toFixed(2)} rad</p>
-          <p>旋转状态: {rotationInProgress ? '构建中' : surfaceVisible ? '已完成' : '未开始'}</p>
+          <p>相对电势显示范围: {sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</p>
+          <p>旋转: {surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始'}</p>
+          <p>模型: φ_rel(r)=±{POTENTIAL_FIELD_SCALE}/r；显示域 |φ_rel|≤{POTENTIAL_DISPLAY_LIMIT}</p>
+          <p>切片: {sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</p>
         </div>
       }
       viewport={
         <InteractiveCanvas
-          camera={{ position: [10, 15, 20], fov: 58 }}
-          controls={{ target: [0, 5, 0], minDistance: 8, maxDistance: 45 }}
-          presentationFocus={presentationFocus}
+          camera={{ position: [18, 24, 38], fov: 58 }}
+          controls={{ target: [0, 0, 0], minDistance: 8, maxDistance: 60 }}
           adaptiveFraming={false}
           frameloop={rotationInProgress ? 'always' : 'demand'}
         >

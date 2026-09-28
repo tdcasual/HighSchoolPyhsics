@@ -35,6 +35,19 @@ describe('electromagnetic-drive model', () => {
     expect(state.history.frameSpeeds).toHaveLength(state.history.magnetSpeeds.length)
   })
 
+  it('integrates the displayed angular speeds using the fixed 60 Hz step', () => {
+    const state = createElectromagneticDriveState({
+      isRunning: true,
+      magnetSpeed: 2,
+      frameSpeed: 1,
+    })
+
+    const next = stepElectromagneticDriveState(state)
+
+    expect(next.magnetAngle - state.magnetAngle).toBeCloseTo(next.magnetSpeed / 60, 10)
+    expect(next.frameAngle - state.frameAngle).toBeCloseTo(next.frameSpeed / 60, 10)
+  })
+
   it('lets the frame coast briefly after the magnet is paused, then decay', () => {
     let state = createElectromagneticDriveState({ isRunning: true })
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const { mockRig } = vi.hoisted(() => ({
@@ -34,10 +34,16 @@ describe('electromagnetic-drive structure', () => {
     render(<ElectromagneticDriveScene />)
 
     expect(screen.getByText('电磁驱动控制')).toBeInTheDocument()
+    expect(screen.getByText('实验现象说明')).toBeInTheDocument()
+    expect(screen.getByText('模型边界')).toBeInTheDocument()
+
+    const dataPanel = screen.getByRole('region', { name: '数据' })
+    const chartPanel = screen.getByRole('region', { name: '图表' })
+    expect(within(dataPanel).getByRole('button', { name: '展开' })).toBeInTheDocument()
+    expect(within(chartPanel).getByRole('button', { name: '展开' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '开始摇动' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '停止摇动' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '重置实验' })).toBeInTheDocument()
-    expect(screen.getByText('实验现象说明')).toBeInTheDocument()
 
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
     expect(screen.getByTestId('electromagnetic-drive-rig')).toBeInTheDocument()

@@ -1,7 +1,7 @@
 import { Line } from '@react-three/drei/core/Line'
-import { Text } from '@react-three/drei/core/Text'
+import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
-import { DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
+import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
 import {
   DEE_LABEL_Y,
   INFO_LABEL_Y,
@@ -12,8 +12,36 @@ import {
 } from './view'
 
 const GUIDE_RADII = [0.55, 0.95, 1.35, 1.75, 2.1]
-const DEE_RADIUS = 2.16
 
+function CyclotronLabel({
+  position,
+  color,
+  fontSize,
+  children,
+}: {
+  position: Point3
+  color: string
+  fontSize: number
+  children: string
+}) {
+  return (
+    <Html position={position} center>
+      <span
+        style={{
+          color,
+          fontSize: `${Math.max(10, Math.round(fontSize * 64))}px`,
+          fontWeight: 700,
+          lineHeight: 1,
+          pointerEvents: 'none',
+          textShadow: '0 1px 2px rgba(255, 255, 255, 0.9)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </span>
+    </Html>
+  )
+}
 function buildCircle(radius: number, y: number, segments = 120): Point3[] {
   const points: Point3[] = []
   for (let i = 0; i <= segments; i += 1) {
@@ -26,19 +54,18 @@ function buildCircle(radius: number, y: number, segments = 120): Point3[] {
 type FieldArrowProps = {
   x: number
   z: number
-  pulse: number
 }
 
-function FieldArrow({ x, z, pulse }: FieldArrowProps) {
+function FieldArrow({ x, z }: FieldArrowProps) {
   return (
-    <group position={[x, 1.2 + pulse * 0.02, z]}>
+    <group position={[x, 1.2, z]}>
       <mesh position={[0, -0.2, 0]}>
         <cylinderGeometry args={[0.015, 0.015, 0.5, 12]} />
-        <meshBasicMaterial color="#2ca6bf" transparent opacity={0.72 + pulse * 0.2} />
+        <meshBasicMaterial color="#2ca6bf" transparent opacity={0.82} />
       </mesh>
       <mesh position={[0, -0.5, 0]} rotation={[Math.PI, 0, 0]}>
         <coneGeometry args={[0.06, 0.18, 14]} />
-        <meshBasicMaterial color="#1f96b0" transparent opacity={0.88} />
+        <meshBasicMaterial color="#1f96b0" transparent opacity={0.92} />
       </mesh>
     </group>
   )
@@ -79,18 +106,20 @@ export function CyclotronRig3D({
   )
   const gapArrows = useMemo(() => [-1.68, -1.12, -0.56, 0, 0.56, 1.12, 1.68], [])
 
-  const pulse = running ? 0.5 + 0.5 * Math.sin(phase * Math.PI * 2) : 0.1
+  const animationPulse = running ? 0.5 + 0.5 * Math.sin(phase * Math.PI * 2) : 0.1
+  const rfMagnitude = Math.abs(Math.cos(phase * Math.PI * 2))
   const normalizedSign = voltageSign >= 0 ? 1 : -1
   const gapMainColor = normalizedSign > 0 ? '#ef7575' : '#5ba0d6'
   const gapAltColor = normalizedSign > 0 ? '#fdece4' : '#dceefb'
-  const directionLabel = normalizedSign > 0 ? 'E: D1→D2' : 'E: D2→D1'
+  const directionLabel = normalizedSign > 0 ? 'E: D1 to D2' : 'E: D2 to D1'
   const directionColor = gapMainColor
-  const gapOpacity = 0.1 + pulse * 0.22 + (particleInGap ? 0.2 : 0)
-  const gapFieldOpacity = 0.32 + pulse * 0.44 + (particleInGap ? 0.24 : 0)
-  const particleGlow = running ? 0.3 + pulse * 0.55 : 0.2
+  const gapOpacity = 0.08 + rfMagnitude * 0.22 + (particleInGap ? 0.12 : 0)
+  const gapFieldOpacity = 0.1 + rfMagnitude * 0.56 + (particleInGap ? 0.12 : 0)
+  const particleGlow = running ? 0.3 + animationPulse * 0.55 : 0.2
   const gapHalf = deeGapWidth / 2
   const gapLength = DEE_RADIUS * 1.95
   const gapArrowLength = Math.max(0.1, deeGapWidth * 0.78)
+  const gapArrowShaftLength = Math.max(0.01, gapArrowLength - 0.09)
 
   return (
     <group>
@@ -108,11 +137,11 @@ export function CyclotronRig3D({
       </mesh>
 
       <mesh position={[deeGapWidth / 2, SCENE_Y, 0]}>
-        <cylinderGeometry args={[DEE_RADIUS, DEE_RADIUS, DEE_THICKNESS, 96, 1, false, 0, Math.PI]} />
+        <cylinderGeometry args={[DEE_RADIUS, DEE_RADIUS, DEE_THICKNESS, 96, 1, false, -Math.PI / 2, Math.PI]} />
         <meshStandardMaterial color="#dcae7f" roughness={0.42} metalness={0.28} />
       </mesh>
       <mesh position={[-deeGapWidth / 2, SCENE_Y, 0]}>
-        <cylinderGeometry args={[DEE_RADIUS, DEE_RADIUS, DEE_THICKNESS, 96, 1, false, Math.PI, Math.PI]} />
+        <cylinderGeometry args={[DEE_RADIUS, DEE_RADIUS, DEE_THICKNESS, 96, 1, false, Math.PI / 2, Math.PI]} />
         <meshStandardMaterial color="#e4b989" roughness={0.42} metalness={0.28} />
       </mesh>
 
@@ -149,16 +178,16 @@ export function CyclotronRig3D({
       {gapArrows.map((z, index) => (
         <group
           key={`gap-arrow-${index}`}
-          position={[0, TRAJECTORY_Y + 0.024, z]}
+          position={[normalizedSign > 0 ? -gapArrowLength / 2 : gapArrowLength / 2, TRAJECTORY_Y + 0.024, z]}
           rotation={[0, normalizedSign > 0 ? 0 : Math.PI, 0]}
         >
           <mesh position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.012, 0.012, gapArrowLength, 12]} />
-            <meshBasicMaterial color={gapMainColor} transparent opacity={0.76 + pulse * 0.22} />
+            <cylinderGeometry args={[0.012, 0.012, gapArrowShaftLength, 12]} />
+            <meshBasicMaterial color={gapMainColor} transparent opacity={0.18 + rfMagnitude * 0.76} />
           </mesh>
-          <mesh position={[gapHalf * 0.38, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <mesh position={[gapArrowLength / 2 - 0.045, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
             <coneGeometry args={[0.036, 0.09, 14]} />
-            <meshBasicMaterial color={gapMainColor} transparent opacity={0.9} />
+            <meshBasicMaterial color={gapMainColor} transparent opacity={0.22 + rfMagnitude * 0.72} />
           </mesh>
         </group>
       ))}
@@ -195,49 +224,21 @@ export function CyclotronRig3D({
       </mesh>
 
       {fieldArrows.map(([x, z], index) => (
-        <FieldArrow key={`field-${index}`} x={x} z={z} pulse={pulse} />
+        <FieldArrow key={`field-${index}`} x={x} z={z} />
       ))}
 
-      <Text
-        position={[0, INFO_LABEL_Y, -2.3]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        color="#1c6583"
-        fontSize={0.28}
-        anchorX="center"
-        anchorY="middle"
-      >
+      <CyclotronLabel position={[0, INFO_LABEL_Y, -2.3]} color="#1c6583" fontSize={0.28}>
         B
-      </Text>
-      <Text
-        position={[-1.22, DEE_LABEL_Y, 0.8]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        color="#5f3a20"
-        fontSize={0.18}
-        anchorX="center"
-        anchorY="middle"
-      >
+      </CyclotronLabel>
+      <CyclotronLabel position={[-1.22, DEE_LABEL_Y, 0.8]} color="#5f3a20" fontSize={0.18}>
         D1
-      </Text>
-      <Text
-        position={[1.2, DEE_LABEL_Y, 0.8]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        color="#5f3a20"
-        fontSize={0.18}
-        anchorX="center"
-        anchorY="middle"
-      >
+      </CyclotronLabel>
+      <CyclotronLabel position={[1.2, DEE_LABEL_Y, 0.8]} color="#5f3a20" fontSize={0.18}>
         D2
-      </Text>
-      <Text
-        position={[0, INFO_LABEL_Y, -2.02]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        color={directionColor}
-        fontSize={0.15}
-        anchorX="center"
-        anchorY="middle"
-      >
+      </CyclotronLabel>
+      <CyclotronLabel position={[0, INFO_LABEL_Y, -2.02]} color={directionColor} fontSize={0.15}>
         {directionLabel}
-      </Text>
+      </CyclotronLabel>
 
       <Line points={POWER_FEED_LEFT_PATH} color="#26394d" lineWidth={2} />
       <Line points={POWER_FEED_RIGHT_PATH} color="#26394d" lineWidth={2} />
@@ -249,16 +250,9 @@ export function CyclotronRig3D({
         <sphereGeometry args={[0.05, 12, 12]} />
         <meshStandardMaterial color="#f8fafb" metalness={0.16} roughness={0.44} />
       </mesh>
-      <Text
-        position={POWER_FEED_TEXT_POSITION}
-        rotation={[-Math.PI / 2, 0, 0]}
-        color="#2a4058"
-        fontSize={0.14}
-        anchorX="center"
-        anchorY="middle"
-      >
+      <CyclotronLabel position={POWER_FEED_TEXT_POSITION} color="#2a4058" fontSize={0.14}>
         U~
-      </Text>
+      </CyclotronLabel>
     </group>
   )
 }

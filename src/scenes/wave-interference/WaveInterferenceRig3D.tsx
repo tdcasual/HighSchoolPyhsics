@@ -1,4 +1,5 @@
 import { useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
@@ -9,11 +10,13 @@ import {
   waveFragmentShader,
 } from './shaders'
 import {
-  buildHyperbolaPoints,
+  buildInterferenceBranches,
   calcWaveDisplacement,
   createObserverBuffer,
   GRID_SIZE,
   ringPush,
+  worldToWavePlane,
+  WAVE_SURFACE_SCALE,
   type ObserverBuffer,
   type Vec2,
   type WaveParams,
@@ -28,6 +31,7 @@ type RigProps = WaveParams & {
   setObserverBuffer: (b: ObserverBuffer | null) => void
   showConstructive: boolean
   showDestructive: boolean
+  resetVersion: number
   _tickSyncRef: { current: () => void }
 }
 
@@ -47,8 +51,8 @@ const dragHitPoint = new Vector3()
 const WaveSurface = memo(function WaveSurface({
   source1, source2, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, waveSpeed,
-  isPlaying, playSpeed,
-}: WaveParams & { isPlaying: boolean; playSpeed: number }) {
+  isPlaying, playSpeed, resetVersion,
+}: WaveParams & { isPlaying: boolean; playSpeed: number; resetVersion: number }) {
   const matRef = useRef<ShaderMaterial>(null)
   const timeRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
@@ -56,23 +60,37 @@ const WaveSurface = memo(function WaveSurface({
   useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
   useEffect(() => { playSpeedRef.current = playSpeed }, [playSpeed])
 
-  const [uniforms] = useState(() => ({
+  const [uniforms] = useState(() => {
+    const source1Plane = worldToWavePlane(source1)
+    const source2Plane = worldToWavePlane(source2)
+    return {
     uTime: { value: 0 },
-    uSource1: { value: new Vector2(source1.x, source1.z) },
-    uSource2: { value: new Vector2(source2.x, source2.z) },
+    uSource1: { value: new Vector2(source1Plane.x, source1Plane.z) },
+    uSource2: { value: new Vector2(source2Plane.x, source2Plane.z) },
+    uVisualScale: { value: WAVE_SURFACE_SCALE },
     uWavelength1: { value: wavelength1 },
     uWavelength2: { value: wavelength2 },
     uAmplitude1: { value: amplitude1 },
     uAmplitude2: { value: amplitude2 },
     uPhaseDiff: { value: phaseDiff },
     uWaveSpeed: { value: waveSpeed },
-  }))
+  }
+  })
 
+  useEffect(() => {
+    timeRef.current = 0
+    const mat = matRef.current
+    if (mat) mat.uniforms.uTime.value = 0
+  }, [resetVersion])
+
+  /* eslint-disable react-hooks/immutability -- Three.js shader uniforms are updated imperatively through this material ref. */
   useEffect(() => {
     const u = matRef.current?.uniforms
     if (!u) return
-    ;(u.uSource1.value as Vector2).set(source1.x, source1.z)
-    ;(u.uSource2.value as Vector2).set(source2.x, source2.z)
+    const source1Plane = worldToWavePlane(source1)
+    const source2Plane = worldToWavePlane(source2)
+    ;(u.uSource1.value as Vector2).set(source1Plane.x, source1Plane.z)
+    ;(u.uSource2.value as Vector2).set(source2Plane.x, source2Plane.z)
     u.uWavelength1.value = wavelength1
     u.uWavelength2.value = wavelength2
     u.uAmplitude1.value = amplitude1
@@ -80,6 +98,7 @@ const WaveSurface = memo(function WaveSurface({
     u.uPhaseDiff.value = phaseDiff
     u.uWaveSpeed.value = waveSpeed
   }, [source1, source2, wavelength1, wavelength2, amplitude1, amplitude2, phaseDiff, waveSpeed])
+  /* eslint-enable react-hooks/immutability */
 
   useFrame((_, delta) => {
     if (isPlayingRef.current) {
@@ -91,7 +110,7 @@ const WaveSurface = memo(function WaveSurface({
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[GRID_SIZE, GRID_SIZE, 48, 48]} />
+      <planeGeometry args={[GRID_SIZE, GRID_SIZE, 128, 128]} />
       <shaderMaterial
         ref={matRef}
         vertexShader={waveVertexShader}
@@ -106,7 +125,7 @@ const WaveSurface = memo(function WaveSurface({
 /* ─── Wave Source (draggable sphere) ─── */
 
 const WaveSource = memo(function WaveSource({
-  position, color,
+  position, color, label,
   onDrag,
 }: {
   position: Vec2
@@ -135,6 +154,10 @@ const WaveSource = memo(function WaveSource({
 
   return (
     <group position={[position.x, 0, position.z]}>
+      <Html position={[0, 0.27, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
+        <span style={{ color, fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap', textShadow: '0 1px 3px white, 0 0 5px white' }}>{label}</span>
+      </Html>
+
       {/* visible sphere */}
       <mesh position={[0, 0.08, 0]}>
         <sphereGeometry args={[0.08, 14, 14]} />
@@ -185,7 +208,7 @@ const WaveSource = memo(function WaveSource({
 function ObserverPoint({
   observerBuffer, waveSpeed, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, source1, source2,
-  isPlaying, playSpeed, setObserverBuffer, tickSyncRef,
+  isPlaying, playSpeed, resetVersion, setObserverBuffer, tickSyncRef,
 }: {
   observerBuffer: ObserverBuffer
   waveSpeed: number
@@ -198,6 +221,7 @@ function ObserverPoint({
   source2: Vec2
   isPlaying: boolean
   playSpeed: number
+  resetVersion: number
   setObserverBuffer: (b: ObserverBuffer | null) => void
   tickSyncRef: { current: () => void }
 }) {
@@ -217,6 +241,12 @@ function ObserverPoint({
   const bufferRef = useRef(observerBuffer)
   useEffect(() => { bufferRef.current = observerBuffer }, [observerBuffer])
 
+  useEffect(() => {
+    timeRef.current = 0
+    if (bufferRef.current) bufferRef.current.time = 0
+    if (headMeshRef.current) headMeshRef.current.position.y = 0.08
+  }, [resetVersion])
+
   const setObserverBufferRef = useRef(setObserverBuffer)
   useEffect(() => { setObserverBufferRef.current = setObserverBuffer }, [setObserverBuffer])
 
@@ -227,14 +257,15 @@ function ObserverPoint({
     const buf = bufferRef.current
     const p = paramsRef.current
     const t = timeRef.current
+    buf.time = t
 
-    const y1 = calcWaveDisplacement(buf, p.source1, t, p.wavelength1, p.amplitude1, 0)
-    const y2 = calcWaveDisplacement(buf, p.source2, t, p.wavelength2, p.amplitude2, p.phaseDiff)
+    const y1 = calcWaveDisplacement(buf, p.source1, t, p.wavelength1, p.amplitude1, 0, p.waveSpeed)
+    const y2 = calcWaveDisplacement(buf, p.source2, t, p.wavelength2, p.amplitude2, p.phaseDiff, p.waveSpeed)
     const yTotal = y1 + y2
 
-    ringPush(buf, yTotal, y1, y2)
+    ringPush(buf, t, yTotal, y1, y2)
     if (headMeshRef.current) {
-      headMeshRef.current.position.y = 1 + yTotal * 3
+      headMeshRef.current.position.y = 0.08 + yTotal * WAVE_SURFACE_SCALE
     }
 
     // Throttled React sync
@@ -265,11 +296,15 @@ function ObserverPoint({
         <meshBasicMaterial color="#8b5cf6" />
       </mesh>
 
-      {/* head sphere */}
-      <mesh ref={headMeshRef} position={[0, 1.5, 0]}>
+      {/* head sphere follows the same vertically scaled displacement as the wave surface */}
+      <mesh ref={headMeshRef} position={[0, 0.08, 0]}>
         <sphereGeometry args={[0.06, 12, 12]} />
         <meshBasicMaterial color="#8b5cf6" />
       </mesh>
+
+      <Html position={[0, 0.55, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
+        <span style={{ color: '#7c3aed', fontSize: '11px', fontWeight: 900, whiteSpace: 'nowrap', textShadow: '0 1px 3px white, 0 0 5px white' }}>O</span>
+      </Html>
 
       {/* ground ring */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
@@ -314,46 +349,33 @@ function ObserverPoint({
 /* ─── Interference Lines (hyperbolas via drei Line) ─── */
 
 const InterferenceLines = memo(function InterferenceLines({
-  source1, source2, wavelength1, wavelength2,
+  source1, source2, wavelength1, wavelength2, phaseDiff,
   showConstructive, showDestructive,
 }: {
   source1: Vec2
   source2: Vec2
   wavelength1: number
   wavelength2: number
+  phaseDiff: number
   showConstructive: boolean
   showDestructive: boolean
 }) {
-  const d = Math.sqrt((source2.x - source1.x) ** 2 + (source2.z - source1.z) ** 2)
-  const avgLambda = (wavelength1 + wavelength2) / 2
-
-  const constructivePts = useMemo(() => {
-    if (!showConstructive) return []
-    const result: Array<[number, number, number][]> = []
-    for (let n = 0; n * avgLambda < d; n++) {
-      const pts = buildHyperbolaPoints(source1, source2, (n * avgLambda) / 2)
-      if (pts.length >= 2) result.push(pts)
-    }
-    return result
-  }, [source1, source2, avgLambda, d, showConstructive])
-
-  const destructivePts = useMemo(() => {
-    if (!showDestructive) return []
-    const result: Array<[number, number, number][]> = []
-    for (let n = 0; (n + 0.5) * avgLambda < d; n++) {
-      const pts = buildHyperbolaPoints(source1, source2, ((n + 0.5) * avgLambda) / 2)
-      if (pts.length >= 2) result.push(pts)
-    }
-    return result
-  }, [source1, source2, avgLambda, d, showDestructive])
+  const constructivePts = useMemo(
+    () => showConstructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0) : [],
+    [source1, source2, wavelength1, wavelength2, phaseDiff, showConstructive],
+  )
+  const destructivePts = useMemo(
+    () => showDestructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0.5) : [],
+    [source1, source2, wavelength1, wavelength2, phaseDiff, showDestructive],
+  )
 
   return (
     <group>
       {constructivePts.map((pts, i) => (
-        <Line key={`c-${i}`} points={pts} color="#ef4444" lineWidth={1.5} transparent opacity={0.5} />
+        <Line key={"c-" + i} points={pts} color="#16a34a" lineWidth={1.6} transparent opacity={0.9} depthTest={false} depthWrite={false} />
       ))}
       {destructivePts.map((pts, i) => (
-        <Line key={`d-${i}`} points={pts} color="#3b82f6" lineWidth={1.5} transparent opacity={0.5} />
+        <Line key={"d-" + i} points={pts} color="#a21caf" lineWidth={1.6} transparent opacity={0.9} depthTest={false} depthWrite={false} />
       ))}
     </group>
   )
@@ -388,7 +410,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
     amplitude1, amplitude2, phaseDiff, waveSpeed,
     isPlaying, playSpeed, observerBuffer,
     setSource1, setSource2, setObserverBuffer,
-    showConstructive, showDestructive,
+    showConstructive, showDestructive, resetVersion,
     _tickSyncRef,
   } = props
 
@@ -397,14 +419,14 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
       <ambientLight intensity={1.5} />
       <directionalLight position={DIR_LIGHT_POS} intensity={1} />
 
-      <gridHelper args={[GRID_SIZE, 20, '#cbd5e1', '#e2e8f0']} />
+      <gridHelper args={[GRID_SIZE, 20, '#cbd5e1', '#e2e8f0']} position={[0, -0.01, 0]} />
 
       <WaveSurface
         source1={source1} source2={source2}
         wavelength1={wavelength1} wavelength2={wavelength2}
         amplitude1={amplitude1} amplitude2={amplitude2}
         phaseDiff={phaseDiff} waveSpeed={waveSpeed}
-        isPlaying={isPlaying} playSpeed={playSpeed}
+        isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion}
       />
 
       <WaveSource
@@ -424,7 +446,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
           amplitude1={amplitude1} amplitude2={amplitude2}
           phaseDiff={phaseDiff}
           source1={source1} source2={source2}
-          isPlaying={isPlaying} playSpeed={playSpeed}
+          isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion}
           setObserverBuffer={setObserverBuffer}
           tickSyncRef={_tickSyncRef}
         />
@@ -432,7 +454,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
 
       <InterferenceLines
         source1={source1} source2={source2}
-        wavelength1={wavelength1} wavelength2={wavelength2}
+        wavelength1={wavelength1} wavelength2={wavelength2} phaseDiff={phaseDiff}
         showConstructive={showConstructive}
         showDestructive={showDestructive}
       />

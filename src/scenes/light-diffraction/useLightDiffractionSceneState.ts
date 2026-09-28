@@ -3,6 +3,7 @@ import {
   DEFAULT_MODE,
   DEFAULT_PARAMS,
   clampApertureSize,
+  getFarFieldMinimumScreenDistance,
   formatFeatureLabel,
   formatFeatureValue,
   waveLengthToHex,
@@ -21,6 +22,7 @@ export type LightDiffractionSceneState = DiffractionParams & {
   isWhiteLight: boolean
   filterColor: FilterColor
   eyepieceAngle: number
+  minScreenDistance: number
 
   // Actions
   setMode: (value: DiffractionMode) => void
@@ -36,46 +38,72 @@ export type LightDiffractionSceneState = DiffractionParams & {
   reset: () => void
 }
 
+function resolveMinimumScreenDistance(
+  mode: DiffractionMode,
+  params: DiffractionParams,
+  isWhiteLight: boolean,
+): number {
+  const shortestWavelength = isWhiteLight ? 400 : params.wavelength
+  return Math.max(0.5, getFarFieldMinimumScreenDistance(mode, params, shortestWavelength))
+}
+
+function constrainScreenDistance(
+  mode: DiffractionMode,
+  params: DiffractionParams,
+  isWhiteLight: boolean,
+): DiffractionParams {
+  return {
+    ...params,
+    screenDistance: Math.max(params.screenDistance, resolveMinimumScreenDistance(mode, params, isWhiteLight)),
+  }
+}
+
 export function useLightDiffractionSceneState(): LightDiffractionSceneState {
   const [params, setParams] = useState<DiffractionParams>(DEFAULT_PARAMS)
   const [mode, setModeState] = useState<DiffractionMode>(DEFAULT_MODE)
-  const [showChart, setShowChart] = useState(true)
+  const [showChart, setShowChart] = useState(false)
   const [isLightOn, setIsLightOn] = useState(true)
   const [isWhiteLight, setIsWhiteLight] = useState(false)
   const [filterColor, setFilterColorState] = useState<FilterColor>('none')
   const [eyepieceAngle, setEyepieceAngle] = useState(0)
 
+  const minScreenDistance = useMemo(
+    () => resolveMinimumScreenDistance(mode, params, isWhiteLight),
+    [mode, params, isWhiteLight],
+  )
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const featureLabel = useMemo(() => formatFeatureLabel(mode), [mode])
   const featureValue = useMemo(() => formatFeatureValue(params, mode), [params, mode])
 
   const setMode = useCallback((value: DiffractionMode) => {
-    setModeState((prev) => {
-      if (prev === value) return prev
-      // Clamp aperture size to new mode's range
-      setParams((p) => ({
-        ...p,
-        apertureSize: clampApertureSize(value, p.apertureSize),
-      }))
-      return value
-    })
-  }, [])
+    setModeState(value)
+    setParams((p) => constrainScreenDistance(value, {
+      ...p,
+      apertureSize: clampApertureSize(value, p.apertureSize),
+    }, isWhiteLight))
+  }, [isWhiteLight])
 
   const setWavelength = useCallback((value: number) => {
-    setParams((prev) => ({ ...prev, wavelength: value }))
-  }, [])
+    setParams((prev) => constrainScreenDistance(mode, { ...prev, wavelength: value }, isWhiteLight))
+  }, [isWhiteLight, mode])
 
   const setApertureSize = useCallback((value: number) => {
-    setParams((prev) => ({ ...prev, apertureSize: clampApertureSize(mode, value) }))
-  }, [mode])
+    setParams((prev) => constrainScreenDistance(mode, {
+      ...prev,
+      apertureSize: clampApertureSize(mode, value),
+    }, isWhiteLight))
+  }, [isWhiteLight, mode])
 
   const setScreenDistance = useCallback((value: number) => {
-    setParams((prev) => ({ ...prev, screenDistance: value }))
-  }, [])
+    setParams((prev) => ({
+      ...prev,
+      screenDistance: Math.max(value, resolveMinimumScreenDistance(mode, prev, isWhiteLight)),
+    }))
+  }, [isWhiteLight, mode])
 
   const setGratingLines = useCallback((value: number) => {
-    setParams((prev) => ({ ...prev, gratingLines: value }))
-  }, [])
+    setParams((prev) => constrainScreenDistance(mode, { ...prev, gratingLines: value }, isWhiteLight))
+  }, [isWhiteLight, mode])
 
   const toggleChart = useCallback(() => {
     setShowChart((prev) => !prev)
@@ -86,11 +114,11 @@ export function useLightDiffractionSceneState(): LightDiffractionSceneState {
   }, [])
 
   const toggleWhiteLight = useCallback(() => {
-    setIsWhiteLight((prev) => {
-      if (prev) setFilterColorState('none')
-      return !prev
-    })
-  }, [])
+    const nextWhiteLight = !isWhiteLight
+    setIsWhiteLight(nextWhiteLight)
+    if (isWhiteLight) setFilterColorState('none')
+    setParams((prev) => constrainScreenDistance(mode, prev, nextWhiteLight))
+  }, [isWhiteLight, mode])
 
   const setFilterColor = useCallback((value: FilterColor) => {
     setFilterColorState(value)
@@ -103,7 +131,7 @@ export function useLightDiffractionSceneState(): LightDiffractionSceneState {
   const reset = useCallback(() => {
     setParams(DEFAULT_PARAMS)
     setModeState(DEFAULT_MODE)
-    setShowChart(true)
+    setShowChart(false)
     setIsLightOn(true)
     setIsWhiteLight(false)
     setFilterColorState('none')
@@ -121,6 +149,7 @@ export function useLightDiffractionSceneState(): LightDiffractionSceneState {
     isWhiteLight,
     filterColor,
     eyepieceAngle,
+    minScreenDistance,
     setMode,
     setWavelength,
     setApertureSize,

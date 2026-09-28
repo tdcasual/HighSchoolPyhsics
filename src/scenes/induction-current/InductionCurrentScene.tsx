@@ -13,8 +13,13 @@ import './induction-current.css'
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
   const presentationFocus = state.motionDirection || state.lastOutcome
-    ? { mode: 'focus' as const, primary: [20, -4, 0] as [number, number, number] }
+    ? { mode: 'focus' as const, primary: [7.5, -4, 0] as [number, number, number] }
     : { mode: 'overview' as const }
+  const instantaneousCurrentText = !state.isMoving
+    ? '0（磁铁静止）'
+    : state.coilCurrentSign === 0
+      ? '接近零'
+      : formatCurrentDirection(state.coilCurrentSign > 0 ? 'counterclockwise' : 'clockwise')
   const currentDirectionText = state.lastOutcome
     ? formatCurrentDirection(state.lastOutcome.inducedCurrentDirection)
     : '无'
@@ -32,38 +37,22 @@ export function InductionCurrentScene() {
   return (
     <SceneLayout
       controls={<InductionCurrentControls state={state} />}
+      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>磁极朝向: {formatPoleSetting(state.poleSetting)}</p>
           <p>磁铁状态: {motionStatusText}</p>
-          <p>最新感应电流: {currentDirectionText}</p>
-          <p>感应磁场方向: {latestInducedFieldDirection}</p>
+          <p>最近一次感应电流方向: {currentDirectionText}</p>
+          <p>瞬时感应电流方向: {instantaneousCurrentText}</p>
+          <p>仪表偏角（示意）: {(-state.needleAngleRad * (180 / Math.PI)).toFixed(1)}°</p>
+          <p>感应磁场轴向: {latestInducedFieldDirection}</p>
           <p>实验记录: {state.records.length} 条</p>
         </div>
       }
-      playbackActions={[
-        {
-          key: 'approach',
-          label: '↓ 接近',
-          onClick: state.moveTowardsCoil,
-          disabled: !state.canMoveTowardsCoil,
-        },
-        {
-          key: 'recede',
-          label: '↑ 远离',
-          onClick: state.moveAwayFromCoil,
-          disabled: !state.canMoveAwayFromCoil,
-        },
-        {
-          key: 'reset',
-          label: '↺ 重置',
-          onClick: state.resetExperiment,
-        },
-      ]}
       viewport={
         <InteractiveCanvas
-          camera={{ position: [25, 5, 65], fov: 40 }}
-          controls={{ target: [20, -4, 0], minDistance: 24, maxDistance: 120 }}
+          camera={{ position: [12.5, 5, 65], fov: 40 }}
+          controls={{ target: [7.5, -4, 0], minDistance: 24, maxDistance: 120 }}
           presentationFocus={presentationFocus}
           adaptiveFraming={false}
           frameloop={state.motionDirection ? 'always' : 'demand'}

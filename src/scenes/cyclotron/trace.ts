@@ -34,8 +34,7 @@ export function deriveAdaptiveWindowS(periodS: number): number {
 
 export function evaluateGapVoltageAtTime(timeS: number, amplitudeV: number, periodS: number): number {
   const period = safePositive(periodS, 1)
-  const normalized = ((timeS % period) + period) / period % 1
-  return normalized < 0.5 ? amplitudeV : -amplitudeV
+  return amplitudeV * Math.cos((2 * Math.PI * timeS) / period)
 }
 
 export function evaluateKineticEnergyAtTime(options: EvaluateEnergyOptions): number {

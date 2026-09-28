@@ -12,6 +12,8 @@ type MhdControlsProps = {
   onElectrodeGapChange: (value: number) => void
   conductivitySPerM: number
   onConductivityChange: (value: number) => void
+  loadResistanceOhm: number
+  onLoadResistanceChange: (value: number) => void
 }
 
 export function MhdControls({
@@ -25,6 +27,8 @@ export function MhdControls({
   onElectrodeGapChange,
   conductivitySPerM,
   onConductivityChange,
+  loadResistanceOhm,
+  onLoadResistanceChange,
 }: MhdControlsProps) {
   return (
     <div className="grid gap-[0.8rem]">
@@ -41,7 +45,6 @@ export function MhdControls({
           value={magneticFieldT}
           onChange={onMagneticFieldChange}
         />
-
         <RangeField
           id="mhd-v"
           label="等离子体速度 v"
@@ -52,17 +55,15 @@ export function MhdControls({
           value={plasmaVelocityMps}
           onChange={onPlasmaVelocityChange}
         />
-
         <RangeField
           id="mhd-density"
-          label="等离子浓度 n"
+          label="载流子浓度 n/n₀"
           min={0.2}
           max={2}
           step={0.05}
           value={plasmaDensityRatio}
           onChange={onPlasmaDensityChange}
         />
-
         <RangeField
           id="mhd-gap"
           label="电极间距 d"
@@ -73,16 +74,25 @@ export function MhdControls({
           value={electrodeGapM}
           onChange={onElectrodeGapChange}
         />
-
         <RangeField
           id="mhd-sigma"
-          label="电导率 σ"
+          label="基准电导率 σ₀"
           unit="S/m"
           min={2}
           max={40}
           step={1}
           value={conductivitySPerM}
           onChange={onConductivityChange}
+        />
+        <RangeField
+          id="mhd-load"
+          label="负载电阻 R_L"
+          unit="Ω"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={loadResistanceOhm}
+          onChange={onLoadResistanceChange}
         />
       </ControlSection>
     </div>

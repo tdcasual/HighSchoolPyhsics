@@ -6,10 +6,12 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({
     camera,
     controls,
+    syncCamera,
     children,
   }: {
     camera: { position?: [number, number, number]; up?: [number, number, number] }
     controls?: { minPolarAngle?: number; maxPolarAngle?: number }
+    syncCamera?: boolean
     children: ReactNode
   }) => (
     <div
@@ -18,6 +20,7 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
       data-camera-up={camera.up?.join(',') ?? ''}
       data-min-polar={String(controls?.minPolarAngle ?? '')}
       data-max-polar={String(controls?.maxPolarAngle ?? '')}
+      data-sync-camera={String(syncCamera ?? false)}
     >
       {children}
     </div>
@@ -38,6 +41,7 @@ describe('motional-emf camera views', () => {
     expect(screen.getByRole('button', { name: '默认视角' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '俯视' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '底视' })).toBeInTheDocument()
+    expect(canvas).toHaveAttribute('data-sync-camera', 'true')
     expect(canvas).toHaveAttribute('data-min-polar', '0')
     expect(canvas).toHaveAttribute('data-max-polar', String(Math.PI))
 

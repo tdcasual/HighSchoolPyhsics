@@ -50,8 +50,8 @@ export function deriveGeneratorReadings(angleRad: number): GeneratorReadings {
     positionLabel,
     cuttingLabel,
     currentDirection,
-    normalVector: [Math.cos(normalized), 0, Math.sin(normalized)],
-    velocityVector: [Math.sin(normalized), 0, -Math.cos(normalized)],
+    normalVector: [Math.cos(normalized), 0, -Math.sin(normalized)],
+    velocityVector: [Math.cos(normalized), 0, -Math.sin(normalized)],
   }
 }
 
@@ -80,11 +80,11 @@ export function emfToPlotPoint(angleRad: number): [number, number] {
 
 export function positionDescription(readings: GeneratorReadings): string {
   if (readings.position === 'neutral') {
-    return '线圈平面与磁场垂直，法向量 n ∥ B。磁通量达到最大值，但变化率为零，感应电动势为零，电流方向在此处改变。'
+    return '中性面：n ∥ B，|Φ| = Φₘ；dΦ/dt = 0，e = 0，电流在此换向。'
   }
   if (readings.position === 'parallel') {
-    return '线圈平面与磁场平行，磁通量为零，线圈切割磁感线的有效速度最大，感应电动势达到峰值。'
+    return '平行面：Φ = 0，导线垂直切割，|e| = Eₘ；电流方向随半周反转。'
   }
-  return '线圈转到过渡位置，磁通量按 cosθ 变化，感应电动势按 sinθ 变化；速度的垂直分量决定切割强弱。'
+  return '过渡位置：Φ = Φₘ cosθ、e = Eₘ sinθ；v⊥/v = |sinθ|。'
 }
 

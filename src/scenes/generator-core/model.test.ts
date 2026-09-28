@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPhaseTrace, deriveGeneratorReadings, emfToPlotPoint, phaseToPlotPoint } from './model'
+import { buildPhaseTrace, deriveGeneratorReadings, emfToPlotPoint, phaseToPlotPoint, positionDescription } from './model'
 
 describe('generator-core model', () => {
   it('derives the neutral, parallel and transition positions', () => {
@@ -8,12 +8,27 @@ describe('generator-core model', () => {
     expect(neutral.fluxNormalized).toBeCloseTo(1)
     expect(neutral.emfNormalized).toBeCloseTo(0)
     expect(neutral.cuttingLabel).toContain('不切割')
+    expect(neutral.velocityVector[0]).toBeCloseTo(1)
+    expect(neutral.velocityVector[2]).toBeCloseTo(0)
+
+    const oppositeNeutral = deriveGeneratorReadings(Math.PI)
+    expect(oppositeNeutral.fluxNormalized).toBeCloseTo(-1)
+    expect(oppositeNeutral.positionLabel).toBe('中性面')
+    expect(positionDescription(neutral)).toContain('|Φ| = Φₘ')
+    expect(positionDescription(oppositeNeutral)).toContain('|Φ| = Φₘ')
 
     const parallel = deriveGeneratorReadings(Math.PI / 2)
     expect(parallel.position).toBe('parallel')
     expect(parallel.fluxNormalized).toBeCloseTo(0)
     expect(parallel.emfNormalized).toBeCloseTo(1)
     expect(parallel.currentDirection).toBe('正向')
+    expect(parallel.velocityVector[0]).toBeCloseTo(0)
+    expect(parallel.velocityVector[2]).toBeCloseTo(-1)
+    expect(positionDescription(parallel)).toContain('|e| = Eₘ')
+
+    const reversePeak = deriveGeneratorReadings(3 * Math.PI / 2)
+    expect(reversePeak.emfNormalized).toBeCloseTo(-1)
+    expect(reversePeak.currentDirection).toBe('反向')
 
     const transition = deriveGeneratorReadings(Math.PI / 4)
     expect(transition.position).toBe('transition')

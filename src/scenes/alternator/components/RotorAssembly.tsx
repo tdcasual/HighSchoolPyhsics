@@ -1,11 +1,32 @@
-import { Text } from '@react-three/drei/core/Text'
+import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { CurvePath, LineCurve3, Path, Shape, Vector3 } from 'three'
 import type { AlternatorPalette } from '../palette'
+import { CurrentIndicators } from './CurrentIndicators'
 
 type RotorAssemblyProps = {
   angleRad: number
+  currentA: number
   palette: AlternatorPalette
+}
+
+
+function RotorLabel({
+  position,
+  color,
+  children,
+}: {
+  position: [number, number, number]
+  color: string
+  children: string
+}) {
+  return (
+    <Html position={position} center style={{ pointerEvents: 'none', userSelect: 'none' }}>
+      <span style={{ color, fontSize: '14px', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
+        {children}
+      </span>
+    </Html>
+  )
 }
 
 function buildTubePath(points: [number, number, number][]) {
@@ -34,7 +55,7 @@ function buildSlipRingShape() {
   return shape
 }
 
-export function RotorAssembly({ angleRad, palette }: RotorAssemblyProps) {
+export function RotorAssembly({ angleRad, currentA, palette }: RotorAssemblyProps) {
   const orangePath = useMemo(
     () =>
       buildTubePath([
@@ -73,18 +94,11 @@ export function RotorAssembly({ angleRad, palette }: RotorAssemblyProps) {
       </mesh>
 
       <group name="coil-loop">
-        <Text position={[0, 0, -6.55]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-A">
-          A
-        </Text>
-        <Text position={[-2.8, 0, 0.5]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-B">
-          B
-        </Text>
-        <Text position={[2.8, 0, 0.9]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-C">
-          C
-        </Text>
-        <Text position={[0, 1.3, 5.2]} color={palette.label} fontSize={0.28} anchorX="center" anchorY="middle" name="label-D">
-          D
-        </Text>
+        <CurrentIndicators currentA={currentA} />
+        <RotorLabel position={[0, 0, -6.55]} color={palette.label}>A</RotorLabel>
+        <RotorLabel position={[-2.8, 0, 0.5]} color={palette.label}>B</RotorLabel>
+        <RotorLabel position={[2.8, 0, 0.9]} color={palette.label}>C</RotorLabel>
+        <RotorLabel position={[0, 1.3, 5.2]} color={palette.label}>D</RotorLabel>
       </group>
 
       <group name="slip-ring-front">

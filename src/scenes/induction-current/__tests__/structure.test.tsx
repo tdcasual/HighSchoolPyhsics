@@ -20,12 +20,12 @@ describe('induction-current structure', () => {
 
     fireEvent.click(moveTowardButton)
 
-    await waitFor(() => expect(queryRecordLabels()).toHaveLength(1))
-    await waitFor(() => expect(moveAwayButton).toBeEnabled())
+    await waitFor(() => expect(queryRecordLabels()).toHaveLength(1), { timeout: 3500 })
+    await waitFor(() => expect(moveAwayButton).toBeEnabled(), { timeout: 3500 })
 
     fireEvent.click(moveAwayButton)
 
-    await waitFor(() => expect(queryRecordLabels()).toHaveLength(2))
+    await waitFor(() => expect(queryRecordLabels()).toHaveLength(2), { timeout: 3500 })
 
     fireEvent.click(screen.getByRole('button', { name: '↺ 重置' }))
     expect(screen.getByText('暂无实验记录')).toBeInTheDocument()

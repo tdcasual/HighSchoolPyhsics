@@ -24,6 +24,9 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={() => undefined}
         motionDirection="forward"
         onMotionDirectionChange={() => undefined}
+        isRunning={false}
+        onToggleRunning={() => undefined}
+        onReset={() => undefined}
       />,
     )
 
@@ -58,6 +61,9 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={onRodVelocityAngleChange}
         motionDirection="forward"
         onMotionDirectionChange={onMotionDirectionChange}
+        isRunning={false}
+        onToggleRunning={() => undefined}
+        onReset={() => undefined}
       />,
     )
 
@@ -84,6 +90,9 @@ describe('MotionalEmfControls', () => {
         onRodVelocityAngleChange={onRodVelocityAngleChange}
         motionDirection="forward"
         onMotionDirectionChange={onMotionDirectionChange}
+        isRunning={false}
+        onToggleRunning={() => undefined}
+        onReset={() => undefined}
       />,
     )
 

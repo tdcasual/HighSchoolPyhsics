@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   buildFieldLines,
   buildPotentialTerrain,
@@ -13,6 +13,8 @@ import {
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 export const ELECTROSTATIC_LAB_SCENE_BOUNDS = 7
+export const ELECTROSTATIC_LAB_CHARGE_LIMIT = ELECTROSTATIC_LAB_SCENE_BOUNDS - 1
+export const ELECTROSTATIC_LAB_MAX_CHARGES = 12
 
 type ProbePoint = {
   x: number
@@ -30,8 +32,12 @@ type ProbeReadout = {
   }
 }
 
-function nextChargeId(charges: ReadonlyArray<ElectrostaticCharge>): string {
-  let maxIndex = 0
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+function nextChargeId(charges: ReadonlyArray<ElectrostaticCharge>, lastIssuedIndex: number): string {
+  let maxIndex = lastIssuedIndex
   for (const charge of charges) {
     const match = charge.id.match(/^C(\d+)$/)
     if (!match) {
@@ -43,7 +49,7 @@ function nextChargeId(charges: ReadonlyArray<ElectrostaticCharge>): string {
 }
 
 export type ElectrostaticLabState = {
-  presetKey: PresetKey
+  presetKey: PresetKey | 'custom'
   presetLabel: string
   charges: ElectrostaticCharge[]
   selectedChargeId: string | null
@@ -81,7 +87,7 @@ export type ElectrostaticLabState = {
 }
 
 export function useElectrostaticLabState(): ElectrostaticLabState {
-  const [presetKey, setPresetKey] = useState<PresetKey>('dipole')
+  const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>('dipole')
   const [charges, setCharges] = useState<ElectrostaticCharge[]>(() => clonePresetCharges('dipole'))
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
   const [displayMode, setDisplayMode] = useState<DisplayMode>('potential')
@@ -95,6 +101,7 @@ export function useElectrostaticLabState(): ElectrostaticLabState {
   const [probeMode, setProbeMode] = useState(false)
   const [probePoint, setProbePoint] = useState<ProbePoint | null>(null)
   const [advancedInteractionsEnabled, setAdvancedInteractionsEnabled] = useState(false)
+  const chargeIdCounter = useRef(2)
 
   const selectedCharge = useMemo(
     () => charges.find((charge) => charge.id === selectedChargeId) ?? null,
@@ -143,34 +150,47 @@ export function useElectrostaticLabState(): ElectrostaticLabState {
     setProbePoint(null)
   }
 
+  const reserveNextChargeId = (currentCharges: ReadonlyArray<ElectrostaticCharge>) => {
+    const id = nextChargeId(currentCharges, chargeIdCounter.current)
+    chargeIdCounter.current = Number(id.slice(1))
+    return id
+  }
+
   const addCharge = (magnitude: number) => {
-    setCharges((prevCharges) => {
-      const id = nextChargeId(prevCharges)
-      const angle = prevCharges.length * 0.85
-      const radius = 3.8
-      const nextCharge: ElectrostaticCharge = {
-        id,
-        x: Number((Math.cos(angle) * radius).toFixed(1)),
-        z: Number((Math.sin(angle) * radius).toFixed(1)),
-        magnitude,
-      }
-      setSelectedChargeId(id)
-      return [...prevCharges, nextCharge]
-    })
+    if (charges.length >= ELECTROSTATIC_LAB_MAX_CHARGES) {
+      return
+    }
+
+    const id = reserveNextChargeId(charges)
+    const idIndex = Number(id.slice(1))
+    const angle = idIndex * 2.399963229728653
+    const radius = Math.min(ELECTROSTATIC_LAB_CHARGE_LIMIT * 0.82, 2.4 + idIndex * 0.08)
+    const nextCharge: ElectrostaticCharge = {
+      id,
+      x: Number((Math.cos(angle) * radius).toFixed(2)),
+      z: Number((Math.sin(angle) * radius).toFixed(2)),
+      magnitude,
+    }
+    setCharges((prevCharges) => [...prevCharges, nextCharge])
+    setSelectedChargeId(id)
+    setPresetKey('custom')
   }
 
   const addChargeAtPoint = (position: ProbePoint, sign: 1 | -1) => {
-    setCharges((prevCharges) => {
-      const id = nextChargeId(prevCharges)
-      const nextCharge: ElectrostaticCharge = {
-        id,
-        x: Number(position.x.toFixed(2)),
-        z: Number(position.z.toFixed(2)),
-        magnitude: sign > 0 ? 1.2 : -1.2,
-      }
-      setSelectedChargeId(id)
-      return [...prevCharges, nextCharge]
-    })
+    if (charges.length >= ELECTROSTATIC_LAB_MAX_CHARGES) {
+      return
+    }
+
+    const id = reserveNextChargeId(charges)
+    const nextCharge: ElectrostaticCharge = {
+      id,
+      x: Number(clamp(position.x, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT).toFixed(2)),
+      z: Number(clamp(position.z, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT).toFixed(2)),
+      magnitude: sign > 0 ? 1.2 : -1.2,
+    }
+    setCharges((prevCharges) => [...prevCharges, nextCharge])
+    setSelectedChargeId(id)
+    setPresetKey('custom')
   }
 
   const deleteChargeById = (chargeId: string) => {
@@ -178,13 +198,15 @@ export function useElectrostaticLabState(): ElectrostaticLabState {
       return
     }
 
-    setCharges((prevCharges) => {
-      const nextCharges = prevCharges.filter((charge) => charge.id !== chargeId)
-      if (selectedChargeId === chargeId) {
-        setSelectedChargeId(nextCharges[0]?.id ?? null)
-      }
-      return nextCharges
-    })
+    const nextCharges = charges.filter((charge) => charge.id !== chargeId)
+    if (nextCharges.length === charges.length) {
+      return
+    }
+    setCharges(nextCharges)
+    setPresetKey('custom')
+    if (selectedChargeId === chargeId) {
+      setSelectedChargeId(nextCharges[0]?.id ?? null)
+    }
   }
 
   const deleteSelectedCharge = () => {
@@ -201,34 +223,47 @@ export function useElectrostaticLabState(): ElectrostaticLabState {
       return
     }
 
+    const normalizedPatch = {
+      ...patch,
+      ...(patch.x === undefined
+        ? {}
+        : { x: clamp(patch.x, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT) }),
+      ...(patch.z === undefined
+        ? {}
+        : { z: clamp(patch.z, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT) }),
+    }
     setCharges((prevCharges) =>
       prevCharges.map((charge) =>
         charge.id === selectedChargeId
           ? {
               ...charge,
-              ...patch,
+              ...normalizedPatch,
             }
           : charge,
       ),
     )
+    setPresetKey('custom')
   }
 
   const setChargePosition = (chargeId: string, position: ProbePoint) => {
+    const nextX = clamp(position.x, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT)
+    const nextZ = clamp(position.z, -ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_CHARGE_LIMIT)
     setCharges((prevCharges) =>
       prevCharges.map((charge) =>
         charge.id === chargeId
           ? {
               ...charge,
-              x: position.x,
-              z: position.z,
+              x: nextX,
+              z: nextZ,
             }
           : charge,
       ),
     )
+    setPresetKey('custom')
   }
 
   const modeLabel = displayMode === 'potential' ? '电势地形' : '电场线'
-  const presetLabel = PRESET_CONFIGS[presetKey].label
+  const presetLabel = presetKey === 'custom' ? '自定义配置' : PRESET_CONFIGS[presetKey].label
 
   return {
     presetKey,

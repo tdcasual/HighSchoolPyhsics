@@ -43,6 +43,20 @@ describe('measuring-tools readings', () => {
     expect(below.divisions).toBeCloseTo(23.7, 8)
   })
 
+  it('requires the estimated thousandth to match instead of accepting a two-thousandth error', () => {
+    expect(checkMicrometer('5.237', 5.237).ok).toBe(true)
+    expect(checkMicrometer('5.238', 5.237).ok).toBe(false)
+    expect(checkMicrometer('5.239', 5.237).ok).toBe(false)
+  })
+
+  it('keeps a negative zero-error reading at the sleeve zero and on the signed thimble scale', () => {
+    const reading = micrometerReading(-0.05)
+    expect(reading.fixed).toBe(0)
+    expect(reading.divisions).toBeCloseTo(-5, 8)
+    expect(reading.halfLine).toBe(false)
+    expect(reading.text).toBe('-0.050')
+  })
+
   it('flags a missed half-millimetre line', () => {
     const result = checkMicrometer('5.237', 5.737)
     expect(result.ok).toBe(false)

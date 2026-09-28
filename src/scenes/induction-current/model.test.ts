@@ -50,8 +50,8 @@ describe('induction-current model', () => {
   it('formats table labels with classroom-ready wording', () => {
     expect(formatVerticalDirection('up')).toBe('向上 (↑)')
     expect(formatVerticalDirection('down')).toBe('向下 (↓)')
-    expect(formatFluxChange('increase')).toBe('增加 (接近)')
-    expect(formatFluxChange('decrease')).toBe('减少 (远离)')
+    expect(formatFluxChange('increase')).toBe('|Φ| 增加 (接近)')
+    expect(formatFluxChange('decrease')).toBe('|Φ| 减少 (远离)')
     expect(formatCurrentDirection('counterclockwise')).toBe('逆时针')
     expect(formatCurrentDirection('clockwise')).toBe('顺时针')
   })

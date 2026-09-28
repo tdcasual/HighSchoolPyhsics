@@ -9,6 +9,7 @@ type SceneElement = ReactElement<Record<string, unknown>>
 function collect(node: ReactNode): SceneElement[] {
   const elements: SceneElement[] = []
   const visit = (value: ReactNode) => {
+    if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return
     if (!isValidElement<Record<string, unknown>>(value)) {
       Children.forEach(value, visit)
       return

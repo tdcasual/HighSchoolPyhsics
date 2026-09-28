@@ -38,7 +38,7 @@ export function CyclotronControls({
           id="cyc-b"
           label="磁场 B"
           unit="T"
-          min={0.2}
+          min={0.5}
           max={3}
           step={0.1}
           value={magneticFieldT}
@@ -60,9 +60,9 @@ export function CyclotronControls({
           id="cyc-gap"
           label="加速缝隙半宽 Δx"
           unit="mm"
-          min={0.02}
-          max={0.12}
-          step={0.005}
+          min={0.005}
+          max={0.02}
+          step={0.001}
           value={gapHalfWidthMm}
           onChange={onGapHalfWidthChange}
         />
@@ -74,6 +74,9 @@ export function CyclotronControls({
           value={energyMode}
           onChange={(key) => onEnergyModeChange(key as CyclotronEnergyMode)}
         />
+        <p className="text-xs leading-5 text-slate-500">
+          此模式只切换封顶于理想圆轨道 Ek,max 的理论曲线；实时动能来自粒子仿真，强缝隙电场下可能暂时高于该参考值。D 形盒半径固定，轨道尺寸为示意。
+        </p>
       </ControlSection>
     </div>
   )

@@ -16,6 +16,13 @@ describe('beam path visibility', () => {
     expect(end[2]).toBeGreaterThan(0)
   })
 
+  it('keeps combined X/Y deflection inside the circular screen face', () => {
+    const points = buildBeamPathPoints(1, 1)
+    const end = points[points.length - 1]
+
+    expect(Math.hypot(end[1], end[2])).toBeLessThanOrEqual(0.75 + 1e-9)
+  })
+
   it('builds a visible in-flight segment while running', () => {
     const path = buildBeamPathPoints(0.6, -0.3)
     const phase = deriveBeamPhase(0.25, true)

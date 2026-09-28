@@ -33,6 +33,19 @@ describe('useDraggable', () => {
     expect(result.current.position).toEqual({ x: 500, y: 0 })
   })
 
+  it('clamps the initial displayed position after applying its horizontal offset', () => {
+    const { result } = renderHook(() =>
+      useDraggable({
+        initialPosition: { x: 340, y: 0 },
+        offsetX: 340,
+        bounds: { left: -340, top: 0, right: 153, bottom: 500 },
+      }),
+    )
+
+    expect(result.current.position).toEqual({ x: 153, y: 0 })
+    expect(result.current.style.transform).toBe('translate(493px, 0px)')
+  })
+
   it('defaults position to 0,0', () => {
     const { result } = renderHook(() => useDraggable())
     expect(result.current.position).toEqual({ x: 0, y: 0 })
@@ -51,6 +64,18 @@ describe('useDraggable', () => {
     rerender({ offsetX: 260 })
     expect(result.current.position.x).toBe(160)
     expect(result.current.style.transform).toBe('translate(420px, 50px)')
+  })
+
+  it('applies a new layout position without applying its offset change twice', () => {
+    const { result, rerender } = renderHook(
+      ({ x, offsetX }) => useDraggable({ initialPosition: { x, y: 0 }, offsetX }),
+      { initialProps: { x: 340, offsetX: 340 } },
+    )
+    expect(result.current.style.transform).toBe('translate(680px, 0px)')
+
+    rerender({ x: 170, offsetX: 170 })
+    expect(result.current.position.x).toBe(170)
+    expect(result.current.style.transform).toBe('translate(340px, 0px)')
   })
 
   it('includes offsetX in transform when defined', () => {

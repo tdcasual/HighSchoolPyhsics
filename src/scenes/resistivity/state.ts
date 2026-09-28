@@ -22,13 +22,15 @@ export type ResistivityStage = 'diameter' | 'circuit' | 'analysis' | 'iv'
 export type GraphKind = 'UI' | 'Rl'
 export type FitKind = 'origin' | 'line'
 
-export type DiameterRecord = { d: number; source: string } | null
+export type DiameterRecord = { d: number; reading: number; zero: number; source: string } | null
 
 export type DataRecord = {
   wire: string
   wireName: string
   method: CircuitMethod
   control: CircuitControl
+  ammeter: MeterKey
+  voltmeter: MeterKey
   l: number
   U: number
   I: number
@@ -67,7 +69,7 @@ export type ResistivityState = {
 export function createResistivityState(): ResistivityState {
   return {
     stage: 'diameter',
-    view: 'focus',
+    view: 'home',
     material: 'nichrome',
     mystery: false,
     nominal: 0.4,
@@ -76,7 +78,7 @@ export function createResistivityState(): ResistivityState {
     zero: 0,
     gapAnim: null,
     diameters: [null, null, null],
-    step: 3,
+    step: 0,
     method: 'external',
     control: 'limit',
     ammeter: 'A06',
@@ -136,6 +138,7 @@ export function stepGap(state: ResistivityState, dt: number): ResistivityState {
     ...state,
     gap: Math.round(value * 1e6) / 1e6,
     gapAnim: t >= 1 ? null : { ...state.gapAnim, t },
+    notice: t >= 1 ? `已与位置 ${state.position + 1} 的金属丝接触，读数稳定。` : state.notice,
   }
 }
 
@@ -149,7 +152,7 @@ export function recordDiameter(state: ResistivityState): ResistivityState {
   }
   const diameter = Math.round((indicatedGap(state) - state.zero) * 1000) / 1000
   const diameters = [...state.diameters] as ResistivityState['diameters']
-  diameters[state.position] = { d: diameter, source: '测量' }
+  diameters[state.position] = { d: diameter, reading: indicatedGap(state), zero: state.zero, source: '测量' }
   const done = diameters.every(Boolean)
   return {
     ...state,
@@ -159,7 +162,7 @@ export function recordDiameter(state: ResistivityState): ResistivityState {
 }
 
 export function meanDiameter(state: ResistivityState): number | null {
-  const measured = state.diameters.filter((item): item is { d: number; source: string } => item !== null)
+  const measured = state.diameters.filter((item): item is NonNullable<DiameterRecord> => item !== null)
   if (measured.length === 0) return null
   return measured.reduce((sum, item) => sum + item.d, 0) / measured.length
 }
@@ -175,7 +178,7 @@ export function liveMeasurement(state: ResistivityState) {
     control: state.control,
     method: state.method,
     slider: state.slider,
-    closed: state.closed && state.step >= 1,
+    closed: state.closed && state.step >= 2,
     voltmeterConnected: state.step >= 2,
   })
 }
@@ -185,21 +188,28 @@ export function safeSlider(control: CircuitControl): number {
 }
 
 export function setClosed(state: ResistivityState, closed: boolean): ResistivityState {
-  if (closed && state.step < 3) {
-    return { ...state, closed: false, notice: '电路尚未连接完成：先完成全部连线，再闭合开关。' }
+  if (closed && state.step < 2) {
+    return { ...state, closed: false, notice: '测量回路尚未完成：先接通主回路和电压表。' }
   }
   const unsafe = Math.abs(state.slider - safeSlider(state.control)) > 0.05
+  if (closed && unsafe) {
+    return {
+      ...state,
+      closed: false,
+      notice: state.control === 'limit'
+        ? '滑片未在 b 端最大阻值处，已保持开关断开；先移到安全端再闭合。'
+        : '滑片未在 a 端零电压处，已保持开关断开；先移到安全端再闭合。',
+    }
+  }
   return {
     ...state,
     closed,
-    notice: closed && unsafe
-      ? (state.control === 'limit' ? '限流接法闭合前应把滑片放在阻值最大的 b 端。' : '分压接法闭合前应把滑片放在 a 端，使金属丝电压为零。')
-      : (closed ? '开关已闭合。调节滑片后记录，读数后断开。' : '开关已断开。'),
+    notice: closed ? '开关已闭合。调节滑片后记录，读数后断开。' : '开关已断开。',
   }
 }
 
 export function recordPoint(state: ResistivityState): ResistivityState {
-  if (state.step < 3) return { ...state, notice: '先完成电路连接。' }
+  if (state.step < 2) return { ...state, notice: '先完成主回路和电压表连接。' }
   const reading = liveMeasurement(state)
   if (!reading.closed) return { ...state, notice: '开关断开，电路中没有电流。' }
   const current = meterReading(reading.Imeter, state.ammeter === 'A3' ? 'A3' : 'A06')
@@ -212,6 +222,8 @@ export function recordPoint(state: ResistivityState): ResistivityState {
     wireName: wireLabel(state),
     method: state.method,
     control: state.control,
+    ammeter: state.ammeter,
+    voltmeter: state.voltmeter,
     l: state.lengthCm,
     U: voltage.reading,
     I: current.reading,
@@ -227,7 +239,11 @@ export function recordPoint(state: ResistivityState): ResistivityState {
 export function groupsOf(records: DataRecord[]) {
   if (records.length === 0) return { ui: [] as DataRecord[], rl: [] as Array<{ l: number; R: number }>, last: null as DataRecord | null }
   const last = records[records.length - 1]
-  const same = records.filter((row) => row.method === last.method && row.wire === last.wire)
+  const same = records.filter((row) => row.method === last.method
+    && row.control === last.control
+    && row.ammeter === last.ammeter
+    && row.voltmeter === last.voltmeter
+    && row.wire === last.wire)
   const ui = same.filter((row) => Math.abs(row.l - last.l) < 1e-9)
   const byLength = new Map<string, DataRecord[]>()
   for (const row of same) {
@@ -249,13 +265,15 @@ export function analysisOf(state: ResistivityState) {
     ? grouped.ui.map((row) => [row.I, row.U] as [number, number])
     : grouped.rl.map((row) => [row.l / 100, row.R] as [number, number])
   const fit = points.length >= 2 ? (state.fit === 'origin' ? fitOrigin(points) : fitLine(points)) : null
+  const diameterCount = state.diameters.filter(Boolean).length
+  const diameterComplete = diameterCount === 3
   let rho: number | null = null
   let resistance: number | null = null
-  if (fit && state.graph === 'UI' && grouped.last && diameter) {
+  if (fit && state.graph === 'UI' && grouped.last && diameter && diameterComplete) {
     resistance = fit.slope
     rho = resistivityFrom(fit.slope, diameter, grouped.last.l / 100)
   }
-  if (fit && state.graph === 'Rl' && diameter) {
+  if (fit && state.graph === 'Rl' && diameter && diameterComplete) {
     rho = fit.slope * (Math.PI * (diameter * 1e-3) ** 2 / 4)
   }
   return {
@@ -264,7 +282,9 @@ export function analysisOf(state: ResistivityState) {
     rho,
     resistance,
     diameter,
-    count: state.diameters.filter(Boolean).length,
+    count: diameterCount,
+    diameterCount,
+    diameterComplete,
     nearest: rho ? nearestMaterial(rho) : null,
     truth: MATERIALS_RHO(activeMaterial(state)),
     grouped,
@@ -277,9 +297,14 @@ function MATERIALS_RHO(key: MaterialKey) {
 
 export function fillSamples(state: ResistivityState): ResistivityState {
   const sample = activeWire(state)
-  const diameters = state.diameters.map((item, index) => item ?? { d: sample.positions[index], source: '示例' }) as ResistivityState['diameters']
+  const diameters = state.diameters.map((item, index) => item ?? {
+    d: sample.positions[index],
+    reading: sample.positions[index] + state.zero,
+    zero: state.zero,
+    source: '示例',
+  }) as ResistivityState['diameters']
   const sliders = state.control === 'limit' ? [1, 0.78, 0.6, 0.46, 0.34, 0.22] : [0.12, 0.24, 0.36, 0.5, 0.66, 0.82]
-  const draft: ResistivityState = { ...state, diameters, step: 3, closed: true }
+  const draft: ResistivityState = { ...state, diameters, step: 2, closed: true }
   const rows = [...state.records]
   const push = (lengthCm: number, slider: number) => {
     const reading = liveMeasurement({ ...draft, lengthCm, slider, records: rows })
@@ -291,6 +316,8 @@ export function fillSamples(state: ResistivityState): ResistivityState {
       wireName: wireLabel(state),
       method: state.method,
       control: state.control,
+      ammeter: state.ammeter,
+      voltmeter: state.voltmeter,
       l: lengthCm,
       U: voltage.reading,
       I: current.reading,

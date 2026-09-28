@@ -55,16 +55,18 @@ describe('measuring-tools rig', () => {
       workSize: 23.4,
     }))
     const ground = depth.find((element) => element.props.name === 'caliper-ground')
-    const depthWork = collectElements(CaliperDepthWork({ pose, size: 23.4, showWork: true }))
-      .find((element) => element.props.name === 'caliper-depth-work')
+    const depthElements = collectElements(CaliperDepthWork({ pose, size: 23.4, showWork: true }))
+    const depthWork = depthElements.find((element) => element.props.name === 'caliper-depth-work')
+    const workBoxes = depthElements.filter((element) => element.type === 'boxGeometry')
     expect(ground?.props.position).toEqual([95, -46, 0])
     expect(depthWork?.props.position).toEqual([7.8, 0, -23])
+    expect(workBoxes.map((element) => element.props.args)).toEqual([[24, 23.4, 16], [24, 23.4, 16], [60, 0.8, 16]])
   })
 
   it('puts the thimble rotation and spindle centre on the posed meshes', () => {
     const pose = micrometerPose({ gap: 1.25, zero: 0.01, exploded: 0, locked: false })
     const elements = collectElements(
-      MicrometerAssembly({ pose, showWork: false, workSize: 1.25, showLabels: false }),
+      MicrometerAssembly({ pose, gap: 1.25, showWork: false, workSize: 1.25, showLabels: false }),
     )
     const thimble = elements.find((element) => element.props.name === 'micrometer-thimble')
     const spindle = elements.find((element) => element.props.name === 'micrometer-spindle')

@@ -1,13 +1,18 @@
+import { TARGET_MAGNET_SPEED } from './model'
+
 type ElectromagneticDriveRig3DProps = {
   magnetAngle: number
   frameAngle: number
+  magnetSpeed: number
+  frameSpeed: number
 }
 
-export function ElectromagneticDriveRig3D({ magnetAngle, frameAngle }: ElectromagneticDriveRig3DProps) {
+export function ElectromagneticDriveRig3D({ magnetAngle, frameAngle, magnetSpeed, frameSpeed }: ElectromagneticDriveRig3DProps) {
   const frameWidth = 2.2
   const frameHeight = 2.8
-  const frameThickness = 0.12
+  const frameThickness = 0.16
   const poleOffset = 3
+  const inducedCurrentStrength = Math.min(1, Math.abs(magnetSpeed - frameSpeed) / TARGET_MAGNET_SPEED)
 
   return (
     <group>
@@ -48,19 +53,19 @@ export function ElectromagneticDriveRig3D({ magnetAngle, frameAngle }: Electroma
         <group rotation={[0, frameAngle, 0]} position={[0, 3.2, 0]}>
           <mesh position={[0, frameHeight / 2, 0]}>
             <boxGeometry args={[frameWidth, frameThickness, frameThickness]} />
-            <meshStandardMaterial color="#a8a8a8" metalness={0.42} roughness={0.3} />
+            <meshStandardMaterial color="#c3c9cf" metalness={0.5} roughness={0.28} emissive="#14b8a6" emissiveIntensity={inducedCurrentStrength * 0.7} />
           </mesh>
           <mesh position={[0, -frameHeight / 2, 0]}>
             <boxGeometry args={[frameWidth, frameThickness, frameThickness]} />
-            <meshStandardMaterial color="#a8a8a8" metalness={0.42} roughness={0.3} />
+            <meshStandardMaterial color="#c3c9cf" metalness={0.5} roughness={0.28} emissive="#14b8a6" emissiveIntensity={inducedCurrentStrength * 0.7} />
           </mesh>
           <mesh position={[-frameWidth / 2, 0, 0]}>
             <boxGeometry args={[frameThickness, frameHeight, frameThickness]} />
-            <meshStandardMaterial color="#a8a8a8" metalness={0.42} roughness={0.3} />
+            <meshStandardMaterial color="#c3c9cf" metalness={0.5} roughness={0.28} emissive="#14b8a6" emissiveIntensity={inducedCurrentStrength * 0.7} />
           </mesh>
           <mesh position={[frameWidth / 2, 0, 0]}>
             <boxGeometry args={[frameThickness, frameHeight, frameThickness]} />
-            <meshStandardMaterial color="#a8a8a8" metalness={0.42} roughness={0.3} />
+            <meshStandardMaterial color="#c3c9cf" metalness={0.5} roughness={0.28} emissive="#14b8a6" emissiveIntensity={inducedCurrentStrength * 0.7} />
           </mesh>
         </group>
 

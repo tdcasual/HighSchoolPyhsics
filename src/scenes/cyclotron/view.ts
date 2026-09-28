@@ -20,7 +20,7 @@ export const DEE_LABEL_Y = TRAJECTORY_Y + 0.01
 export const INFO_LABEL_Y = DEE_TOP_Y + 0.018
 
 export const POWER_FEED_LEFT_PATH: Point3[] = [
-  [-0.14, DEE_LABEL_Y, 2.02],
+  [-0.5, DEE_LABEL_Y, 2.02],
   [-0.58, DEE_LABEL_Y, 2.16],
   [-1.02, DEE_LABEL_Y, 2.24],
 ]

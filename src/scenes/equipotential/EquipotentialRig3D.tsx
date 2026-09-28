@@ -1,43 +1,80 @@
+import { Html } from '@react-three/drei/web/Html'
 import { Line } from '@react-three/drei/core/Line'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { BufferAttribute, BufferGeometry, DoubleSide } from 'three'
 import type { EquipotentialCharge, EquipotentialSurface } from './model'
 
 type EquipotentialRig3DProps = {
   bounds: number
   charges: ReadonlyArray<EquipotentialCharge>
+  selectedChargeId: string | null
   positiveSurfaces: ReadonlyArray<EquipotentialSurface>
   negativeSurfaces: ReadonlyArray<EquipotentialSurface>
 }
 
-const POSITIVE_COLORS = ['#1f8bff', '#45a2ff', '#6bb8ff', '#8ed0ff', '#b4e4ff', '#d8f3ff']
-const NEGATIVE_COLORS = ['#ff6378', '#ff7a8d', '#ff91a2', '#ffa8b8', '#ffc2cf', '#ffdde5']
+type SurfaceGeometry = {
+  geometry: BufferGeometry
+  triangleCount: number
+}
 
-function toPositionBuffer(points: Array<[number, number, number]>): Float32Array {
-  const buffer = new Float32Array(points.length * 3)
-  for (let index = 0; index < points.length; index += 1) {
-    const point = points[index]
-    const offset = index * 3
-    buffer[offset] = point[0]
-    buffer[offset + 1] = point[1]
-    buffer[offset + 2] = point[2]
-  }
-  return buffer
+const POSITIVE_COLORS = ['#ef3340', '#f05252', '#f46b62', '#f58270', '#f69a80', '#f8b596']
+const NEGATIVE_COLORS = ['#3f7eb5', '#4f91c9', '#65a3d8', '#7eb4e4', '#9ac8ed', '#bddcf4']
+
+function createSurfaceGeometries(surfaces: ReadonlyArray<EquipotentialSurface>): SurfaceGeometry[] {
+  return surfaces.map((surface) => {
+    const geometry = new BufferGeometry()
+    geometry.setAttribute('position', new BufferAttribute(surface.positions, 3))
+    geometry.setIndex(new BufferAttribute(surface.indices, 1))
+    geometry.computeVertexNormals()
+    return { geometry, triangleCount: surface.triangleCount }
+  })
+}
+
+function WorldLabel({
+  position,
+  color,
+  children,
+}: {
+  position: [number, number, number]
+  color: string
+  children: string
+}) {
+  return (
+    <Html position={position} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
+      <span
+        style={{
+          color,
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: '12px',
+          fontWeight: 800,
+          lineHeight: 1,
+          padding: '2px 4px',
+          borderRadius: '5px',
+          background: 'rgba(255,255,255,0.88)',
+          textShadow: '0 1px 1px rgba(255,255,255,0.8)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </span>
+    </Html>
+  )
 }
 
 export function EquipotentialRig3D({
   bounds,
   charges,
+  selectedChargeId,
   positiveSurfaces,
   negativeSurfaces,
 }: EquipotentialRig3DProps) {
-  const positiveBuffers = useMemo(
-    () => positiveSurfaces.map((surface) => toPositionBuffer(surface.points)),
-    [positiveSurfaces],
-  )
-  const negativeBuffers = useMemo(
-    () => negativeSurfaces.map((surface) => toPositionBuffer(surface.points)),
-    [negativeSurfaces],
-  )
+  const positiveGeometries = useMemo(() => createSurfaceGeometries(positiveSurfaces), [positiveSurfaces])
+  const negativeGeometries = useMemo(() => createSurfaceGeometries(negativeSurfaces), [negativeSurfaces])
+
+  useEffect(() => () => {
+    for (const item of positiveGeometries) item.geometry.dispose()
+    for (const item of negativeGeometries) item.geometry.dispose()
+  }, [negativeGeometries, positiveGeometries])
 
   return (
     <group>
@@ -49,57 +86,66 @@ export function EquipotentialRig3D({
       <Line points={[[-bounds, 0, 0], [bounds, 0, 0]]} color="#ff886e" lineWidth={1.9} />
       <Line points={[[0, -bounds, 0], [0, bounds, 0]]} color="#77d2a7" lineWidth={1.6} />
       <Line points={[[0, 0, -bounds], [0, 0, bounds]]} color="#7fb7ff" lineWidth={1.6} />
+      <WorldLabel position={[bounds, 0, 0]} color="#c34d3c">+X</WorldLabel>
+      <WorldLabel position={[0, bounds, 0]} color="#288d68">+Y</WorldLabel>
+      <WorldLabel position={[0, 0, bounds]} color="#3978bb">+Z</WorldLabel>
+
+      {positiveGeometries.map((item, index) => (
+        <mesh key={`positive-surface-${index}`} geometry={item.geometry} renderOrder={1}>
+          <meshStandardMaterial
+            color={POSITIVE_COLORS[index % POSITIVE_COLORS.length]}
+            emissive={POSITIVE_COLORS[index % POSITIVE_COLORS.length]}
+            emissiveIntensity={0.12}
+            roughness={0.42}
+            metalness={0.02}
+            transparent
+            opacity={0.22 + (positiveGeometries.length - index) * 0.09}
+            side={DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+
+      {negativeGeometries.map((item, index) => (
+        <mesh key={`negative-surface-${index}`} geometry={item.geometry} renderOrder={1}>
+          <meshStandardMaterial
+            color={NEGATIVE_COLORS[index % NEGATIVE_COLORS.length]}
+            emissive={NEGATIVE_COLORS[index % NEGATIVE_COLORS.length]}
+            emissiveIntensity={0.1}
+            roughness={0.44}
+            metalness={0.02}
+            transparent
+            opacity={0.2 + (negativeGeometries.length - index) * 0.09}
+            side={DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
 
       {charges.map((charge) => {
         const radius = 0.18 + Math.min(0.22, Math.abs(charge.magnitude) * 0.008)
-        const color = charge.magnitude >= 0 ? '#ff6b6b' : '#5f86ff'
+        const color = charge.magnitude === 0 ? '#64748b' : charge.magnitude > 0 ? '#d92736' : '#2568a8'
+        const sign = charge.magnitude > 0 ? '+' : charge.magnitude < 0 ? '−' : '0'
         return (
-          <mesh key={charge.id} position={[charge.x, charge.y, charge.z]}>
-            <sphereGeometry args={[radius, 24, 24]} />
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.34} roughness={0.35} />
-          </mesh>
-        )
-      })}
-
-      {positiveBuffers.map((buffer, index) => {
-        if (buffer.length === 0) {
-          return null
-        }
-        return (
-          <points key={`positive-surface-${index}`}>
-            <bufferGeometry>
-              <bufferAttribute attach="attributes-position" args={[buffer, 3]} />
-            </bufferGeometry>
-            <pointsMaterial
-              color={POSITIVE_COLORS[index % POSITIVE_COLORS.length]}
-              size={0.125 - index * 0.012}
-              transparent
-              opacity={0.24 + (positiveBuffers.length - index) * 0.1}
-              sizeAttenuation
-              depthWrite={false}
-            />
-          </points>
-        )
-      })}
-
-      {negativeBuffers.map((buffer, index) => {
-        if (buffer.length === 0) {
-          return null
-        }
-        return (
-          <points key={`negative-surface-${index}`}>
-            <bufferGeometry>
-              <bufferAttribute attach="attributes-position" args={[buffer, 3]} />
-            </bufferGeometry>
-            <pointsMaterial
-              color={NEGATIVE_COLORS[index % NEGATIVE_COLORS.length]}
-              size={0.125 - index * 0.012}
-              transparent
-              opacity={0.22 + (negativeBuffers.length - index) * 0.1}
-              sizeAttenuation
-              depthWrite={false}
-            />
-          </points>
+          <group key={charge.id}>
+            <mesh position={[charge.x, charge.y, charge.z]} renderOrder={2}>
+              <sphereGeometry args={[radius, 24, 24]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.32} />
+            </mesh>
+            <WorldLabel position={[charge.x, charge.y + radius + 0.16, charge.z]} color={color}>
+              {`${sign} ${charge.id}`}
+            </WorldLabel>
+            {charge.id === selectedChargeId ? (
+              <mesh
+                position={[charge.x, charge.y + 0.06, charge.z]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                renderOrder={3}
+              >
+                <ringGeometry args={[radius + 0.04, radius + 0.09, 32]} />
+                <meshBasicMaterial color="#f2b134" transparent opacity={0.95} depthWrite={false} />
+              </mesh>
+            ) : null}
+          </group>
         )
       })}
     </group>

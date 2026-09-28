@@ -11,9 +11,9 @@ vi.mock('../DiffractionProfile', () => ({
 }))
 
 describe('diffraction structure', () => {
-  it('renders controls and profile', () => {
+  it('renders controls and keeps the optional profile hidden by default', () => {
     render(<DiffractionScene />)
     expect(screen.getByTestId('diffraction-controls')).toBeInTheDocument()
-    expect(screen.getByTestId('diffraction-profile')).toBeInTheDocument()
+    expect(screen.queryByTestId('diffraction-profile')).not.toBeInTheDocument()
   })
 })

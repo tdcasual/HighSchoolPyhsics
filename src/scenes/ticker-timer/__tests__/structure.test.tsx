@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../scene3d/InteractiveCanvas", () => ({
@@ -34,12 +34,18 @@ describe("ticker-timer structure", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "电磁打点" })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "电火花" })).toBeInTheDocument();
-    expect(screen.getByText("打点周期 T")).toBeInTheDocument();
+    const dataPanel = screen.getByRole("region", { name: "数据" });
+    const chartPanel = screen.getByRole("region", { name: "图表" });
+    const playbackPanel = screen.getByRole("region", { name: "播放控制" });
+    expect(within(dataPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
+    expect(within(chartPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
+    expect(within(playbackPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
+
+    fireEvent.click(within(chartPanel).getByRole("button", { name: "展开" }));
     expect(screen.getByText("纸带点迹")).toBeInTheDocument();
+    fireEvent.click(within(playbackPanel).getByRole("button", { name: "展开" }));
     expect(screen.getByRole("button", { name: "通电" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "释放纸带" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "释放纸带" })).toBeInTheDocument();
     expect(screen.getByTestId("interactive-canvas")).toHaveAttribute(
       "data-frameloop",
       "demand",
@@ -51,9 +57,11 @@ describe("ticker-timer structure", () => {
     render(<TickerTimerScene />);
 
     fireEvent.click(screen.getByRole("radio", { name: "电火花" }));
-    expect(
-      screen.getAllByText(/电火花打点计时器/).length,
-    ).toBeGreaterThanOrEqual(1);
+    const dataPanel = screen.getByRole("region", { name: "数据" });
+    fireEvent.click(within(dataPanel).getByRole("button", { name: "展开" }));
+    expect(screen.getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
+    const playbackPanel = screen.getByRole("region", { name: "播放控制" });
+    fireEvent.click(within(playbackPanel).getByRole("button", { name: "展开" }));
 
     fireEvent.click(screen.getByRole("button", { name: "通电" }));
     expect(screen.getByTestId("interactive-canvas")).toHaveAttribute(

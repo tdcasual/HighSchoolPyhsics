@@ -1,29 +1,64 @@
 import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { type DiffractionMode, type DiffractionParams, type FilterColor } from '../light-diffraction/model'
+import { Html } from '@react-three/drei/web/Html'
+import { getApertureRange, type DiffractionMode, type DiffractionParams, type FilterColor } from '../light-diffraction/model'
 import { DiffractionScreen } from './DiffractionScreen'
 
 const SOURCE_DISTANCE = 0.2 // m, distance from source to obstacle
-const SOURCE_LENGTH = 0.08 // m, line source length (80mm)
-const SOURCE_THICKNESS = 0.008 // m
-const BOARD_SIZE = 0.06 // m, obstacle board size (60mm)
-const BOARD_THICKNESS = 0.002 // m
+const SOURCE_LENGTH = 0.16 // m, schematic line source length
+const SOURCE_THICKNESS = 0.012 // m
+const BOARD_SIZE = 0.12 // m, enlarged schematic obstacle board
+const BOARD_THICKNESS = 0.004 // m
+
+function enlargedAperture(sizeM: number, mode: DiffractionMode, minFraction: number, maxFraction: number): number {
+  const { min, max } = getApertureRange(mode)
+  const sizeMm = sizeM * 1000
+  const progress = Math.max(0, Math.min(1, (sizeMm - min) / (max - min)))
+  return BOARD_SIZE * (minFraction + (maxFraction - minFraction) * progress)
+}
+
+function RigLabel({ text, position }: { text: string; position: [number, number, number] }) {
+  return (
+    <Html position={position} center distanceFactor={2}>
+      <div
+        style={{
+          color: '#f8fafc',
+          background: 'rgba(15, 23, 42, 0.88)',
+          border: '1px solid rgba(255, 255, 255, 0.24)',
+          borderRadius: 5,
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.35)',
+          fontSize: 12,
+          fontWeight: 600,
+          padding: '2px 7px',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {text}
+      </div>
+    </Html>
+  )
+}
 
 function SlitObstacle({ slitWidthM }: { slitWidthM: number }) {
   const halfBoard = BOARD_SIZE / 2
-  const halfSlit = slitWidthM / 2
-  const halfGap = (BOARD_SIZE - slitWidthM) / 4
+  const visualSlitWidth = enlargedAperture(slitWidthM, 'single-slit', 0.03, 0.12)
+  const halfSlit = visualSlitWidth / 2
+  const blockWidth = halfBoard - halfSlit
+  const leftBlockCenter = -(halfBoard + halfSlit) / 2
+  const rightBlockCenter = (halfBoard + halfSlit) / 2
 
   return (
     <group>
       {/* Left board */}
-      <mesh position={[-halfSlit - halfGap, 0, 0]}>
-        <boxGeometry args={[halfBoard * 2 - halfSlit - halfGap * 2, BOARD_SIZE, BOARD_THICKNESS]} />
+      <mesh position={[leftBlockCenter, 0, 0]}>
+        <boxGeometry args={[blockWidth, BOARD_SIZE, BOARD_THICKNESS]} />
         <meshStandardMaterial color="#2a2a2a" />
       </mesh>
       {/* Right board */}
-      <mesh position={[halfSlit + halfGap, 0, 0]}>
-        <boxGeometry args={[halfBoard * 2 - halfSlit - halfGap * 2, BOARD_SIZE, BOARD_THICKNESS]} />
+      <mesh position={[rightBlockCenter, 0, 0]}>
+        <boxGeometry args={[blockWidth, BOARD_SIZE, BOARD_THICKNESS]} />
         <meshStandardMaterial color="#2a2a2a" />
       </mesh>
     </group>
@@ -31,6 +66,7 @@ function SlitObstacle({ slitWidthM }: { slitWidthM: number }) {
 }
 
 function HoleObstacle({ holeDiameterM }: { holeDiameterM: number }) {
+  const visualHoleDiameter = enlargedAperture(holeDiameterM, 'circular-aperture', 0.06, 0.18)
   const shape = useMemo(() => {
     const s = new THREE.Shape()
     const s2 = BOARD_SIZE / 2
@@ -40,10 +76,10 @@ function HoleObstacle({ holeDiameterM }: { holeDiameterM: number }) {
     s.lineTo(-s2, s2)
     s.lineTo(-s2, -s2)
     const hole = new THREE.Path()
-    hole.absarc(0, 0, holeDiameterM / 2, 0, Math.PI * 2, true)
+    hole.absarc(0, 0, visualHoleDiameter / 2, 0, Math.PI * 2, true)
     s.holes.push(hole)
     return s
-  }, [holeDiameterM])
+  }, [visualHoleDiameter])
 
   const geometry = useMemo(() => {
     return new THREE.ExtrudeGeometry(shape, { depth: BOARD_THICKNESS, bevelEnabled: false })
@@ -60,51 +96,54 @@ function HoleObstacle({ holeDiameterM }: { holeDiameterM: number }) {
   )
 }
 
-function GratingObstacle({ slitWidthM, gratingLines }: { slitWidthM: number; gratingLines: number }) {
-  const spacingM = 1e-3 / gratingLines
-  const slitCount = Math.max(3, Math.min(20, Math.floor(BOARD_SIZE / spacingM)))
+function GratingObstacle({ gratingLines }: { gratingLines: number }) {
+  // The true pitch is too small to resolve at this camera scale. Keep the
+  // displayed bars proportional while making their count respond to density.
+  const densityProgress = Math.max(0, Math.min(1, (gratingLines - 100) / 500))
+  const slitCount = Math.round(6 + densityProgress * 14)
+  const visualSpacing = BOARD_SIZE / slitCount
+  const opaqueBarWidth = visualSpacing * 0.8
 
-  const meshes = useMemo(() => {
+  const bars = useMemo(() => {
     const items: React.JSX.Element[] = []
-    const totalWidth = (slitCount - 1) * spacingM
-    const startX = -totalWidth / 2
+    const startX = -BOARD_SIZE / 2 + visualSpacing / 2
 
     for (let i = 0; i < slitCount; i++) {
-      const x = startX + i * spacingM
+      const x = startX + i * visualSpacing
       items.push(
-        <mesh key={`slit-${i}`} position={[x, 0, 0]}>
-          <boxGeometry args={[slitWidthM, BOARD_SIZE, BOARD_THICKNESS * 1.5]} />
+        <mesh key={i} position={[x, 0, BOARD_THICKNESS / 2]}>
+          <boxGeometry args={[opaqueBarWidth, BOARD_SIZE, BOARD_THICKNESS * 1.5]} />
           <meshStandardMaterial color="#111111" />
         </mesh>
       )
     }
     return items
-  }, [slitWidthM, spacingM, slitCount])
+  }, [opaqueBarWidth, visualSpacing, slitCount])
 
-  // Backing plate
   return (
     <group>
       <mesh position={[0, 0, -BOARD_THICKNESS / 2]}>
         <boxGeometry args={[BOARD_SIZE, BOARD_SIZE, BOARD_THICKNESS]} />
-        <meshStandardMaterial color="#2a2a2a" />
+        <meshStandardMaterial
+          color="#cbd5e1"
+          transparent
+          opacity={0.12}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
       </mesh>
-      {meshes}
+      {bars}
     </group>
   )
 }
 
-function SphereObstacle({ diameterM }: { diameterM: number }) {
-  // Ensure sphere is visible in 3D scene even when physical size is tiny
-  const displayRadius = Math.max(diameterM / 2, 0.003)
+function DiskObstacle({ diameterM }: { diameterM: number }) {
+  // The opaque circular plate matches the aperture-mask model used on screen.
+  const displayRadius = enlargedAperture(diameterM, 'circular-obstacle', 0.06, 0.18) / 2
   return (
-    <mesh>
-      <sphereGeometry args={[displayRadius, 32, 32]} />
-      <meshStandardMaterial color="#2a2a2a" roughness={0.4} metalness={0.3} />
-      {/* Poisson spot indicator — small bright dot on the back face */}
-      <mesh position={[0, 0, displayRadius * 0.9]}>
-        <sphereGeometry args={[displayRadius * 0.15, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
-      </mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[displayRadius, displayRadius, BOARD_THICKNESS, 32]} />
+      <meshStandardMaterial color="#2a2a2a" roughness={0.6} metalness={0.15} />
     </mesh>
   )
 }
@@ -118,11 +157,9 @@ function Obstacle({ mode, params }: { mode: DiffractionMode; params: Diffraction
     case 'circular-aperture':
       return <HoleObstacle holeDiameterM={apertureM} />
     case 'circular-obstacle':
-      return <SphereObstacle diameterM={apertureM} />
+      return <DiskObstacle diameterM={apertureM} />
     case 'diffraction-grating': {
-      const d = 1e-3 / params.gratingLines
-      const a = d * 0.2
-      return <GratingObstacle slitWidthM={a} gratingLines={params.gratingLines} />
+      return <GratingObstacle gratingLines={params.gratingLines} />
     }
   }
 }
@@ -132,7 +169,7 @@ function LineSource({ color, isLightOn }: { color: number; isLightOn: boolean })
   return (
     <group position={[0, 0, -SOURCE_DISTANCE]}>
       {/* Core — bright emissive cylinder */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
+      <mesh>
         <cylinderGeometry args={[SOURCE_THICKNESS / 2, SOURCE_THICKNESS / 2, SOURCE_LENGTH, 16]} />
         <meshStandardMaterial
           color={hex}
@@ -143,7 +180,7 @@ function LineSource({ color, isLightOn }: { color: number; isLightOn: boolean })
       </mesh>
       {/* Glow halo — larger translucent cylinder */}
       {isLightOn && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <mesh>
           <cylinderGeometry args={[SOURCE_THICKNESS * 1.5, SOURCE_THICKNESS * 1.5, SOURCE_LENGTH * 0.95, 16]} />
           <meshBasicMaterial color={hex} transparent opacity={0.25} toneMapped={false} />
         </mesh>
@@ -159,9 +196,10 @@ function LineSource({ color, isLightOn }: { color: number; isLightOn: boolean })
       )}
       {/* Beam direction indicator — flat translucent panel */}
       <mesh position={[0, 0, SOURCE_DISTANCE / 2]}>
-        <boxGeometry args={[SOURCE_LENGTH * 0.8, SOURCE_LENGTH, SOURCE_DISTANCE]} />
-        <meshBasicMaterial color={hex} transparent opacity={isLightOn ? 0.04 : 0.01} />
+        <boxGeometry args={[SOURCE_THICKNESS, SOURCE_THICKNESS, SOURCE_DISTANCE]} />
+        <meshBasicMaterial color={hex} transparent opacity={isLightOn ? 0.06 : 0.01} />
       </mesh>
+      <RigLabel text="线光源" position={[0, -SOURCE_LENGTH / 2 - 0.05, 0]} />
     </group>
   )
 }
@@ -170,6 +208,7 @@ export type DiffractionRig3DProps = {
   mode: DiffractionMode
   params: DiffractionParams
   isLightOn: boolean
+  showPattern: boolean
   isWhiteLight: boolean
   filterColor: FilterColor
   lightColorHex: number
@@ -177,7 +216,7 @@ export type DiffractionRig3DProps = {
   screenHeightM: number
 }
 
-export function DiffractionRig3D({ mode, params, isLightOn, isWhiteLight, filterColor, lightColorHex, screenWidthM, screenHeightM }: DiffractionRig3DProps) {
+export function DiffractionRig3D({ mode, params, isLightOn, showPattern, isWhiteLight, filterColor, lightColorHex, screenWidthM, screenHeightM }: DiffractionRig3DProps) {
   return (
     <group data-rig-scene="diffraction">
       {/* Ambient */}
@@ -189,20 +228,29 @@ export function DiffractionRig3D({ mode, params, isLightOn, isWhiteLight, filter
 
       {/* Obstacle at origin */}
       <Obstacle mode={mode} params={params} />
+      <RigLabel
+        text={mode === 'single-slit' ? '单缝' : mode === 'circular-aperture' ? '圆孔' : mode === 'circular-obstacle' ? '不透明圆盘' : '衍射光栅'}
+        position={[0, BOARD_SIZE / 2 + 0.045, 0]}
+      />
 
       {/* Screen */}
       <DiffractionScreen
         mode={mode}
         params={params}
         isLightOn={isLightOn}
+        showPattern={showPattern}
         isWhiteLight={isWhiteLight}
         filterColor={filterColor}
         screenWidthM={screenWidthM}
         screenHeightM={screenHeightM}
       />
+      <RigLabel
+        text="观察屏"
+        position={[0, screenHeightM / 2 + 0.045, params.screenDistance]}
+      />
 
       {/* Optical axis helper (subtle) */}
-      <mesh position={[0, 0, (params.screenDistance - SOURCE_DISTANCE) / 2]}>
+      <mesh position={[0, 0, (params.screenDistance - SOURCE_DISTANCE) / 2]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.0003, 0.0003, params.screenDistance + SOURCE_DISTANCE, 8]} />
         <meshBasicMaterial color="#444444" transparent opacity={0.15} />
       </mesh>

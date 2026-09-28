@@ -5,6 +5,7 @@ import {
   G,
   ORBIT_NODE,
   SIDEREAL_DAY,
+  areaWedges,
   circularOrbit,
   craftsAt,
   estimatedMass,
@@ -47,6 +48,44 @@ describe('celestial model', () => {
     const expected = worldOrbit(1.1, CIRCULAR_OFFSET, 0, ORBIT_NODE)
     expect(craft.position).toEqual(expected)
     expect(playbackScale(scenario)).toBeCloseTo(scenario.o1.T / 14, 8)
+  })
+
+  it('keeps both rendezvous sweep sectors on the same time interval at different radii', () => {
+    const scenarios = [
+      scenarioOf({ ...earth, mode: 'rendezvous', body: 'earth', r1: 1.4, r2: 2.2, phaseDeg: 100, inclinationDeg: 20, time: 5000 }),
+      scenarioOf({ ...earth, mode: 'rendezvous', body: 'earth', r1: 2.45, r2: 7.9, phaseDeg: 230, inclinationDeg: 55, time: 18000 }),
+      scenarioOf({ ...earth, mode: 'rendezvous', body: 'moon', r1: 1.5, r2: 5.2, phaseDeg: 80, inclinationDeg: 35, time: 1200 }),
+    ]
+    const sweptAngle = (first: { x: number; y: number; z: number }, last: { x: number; y: number; z: number }) => {
+      const crossX = first.y * last.z - first.z * last.y
+      const crossY = first.z * last.x - first.x * last.z
+      const crossZ = first.x * last.y - first.y * last.x
+      const crossLength = Math.hypot(crossX, crossY, crossZ)
+      const dot = first.x * last.x + first.y * last.y + first.z * last.z
+      return Math.atan2(crossLength, dot)
+    }
+
+    scenarios.forEach((scenario) => {
+      const [inner, outer] = areaWedges(scenario)
+      const innerAngle = sweptAngle(inner.points[0], inner.points[inner.points.length - 1])
+      const outerAngle = sweptAngle(outer.points[0], outer.points[outer.points.length - 1])
+      expect(innerAngle / scenario.o1.omega).toBeCloseTo(outerAngle / scenario.o2.omega, 8)
+    })
+  })
+
+  it('aligns an inclined synchronous satellite with its reported ground point', () => {
+    const sync = scenarioOf({ ...earth, mode: 'synchronous', phaseDeg: 110, inclinationDeg: 30, time: 18000 })
+    const point = groundPoint(sync.inclination, sync.phase, sync.time)
+    const satellite = craftsAt(sync)[0].position
+    const radius = Math.hypot(satellite.x, satellite.y, satellite.z)
+    const satelliteLongitude = Math.atan2(satellite.y, satellite.x)
+    const longitudeError = Math.atan2(
+      Math.sin(satelliteLongitude - point.inertialLongitude),
+      Math.cos(satelliteLongitude - point.inertialLongitude),
+    )
+    expect(sync.node).toBe(0)
+    expect(longitudeError).toBeCloseTo(0, 10)
+    expect(Math.asin(satellite.z / radius)).toBeCloseTo(point.latitude, 10)
   })
 
   it('flies the Hohmann ellipse from the inner radius to the outer radius', () => {

@@ -1,3 +1,4 @@
+import { COMPASS_PLANE_HEIGHT_M, wireCenterHeightM } from './oerstedGeometry'
 import {
   add,
   cross,
@@ -66,7 +67,7 @@ function normalizeAngleDeg(value: number): number {
   return wrapped < 0 ? wrapped + 360 : wrapped
 }
 
-function shortestSignedAngleDeg(fromDeg: number, toDeg: number): number {
+export function shortestSignedAngleDeg(fromDeg: number, toDeg: number): number {
   const delta = ((toDeg - fromDeg + 540) % 360) - 180
   return delta
 }
@@ -89,10 +90,14 @@ export function deriveOerstedNeedleState(config: OerstedNeedleConfig): OerstedNe
   const wireHalfLengthM = Math.max(0.05, config.wireHalfLengthM ?? DEFAULT_WIRE_HALF_LENGTH_M)
   const rawDirection = config.wireDirection ?? { x: 0, y: 0, z: 1 }
   const wireDirection = normalize(rawDirection)
-  const wireCenter: Vec3 = { x: 0, y: wireHeightM, z: 0 }
+  const wireCenter: Vec3 = {
+    x: 0,
+    y: wireCenterHeightM(wireHeightM, wireDirection, wireHalfLengthM),
+    z: 0,
+  }
   const samplePoint: Vec3 = {
     x: config.needlePositionM.x,
-    y: 0,
+    y: COMPASS_PLANE_HEIGHT_M,
     z: config.needlePositionM.z,
   }
 

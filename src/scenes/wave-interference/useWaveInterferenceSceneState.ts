@@ -33,6 +33,7 @@ export type WaveInterferenceSceneState = WaveParams & {
   toggleConstructive: () => void
   toggleDestructive: () => void
   reset: () => void
+  resetVersion: number
   _tickSyncRef: { current: () => void }
 }
 
@@ -48,14 +49,18 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
     history: [],
     history1: [],
     history2: [],
+    historyTimes: [],
+    time: 0,
   })
   const [showConstructive, setShowConstructive] = useState(true)
   const [showDestructive, setShowDestructive] = useState(true)
+  const [resetVersion, setResetVersion] = useState(0)
 
   // Mutable ring buffer — animation loop writes here, no React state churn
-  const initialBuffer = createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z)
-  const bufferRef = useRef<ObserverBuffer | null>(initialBuffer)
-  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(initialBuffer)
+  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(
+    () => createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z),
+  )
+  const bufferRef = useRef<ObserverBuffer | null>(observerBuffer)
 
   // Throttle counter: only sync to React state every N frames
   const syncCounterRef = useRef(0)
@@ -67,8 +72,8 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
       setObserverBufferState(null)
       return
     }
-    const { history, history1, history2 } = ringToArrays(buf)
-    setObserver({ x: buf.x, z: buf.z, history, history1, history2 })
+    const { history, history1, history2, historyTimes } = ringToArrays(buf)
+    setObserver({ x: buf.x, z: buf.z, history, history1, history2, historyTimes, time: buf.time })
     setObserverBufferState(buf)
   }, [])
 
@@ -105,6 +110,7 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
 
   const reset = useCallback(() => {
     setParams(DEFAULT_PARAMS)
+    setResetVersion((version) => version + 1)
     setShowChart(true)
     setIsPlaying(true)
     setPlaySpeedState(0.5)
@@ -139,6 +145,7 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
     toggleConstructive,
     toggleDestructive,
     reset,
+    resetVersion,
     _tickSyncRef: tickSyncRef,
   }
 }

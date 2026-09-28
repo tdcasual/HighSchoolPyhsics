@@ -15,7 +15,7 @@ const DEFAULT_MAGNETIC_FIELD_T = 1
 const DEFAULT_ANGULAR_SPEED = 1
 const DEFAULT_EFFECTIVE_LENGTH_M = 1
 const DEFAULT_ANGLE_RAD = 0
-const ANGLE_STEP_SCALE = Math.PI / 180
+const FULL_ROTATION_RAD = Math.PI * 2
 
 export type RotationalEmfSceneState = {
   scenario: RotationalEmfScenario
@@ -48,14 +48,20 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
   const [angleRad, setAngleRad] = useState(DEFAULT_ANGLE_RAD)
   const [running, setRunning] = useState(false)
   const frameRef = useRef<number | null>(null)
+  const previousTimestampRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!running) {
       return
     }
 
-    const tick = () => {
-      setAngleRad((current) => current + angularSpeed * ANGLE_STEP_SCALE)
+    const tick = (timestamp: number) => {
+      const previousTimestamp = previousTimestampRef.current
+      if (previousTimestamp !== null) {
+        const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.05)
+        setAngleRad((current) => (current + angularSpeed * elapsedSeconds) % FULL_ROTATION_RAD)
+      }
+      previousTimestampRef.current = timestamp
       frameRef.current = window.requestAnimationFrame(tick)
     }
 
@@ -66,6 +72,7 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
         window.cancelAnimationFrame(frameRef.current)
         frameRef.current = null
       }
+      previousTimestampRef.current = null
     }
   }, [angularSpeed, running])
 

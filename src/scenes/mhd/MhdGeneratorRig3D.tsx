@@ -1,25 +1,59 @@
 import { useFrame } from '@react-three/fiber'
 import { Line } from '@react-three/drei/core/Line'
-import { Text } from '@react-three/drei/core/Text'
+import { Html } from '@react-three/drei/web/Html'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Object3D } from 'three'
-import { MHD_LAYOUT } from './layout'
-import { deriveChannelVisibilityConfig } from './model'
+import { deriveMhdLayout, MHD_LAYOUT } from './layout'
+import { deriveCarrierDeflectionAmplitudeY, deriveChannelVisibilityConfig, deriveMhdFlowAnimationScale } from './model'
 import { getGeometryDetail, resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 type MhdGeneratorRig3DProps = {
+  plasmaVelocityMps: number
   running: boolean
   chargeSeparation: number
   driveRatio: number
   plasmaDensityRatio: number
+  electrodeGapM: number
 }
 
 const channelVisibility = deriveChannelVisibilityConfig()
 
-const FlowMarkers = memo(function FlowMarkers({ running }: { running: boolean }) {
+function MhdWorldLabel({
+  position,
+  color,
+  fontSize,
+  children,
+}: {
+  position: [number, number, number]
+  color: string
+  fontSize: number
+  children: string
+}) {
+  return (
+    <Html position={position} center distanceFactor={8}>
+      <span
+        style={{
+          color,
+          fontSize: `${Math.max(10, Math.round(fontSize * 64))}px`,
+          fontWeight: 700,
+          lineHeight: 1,
+          pointerEvents: 'none',
+          textShadow: '0 1px 2px rgba(0, 0, 0, 0.45)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </span>
+    </Html>
+  )
+}
+
+const FlowMarkers = memo(function FlowMarkers({ running, flowRateScale }: { running: boolean; flowRateScale: number }) {
   const runningRef = useRef(running)
   useEffect(() => { runningRef.current = running }, [running])
+  const flowRateScaleRef = useRef(flowRateScale)
+  useEffect(() => { flowRateScaleRef.current = flowRateScale }, [flowRateScale])
   const phaseRef = useRef(0)
 
   const perf = resolvePerformanceProfile()
@@ -39,7 +73,7 @@ const FlowMarkers = memo(function FlowMarkers({ running }: { running: boolean })
 
   useFrame((_, delta) => {
     if (runningRef.current) {
-      phaseRef.current = (phaseRef.current + delta * 0.36) % 1
+      phaseRef.current = (phaseRef.current + delta * 0.36 * flowRateScaleRef.current) % 1
     }
 
     markers.forEach((_, idx) => {
@@ -88,12 +122,16 @@ const ChargeCarriers = memo(function ChargeCarriers({
   running,
   plasmaDensityRatio,
   chargeSeparation,
+  flowRateScale,
   driveRatio,
+  electrodeGapM,
 }: {
   running: boolean
   plasmaDensityRatio: number
   chargeSeparation: number
+  flowRateScale: number
   driveRatio: number
+  electrodeGapM: number
 }) {
   const runningRef = useRef(running)
   useEffect(() => { runningRef.current = running }, [running])
@@ -101,6 +139,8 @@ const ChargeCarriers = memo(function ChargeCarriers({
   useEffect(() => { chargeSeparationRef.current = chargeSeparation }, [chargeSeparation])
   const driveRatioRef = useRef(driveRatio)
   useEffect(() => { driveRatioRef.current = driveRatio }, [driveRatio])
+  const flowRateScaleRef = useRef(flowRateScale)
+  useEffect(() => { flowRateScaleRef.current = flowRateScale }, [flowRateScale])
 
   const phaseRef = useRef(0)
 
@@ -127,12 +167,12 @@ const ChargeCarriers = memo(function ChargeCarriers({
 
   useFrame((_, delta) => {
     if (runningRef.current) {
-      phaseRef.current = (phaseRef.current + delta * 0.36) % 1
+      phaseRef.current = (phaseRef.current + delta * 0.36 * flowRateScaleRef.current) % 1
     }
 
     const cs = chargeSeparationRef.current
     const dr = driveRatioRef.current
-    const transientDeflectionY = (0.14 + 0.26 * dr) * (1 - cs)
+    const transientDeflectionY = deriveCarrierDeflectionAmplitudeY(cs, electrodeGapM, dr)
     const carrierOpacity = 0.35 + 0.55 * Math.max(cs, dr * 0.4)
     const emissiveIntensity = 0.35 + cs * 0.95
 
@@ -146,14 +186,14 @@ const ChargeCarriers = memo(function ChargeCarriers({
       const carrier = carriers[idx]
       const progress = (carrier.i / carrierCount + phaseRef.current * 0.86) % 1
       const x = MHD_LAYOUT.flow.startX + progress * MHD_LAYOUT.flow.spanX
-      const jitter = (((carrier.i + carrier.laneIndex * 2) % 7) - 3) * 0.009
-      const zOffset = (((carrier.laneIndex + carrier.i) % 5) - 2) * 0.009
+      const jitter = (((carrier.i + carrier.laneIndex * 2) % 7) - 3) * 0.004
+      const zOffset = (((carrier.laneIndex + carrier.i) % 5) - 2) * 0.004
 
-      _dummy.position.set(x, jitter + transientDeflectionY * progress, carrier.lane + zOffset - 0.06)
+      _dummy.position.set(x, jitter - transientDeflectionY * progress, carrier.lane + zOffset - 0.015)
       _dummy.updateMatrix()
       posMesh.setMatrixAt(idx, _dummy.matrix)
 
-      _dummy.position.set(x, jitter - transientDeflectionY * progress, carrier.lane + zOffset + 0.06)
+      _dummy.position.set(x, jitter + transientDeflectionY * progress, carrier.lane + zOffset + 0.015)
       _dummy.updateMatrix()
       negMesh.setMatrixAt(idx, _dummy.matrix)
       needsUpdate = true
@@ -255,11 +295,12 @@ const PlateCharges = memo(function PlateCharges({
       }
 
       const site = plateChargeSites[index]
-      _dummy.position.set(site.x, topChargeY, site.z)
+      // +q is driven toward the lower electrode; −q is driven toward the upper one.
+      _dummy.position.set(site.x, bottomChargeY, site.z)
       _dummy.updateMatrix()
       posMesh.setMatrixAt(index, _dummy.matrix)
 
-      _dummy.position.set(site.x, bottomChargeY, site.z)
+      _dummy.position.set(site.x, topChargeY, site.z)
       _dummy.updateMatrix()
       negMesh.setMatrixAt(index, _dummy.matrix)
     }
@@ -311,12 +352,20 @@ export function MhdGeneratorRig3D({
   chargeSeparation,
   driveRatio,
   plasmaDensityRatio,
+  electrodeGapM,
+  plasmaVelocityMps,
 }: MhdGeneratorRig3DProps) {
+  const layout = useMemo(() => deriveMhdLayout(electrodeGapM), [electrodeGapM])
   const flowRibbonOpacity = running ? 0.48 : 0.26
   const innerFieldOpacity = 0.1 + 0.9 * chargeSeparation
   const magneticDeflectionOpacity = (0.2 + (1 - chargeSeparation) * 0.72) * Math.max(0.38, driveRatio)
-  const topChargeY = MHD_LAYOUT.electrodes.topCenter[1] + MHD_LAYOUT.electrodes.size[1] / 2 + 0.024
-  const bottomChargeY = MHD_LAYOUT.electrodes.bottomCenter[1] - MHD_LAYOUT.electrodes.size[1] / 2 - 0.024
+  const topChargeY = layout.electrodes.topCenter[1] + layout.electrodes.size[1] / 2 + 0.024
+  const bottomChargeY = layout.electrodes.bottomCenter[1] - layout.electrodes.size[1] / 2 - 0.024
+  const flowRateScale = deriveMhdFlowAnimationScale(plasmaVelocityMps)
+  const electricArrowLength = Math.min(0.14, layout.channel.size[1] * 0.18)
+  const lorentzArrowLength = Math.min(0.26, layout.channel.size[1] * 0.62)
+  const lorentzArrowHeadLength = Math.min(0.16, lorentzArrowLength * 0.48)
+  const lorentzArrowHalf = lorentzArrowLength / 2
 
   const geoDetail = getGeometryDetail()
 
@@ -326,57 +375,57 @@ export function MhdGeneratorRig3D({
       <directionalLight position={[4.5, 5.5, 3]} intensity={1.15} />
       <pointLight position={[0, 0.2, 1.8]} intensity={0.72} color="#8ce6ff" />
 
-      <mesh position={MHD_LAYOUT.magnets.northPosition}>
-        <boxGeometry args={MHD_LAYOUT.magnets.size} />
+      <mesh position={layout.magnets.northPosition}>
+        <boxGeometry args={layout.magnets.size} />
         <meshStandardMaterial color="#c33232" metalness={0.18} roughness={0.5} />
       </mesh>
-      <mesh position={MHD_LAYOUT.magnets.southPosition}>
-        <boxGeometry args={MHD_LAYOUT.magnets.size} />
+      <mesh position={layout.magnets.southPosition}>
+        <boxGeometry args={layout.magnets.size} />
         <meshStandardMaterial color="#266eb5" metalness={0.2} roughness={0.45} />
       </mesh>
 
-      <Text
-        position={[0, 0.62, MHD_LAYOUT.magnets.northPosition[2]]}
+      <MhdWorldLabel
+        position={[0, 0, layout.magnets.northPosition[2] + layout.magnets.size[2] / 2 + 0.012]}
         color="#ffffff"
         fontSize={0.28}
-        anchorX="center"
-        anchorY="middle"
+
+
       >
         N
-      </Text>
-      <Text
-        position={[0, 0.62, MHD_LAYOUT.magnets.southPosition[2]]}
+      </MhdWorldLabel>
+      <MhdWorldLabel
+        position={[0, 0, layout.magnets.southPosition[2] + layout.magnets.size[2] / 2 + 0.012]}
         color="#ffffff"
         fontSize={0.28}
-        anchorX="center"
-        anchorY="middle"
+
+
       >
         S
-      </Text>
+      </MhdWorldLabel>
 
       <mesh
-        position={MHD_LAYOUT.electrodes.topCenter}
-        rotation={[0, MHD_LAYOUT.electrodes.topRotationY, 0]}
+        position={layout.electrodes.topCenter}
+        rotation={[0, layout.electrodes.topRotationY, 0]}
       >
-        <boxGeometry args={MHD_LAYOUT.electrodes.size} />
+        <boxGeometry args={layout.electrodes.size} />
         <meshStandardMaterial color="#d7cd9d" metalness={0.25} roughness={0.52} />
       </mesh>
       <mesh
-        position={MHD_LAYOUT.electrodes.bottomCenter}
-        rotation={[0, MHD_LAYOUT.electrodes.bottomRotationY, 0]}
+        position={layout.electrodes.bottomCenter}
+        rotation={[0, layout.electrodes.bottomRotationY, 0]}
       >
-        <boxGeometry args={MHD_LAYOUT.electrodes.size} />
+        <boxGeometry args={layout.electrodes.size} />
         <meshStandardMaterial color="#d7cd9d" metalness={0.25} roughness={0.52} />
       </mesh>
-      <Text position={[0, 0.49, 0]} color="#2a2a2a" fontSize={0.2} anchorX="center" anchorY="middle">
-        A
-      </Text>
-      <Text position={[0, -0.49, 0]} color="#2a2a2a" fontSize={0.2} anchorX="center" anchorY="middle">
-        B
-      </Text>
+      <MhdWorldLabel position={[0, layout.electrodes.topCenter[1] + layout.electrodes.size[1] / 2 + 0.1, -0.5]} color="#2a2a2a" fontSize={0.2}  >
+        A (−)
+      </MhdWorldLabel>
+      <MhdWorldLabel position={[0, layout.electrodes.bottomCenter[1] - layout.electrodes.size[1] / 2 - 0.1, 0]} color="#2a2a2a" fontSize={0.2}  >
+        B (+)
+      </MhdWorldLabel>
 
-      <mesh position={MHD_LAYOUT.channel.center} renderOrder={channelVisibility.channelRenderOrder}>
-        <boxGeometry args={MHD_LAYOUT.channel.size} />
+      <mesh position={layout.channel.center} renderOrder={channelVisibility.channelRenderOrder}>
+        <boxGeometry args={layout.channel.size} />
         <meshStandardMaterial
           color="#7ddff6"
           transparent
@@ -386,8 +435,8 @@ export function MhdGeneratorRig3D({
           depthWrite={channelVisibility.depthWrite}
         />
       </mesh>
-      <mesh position={MHD_LAYOUT.channel.center} renderOrder={channelVisibility.channelRenderOrder + 1}>
-        <boxGeometry args={MHD_LAYOUT.channel.size} />
+      <mesh position={layout.channel.center} renderOrder={channelVisibility.channelRenderOrder + 1}>
+        <boxGeometry args={layout.channel.size} />
         <meshBasicMaterial
           color="#a6efff"
           transparent
@@ -397,12 +446,12 @@ export function MhdGeneratorRig3D({
         />
       </mesh>
 
-      {MHD_LAYOUT.flow.lanes.map((lane, index) => (
+      {layout.flow.lanes.map((lane, index) => (
         <Line
           key={`flow-ribbon-${index}`}
           points={[
-            [MHD_LAYOUT.flow.startX - 0.18, 0, lane],
-            [MHD_LAYOUT.flow.startX + MHD_LAYOUT.flow.spanX + 0.18, 0, lane],
+            [layout.flow.startX - 0.18, 0, lane],
+            [layout.flow.startX + layout.flow.spanX + 0.18, 0, lane],
           ]}
           color="#ff9ed6"
           lineWidth={3.8}
@@ -427,20 +476,20 @@ export function MhdGeneratorRig3D({
         </group>
       ))}
 
-      {MHD_LAYOUT.magneticField.xGuides.map((x, index) => (
+      {layout.magneticField.xGuides.map((x, index) => (
         <group key={`e-field-${index}`}>
           <Line
             points={[
-              [x, MHD_LAYOUT.electrodes.topCenter[1] - 0.05, 0.18],
-              [x, MHD_LAYOUT.electrodes.bottomCenter[1] + 0.05, 0.18],
+              [x, layout.magneticField.yStart, 0.18],
+              [x, layout.magneticField.yEnd, 0.18],
             ]}
             color="#90f5ff"
             lineWidth={2.1}
             transparent
             opacity={innerFieldOpacity}
           />
-          <mesh position={[x, MHD_LAYOUT.electrodes.bottomCenter[1] + 0.05, 0.18]} rotation={[0, 0, 0]}>
-            <coneGeometry args={[0.034, 0.14, geoDetail.coneRadialSegments]} />
+          <mesh position={[x, layout.magneticField.yEnd - electricArrowLength / 2, 0.18]} rotation={[0, 0, 0]}>
+            <coneGeometry args={[0.034, electricArrowLength, geoDetail.coneRadialSegments]} />
             <meshBasicMaterial color="#90f5ff" transparent opacity={innerFieldOpacity} />
           </mesh>
         </group>
@@ -448,40 +497,48 @@ export function MhdGeneratorRig3D({
 
       <Line
         points={[
-          [-0.54, -0.02, -0.22],
-          [-0.54, 0.24, -0.22],
+          [-0.54, lorentzArrowHalf, -0.22],
+          [-0.54, -lorentzArrowHalf, -0.22],
         ]}
         color="#ffb066"
         lineWidth={2.4}
         transparent
         opacity={magneticDeflectionOpacity}
       />
-      <mesh position={[-0.54, 0.24, -0.22]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.04, 0.16, geoDetail.coneRadialSegments]} />
+      <mesh position={[-0.54, -lorentzArrowHalf + lorentzArrowHeadLength / 2, -0.22]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
       <Line
         points={[
-          [0.54, 0.02, 0.22],
-          [0.54, -0.24, 0.22],
+          [0.54, -lorentzArrowHalf, 0.22],
+          [0.54, lorentzArrowHalf, 0.22],
         ]}
         color="#ffb066"
         lineWidth={2.4}
         transparent
         opacity={magneticDeflectionOpacity}
       />
-      <mesh position={[0.54, -0.24, 0.22]} rotation={[0, 0, 0]}>
-        <coneGeometry args={[0.04, 0.16, geoDetail.coneRadialSegments]} />
+      <mesh position={[0.54, lorentzArrowHalf - lorentzArrowHeadLength / 2, 0.22]}>
+        <coneGeometry args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
+      <MhdWorldLabel position={[-0.84, 0, -0.22]} color="#ffb066" fontSize={0.1}>
+        q+ · F_B ↓
+      </MhdWorldLabel>
+      <MhdWorldLabel position={[0.5, 0, 0.22]} color="#ffb066" fontSize={0.1}>
+        q− · F_B ↑
+      </MhdWorldLabel>
 
-      <FlowMarkers running={running} />
+      <FlowMarkers running={running} flowRateScale={flowRateScale} />
 
       <ChargeCarriers
         running={running}
         plasmaDensityRatio={plasmaDensityRatio}
         chargeSeparation={chargeSeparation}
         driveRatio={driveRatio}
+        flowRateScale={flowRateScale}
+        electrodeGapM={electrodeGapM}
       />
 
       <PlateCharges
@@ -490,51 +547,50 @@ export function MhdGeneratorRig3D({
         bottomChargeY={bottomChargeY}
       />
 
-      <Text
-        position={[-0.95, 0.66, 0.08]}
+      <MhdWorldLabel
+        position={[-0.95, 0.12, 0.58]}
         color="#fff4b8"
         fontSize={0.16}
-        anchorX="center"
-        anchorY="middle"
+
+
       >
         B
-      </Text>
-      <Text
-        position={[-1.2, -0.64, -0.8]}
-        color="#ff9ad7"
-        fontSize={0.16}
-        anchorX="center"
-        anchorY="middle"
+      </MhdWorldLabel>
+      <MhdWorldLabel
+        position={[-1.42, 0.38, 0]}
+        color="#d62f93"
+        fontSize={0.17}
+
+
       >
         v
-      </Text>
-      <Text
-        position={[1, 0.04, 0.24]}
+      </MhdWorldLabel>
+      <MhdWorldLabel
+        position={[-0.8, 0.5, 0.2]}
         color="#abf6ff"
         fontSize={0.13}
-        anchorX="center"
-        anchorY="middle"
-      >
-        E_y
-      </Text>
-      <Text position={[1.02, topChargeY + 0.08, 0.02]} color="#ff7b99" fontSize={0.14} anchorX="center">
-        +
-      </Text>
-      <Text
-        position={[1.02, bottomChargeY - 0.08, 0.02]}
-        color="#63a9ff"
-        fontSize={0.14}
-        anchorX="center"
-      >
-        -
-      </Text>
 
-      <Line points={MHD_LAYOUT.wires.top} color="#2a2a2a" lineWidth={2.2} />
-      <Line points={MHD_LAYOUT.wires.bottom} color="#2a2a2a" lineWidth={2.2} />
-      <mesh position={MHD_LAYOUT.load.bodyPosition}>
-        <boxGeometry args={MHD_LAYOUT.load.bodySize} />
+
+      >
+        E_ind ↑
+      </MhdWorldLabel>
+      <Line points={layout.wires.top} color="#2a2a2a" lineWidth={2.2} />
+      <Line points={layout.wires.bottom} color="#2a2a2a" lineWidth={2.2} />
+      <mesh position={layout.load.bodyPosition}>
+        <boxGeometry args={layout.load.bodySize} />
         <meshStandardMaterial color="#f2f2f2" roughness={0.4} metalness={0.15} />
       </mesh>
+      <Line points={[[2.18, -0.18, 0.72], [2.18, 0.18, 0.72]]} color="#e77b42" lineWidth={2} />
+      <mesh position={[2.18, 0.18, 0.72]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[0.035, 0.12, geoDetail.coneRadialSegments]} />
+        <meshBasicMaterial color="#e77b42" />
+      </mesh>
+      <MhdWorldLabel position={[2.08, 0.3, 0.72]} color="#b95a2a" fontSize={0.1} >
+        I_L ↑
+      </MhdWorldLabel>
+      <MhdWorldLabel position={[2.32, 0.12, 0.51]} color="#333333" fontSize={0.1}  >
+        R_L
+      </MhdWorldLabel>
     </group>
   )
 }

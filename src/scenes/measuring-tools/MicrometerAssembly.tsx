@@ -1,15 +1,22 @@
 import { Html } from '@react-three/drei/web/Html'
 import type { BufferGeometry } from 'three'
+import { MICROMETER_RANGE_MM } from './model'
+import { createAxisDragHandlers } from './axisDrag'
 import { MICROMETER_BOW, MICROMETER_INSULATOR, RATCHET_GEOMETRY, SLEEVE_SCALE_GEOMETRY, THIMBLE_BODY_GEOMETRY, THIMBLE_CAP_GEOMETRY } from './instrumentGeometry'
-import type { MicrometerPose } from './pose'
+import type { MicrometerPose, ViewPreset } from './pose'
 import { SLEEVE_TEXTURE, THIMBLE_TEXTURE, paintSleeveScale, paintThimbleScale } from './scalePaint'
 import { usePaintedTexture } from './usePaintedTexture'
 
 type MicrometerAssemblyProps = {
   pose: MicrometerPose
+  gap: number
   showWork: boolean
   workSize: number
   showLabels: boolean
+  viewPreset?: ViewPreset
+  locked?: boolean
+  onMicGapChange?: (value: number) => void
+  onInstrumentDragChange?: (dragging: boolean) => void
 }
 
 function Metal({ color, metalness = 0.85, roughness = 0.27 }: { color: string; metalness?: number; roughness?: number }) {
@@ -76,7 +83,55 @@ function PartLabel({ position, children }: { position: [number, number, number];
   )
 }
 
-export function MicrometerAssembly({ pose, showWork, workSize, showLabels }: MicrometerAssemblyProps) {
+export function MicrometerAssembly({
+  pose,
+  gap,
+  showWork,
+  workSize,
+  showLabels,
+  viewPreset = 'home',
+  locked = false,
+  onMicGapChange,
+  onInstrumentDragChange,
+}: MicrometerAssemblyProps) {
+  const dragHandlers = onMicGapChange
+    ? createAxisDragHandlers({
+        value: gap,
+        min: 0,
+        max: MICROMETER_RANGE_MM,
+        locked,
+        onValueChange: onMicGapChange,
+        onDraggingChange: onInstrumentDragChange,
+        onLockedAttempt: () => onMicGapChange(gap),
+      })
+    : {}
+  const labelPositions: Array<{ label: string; position: [number, number, number] }> = viewPreset === 'top'
+    ? [
+        { label: '测砧', position: [pose.anvilTipX - 12, 0, 18] },
+        { label: '测微螺杆', position: [pose.spindleX - 18, 0, 31] },
+        { label: '锁紧装置', position: [pose.lock[0] - 10, 0, -29] },
+        { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 46, 0, 18] },
+        { label: '微分筒', position: [pose.thimbleX + 12, 0, -18] },
+        { label: '棘轮', position: [pose.thimbleX + 34, 0, 31] },
+        { label: '可动刻度', position: [pose.thimbleX + 4, 0, -31] },
+      ]
+    : viewPreset === 'focus'
+      ? [
+          { label: '测微螺杆', position: [pose.spindleX - 16, 12, 8] },
+          { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 45, 11, 8] },
+          { label: '微分筒', position: [pose.thimbleX + 12, 11, -8] },
+          { label: '可动刻度', position: [pose.thimbleX + 2, -10, 8] },
+        ]
+      : [
+        { label: '测砧', position: [pose.anvilTipX - 12, 8, 8] },
+        { label: '测微螺杆', position: [pose.spindleX - 14, 12, 8] },
+        { label: '锁紧装置', position: [pose.lock[0] - 6, 17, -8] },
+        { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 52, 18, 8] },
+        { label: '微分筒', position: [pose.thimbleX + 29, 18, -8] },
+        { label: '棘轮', position: [pose.thimbleX + 39, 6, 8] },
+        { label: '可动刻度', position: [pose.thimbleX + 4, -22, 8] },
+      ]
+
   return (
     <group name="micrometer-root">
       <mesh geometry={MICROMETER_BOW} castShadow receiveShadow>
@@ -103,7 +158,12 @@ export function MicrometerAssembly({ pose, showWork, workSize, showLabels }: Mic
       </group>
       {CylX({ name: 'micrometer-spindle', radius: 3.2, length: 44, centerX: pose.spindleX, color: '#d3dadd' })}
       {CylX({ radius: 3.22, length: 0.8, centerX: pose.spindleTipX, color: '#5c666b', metalness: 0.7, roughness: 0.35 })}
-      <group name="micrometer-thimble" position={[pose.thimbleX, pose.thimbleY, 0]} rotation={[pose.thimbleRotationX, 0, 0]}>
+      <group
+        name="micrometer-thimble"
+        position={[pose.thimbleX, pose.thimbleY, 0]}
+        rotation={[pose.thimbleRotationX, 0, 0]}
+        {...dragHandlers}
+      >
         <TexturedRevolve
           geometry={THIMBLE_BODY_GEOMETRY}
           width={THIMBLE_TEXTURE.width}
@@ -124,8 +184,8 @@ export function MicrometerAssembly({ pose, showWork, workSize, showLabels }: Mic
         <mesh geometry={RATCHET_GEOMETRY} castShadow receiveShadow>
           <meshStandardMaterial color="#b9c3c7" metalness={0.7} roughness={0.38} />
         </mesh>
-        {showLabels ? <PartLabel position={[8, -9, 2]}>可动刻度</PartLabel> : null}
       </group>
+      {showLabels ? labelPositions.map(({ label, position }) => <PartLabel key={label} position={position}>{label}</PartLabel>) : null}
       <group name="micrometer-lock" position={pose.lock}>
         <mesh position={[0, 1.6, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[1.8, 1.8, 3.2, 20]} />
@@ -138,13 +198,12 @@ export function MicrometerAssembly({ pose, showWork, workSize, showLabels }: Mic
       </group>
       {showWork ? (
         <group name="micrometer-work" position={[workSize / 2, 0, pose.objectZ]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[workSize / 2, workSize / 2, 24, 32]} />
-            <meshStandardMaterial color="#c8a15a" metalness={0.85} roughness={0.3} />
+            <meshStandardMaterial color="#dfbd72" metalness={0.35} roughness={0.52} />
           </mesh>
         </group>
       ) : null}
-      {showLabels ? <PartLabel position={[-8, 6, 0]}>测砧</PartLabel> : null}
     </group>
   )
 }

@@ -9,7 +9,10 @@ import {
   calcDistances,
   calcPhaseDiff,
   calcCombinedAmplitude,
+  calcCombinedDisplacement,
   getInterferenceStatus,
+  hasEqualWavelengths,
+  wrapPhase,
   MAX_HISTORY,
   type Vec2,
 } from './model'
@@ -26,16 +29,11 @@ const CAMERA_CONTROLS = {
 export function WaveInterferenceScene() {
   const state = useWaveInterferenceSceneState()
 
-  const playbackActions = useMemo(() => [
-    { key: 'play', label: state.isPlaying ? '暂停' : '播放', onClick: state.togglePlay },
-    { key: 'reset', label: '重置', onClick: state.reset },
-  ], [state.isPlaying, state.togglePlay, state.reset])
-
   const dataOverlay = useMemo(() => {
     if (!state.observer) return null
     const obs: Vec2 = { x: state.observer.x, z: state.observer.z }
     const { r1, r2, dr } = calcDistances(obs, state.source1, state.source2)
-    const dphi = calcPhaseDiff(obs, {
+    const params = {
       wavelength1: state.wavelength1,
       wavelength2: state.wavelength2,
       amplitude1: state.amplitude1,
@@ -44,27 +42,13 @@ export function WaveInterferenceScene() {
       waveSpeed: state.waveSpeed,
       source1: state.source1,
       source2: state.source2,
-    })
-    const amp = calcCombinedAmplitude({
-      wavelength1: state.wavelength1,
-      wavelength2: state.wavelength2,
-      amplitude1: state.amplitude1,
-      amplitude2: state.amplitude2,
-      phaseDiff: state.phaseDiff,
-      waveSpeed: state.waveSpeed,
-      source1: state.source1,
-      source2: state.source2,
-    }, dphi)
-    const info = getInterferenceStatus(dr, {
-      wavelength1: state.wavelength1,
-      wavelength2: state.wavelength2,
-      amplitude1: state.amplitude1,
-      amplitude2: state.amplitude2,
-      phaseDiff: state.phaseDiff,
-      waveSpeed: state.waveSpeed,
-      source1: state.source1,
-      source2: state.source2,
-    })
+    }
+    const dphi = calcPhaseDiff(obs, params, state.observer.time)
+    const sameFrequency = hasEqualWavelengths(state.wavelength1, state.wavelength2)
+    const envelopeAmplitude = calcCombinedAmplitude(params, dphi)
+    const instantaneousDisplacement = calcCombinedDisplacement(obs, params, state.observer.time)
+    const info = getInterferenceStatus(dr, params, dphi)
+    const phaseLabel = info.label
 
     return (
       <div className="scene-core-summary-stack">
@@ -82,16 +66,23 @@ export function WaveInterferenceScene() {
         </p>
         <p>
           <span>相位差 Δφ</span>
-          <strong>{(dphi / Math.PI).toFixed(2)}π rad</strong>
+          <strong>{(wrapPhase(dphi) / Math.PI).toFixed(2)}π rad</strong>
         </p>
         <p>
-          <span>合振幅</span>
-          <strong>{amp.toFixed(3)} m</strong>
+          <span>{sameFrequency ? '合振幅（包络）' : '瞬时合位移 y'}</span>
+          <strong>{(sameFrequency ? envelopeAmplitude : instantaneousDisplacement).toFixed(3)} m</strong>
         </p>
         <p>
-          <span>干涉类型</span>
-          <strong>{info.label}</strong>
+          <span>{sameFrequency ? '干涉关系' : '当前相位关系'}</span>
+          <strong>{phaseLabel}</strong>
         </p>
+        <p>
+          <span>时间 t</span>
+          <strong>{state.observer.time.toFixed(2)} s</strong>
+        </p>
+        {Math.abs(state.wavelength1 - state.wavelength2) >= 1e-6 && (
+          <p><span>干涉线</span><strong>频率不同，没有固定位置</strong></p>
+        )}
       </div>
     )
   }, [state.observer, state.source1, state.source2, state.wavelength1, state.wavelength2,
@@ -111,7 +102,8 @@ export function WaveInterferenceScene() {
         />
       ) : undefined}
       chartVisible={state.showChart}
-      playbackActions={playbackActions}
+      chartInitiallyCollapsed
+      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={CAMERA}
@@ -129,6 +121,7 @@ export function WaveInterferenceScene() {
             waveSpeed={state.waveSpeed}
             isPlaying={state.isPlaying}
             playSpeed={state.playSpeed}
+            resetVersion={state.resetVersion}
             observerBuffer={state.observerBuffer}
             setSource1={state.setSource1}
             setSource2={state.setSource2}

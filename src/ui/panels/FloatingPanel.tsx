@@ -52,7 +52,16 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       const vh = window.innerHeight
       const w = panelSize?.width ?? el.getBoundingClientRect().width
       const h = panelSize?.height ?? el.getBoundingClientRect().height
-      return { left: 0, top: 0, right: vw - w, bottom: vh - h }
+      const parentRect = el.offsetParent instanceof HTMLElement
+        ? el.offsetParent.getBoundingClientRect()
+        : { left: 0, top: 0 }
+      const renderedOffsetX = offsetX ?? 0
+      return {
+        left: VIEWPORT_MARGIN - parentRect.left - renderedOffsetX,
+        top: 0,
+        right: vw - parentRect.left - w - VIEWPORT_MARGIN - renderedOffsetX,
+        bottom: vh - parentRect.top - h - VIEWPORT_MARGIN,
+      }
     },
     offsetX,
   })
@@ -62,13 +71,15 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
     if (!el) return
 
     const update = () => {
-      if (resizable && panelSize) return
       const rect = el.getBoundingClientRect()
-      const available = window.innerHeight - rect.top - VIEWPORT_MARGIN
-      const next = Math.max(MIN_MAX_HEIGHT, available - HEADER_HEIGHT)
+      const available = Math.max(MIN_MAX_HEIGHT + HEADER_HEIGHT, window.innerHeight - rect.top - VIEWPORT_MARGIN)
+      const next = available - HEADER_HEIGHT
       if (next !== prevMaxHeightRef.current) {
         prevMaxHeightRef.current = next
         setMaxContentHeight(next)
+      }
+      if (resizable && panelSize && panelSize.height > available) {
+        setPanelSize((current) => current && current.height > available ? { ...current, height: available } : current)
       }
     }
 
@@ -121,6 +132,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
 
   const panelStyle: CSSProperties = {
     ...style,
+    ...(resizable && maxContentHeight !== undefined ? { maxHeight: maxContentHeight + HEADER_HEIGHT } : {}),
     ...(panelSize ? { width: panelSize.width, height: collapsed ? undefined : panelSize.height } : {}),
   }
 
@@ -160,7 +172,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       {!collapsed && (
         <div
           className={`px-3.5 pb-3 overflow-y-auto ${resizable ? 'flex-1 min-h-0' : ''}`}
-          style={resizable ? undefined : { maxHeight: maxContentHeight }}
+          style={{ maxHeight: maxContentHeight }}
         >
           {children}
         </div>

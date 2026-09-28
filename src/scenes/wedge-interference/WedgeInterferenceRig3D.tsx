@@ -5,6 +5,17 @@ import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, LinearFilter, type Mesh } from 'three'
 import { drawWedgePattern, type WedgeParams } from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
+import {
+  WEDGE_PLATE_HEIGHT as PLATE_HEIGHT,
+  WEDGE_PLATE_WIDTH as PLATE_WIDTH,
+  WEDGE_PLATE_Y as PLATE_Y,
+  bumpCenterX,
+  bumpDisplayHeightWorld,
+  paperSpacerPose,
+  upperPlateGroupY,
+  visualWedgeAngleDegrees,
+  wedgeGapAtX,
+} from './geometry'
 
 function readSceneBackgroundColor(): string {
   if (typeof window === 'undefined') return '#222222'
@@ -22,17 +33,14 @@ const MAT_PAPER = { color: 0xeeeedd, roughness: 0.9 }
 const MAT_LIGHT_HOUSING = { color: 0x333333, metalness: 0.4, roughness: 0.6 }
 const SHADOW_PROPS = { castShadow: true as const, receiveShadow: true as const }
 const NO_SHADOW_PROPS = {}
-const PLATE_WIDTH = 16
 const PLATE_DEPTH = 10
-const PLATE_HEIGHT = 0.5
-const PLATE_Y = 3
 const TEX_W = 512
 const TEX_H = 256
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
   return (
     <Html position={position} center>
-      <div className="double-slit-label">{text}</div>
+      <div className="wedge-interference-label">{text}</div>
     </Html>
   )
 }
@@ -150,21 +158,16 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
 
   const shadowProps = shadowsEnabled ? SHADOW_PROPS : NO_SHADOW_PROPS
 
-  const visualAngle = useMemo(() => {
-    const fraction = (wedgeAngle - 0.01) / (0.30 - 0.01)
-    return 3 + fraction * 8
-  }, [wedgeAngle])
+  const visualAngle = useMemo(() => visualWedgeAngleDegrees(wedgeAngle), [wedgeAngle])
 
-  // Position top plate so its left (contact) edge sits on the bottom plate surface
-  const groupY = useMemo(() => {
-    const alphaRad = visualAngle * Math.PI / 180
-    const sinA = Math.sin(alphaRad)
-    const cosA = Math.cos(alphaRad)
-    const bottomTop = PLATE_Y + PLATE_HEIGHT / 2
-    return bottomTop + (PLATE_WIDTH / 2) * sinA + (PLATE_HEIGHT / 2) * cosA
-  }, [visualAngle])
-
-  const bumpX = (bumpPosition - 0.5) * PLATE_WIDTH * 0.8
+  // The upper plate's left contact edge rests on the lower plate; its shown tilt is schematic.
+  const groupY = useMemo(() => upperPlateGroupY(visualAngle), [visualAngle])
+  const spacer = useMemo(() => paperSpacerPose(visualAngle), [visualAngle])
+  const bumpX = bumpCenterX(bumpPosition)
+  const bumpGap = wedgeGapAtX(visualAngle, bumpX)
+  const bumpHeightWorld = bumpDisplayHeightWorld(params.bumpHeight, bumpGap)
+  const alphaRad = visualAngle * Math.PI / 180
+  const beamTargetY = groupY + (PLATE_HEIGHT / 2) * Math.cos(alphaRad) + 0.02
 
   return (
     <group data-rig-scene="wedge-interference">
@@ -214,17 +217,17 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       <Label text="上玻璃板" position={[PLATE_WIDTH / 2 + 1, PLATE_Y + 2, PLATE_DEPTH / 2 + 1]} />
 
       {/* ====== Paper strip at thin end ====== */}
-      <mesh position={[PLATE_WIDTH / 2 - 0.3, PLATE_Y + PLATE_HEIGHT / 2 + 0.15, 0]}>
-        <boxGeometry args={[0.3, 0.3, PLATE_DEPTH * 0.8]} />
+      <mesh position={[spacer.x, spacer.centerY, 0]}>
+        <boxGeometry args={[0.3, spacer.height, PLATE_DEPTH * 0.8]} />
         <meshStandardMaterial {...MAT_PAPER} />
       </mesh>
-      <Label text="薄纸片" position={[PLATE_WIDTH / 2 + 0.8, PLATE_Y + 1.5, 0]} />
+      <Label text="薄纸片（垫片）" position={[PLATE_WIDTH / 2 + 0.8, spacer.centerY + spacer.height / 2 + 0.4, 0]} />
 
       {/* ====== Bump — subtle surface bulge on bottom plate ====== */}
       {mode === 'bump' && (
         <mesh
-          position={[bumpX, PLATE_Y + PLATE_HEIGHT / 2 + 0.06, 0]}
-          scale={[2.5, 0.2, 1.8]}
+          position={[bumpX, PLATE_Y + PLATE_HEIGHT / 2 + bumpHeightWorld / 2, 0]}
+          scale={[1.6, bumpHeightWorld / 2, 1.8]}
         >
           <sphereGeometry args={[1, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
           <meshStandardMaterial {...MAT_GLASS_BOTTOM} />
@@ -268,7 +271,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
           <Line
             points={[
               [0, PLATE_Y + 5.5, 0],
-              [0, PLATE_Y + PLATE_HEIGHT + 0.5, 0],
+              [0, beamTargetY, 0],
             ]}
             color={lightColorHex}
             lineWidth={3}
@@ -278,7 +281,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
           <Line
             points={[
               [-2, PLATE_Y + 5.5, 0],
-              [0, PLATE_Y + PLATE_HEIGHT + 0.5, 0],
+              [0, beamTargetY, 0],
               [2, PLATE_Y + 5.5, 0],
             ]}
             color={lightColorHex}

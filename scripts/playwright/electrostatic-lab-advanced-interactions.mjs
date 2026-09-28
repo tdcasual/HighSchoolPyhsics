@@ -15,12 +15,18 @@ const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
 
 
 async function readChargeCount(page) {
-  const text = await page.locator('.electrostatic-lab-readout p').first().innerText()
-  const match = text.match(/电荷总数:\s*(\d+)/)
-  if (!match) {
-    throw new Error(`Cannot parse charge count from readout: "${text}"`)
+  const readout = page.locator('.readout-panel').filter({
+    has: page.getByText('电荷总数', { exact: true }),
+  })
+  const text = await readout.innerText()
+  const rawCount = text.slice(text.indexOf('电荷总数') + '电荷总数'.length).trim()
+  let digits = ''
+  for (const character of rawCount) {
+    if (character < '0' || character > '9') break
+    digits += character
   }
-  return Number(match[1])
+  if (!digits) throw new Error('Cannot parse charge count from readout')
+  return Number(digits)
 }
 
 async function run() {
@@ -60,11 +66,8 @@ async function run() {
           }
         })
 
-        await page.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-        await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
-        await page.getByRole('button', { name: '进入3D等势面' }).click()
-        await page.waitForURL(`${baseUrl}/electrostatic-lab`, { timeout: 15000 })
-        await page.getByText('3D等势面实验台控制').first().waitFor({ state: 'visible', timeout: 15000 })
+        await page.goto(baseUrl + '/electrostatic-lab', { waitUntil: 'domcontentloaded' })
+        await page.getByRole('heading', { name: '电势地形与电场线' }).waitFor({ state: 'visible', timeout: 15000 })
 
         const canvasSurface = page.locator('.interactive-canvas-surface').first()
         if ((await canvasSurface.count()) === 0) {
@@ -72,7 +75,7 @@ async function run() {
         }
 
         await page.getByRole('button', { name: '开启进阶交互' }).click()
-        await page.getByText('拖拽电荷移动、双击地面添加电荷、右键点击电荷删除').waitFor({
+        await page.getByText(/已启用：拖拽电荷移动，双击地面添加正电荷/).waitFor({
           state: 'visible',
           timeout: 5000,
         })
@@ -139,6 +142,14 @@ async function run() {
         if (runtimeErrors.length > 0) {
           throw new Error(`Runtime errors detected:\n${runtimeErrors.join('\n')}`)
         }
+
+        const mobilePage = await browser.newPage({ viewport: { width: 390, height: 844 } })
+        mobilePage.on('pageerror', (error) => runtimeErrors.push('mobile pageerror: ' + error.message))
+        await mobilePage.goto(baseUrl + '/electrostatic-lab', { waitUntil: 'domcontentloaded' })
+        await mobilePage.getByRole('heading', { name: '电势地形与电场线' }).waitFor({ state: 'visible', timeout: 15000 })
+        const mobileHasHorizontalOverflow = await mobilePage.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
+        if (mobileHasHorizontalOverflow) throw new Error('Electrostatic lab overflows horizontally at 390px viewport width')
+        await mobilePage.close()
 
         await mkdir(OUTPUT_DIR, { recursive: true })
         await page.screenshot({

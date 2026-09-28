@@ -12,8 +12,6 @@ type WedgeInterferenceControlsProps = {
     | 'setWavelength'
     | 'wedgeAngle'
     | 'setWedgeAngle'
-    | 'maxThickness'
-    | 'setMaxThickness'
     | 'mode'
     | 'setMode'
     | 'bumpHeight'
@@ -26,6 +24,7 @@ type WedgeInterferenceControlsProps = {
     | 'toggleScan'
     | 'showChart'
     | 'toggleChart'
+    | 'reset'
   >
 }
 
@@ -50,22 +49,14 @@ export function WedgeInterferenceControls({ state }: WedgeInterferenceControlsPr
           id="wedge-angle"
           label="劈尖角 θ"
           unit="°"
-          min={0.01}
+          min={0.005}
           max={0.30}
-          step={0.01}
+          step={0.0001}
           value={state.wedgeAngle}
           onChange={state.setWedgeAngle}
+          displayValue={state.wedgeAngle.toFixed(4) + '°'}
         />
-        <RangeField
-          id="wedge-max-thickness"
-          label="最大厚度"
-          unit="μm"
-          min={5}
-          max={80}
-          step={1}
-          value={state.maxThickness}
-          onChange={state.setMaxThickness}
-        />
+        <p className="text-xs text-slate-500 dark:text-slate-400">玻璃板倾斜和垫片厚度按示意放大；条纹计算使用实际 θ。</p>
       </ControlSection>
       <ControlSection title="下表面">
         <SegmentedControl
@@ -80,7 +71,7 @@ export function WedgeInterferenceControls({ state }: WedgeInterferenceControlsPr
           <>
             <RangeField
               id="wedge-bump-height"
-              label="凸起高度"
+              label="凸起高度 h（实际）"
               unit="μm"
               min={0.1}
               max={3}
@@ -99,6 +90,7 @@ export function WedgeInterferenceControls({ state }: WedgeInterferenceControlsPr
               onChange={state.setBumpPosition}
               displayValue={(state.bumpPosition * 100).toFixed(0) + '%'}
             />
+            <p className="text-xs text-slate-500 dark:text-slate-400">3D 凸起高度按示意放大，光程差按实际 μm 计算。</p>
           </>
         )}
       </ControlSection>
@@ -118,6 +110,11 @@ export function WedgeInterferenceControls({ state }: WedgeInterferenceControlsPr
             key: 'toggle-scan',
             label: state.isScanning ? '停止扫描' : '扫描',
             onClick: state.toggleScan,
+          },
+          {
+            key: 'reset',
+            label: '重置',
+            onClick: state.reset,
           },
         ]}
       />

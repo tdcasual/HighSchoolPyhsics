@@ -1,23 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import {
+  deriveCarrierDeflectionAmplitudeY,
   deriveChannelVisibilityConfig,
   deriveChargeSeparation,
+  deriveMhdFlowAnimationScale,
   deriveMhdReadings,
   derivePolarizationTarget,
 } from './model'
 
 describe('mhd model', () => {
-  it('derives induced electric field and output voltage from v x B', () => {
+  it('derives induced-field direction and loaded terminal readings consistently', () => {
     const readings = deriveMhdReadings({
       magneticFieldT: 1.5,
       plasmaVelocityMps: 2000,
       electrodeGapM: 0.4,
       conductivitySPerM: 18,
+      loadResistanceOhm: 0.3,
     })
 
     expect(readings.inducedElectricFieldVPerM).toBeCloseTo(3000)
-    expect(readings.outputVoltageV).toBeCloseTo(1200)
-    expect(readings.currentDensityApm2).toBeCloseTo(54000)
+    expect(readings.openCircuitVoltageV).toBeCloseTo(-1200)
+    expect(readings.outputVoltageV).toBeCloseTo(-623.0769, 3)
+    expect(readings.internalResistanceOhm).toBeCloseTo(0.27778, 4)
+    expect(readings.outputCurrentA).toBeCloseTo(2076.923, 2)
+    expect(readings.currentDensityApm2).toBeCloseTo(25961.538, 2)
+    expect(readings.outputPowerW).toBeCloseTo(1294083, 0)
   })
 
   it('ramps charge separation toward steady state after switching on', () => {
@@ -63,6 +70,18 @@ describe('mhd model', () => {
 
     expect(highField).toBeGreaterThan(lowField)
     expect(highField).toBeLessThanOrEqual(1)
+  })
+
+  it('scales the flow animation with the selected plasma speed', () => {
+    expect(deriveMhdFlowAnimationScale(2000)).toBe(1)
+    expect(deriveMhdFlowAnimationScale(200)).toBe(0.1)
+    expect(deriveMhdFlowAnimationScale(4000)).toBe(2)
+  })
+
+  it('starts neutral carriers together, then separates them within the electrode gap', () => {
+    expect(deriveCarrierDeflectionAmplitudeY(0, 0.1, 1)).toBe(0)
+    expect(deriveCarrierDeflectionAmplitudeY(1, 0.1, 1)).toBeCloseTo(0.0295)
+    expect(deriveCarrierDeflectionAmplitudeY(0.5, 0.4, 0.5)).toBeGreaterThan(0)
   })
 
   it('keeps plasma channel shell visually transparent for inner particle visibility', () => {

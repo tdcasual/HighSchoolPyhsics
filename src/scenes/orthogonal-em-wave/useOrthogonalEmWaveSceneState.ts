@@ -27,7 +27,7 @@ const INITIAL_SIMULATION: Simulation = {
   direction: 'right',
   viewMode: '3d',
   elapsed: 0,
-  running: true,
+  running: false,
   showOrthogonality: true,
   showProjectionMarks: true,
 }

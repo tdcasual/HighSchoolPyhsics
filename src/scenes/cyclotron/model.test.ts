@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   deriveCyclotronLaunchState,
+  deriveCyclotronMaximumKineticEnergyJ,
   deriveCyclotronReadings,
   stepCyclotronState,
   type CyclotronConfig,
@@ -28,6 +29,18 @@ describe('cyclotron model', () => {
     const speed = Math.hypot(state.velocity.x, state.velocity.y, state.velocity.z)
     expect(speed).toBeCloseTo(1, 2)
     expect(Math.abs(state.velocity.y)).toBeGreaterThan(0.1)
+  })
+
+  it('derives the D-box energy limit from q²B²R²/(2m)', () => {
+    const config: CyclotronConfig = {
+      chargeC: 1.6e-19,
+      massKg: 1.67e-27,
+      magneticFieldT: 2,
+      electricFieldVPerM: 9e4,
+      gapHalfWidthM: 0.02e-3,
+    }
+
+    expect(deriveCyclotronMaximumKineticEnergyJ(config, 0.675e-3)).toBeCloseTo(1.3969e-17, 21)
   })
 
   it('derives period by 2πm/(qB)', () => {

@@ -4,7 +4,7 @@ export const FRAME_FRICTION = 0.006
 export const FRAME_INERTIA = 2.5
 export const MAGNET_ACCELERATION_FACTOR = 0.03
 export const MAGNET_DECAY_FACTOR = 0.98
-export const ANGLE_STEP_SCALE = 0.05
+export const SIMULATION_STEP_SECONDS = 1 / 60
 export const CHART_SAMPLE_INTERVAL = 5
 export const MAX_CHART_POINTS = 100
 
@@ -84,8 +84,8 @@ export function stepElectromagneticDriveState(
     frameSpeed = 0
   }
 
-  const magnetAngle = state.magnetAngle + magnetSpeed * ANGLE_STEP_SCALE
-  const frameAngle = state.frameAngle + frameSpeed * ANGLE_STEP_SCALE
+  const magnetAngle = state.magnetAngle + magnetSpeed * SIMULATION_STEP_SECONDS
+  const frameAngle = state.frameAngle + frameSpeed * SIMULATION_STEP_SECONDS
   const nextFrameCount = state.frameCount + 1
   const shouldSample = state.frameCount % CHART_SAMPLE_INTERVAL === 0
 

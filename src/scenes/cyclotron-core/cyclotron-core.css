@@ -1,11 +1,11 @@
 .cyclotron-core-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
 .cyclotron-core-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
 .cyclotron-core-help { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.cyclotron-core-telemetry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem 0.8rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
+.cyclotron-core-telemetry { display: grid; width: min(300px, calc(100vw - 48px)); box-sizing: border-box; grid-template-columns: 1fr; gap: 0.42rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
 .cyclotron-core-telemetry p { display: flex; justify-content: space-between; gap: 0.65rem; margin: 0; font-size: 0.78rem; }
 .cyclotron-core-telemetry span { color: #7a6e62; }
 .cyclotron-core-telemetry strong { color: #2e2218; font-family: 'SF Mono', Menlo, monospace; text-align: right; }
-.cyclotron-core-telemetry .cyclotron-core-conclusion { grid-column: 1 / -1; display: grid; gap: 0.18rem; }
+.cyclotron-core-telemetry .cyclotron-core-conclusion { display: grid; gap: 0.18rem; }
 .cyclotron-core-telemetry .cyclotron-core-conclusion strong { text-align: left; font-family: inherit; line-height: 1.42; }
 .cyclotron-core-status.dee { color: #2a7f9e; }
 .cyclotron-core-status.gap { color: #b76a00; }

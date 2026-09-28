@@ -1,4 +1,5 @@
 import { deriveDeflectionFromVoltage } from './runtime'
+import { clampUnitDeflection } from './screenGeometry'
 
 type EvaluateVoltage = (timeS: number) => number
 
@@ -33,7 +34,7 @@ export function buildDisplayTracePoints(options: BuildDisplayTraceOptions): Arra
     const t = start + windowS * ratio
     const x = deriveDeflectionFromVoltage(options.evaluateX(t), options.fullScaleV)
     const y = deriveDeflectionFromVoltage(options.evaluateY(t), options.fullScaleV)
-    points.push([x, y])
+    points.push(clampUnitDeflection(x, y))
   }
 
   return points

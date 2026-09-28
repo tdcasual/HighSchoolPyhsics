@@ -1,6 +1,7 @@
 // readyText: 衍射演示控制
 
 import { useMemo } from 'react'
+import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DiffractionControls } from './DiffractionControls'
@@ -9,56 +10,77 @@ import { DiffractionProfile } from './DiffractionProfile'
 import { useDiffractionSceneState } from './useDiffractionSceneState'
 import {
   formatFeatureLabel,
+  formatScreenDistance,
+  gratingSlitWidth,
+  gratingSpacing,
+  gratingIlluminatedSlitCount,
+  GRATING_ILLUMINATED_WIDTH_MM,
   formatFeatureValue,
   formatWhiteLightFeatureValue,
 } from '../light-diffraction/model'
 
-const CAMERA = {
-  position: [0.35, 0.3, 0.45] as [number, number, number],
-  fov: 50,
-}
-
-const CAMERA_CONTROLS = {
-  target: [0, 0, 0.15] as [number, number, number],
-  minDistance: 0.15,
-  maxDistance: 3,
-  enablePan: true,
-}
 
 export function DiffractionScene() {
   const state = useDiffractionSceneState()
-
-  const playbackActions = useMemo(() => [
-    { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
-    { key: 'reset', label: '重置', onClick: state.reset },
-  ], [state.isLightOn, state.toggleLight, state.reset])
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)')
 
   const screenWidthM = 1.2
   const screenHeightM = 0.9
+  const cameraTargetZ = (state.params.screenDistance - 0.2) / 2
+  const cameraTargetX = isTablet ? 1.0 : 0
+  const cameraDistanceScale = isTablet ? 1.55 : 1
+  const camera = useMemo(
+    () => ({
+      position: [
+        cameraTargetX + 1.6 * cameraDistanceScale,
+        0.8 * cameraDistanceScale,
+        cameraTargetZ - 1.35 * cameraDistanceScale,
+      ] as [number, number, number],
+      fov: 50,
+    }),
+    [cameraTargetX, cameraDistanceScale, cameraTargetZ],
+  )
+  const cameraControls = useMemo(
+    () => ({
+      target: [cameraTargetX, 0, cameraTargetZ] as [number, number, number],
+      minDistance: 0.35,
+      maxDistance: 6,
+      enablePan: true,
+    }),
+    [cameraTargetX, cameraTargetZ],
+  )
 
   const featureLabel = useMemo(() => formatFeatureLabel(state.mode), [state.mode])
   const featureValue = useMemo(() => {
     if (state.isWhiteLight) {
-      return formatWhiteLightFeatureValue(state.params, state.mode)
+      return formatWhiteLightFeatureValue(state.params, state.mode, state.filterColor)
     }
     return formatFeatureValue(state.params, state.mode)
-  }, [state.params, state.mode, state.isWhiteLight])
+  }, [state.params, state.mode, state.isWhiteLight, state.filterColor])
 
   return (
     <SceneLayout
       controls={<DiffractionControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack">
+        <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
           <p>光源: {state.isLightOn ? (state.isWhiteLight ? '白光' : '单色') : '关闭'}</p>
           {!state.isWhiteLight && <p>波长: {state.params.wavelength} nm</p>}
           {state.isWhiteLight && state.filterColor !== 'none' && (
             <p>滤光片: {state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}</p>
           )}
           <p>{featureLabel}: {featureValue}</p>
-          <p>屏距: {state.params.screenDistance.toFixed(1)} m</p>
+          {state.mode === 'diffraction-grating' && (
+            <>
+              <p>光栅常数 d: {(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm</p>
+              <p>狭缝宽 a: {(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm</p>
+              <p>有效照明狭缝数 N: {gratingIlluminatedSlitCount(state.params.gratingLines)}</p><p>有效照明宽度: {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm</p>
+              <p>线密度: {state.params.gratingLines} 条/mm</p>
+            </>
+          )}
+          <p>屏距: {formatScreenDistance(state.params.screenDistance)}</p>
         </div>
       }
-      chart={state.showChart ? (
+      chart={state.showProfile ? (
         <div className="flex flex-col gap-2" style={{ width: 360 }}>
           <DiffractionProfile
             mode={state.mode}
@@ -71,14 +93,15 @@ export function DiffractionScene() {
           />
         </div>
       ) : undefined}
-      chartVisible={state.showChart}
-      playbackActions={playbackActions}
+      chartVisible={state.showProfile}
+      chartInitiallyCollapsed={false}
       viewport={
-        <InteractiveCanvas camera={CAMERA} controls={CAMERA_CONTROLS} frameloop="demand" adaptiveFraming={false}>
+        <InteractiveCanvas camera={camera} controls={cameraControls} frameloop="demand" adaptiveFraming={false}>
           <DiffractionRig3D
             mode={state.mode}
             params={state.params}
             isLightOn={state.isLightOn}
+            showPattern={state.showPattern}
             isWhiteLight={state.isWhiteLight}
             filterColor={state.filterColor}
             lightColorHex={state.lightColorHex}

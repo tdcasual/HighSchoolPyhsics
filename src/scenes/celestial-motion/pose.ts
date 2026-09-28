@@ -90,25 +90,64 @@ export function outerRadius(scenario: Scenario) {
   return drawnOrbitRadius(scenario)
 }
 
-export function frameRadius(outer: number) {
-  return Math.max(9, outer * 2.6)
+export function frameRadius(outer: number, aspect = 1.6) {
+  const verticalHalfFov = (CELESTIAL_CAMERA.fov * Math.PI) / 360
+  const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * Math.max(0.1, aspect))
+  const limitingHalfFov = Math.min(verticalHalfFov, horizontalHalfFov)
+  const sceneBound = outer * 1.22
+  return Math.max(9, (sceneBound / Math.sin(limitingHalfFov)) * 1.12)
 }
 
 function scaleLab(vector: LabVec, factor: number): LabVec {
   return { x: vector.x * factor, y: vector.y * factor, z: vector.z * factor }
 }
 
-export function celestialView(azimuthDeg: number, elevationDeg: number, outer: number): OrbitView {
+export type CelestialCameraFrame = {
+  aspect?: number
+  centerOffsetPixels?: number
+  viewportHeight?: number
+}
+
+export function celestialView(
+  azimuthDeg: number,
+  elevationDeg: number,
+  outer: number,
+  frame: CelestialCameraFrame = {},
+): OrbitView {
+  const azimuth = (azimuthDeg * Math.PI) / 180
+  const elevation = (elevationDeg * Math.PI) / 180
+  const radius = frameRadius(outer, frame.aspect ?? 1.6)
+  const viewportHeight = frame.viewportHeight ?? 0
+  const centerOffsetPixels = frame.centerOffsetPixels ?? 0
+  const shift = viewportHeight > 0
+    ? (centerOffsetPixels * 2 * radius * Math.tan((CELESTIAL_CAMERA.fov * Math.PI) / 360)) / viewportHeight
+    : 0
+  const right: Vec3 = [Math.cos(azimuth), 0, -Math.sin(azimuth)]
   return {
-    target: [0, 0, 0],
-    azimuth: (azimuthDeg * Math.PI) / 180,
-    elevation: (elevationDeg * Math.PI) / 180,
-    radius: frameRadius(outer),
+    target: [-right[0] * shift, 0, -right[2] * shift],
+    azimuth,
+    elevation,
+    radius,
   }
 }
 
-export function celestialCameraPosition(azimuthDeg: number, elevationDeg: number, outer: number) {
-  return orbitPosition(celestialView(azimuthDeg, elevationDeg, outer))
+export function celestialCamera(
+  azimuthDeg: number,
+  elevationDeg: number,
+  outer: number,
+  frame: CelestialCameraFrame = {},
+) {
+  const view = celestialView(azimuthDeg, elevationDeg, outer, frame)
+  return { ...view, position: orbitPosition(view) }
+}
+
+export function celestialCameraPosition(
+  azimuthDeg: number,
+  elevationDeg: number,
+  outer: number,
+  frame: CelestialCameraFrame = {},
+) {
+  return celestialCamera(azimuthDeg, elevationDeg, outer, frame).position
 }
 
 function direction(from: Vec3, to: Vec3): Vec3 {

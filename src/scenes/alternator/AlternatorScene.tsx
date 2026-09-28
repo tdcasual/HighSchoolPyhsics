@@ -1,44 +1,47 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
+import { METER_FULL_SCALE_A } from './model'
 import { AlternatorChart } from './AlternatorChart'
 import { AlternatorControls } from './AlternatorControls'
-import { ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD, AlternatorRig3D } from './AlternatorRig3D'
+import { AlternatorRig3D } from './AlternatorRig3D'
 import { useAlternatorSceneState } from './useAlternatorSceneState'
 import './alternator.css'
 
 export function AlternatorScene() {
   const theme = useAppStore((state) => state.theme)
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const state = useAlternatorSceneState()
-  const viewportNeedleAngleRad = -(Math.cos(state.angleRad + ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD)) * (Math.PI / 3)
+  const cameraPosition: [number, number, number] = isMobile ? [14, 10, 18] : [22.24, 12.86, 19.82]
+  const cameraTarget: [number, number, number] = isMobile ? [0, 0, 0] : [4.26, 0, -3.32]
+  const viewportNeedleAngleRad = state.meterNeedleAngleRad
 
   return (
     <SceneLayout
       controls={<AlternatorControls state={state} />}
       viewport={
         <InteractiveCanvas
-          camera={{ position: [14, 10, 18], fov: 45 }}
-          controls={{ target: [0, 0, 0], minDistance: 10, maxDistance: 38 }}
+          camera={{ position: cameraPosition, fov: 45 }}
+          controls={{ target: cameraTarget, minDistance: 10, maxDistance: 38 }}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <AlternatorRig3D
             angleRad={state.angleRad}
             meterNeedleAngleRad={viewportNeedleAngleRad}
+            currentA={state.instantaneousCurrentA}
+            isMeterOverRange={Math.abs(state.instantaneousCurrentA) > METER_FULL_SCALE_A}
             theme={theme}
           />
         </InteractiveCanvas>
       }
       dataOverlay={
         <div className="alternator-telemetry">
-          <p><span>转速 ω</span><strong data-testid="alternator-speed">{state.speedLabel}</strong></p>
-          <p><span>线圈匝数</span><strong>{state.turnsLabel}</strong></p>
-          <p><span>线圈面积</span><strong>{state.areaLabel}</strong></p>
-          <p><span>磁通量 Φ</span><strong>{state.fluxLabel}</strong></p>
-          <p><span>瞬时感应电压</span><strong>{state.voltageLabel}</strong></p>
-          <p><span>瞬时电流</span><strong>{state.currentLabel}</strong></p>
-          <p><span>频率 f</span><strong>{state.frequencyLabel}</strong></p>
-          <p><span>电流方向</span><strong>{state.currentDirectionLabel}</strong></p>
-          <p><span>电流表偏角</span><strong>{state.needleAngleLabel}</strong></p>
+          <p><span>ω / f</span><strong>{state.speedLabel} / {state.frequencyLabel}</strong></p>
+          <p><span>N / S</span><strong>{state.turnsLabel} / {state.areaLabel}</strong></p>
+          <p><span>单匝 Φ / e</span><strong>{state.fluxLabel} / {state.voltageLabel}</strong></p>
+          <p><span>I / 方向</span><strong>{state.currentLabel} / {state.currentDirectionLabel}</strong></p>
+          <p><span>表针 / 量程</span><strong>{state.needleAngleLabel} / ±2 A{Math.abs(state.instantaneousCurrentA) > METER_FULL_SCALE_A ? ' 超量程' : ''}</strong></p>
         </div>
       }
       chart={
@@ -62,6 +65,8 @@ export function AlternatorScene() {
         },
       ]}
       chartVisible={true}
+      chartInitiallyCollapsed
+      playbackInitiallyCollapsed
     />
   )
 }

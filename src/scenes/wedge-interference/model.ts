@@ -5,16 +5,14 @@ export type WedgeMode = 'flat' | 'bump'
 export type WedgeParams = {
   wavelength: number
   wedgeAngle: number
-  maxThickness: number
   mode: WedgeMode
   bumpHeight: number
   bumpPosition: number
 }
 
 export const DEFAULT_PARAMS: WedgeParams = {
-  wavelength: 550,
-  wedgeAngle: 0.05,
-  maxThickness: 20,
+  wavelength: 589,
+  wedgeAngle: 0.0086,
   mode: 'flat',
   bumpHeight: 0.5,
   bumpPosition: 0.5,
@@ -24,10 +22,14 @@ export { waveLengthToHex }
 
 export const PHYSICAL_VIEW_WIDTH = 0.005
 
+export function computeMaximumThickness(wedgeAngleDeg: number): number {
+  return PHYSICAL_VIEW_WIDTH * Math.tan(wedgeAngleDeg * Math.PI / 180) * 1e6
+}
+
 export function computeFringeSpacing(lambdaNm: number, thetaDeg: number): number {
   const lambdaM = lambdaNm * 1e-9
-  const sinTheta = Math.sin(thetaDeg * Math.PI / 180)
-  return (lambdaM / (2 * sinTheta)) * 1e6
+  const tanTheta = Math.tan(thetaDeg * Math.PI / 180)
+  return (lambdaM / (2 * tanTheta)) * 1e6
 }
 
 export function computeWedgeIntensity(lambdaNm: number, thicknessUm: number): number {
@@ -37,7 +39,7 @@ export function computeWedgeIntensity(lambdaNm: number, thicknessUm: number): nu
 }
 
 export function computeFringeCount(params: WedgeParams): number {
-  const maxD = PHYSICAL_VIEW_WIDTH * Math.tan(params.wedgeAngle * Math.PI / 180) * 1e6
+  const maxD = computeMaximumThickness(params.wedgeAngle)
   const lambdaUm = params.wavelength * 1e-3
   return Math.floor(2 * maxD / lambdaUm)
 }

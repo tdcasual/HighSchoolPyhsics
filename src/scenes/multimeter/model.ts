@@ -23,8 +23,11 @@ export function voltAmmeter(input: { Rx: number; RA: number; RV: number; E: numb
   const parallel = Rx * RV / (Rx + RV)
   const externalCurrent = E / (Rs + RA + parallel)
   const externalVoltage = externalCurrent * parallel
-  const internalCurrent = E / (Rs + RA + Rx)
-  const internalVoltage = internalCurrent * (RA + Rx)
+  const internalBranch = RA + Rx
+  const internalParallel = internalBranch * RV / (internalBranch + RV)
+  const internalSourceCurrent = E / (Rs + internalParallel)
+  const internalVoltage = internalSourceCurrent * internalParallel
+  const internalCurrent = internalVoltage / internalBranch
   const external = { U: externalVoltage, I: externalCurrent, R: externalVoltage / externalCurrent, error: 0 }
   const internal = { U: internalVoltage, I: internalCurrent, R: internalVoltage / internalCurrent, error: 0 }
   external.error = (external.R - Rx) / Rx
@@ -88,8 +91,8 @@ export const RANGES: RangeSpec[] = [
   { key: 'V2.5', kind: 'V', full: 2.5, scale: 250, label: '直流 2.5 V' },
   { key: 'V10', kind: 'V', full: 10, scale: 10, label: '直流 10 V' },
   { key: 'V50', kind: 'V', full: 50, scale: 50, label: '直流 50 V' },
-  { key: 'mA10', kind: 'mA', full: 0.01, scale: 10, label: '直流 10 mA', resistance: 25 },
-  { key: 'mA100', kind: 'mA', full: 0.1, scale: 10, label: '直流 100 mA', resistance: 2.5 },
+  { key: 'mA10', kind: 'mA', full: 0.01, scale: 10, label: '直流 10 mA', resistance: 3 },
+  { key: 'mA100', kind: 'mA', full: 0.1, scale: 10, label: '直流 100 mA', resistance: 0.3 },
   { key: 'R1', kind: 'ohm', mult: 1, label: '欧姆 ×1' },
   { key: 'R10', kind: 'ohm', mult: 10, label: '欧姆 ×10' },
   { key: 'R100', kind: 'ohm', mult: 100, label: '欧姆 ×100' },
@@ -148,6 +151,7 @@ export type MeasureInput = {
 export type MeasureResult = {
   fraction: number
   truth: number | null
+  indicated: number | null
   unit: string
   warning: string
   damage: boolean
@@ -157,7 +161,7 @@ export function measure(input: MeasureInput): MeasureResult {
   const range = RANGE[input.range]
   const sign = input.swapped ? -1 : 1
   const zeroFactor = input.ohmZero ?? 1
-  const result: MeasureResult = { fraction: input.mechanical ?? 0, truth: null, unit: '', warning: '', damage: false }
+  const result: MeasureResult = { fraction: input.mechanical ?? 0, truth: null, indicated: null, unit: '', warning: '', damage: false }
   if (range.kind === 'off') {
     result.warning = '选择开关在 OFF 挡，电表不工作。'
     return result
@@ -220,6 +224,17 @@ export function measure(input: MeasureInput): MeasureResult {
     result.unit = 'Ω'
   } else if (input.target === 'diode') {
     result.warning = '判断二极管的极性要用欧姆挡。'
+  }
+  if (result.unit === 'V' && range.kind === 'V' && range.full) {
+    result.indicated = result.fraction * range.full
+  } else if (result.unit === 'mA' && range.kind === 'mA' && range.full) {
+    result.indicated = result.fraction * range.full * 1000
+  } else if (result.unit === 'Ω' && range.kind === 'ohm' && range.mult) {
+    if (result.fraction < 0 || result.fraction > 1) {
+      result.warning ||= '指针越过欧姆刻度端点；请先机械调零，再短接表笔调零。'
+    } else {
+      result.indicated = ohmFromFraction(result.fraction, range.mult)
+    }
   }
   return result
 }

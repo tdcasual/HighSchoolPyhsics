@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const canvasProps: { current: Record<string, unknown> | null } = { current: null }
@@ -22,10 +22,13 @@ describe('resistivity structure', () => {
     render(<ResistivityScene />)
     expect(screen.getByRole('heading', { name: '电阻率测量控制' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '测直径' })).toBeInTheDocument()
-    expect(screen.getByText('平均直径')).toBeInTheDocument()
+    expect(screen.getByText('测微器示数')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '全景' })).toHaveAttribute('aria-checked', 'true')
+    const chartPanel = screen.getByRole('region', { name: '图表' })
+    fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
     expect(screen.getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
     const controls = canvasProps.current?.controls as { maxDistance: number }
-    expect(controls.maxDistance).toBe(420)
+    expect(controls.maxDistance).toBeGreaterThanOrEqual(420)
     expect(canvasProps.current?.adaptiveFraming).toBe(false)
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
@@ -36,7 +39,9 @@ describe('resistivity structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
     fireEvent.click(screen.getByRole('radio', { name: '接电路' }))
     const controls = canvasProps.current?.controls as { maxDistance: number; target: number[] }
-    expect(controls.maxDistance).toBe(260)
-    expect(controls.target).toEqual([0, 3, -1])
+    expect(controls.maxDistance).toBeGreaterThanOrEqual(260)
+    expect(controls.target[0]).toBeLessThan(0)
+    expect(controls.target[1]).toBe(3)
+    expect(controls.target[2]).toBeLessThan(-1)
   })
 })

@@ -10,7 +10,7 @@ describe('cyclotron structure', () => {
     const includeAcceleration = await screen.findByRole('radio', { name: '考虑加速时间' })
 
     expect(await screen.findByText('U-t 曲线')).toBeInTheDocument()
-    expect(await screen.findByText('Ek-t 曲线')).toBeInTheDocument()
+    expect(await screen.findByText('Ek-t 曲线（理论）')).toBeInTheDocument()
     expect(ignoreAcceleration).toBeInTheDocument()
     expect(includeAcceleration).toBeInTheDocument()
     expect(ignoreAcceleration).toHaveAttribute('aria-checked', 'false')

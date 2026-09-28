@@ -12,6 +12,7 @@ type Status = {
 
 type ParticleSimulation = Status & {
   state: ParticleState
+  elapsedTimeS: number
   reset: () => void
   toggleRunning: () => void
 }
@@ -20,6 +21,8 @@ type Options = {
   initialState: ParticleState
   dt: number
   computeAcceleration: (state: ParticleState) => Vector3Like
+  computeAccelerationAtTime?: (state: ParticleState, timeS: number, dt: number) => Vector3Like
+  shouldStop?: (state: ParticleState) => boolean
   runningByDefault?: boolean
   autoResetOnInitialStateChange?: boolean
 }
@@ -40,8 +43,11 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
   } = options
   const initialStateRef = useRef(cloneState(options.initialState))
   const accelerationRef = useRef(computeAcceleration)
+  const accelerationAtTimeRef = useRef(options.computeAccelerationAtTime)
+  const shouldStopRef = useRef(options.shouldStop)
 
   const [state, setState] = useState<ParticleState>(() => cloneState(initialStateRef.current))
+  const [elapsedTimeS, setElapsedTimeS] = useState(0)
   const [status, setStatus] = useState<Status>({
     mode: 'worker',
     error: null,
@@ -50,10 +56,16 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
 
   const stepperRef = useRef<SimulationStepper | null>(null)
   const stateRef = useRef(state)
+  const elapsedTimeRef = useRef(0)
 
   useEffect(() => {
     accelerationRef.current = computeAcceleration
   }, [computeAcceleration])
+
+  useEffect(() => {
+    accelerationAtTimeRef.current = options.computeAccelerationAtTime
+    shouldStopRef.current = options.shouldStop
+  }, [options.computeAccelerationAtTime, options.shouldStop])
 
   useEffect(() => {
     const fresh = cloneState(options.initialState)
@@ -61,7 +73,9 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
 
     if (autoResetOnInitialStateChange) {
       stateRef.current = fresh
+      elapsedTimeRef.current = 0
       setState(fresh)
+      setElapsedTimeS(0)
       setStatus((prev) => ({ ...prev, error: null }))
     }
   }, [autoResetOnInitialStateChange, options.initialState])
@@ -112,21 +126,31 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
       const current = stateRef.current
 
       try {
+        const acceleration = accelerationAtTimeRef.current
+          ? accelerationAtTimeRef.current(current, elapsedTimeRef.current, dt)
+          : accelerationRef.current(current)
         const next = await stepperRef.current.step({
           state: current,
-          acceleration: accelerationRef.current(current),
+          acceleration,
           dt,
         })
         if (cancelled) {
           return
         }
+        elapsedTimeRef.current += dt
         frameCount++
-        if (frameCount % 2 === 0) {
+        const shouldStop = shouldStopRef.current?.(next) ?? false
+        if (frameCount % 2 === 0 || shouldStop) {
           setState(next)
+          setElapsedTimeS(elapsedTimeRef.current)
         } else {
           stateRef.current = next
         }
         setStatus((prev) => ({ ...prev, error: null }))
+        if (shouldStop) {
+          setStatus((prev) => ({ ...prev, running: false, error: null }))
+          return
+        }
       } catch (error) {
         if (cancelled) {
           return
@@ -152,7 +176,9 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
   const reset = useCallback(() => {
     const fresh = cloneState(initialStateRef.current)
     stateRef.current = fresh
+    elapsedTimeRef.current = 0
     setState(fresh)
+    setElapsedTimeS(0)
     setStatus((prev) => ({ ...prev, error: null, running: false }))
   }, [])
 
@@ -163,12 +189,13 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
   return useMemo(
     () => ({
       state,
+      elapsedTimeS,
       mode: status.mode,
       error: status.error,
       running: status.running,
       reset,
       toggleRunning,
     }),
-    [reset, state, status, toggleRunning],
+    [elapsedTimeS, reset, state, status, toggleRunning],
   )
 }

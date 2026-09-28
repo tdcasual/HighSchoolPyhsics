@@ -193,10 +193,10 @@
     "label": "磁流体发电机",
     "meta": {
       "tag": "能量转换",
-      "summary": "等离子体通道中的感应电势演示",
+      "summary": "用动生电动势、等效内阻与可调负载演示 MHD 发电",
       "highlights": [
-        "磁场/流速/导电率联动",
-        "端电压实时读数"
+        "B、v、σ 与负载电阻联动",
+        "端电压、电流、功率实时读数"
       ],
       "tone": "mhd"
     },
@@ -273,8 +273,8 @@
     "pageId": "potential-energy",
     "label": "电势图生成",
     "meta": {
-      "tag": "静电势能",
-      "summary": "从 U(r) 切片旋转生成三维电势面",
+      "tag": "电势函数",
+      "summary": "从单点电荷 φ(r) 切片旋转生成轴对称函数图像",
       "highlights": [
         "单点电荷正负切换",
         "切片到曲面的构建过程"
@@ -298,7 +298,7 @@
   },
   {
     "pageId": "electrostatic-lab",
-    "label": "3D等势面",
+    "label": "电势地形与电场线",
     "meta": {
       "tag": "静电场",
       "summary": "多电荷等势地形与电场线联动演示",
@@ -319,7 +319,7 @@
       }
     },
     "playwright": {
-      "readyText": "3D等势面实验台控制",
+      "readyText": "电势地形与电场线",
       "screenshotName": "electrostatic-lab"
     }
   },
@@ -328,7 +328,7 @@
     "label": "感应电流方向",
     "meta": {
       "tag": "电磁感应",
-      "summary": "磁铁穿过线圈引发电流表偏转",
+      "summary": "磁铁移入或移出线圈，感应电流与电表偏转联动",
       "highlights": [
         "磁极方向与运动方向双因素联动",
         "实验记录表逐条累积便于课堂归纳"
@@ -382,10 +382,10 @@
     "label": "电磁驱动",
     "meta": {
       "tag": "电磁感应",
-      "summary": "旋转磁铁驱动铝框异步跟随",
+      "summary": "旋转 U 形磁铁改变铝框磁通量，涡流带动铝框并留下转差",
       "highlights": [
-        "木质实验架与转动磁铁 3D 复刻",
-        "实时转速对比曲线保留原页节奏"
+        "磁铁 N/S 极和铝框转速状态同步展示",
+        "青色高亮示意感应涡流随转差变化"
       ],
       "tone": "mhd"
     },
@@ -540,33 +540,6 @@
     }
   },
   {
-    "pageId": "dynamic-circle",
-    "label": "动态圆·三法破临界",
-    "meta": {
-      "tag": "磁场边界问题",
-      "summary": "带电粒子在有界匀强磁场中的放缩圆、旋转圆、平移圆与临界边界",
-      "highlights": [
-        "四种动态圆方法与直线、三角形、圆形边界切换",
-        "轨道半径、回旋周期、偏转角和临界状态实时联动"
-      ],
-      "tone": "cyclotron"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "动态圆 · 三法破临界",
-      "screenshotName": "dynamic-circle"
-    }
-  },
-  {
     "pageId": "cyclotron-core",
     "label": "回旋加速器核心结构与原理",
     "meta": {
@@ -598,10 +571,10 @@
     "label": "简谐横波传播状态模型",
     "meta": {
       "tag": "波动传播",
-      "summary": "简谐横波传播与介质质点振动状态的时空模型",
+      "summary": "机械横波波前传播、质点延迟起振与瞬时运动状态的时空模型",
       "highlights": [
-        "波形传播方向与质点竖直振动同步观察",
-        "微平移虚线、速度方向和回复力方向可独立显示"
+        "有限波前到达位置与可选追踪质点的起振时刻同步",
+        "波源起振方向、介质波速、位移图像和质点运动方向联动"
       ],
       "tone": "scope"
     },
@@ -625,10 +598,10 @@
     "label": "电磁波空间正交传播模型",
     "meta": {
       "tag": "电磁波传播",
-      "summary": "电场、磁场与传播方向的三维正交模型及二维点叉投影",
+      "summary": "可切换正交相机视角，观察 E、B 与传播方向的三维正交关系及二维点叉投影",
       "highlights": [
-        "3D、XY、XZ、YZ 四种视角一键切换",
-        "波长、速度和场强改变时公式、波形与投影同步更新"
+        "3D、XY、XZ、YZ 四种相机视角一键切换",
+        "波长、速度和归一化场强改变时公式、波形与投影同步更新；标明 SI 关系 E₀=cB₀"
       ],
       "tone": "oersted"
     },
@@ -645,87 +618,6 @@
     "playwright": {
       "readyText": "正交电磁波模型",
       "screenshotName": "orthogonal-em-wave"
-    }
-  },
-  {
-    "pageId": "train-turning",
-    "label": "火车转弯受力分析模型",
-    "meta": {
-      "tag": "圆周运动",
-      "summary": "倾斜轨道列车受力、向心力来源与临界安全速度模型",
-      "highlights": [
-        "受力剖面、矢量平移合成和俯视轨迹同步观察",
-        "速度、倾角、半径改变时 v₀ 与侧向力实时联动"
-      ],
-      "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "火车转弯受力分析模型",
-      "screenshotName": "train-turning"
-    }
-  },
-  {
-    "pageId": "faraday-disc",
-    "label": "法拉第圆盘发电机原理",
-    "meta": {
-      "tag": "电磁感应",
-      "summary": "转动铜盘切割磁感线、动生电动势与外电路能量守恒",
-      "highlights": [
-        "圆盘、中心/边缘电刷、磁场和外电路结构同步展示",
-        "B、ω、R、电阻和开关改变时 E、I、P、M 实时联动"
-      ],
-      "tone": "mhd"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "法拉第圆盘发电机实验装置",
-      "screenshotName": "faraday-disc"
-    }
-  },
-  {
-    "pageId": "mechanical-wave-graphs",
-    "label": "机械波的形成与图像演示",
-    "meta": {
-      "tag": "机械波",
-      "summary": "机械波 y-x 空间波形与选中质点 y-t 振动图像的联动模型",
-      "highlights": [
-        "空间波形抓拍与固定质点振动历程同步显示",
-        "振幅、波长、周期和探针位置改变时波速与图像实时更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "机械波的形成与图像演示",
-      "screenshotName": "mechanical-wave-graphs"
     }
   },
   {
@@ -756,33 +648,6 @@
     }
   },
   {
-    "pageId": "centripetal-factors",
-    "label": "向心力影响因素探究实验",
-    "meta": {
-      "tag": "圆周运动",
-      "summary": "控制质量、半径与角速度，观察向心力测量与塔轮传动",
-      "highlights": [
-        "弹簧测力标尺、塔轮皮带和圆周受力矢量三维联动",
-        "质量、半径、角速度及传动比切换时公式与关系图同步更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "向心力演示仪",
-      "screenshotName": "centripetal-factors"
-    }
-  },
-  {
     "pageId": "equipotential-dipole",
     "label": "等量异种电荷电场线与等势面模型",
     "meta": {
@@ -807,87 +672,6 @@
     "playwright": {
       "readyText": "等量异种电荷模型",
       "screenshotName": "equipotential-dipole"
-    }
-  },
-  {
-    "pageId": "force-parallelogram",
-    "label": "验证力的平行四边形定则",
-    "meta": {
-      "tag": "力的合成",
-      "summary": "双力拉伸、平行四边形作图和等效单力实验验证",
-      "highlights": [
-        "结点 O、F₁/F₂ 分力、理论合力 F 与实测 F′ 同屏呈现",
-        "绘制—合成—对比三步实验流程与误差读数、角度关系图联动"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "验证力的平行四边形定则",
-      "screenshotName": "force-parallelogram"
-    }
-  },
-  {
-    "pageId": "binary-stars",
-    "label": "双星系统运动轨道-万有引力定律与航天",
-    "meta": {
-      "tag": "万有引力",
-      "summary": "双星绕质心同周期运动及质量—轨道半径反比关系",
-      "highlights": [
-        "两颗星、质心 O、连杆距离 L、轨道和速度/引力矢量动态联动",
-        "质量与星际距离调节时 r₁、r₂、ω、万有引力和关系图同步更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "双星系统动力学",
-      "screenshotName": "binary-stars"
-    }
-  },
-  {
-    "pageId": "same-charge",
-    "label": "等量同种电荷电场与等势面",
-    "meta": {
-      "tag": "静电场",
-      "summary": "等量同种电荷的电场线、等势面和中垂线对称性",
-      "highlights": [
-        "两颗同号电荷、电场线发散与等势面拓扑同屏呈现",
-        "电荷间距、极性和探针坐标改变时 E₁、E₂、合场强与电势实时更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "等量同种电荷场",
-      "screenshotName": "same-charge"
     }
   },
   {

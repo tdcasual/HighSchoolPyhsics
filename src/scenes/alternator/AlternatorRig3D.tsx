@@ -11,6 +11,8 @@ export const ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD = Math.PI / 2
 type AlternatorRig3DProps = {
   angleRad: number
   meterNeedleAngleRad: number
+  currentA: number
+  isMeterOverRange: boolean
   theme: ThemeMode
 }
 
@@ -30,6 +32,8 @@ function AxisLine({ color }: { color: string }) {
 export function AlternatorRig3D({
   angleRad,
   meterNeedleAngleRad,
+  currentA,
+  isMeterOverRange,
   theme,
 }: AlternatorRig3DProps) {
   const palette = getAlternatorPalette(theme)
@@ -49,9 +53,9 @@ export function AlternatorRig3D({
       <ArcMagnet polarity="N" position={[0, 0, -2.5]} color={palette.magnetNorth} labelColor={palette.label} />
       <ArcMagnet polarity="S" position={[0, 0, -2.5]} color={palette.magnetSouth} labelColor={palette.label} />
       <FieldArrows color={palette.field} />
-      <RotorAssembly angleRad={angleRad + ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD} palette={palette} />
+      <RotorAssembly angleRad={angleRad + ALTERNATOR_DISPLAY_ROTATION_OFFSET_RAD} currentA={currentA} palette={palette} />
       <Brushes color={palette.brush} />
-      <ExternalCircuit meterNeedleAngleRad={meterNeedleAngleRad} palette={palette} />
+      <ExternalCircuit meterNeedleAngleRad={meterNeedleAngleRad} isOverRange={isMeterOverRange} palette={palette} />
       <AxisLine color={palette.axis} />
     </group>
   )

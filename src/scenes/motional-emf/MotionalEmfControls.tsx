@@ -1,6 +1,7 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
+import { SceneActions } from '../../ui/controls/SceneActions'
 import {
   DISCUSSION_MODE_LABELS,
   MAGNETIC_FIELD_DIRECTION_LABELS,
@@ -35,6 +36,9 @@ type MotionalEmfControlsProps = {
   onRodVelocityAngleChange: (value: RodVelocityAnglePreset) => void
   motionDirection: MotionDirectionPreset
   onMotionDirectionChange: (value: MotionDirectionPreset) => void
+  isRunning: boolean
+  onToggleRunning: () => void
+  onReset: () => void
 }
 
 const MAGNETIC_FIELD_DIRECTIONS: MagneticFieldDirection[] = ['up', 'down']
@@ -60,10 +64,40 @@ export function MotionalEmfControls({
   onRodVelocityAngleChange,
   motionDirection,
   onMotionDirectionChange,
+  isRunning,
+  onToggleRunning,
+  onReset,
 }: MotionalEmfControlsProps) {
   return (
     <div className="grid gap-[0.8rem]">
       <h2>切割磁感线实验控制</h2>
+      <div className="grid gap-[0.35rem] text-[var(--control-ink)] text-[0.84rem]" aria-label="颜色图例">
+        <span className="flex items-center gap-[0.45rem]">
+          <i className="h-[0.7rem] w-[0.7rem] rounded-full" style={{ backgroundColor: '#62b0ff' }} aria-hidden="true" />
+          蓝色：磁场 B（均匀场示意）
+        </span>
+        <span className="flex items-center gap-[0.45rem]">
+          <i className="h-[0.7rem] w-[0.7rem] rounded-full" style={{ backgroundColor: '#ff9a3c' }} aria-hidden="true" />
+          橙色：设定速度 v 的方向（箭头长度随速度变化）
+        </span>
+        <span className="flex items-center gap-[0.45rem]">
+          <i className="h-[0.7rem] w-[0.7rem] rounded-full" style={{ backgroundColor: '#7bcf82' }} aria-hidden="true" />
+          绿色：杆内正电荷受力方向（电流方向示意）
+        </span>
+      </div>
+      <p className="m-0 text-[var(--control-ink-muted)] text-[0.82rem] leading-[1.35]">
+        符号约定 U_AB = V_A−V_B，U_AB = (B×v)·L；测量导线为理想示意，只计算导体棒上的动生电动势。静止或暂停时 U_AB 为 0。
+      </p>
+
+      <ControlSection title="运动控制">
+        <SceneActions
+          layout="grid-2"
+          actions={[
+            { key: 'toggle-running', label: isRunning ? '暂停' : '播放', onClick: onToggleRunning },
+            { key: 'reset', label: '重置', onClick: onReset },
+          ]}
+        />
+      </ControlSection>
 
       <ControlSection title="讨论模式">
         <SegmentedControl

@@ -1,6 +1,6 @@
 import { semiImplicitEulerStep } from '../../core/integrators/semiImplicitEuler'
 import type { ParticleState } from '../../core/types'
-import { computeCyclotronAcceleration } from './runtime'
+import { computeCyclotronStepAcceleration } from './runtime'
 
 export type CyclotronConfig = {
   chargeC: number
@@ -43,10 +43,19 @@ export function stepCyclotronState(
   state: ParticleState,
   config: CyclotronConfig,
   dt: number,
+  timeS = 0,
 ): ParticleState {
-  const acceleration = computeCyclotronAcceleration(state, config)
+  const acceleration = computeCyclotronStepAcceleration(state, config, timeS, dt)
 
   return semiImplicitEulerStep(state, acceleration, dt)
+}
+
+export function deriveCyclotronMaximumKineticEnergyJ(
+  config: CyclotronConfig,
+  deeRadiusM: number,
+): number {
+  const maximumMomentum = Math.abs(config.chargeC * config.magneticFieldT) * Math.max(0, deeRadiusM)
+  return (maximumMomentum * maximumMomentum) / (2 * config.massKg)
 }
 
 export function deriveCyclotronReadings(

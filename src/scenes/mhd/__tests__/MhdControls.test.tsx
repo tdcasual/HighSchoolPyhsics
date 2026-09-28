@@ -16,12 +16,15 @@ describe('MhdControls', () => {
         onElectrodeGapChange={() => undefined}
         conductivitySPerM={14}
         onConductivityChange={() => undefined}
+        loadResistanceOhm={0.3}
+        onLoadResistanceChange={() => undefined}
       />,
     )
 
     expect(screen.getByRole('heading', { name: '磁流体发电机控制' })).toBeInTheDocument()
     expect(screen.getByLabelText('磁场 B')).toHaveValue('1.4')
     expect(screen.getByLabelText('等离子体速度 v')).toHaveValue('1800')
+    expect(screen.getByLabelText('负载电阻 R_L')).toHaveValue('0.3')
   })
 
   it('emits callbacks for slider changes', () => {
@@ -40,6 +43,8 @@ describe('MhdControls', () => {
         onElectrodeGapChange={() => undefined}
         conductivitySPerM={12}
         onConductivityChange={() => undefined}
+        loadResistanceOhm={0.3}
+        onLoadResistanceChange={() => undefined}
       />,
     )
 

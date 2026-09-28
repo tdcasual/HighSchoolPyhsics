@@ -7,6 +7,8 @@ import {
   fastPow08,
   FILTER_PROFILES,
   formatFringeSpacing,
+  formatWhiteLightFringeRange,
+  getPatternCacheEntryCount,
   setPatternCacheMax,
   waveLengthToHex,
   waveLengthToRGB,
@@ -324,5 +326,35 @@ describe('drawInterferencePattern pixel output', () => {
     expect(data[leftIdx]).toBe(data[rightIdx])
     expect(data[leftIdx + 1]).toBe(data[rightIdx + 1])
     expect(data[leftIdx + 2]).toBe(data[rightIdx + 2])
+  })
+})
+
+
+describe('white-light measurement display and cache limit', () => {
+  it('reports the pass-band fringe range for a selected filter', () => {
+    expect(formatWhiteLightFringeRange(DEFAULT_PARAMS, 'red')).toBe('3.150–3.350 mm')
+    expect(formatWhiteLightFringeRange(DEFAULT_PARAMS, 'none')).toBe('2.000–3.500 mm')
+  })
+
+  it('enforces the configured pattern count on future cache inserts', () => {
+    const makeContext = (): CanvasRenderingContext2D => ({
+      canvas: { width: 20, height: 20 },
+      createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(20 * 20 * 4), width: 20, height: 20 })),
+      putImageData: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+      strokeStyle: '',
+      lineWidth: 0,
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D)
+
+    setPatternCacheMax(1)
+    drawWhiteLightPattern(makeContext(), DEFAULT_PARAMS, 'red', 0, 0, 100)
+    drawWhiteLightPattern(makeContext(), { ...DEFAULT_PARAMS, slitDistance: 0.3 }, 'blue', 0, 0, 100)
+    expect(getPatternCacheEntryCount()).toBe(1)
+    setPatternCacheMax(3)
   })
 })

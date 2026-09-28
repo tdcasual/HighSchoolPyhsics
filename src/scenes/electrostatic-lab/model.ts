@@ -57,12 +57,20 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
+export const ELECTROSTATIC_LAB_SOFTENING = 0.24
+export const POTENTIAL_VISUAL_LIMIT = 6.5
+export const POTENTIAL_TERRAIN_HEIGHT_SCALE = 0.62
+
 export function samplePotentialAt(
   charges: ReadonlyArray<ElectrostaticCharge>,
   point: Vector2,
   options: PotentialSampleOptions = {},
 ): number {
-  return samplePotential2D(charges, point, options)
+  return samplePotential2D(charges, point, {
+    softening: ELECTROSTATIC_LAB_SOFTENING,
+    potentialClamp: Number.POSITIVE_INFINITY,
+    ...options,
+  })
 }
 
 export function sampleElectricFieldAt(
@@ -70,12 +78,23 @@ export function sampleElectricFieldAt(
   point: Vector2,
   options: PotentialSampleOptions = {},
 ): { ex: number; ez: number; magnitude: number } {
-  return sampleElectricField2D(charges, point, options)
+  return sampleElectricField2D(charges, point, {
+    softening: ELECTROSTATIC_LAB_SOFTENING,
+    ...options,
+  })
 }
 
-function mapPotentialToColor(potential: number, maxAbsPotential: number): [number, number, number] {
-  const safeMax = Math.max(1e-5, maxAbsPotential)
-  const t = clamp(Math.abs(potential) / safeMax, 0, 1)
+export function mapPotentialToTerrainHeight(
+  potential: number,
+  heightScale = POTENTIAL_TERRAIN_HEIGHT_SCALE,
+  invertHeight = false,
+): number {
+  const direction = invertHeight ? -1 : 1
+  return direction * heightScale * POTENTIAL_VISUAL_LIMIT * Math.tanh(potential / POTENTIAL_VISUAL_LIMIT)
+}
+
+function mapPotentialToColor(potential: number): [number, number, number] {
+  const t = clamp(Math.abs(potential) / POTENTIAL_VISUAL_LIMIT, 0, 1)
   const neutral: [number, number, number] = [0.79, 0.82, 0.9]
   const positive: [number, number, number] = [0.97, 0.4, 0.35]
   const negative: [number, number, number] = [0.34, 0.58, 1]
@@ -104,10 +123,7 @@ function interpolateCrossing(
   if (deltaA === 0 && deltaB === 0) {
     return null
   }
-  if (deltaA * deltaB > 0) {
-    return null
-  }
-  if (aPotential === bPotential) {
+  if (deltaA * deltaB > 0 || aPotential === bPotential) {
     return null
   }
 
@@ -129,7 +145,21 @@ function buildContourSegments(
   invertHeight: boolean,
 ): ContourSegment[] {
   const segments: ContourSegment[] = []
-  const heightDirection = invertHeight ? -1 : 1
+  const segmentKeys = new Set<string>()
+  const addSegment = (level: number, from: [number, number, number], to: [number, number, number]) => {
+    if (Math.hypot(to[0] - from[0], to[2] - from[2]) < 1e-7) {
+      return
+    }
+    const pointKey = (point: [number, number, number]) =>
+      [point[0], point[1], point[2]].map((value) => value.toFixed(6)).join(',')
+    const endpoints = [pointKey(from), pointKey(to)].sort()
+    const key = level.toPrecision(10) + ':' + endpoints[0] + ':' + endpoints[1]
+    if (segmentKeys.has(key)) {
+      return
+    }
+    segmentKeys.add(key)
+    segments.push({ level, from, to })
+  }
   const indexOf = (xIndex: number, zIndex: number) => zIndex * resolution + xIndex
 
   for (let zIndex = 0; zIndex < resolution - 1; zIndex += 1) {
@@ -149,27 +179,39 @@ function buildContourSegments(
       const p01 = potentials[i01]
       const p11 = potentials[i11]
 
-      const y00 = p00 * heightScale * heightDirection
-      const y10 = p10 * heightScale * heightDirection
-      const y01 = p01 * heightScale * heightDirection
-      const y11 = p11 * heightScale * heightDirection
+      const y00 = mapPotentialToTerrainHeight(p00, heightScale, invertHeight)
+      const y10 = mapPotentialToTerrainHeight(p10, heightScale, invertHeight)
+      const y01 = mapPotentialToTerrainHeight(p01, heightScale, invertHeight)
+      const y11 = mapPotentialToTerrainHeight(p11, heightScale, invertHeight)
 
       for (const level of levels) {
-        const candidates = [
+        const edgeIntersections = [
           interpolateCrossing(level, p00, p10, x, z, y00, nextX, z, y10),
           interpolateCrossing(level, p10, p11, nextX, z, y10, nextX, nextZ, y11),
           interpolateCrossing(level, p11, p01, nextX, nextZ, y11, x, nextZ, y01),
           interpolateCrossing(level, p01, p00, x, nextZ, y01, x, z, y00),
         ].filter((point): point is [number, number, number] => point !== null)
+        const candidates = edgeIntersections.filter(
+          (point, index) =>
+            edgeIntersections.findIndex(
+              (candidate) => Math.hypot(candidate[0] - point[0], candidate[2] - point[2]) < 1e-7,
+            ) === index,
+        )
 
         if (candidates.length === 2) {
-          segments.push({ level, from: candidates[0], to: candidates[1] })
+          addSegment(level, candidates[0], candidates[1])
           continue
         }
 
         if (candidates.length === 4) {
-          segments.push({ level, from: candidates[0], to: candidates[1] })
-          segments.push({ level, from: candidates[2], to: candidates[3] })
+          const centerPotential = (p00 + p10 + p11 + p01) / 4
+          const centerMatchesP00 = (centerPotential >= level) === (p00 >= level)
+          const pairs: ReadonlyArray<readonly [number, number]> = centerMatchesP00
+            ? [[0, 1], [2, 3]]
+            : [[0, 3], [1, 2]]
+          for (const [fromIndex, toIndex] of pairs) {
+            addSegment(level, candidates[fromIndex], candidates[toIndex])
+          }
         }
       }
     }
@@ -195,8 +237,6 @@ export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): Po
   const vertexColors = new Float32Array(vertexCount * 3)
   const potentials = new Float32Array(vertexCount)
   const step = (safeBounds * 2) / (safeResolution - 1)
-  const heightDirection = invertHeight ? -1 : 1
-
   let minPotential = Number.POSITIVE_INFINITY
   let maxPotential = Number.NEGATIVE_INFINITY
 
@@ -228,8 +268,8 @@ export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): Po
       const positionOffset = index * 3
       const colorOffset = index * 3
       const potential = potentials[index]
-      const y = potential * heightScale * heightDirection
-      const [r, g, b] = mapPotentialToColor(potential, maxAbsPotential)
+      const y = mapPotentialToTerrainHeight(potential, heightScale, invertHeight)
+      const [r, g, b] = mapPotentialToColor(potential)
 
       vertexPositions[positionOffset] = x
       vertexPositions[positionOffset + 1] = y
@@ -276,6 +316,36 @@ export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): Po
   }
 }
 
+export function samplePotentialTerrainHeight(
+  terrain: PotentialTerrain,
+  bounds: number,
+  point: Vector2,
+): number {
+  const resolution = Math.round(Math.sqrt(terrain.vertexPositions.length / 3))
+  if (resolution < 2) {
+    return 0
+  }
+
+  const safeBounds = Math.max(1, bounds)
+  const step = (safeBounds * 2) / (resolution - 1)
+  const gridX = clamp((point.x + safeBounds) / step, 0, resolution - 1)
+  const gridZ = clamp((point.z + safeBounds) / step, 0, resolution - 1)
+  const xIndex = Math.min(resolution - 2, Math.floor(gridX))
+  const zIndex = Math.min(resolution - 2, Math.floor(gridZ))
+  const u = gridX - xIndex
+  const v = gridZ - zIndex
+  const yAt = (x: number, z: number) => terrain.vertexPositions[(z * resolution + x) * 3 + 1]
+  const y00 = yAt(xIndex, zIndex)
+  const y10 = yAt(xIndex + 1, zIndex)
+  const y01 = yAt(xIndex, zIndex + 1)
+  const y11 = yAt(xIndex + 1, zIndex + 1)
+
+  if (u + v <= 1) {
+    return y00 * (1 - u - v) + y10 * u + y01 * v
+  }
+  return y10 * (1 - v) + y01 * (1 - u) + y11 * (u + v - 1)
+}
+
 function createCellKey(point: Vector2, size: number): string {
   return `${Math.round(point.x / size)}:${Math.round(point.z / size)}`
 }
@@ -295,17 +365,22 @@ export function buildFieldLines(options: BuildFieldLinesOptions): Array<Array<[n
     return []
   }
 
-  const seedCharges = charges.some((charge) => charge.magnitude > 0)
-    ? charges.filter((charge) => charge.magnitude > 0)
-    : charges
+  const positiveCharges = charges.filter((charge) => charge.magnitude > 1e-6)
+  const negativeCharges = charges.filter((charge) => charge.magnitude < -1e-6)
+  const seedCharges = positiveCharges.length > 0 ? positiveCharges : negativeCharges
 
   const lines: Array<Array<[number, number, number]>> = []
   const hardBounds = Math.max(1, bounds)
-  const loopCellSize = 0.2
+  const safeStepSize = Math.max(0.02, Math.abs(stepSize))
+  const loopCellSize = Math.max(0.01, Math.min(0.1, safeStepSize * 0.35))
+
+  if (seedCharges.length === 0) {
+    return lines
+  }
 
   for (const seedCharge of seedCharges) {
-    const direction = seedCharge.magnitude >= 0 ? 1 : -1
-    const targetSign = seedCharge.magnitude >= 0 ? -1 : 1
+    const direction = seedCharge.magnitude > 0 ? 1 : -1
+    const targetSign = seedCharge.magnitude > 0 ? -1 : 1
     const lineCount = Math.max(
       6,
       Math.round(seedsPerCharge * Math.max(0.75, Math.sqrt(Math.abs(seedCharge.magnitude)) * 0.6)),
@@ -313,7 +388,7 @@ export function buildFieldLines(options: BuildFieldLinesOptions): Array<Array<[n
 
     for (let seedIndex = 0; seedIndex < lineCount; seedIndex += 1) {
       const angle = (seedIndex / lineCount) * Math.PI * 2
-      const radius = 0.34
+      const radius = 0.44
       let current: Vector2 = {
         x: seedCharge.x + Math.cos(angle) * radius,
         z: seedCharge.z + Math.sin(angle) * radius,
@@ -331,8 +406,8 @@ export function buildFieldLines(options: BuildFieldLinesOptions): Array<Array<[n
         const nx = field.ex / field.magnitude
         const nz = field.ez / field.magnitude
         const next: Vector2 = {
-          x: current.x + nx * stepSize * direction,
-          z: current.z + nz * stepSize * direction,
+          x: current.x + nx * safeStepSize * direction,
+          z: current.z + nz * safeStepSize * direction,
         }
         line.push([next.x, 0.08, next.z])
 

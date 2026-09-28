@@ -32,6 +32,13 @@
   font-weight: 800;
 }
 
+.electromagnetic-drive-chart-caption {
+  margin: -0.35rem 0 0;
+  color: var(--electromagnetic-drive-chart-axis-text);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
 .electromagnetic-drive-chart-legend {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const canvasProps: { current: Record<string, unknown> | null } = { current: null }
@@ -36,7 +36,10 @@ describe('measuring-tools structure', () => {
     expect(screen.getByRole('radio', { name: '游标卡尺' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '螺旋测微器' })).toBeInTheDocument()
     expect(screen.getByText('示数')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '游标卡尺读数放大' })).toBeInTheDocument()
+    const chartPanel = screen.getByRole('region', { name: '图表' })
+    expect(within(chartPanel).queryByRole('img', { name: '游标卡尺读数放大' })).not.toBeInTheDocument()
+    fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
+    expect(within(chartPanel).getByRole('img', { name: '游标卡尺读数放大' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '拆开' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
     expect(screen.getByTestId('measuring-tools-rig')).toBeInTheDocument()
@@ -44,10 +47,17 @@ describe('measuring-tools structure', () => {
     const camera = canvasProps.current?.camera as { fov: number; position: number[] }
     const controls = canvasProps.current?.controls as { maxDistance: number; minDistance: number; target: number[] }
     expect(canvasProps.current?.adaptiveFraming).toBe(false)
+    expect(canvasProps.current?.syncCamera).toBe(true)
     expect(camera.fov).toBe(26)
     expect(controls.minDistance).toBe(70)
-    expect(controls.maxDistance).toBe(950)
-    expect(controls.target).toEqual([95, -4, 0])
+    const radius = Math.hypot(
+      camera.position[0] - controls.target[0],
+      camera.position[1] - controls.target[1],
+      camera.position[2] - controls.target[2],
+    )
+    expect(controls.maxDistance).toBeGreaterThan(radius * 1.19)
+    expect(controls.target.every(Number.isFinite)).toBe(true)
+    expect(controls.target[0]).toBeLessThan(95)
     expect(camera.position[1]).toBeGreaterThan(40)
   })
 
@@ -55,10 +65,30 @@ describe('measuring-tools structure', () => {
     render(<MeasuringToolsScene />)
     fireEvent.click(screen.getByRole('radio', { name: '螺旋测微器' }))
 
-    expect(screen.getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
-    const controls = canvasProps.current?.controls as { maxDistance: number; minDistance: number }
+    const chartPanel = screen.getByRole('region', { name: '图表' })
+    fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
+    expect(within(chartPanel).getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
+    const camera = canvasProps.current?.camera as { position: number[] }
+    const controls = canvasProps.current?.controls as { maxDistance: number; minDistance: number; target: number[] }
+    const radius = Math.hypot(
+      camera.position[0] - controls.target[0],
+      camera.position[1] - controls.target[1],
+      camera.position[2] - controls.target[2],
+    )
     expect(controls.minDistance).toBe(40)
-    expect(controls.maxDistance).toBe(420)
+    expect(controls.maxDistance).toBeGreaterThan(radius * 1.19)
+  })
+
+  it('updates the fitted camera when the view preset changes', () => {
+    render(<MeasuringToolsScene />)
+    const initial = canvasProps.current?.camera as { position: number[] }
+    const initialPosition = [...initial.position]
+
+    fireEvent.click(screen.getByRole('radio', { name: '俯视' }))
+
+    const topView = canvasProps.current?.camera as { position: number[] }
+    expect(topView.position).not.toEqual(initialPosition)
+    expect(canvasProps.current?.syncCamera).toBe(true)
   })
 
   it('runs the frameloop while a commanded reading is easing into place', () => {

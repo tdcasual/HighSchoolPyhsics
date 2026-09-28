@@ -1,8 +1,10 @@
 import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../measuring-tools/pose'
-import { at, dots, hangingMass, hookAcceleration, type MotionInput } from './model'
+import { at, dots, hangingDrop, hangingMass, hookAcceleration, type MotionInput } from './model'
 
 export const SCENE_SCALE = 4.4
 export const CART_X0 = -2.8
+export const TIMER_X = -3.95
+export const TIMER_STRIKER_X = TIMER_X + 0.28
 export const WHEEL_RADIUS = 0.15
 export const PULLEY_X = 5.02
 export const PULLEY_RADIUS = 0.11
@@ -21,8 +23,10 @@ export const CART_CAMERA = {
 
 export type CartStage = 'observe' | 'assemble' | 'run' | 'measure' | 'graph'
 export type CartSkin = 'classic' | 'panda' | 'rocket'
+export type CartPart = 'timer' | 'cart' | 'tape' | 'power' | 'pulley'
 
 export type CartPose = {
+  trackVisible: boolean
   x: number
   v: number
   cartX: number
@@ -33,6 +37,7 @@ export type CartPose = {
   dots: Array<{ x: number; count: boolean }>
   pulleyY: number
   pulleyRotation: number
+  ropeVisible: boolean
   weightY: number
   discCount: number
   guideVisible: boolean
@@ -68,7 +73,9 @@ export function cartPose(input: {
   const marks = dots(input.time, motion)
   const assembling = input.stage === 'assemble'
   const mass = hangingMass(motion)
+  const drop = hangingDrop(motion, sample.x)
   return {
+    trackVisible: !assembling || input.assembly >= 1,
     x: sample.x,
     v: sample.v,
     cartX,
@@ -77,29 +84,48 @@ export function cartPose(input: {
     tapeLength,
     tapeX: -3.95 + tapeLength / 2,
     dots: marks.map((mark) => ({
-      x: -3.95 + (sample.x - mark.x) * SCENE_SCALE,
+      x: TIMER_STRIKER_X + (sample.x - mark.x) * SCENE_SCALE,
       count: mark.index % input.group === 0,
     })),
     pulleyY,
     pulleyRotation: -sample.x * SCENE_SCALE / PULLEY_RADIUS,
-    weightY: pulleyY - 0.3 - sample.x * SCENE_SCALE,
-    discCount: Math.max(1, Math.min(6, Math.round(mass / 0.01))),
+    ropeVisible: (!assembling || input.assembly >= 5) && input.hooks > 0,
+    weightY: pulleyY - 0.3 - drop * SCENE_SCALE,
+    discCount: Math.max(0, Math.min(6, Math.round(mass / 0.01))),
     guideVisible: Math.abs(input.dh) >= 0.0025,
-    cartVisible: !assembling || input.assembly >= 1,
-    timerVisible: !assembling || input.assembly >= 2,
-    tapeVisible: !assembling || input.assembly >= 3,
-    powerVisible: !assembling || input.assembly >= 4,
-    pulleyVisible: (!assembling || input.assembly >= 5) && mass > 0,
+    cartVisible: !assembling || input.assembly >= 2,
+    timerVisible: !assembling || input.assembly >= 3,
+    tapeVisible: !assembling || input.assembly >= 4,
+    powerVisible: !assembling || input.assembly >= 5,
+    pulleyVisible: !assembling || input.assembly >= 1,
     arrowVisible: input.stage === 'run' && input.time > 0,
     arrowLength: 0.3 + sample.v * 1.5,
   }
 }
 
-export function cartView(preset: ViewPreset): OrbitView {
-  if (preset === 'front') return { target: [0, 0.1, 0], azimuth: 0, elevation: 0.14, radius: 11.7 }
-  if (preset === 'top') return { target: [0, 0.1, 0], azimuth: 0, elevation: 1.53, radius: 11.7 }
-  if (preset === 'focus') return { target: [-2.2, 0.8, 0], azimuth: 0.45, elevation: 0.48, radius: 7.6 }
-  return { target: [0, 0.1, 0], azimuth: 0.28, elevation: 0.62, radius: 11.7 }
+export function cartView(
+  preset: ViewPreset,
+  focusPart: CartPart | null = null,
+  compact = false,
+): OrbitView {
+  const focusedViews: Record<CartPart, OrbitView> = {
+    timer: { target: [TIMER_X, 0.9, 0], azimuth: 0.35, elevation: 0.55, radius: 6.8 },
+    cart: { target: [CART_X0, 0.95, 0], azimuth: 0.4, elevation: 0.5, radius: 6.6 },
+    tape: { target: [-1.55, 0.8, 0], azimuth: 0.2, elevation: 0.65, radius: 7.6 },
+    power: { target: [-3.25, 0.25, 1.58], azimuth: 0.55, elevation: 0.5, radius: 6.8 },
+    pulley: { target: [PULLEY_X, 0.35, 0], azimuth: 0.4, elevation: 0.5, radius: 6.8 },
+  }
+  if (focusPart) {
+    const view = focusedViews[focusPart]
+    return compact ? { ...view, radius: view.radius * 1.12 } : view
+  }
+
+  let view: OrbitView
+  if (preset === 'front') view = { target: [0, 0.1, 0], azimuth: 0, elevation: 0.14, radius: 11.7 }
+  else if (preset === 'top') view = { target: [0, 0.1, 0], azimuth: 0, elevation: 1.53, radius: 11.7 }
+  else if (preset === 'focus') view = { target: [-2.2, 0.8, 0], azimuth: 0.45, elevation: 0.48, radius: 7.6 }
+  else view = { target: [0, 0.1, 0], azimuth: 0.28, elevation: 0.62, radius: 11.7 }
+  return compact ? { ...view, radius: view.radius * 1.3 } : view
 }
 
 export function cartCameraPosition(preset: ViewPreset): Vec3 {

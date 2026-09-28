@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { deriveGapWidthScene, projectParticleToScene, TRAJECTORY_Y, type Point3 } from './layout'
-import { deriveCyclotronLaunchState, deriveCyclotronReadings } from './model'
+import {
+  deriveGapWidthScene,
+  MAX_ORBIT_RADIUS_M,
+  projectParticleToScene,
+  TRAJECTORY_Y,
+  type Point3,
+} from './layout'
+import { deriveCyclotronLaunchState, deriveCyclotronMaximumKineticEnergyJ, deriveCyclotronReadings } from './model'
 import {
   buildTimeSeries,
   deriveAdaptiveWindowS,
@@ -16,7 +22,7 @@ import {
 } from './useCyclotronSimulation'
 
 const SIMULATION_DT_S = 1e-10
-const MAX_TRAIL_POINTS = 900
+const MAX_TRAIL_POINTS = 4200
 
 export type CyclotronSceneState = {
   magneticFieldT: number
@@ -33,6 +39,7 @@ export type CyclotronSceneState = {
   voltageDirectionText: string
   currentVoltageV: number
   currentEnergyJ: number
+  maximumKineticEnergyJ: number
   cyclotronPeriodS: number
   voltageSeries: TimeSample[]
   energySeries: TimeSample[]
@@ -41,15 +48,15 @@ export type CyclotronSceneState = {
   trailPoints: Point3[]
   voltagePhase: number
   particleInGap: boolean
+  particleReachedRim: boolean
   deeGapWidth: number
 }
 
 export function useCyclotronSceneState(): CyclotronSceneState {
   const [magneticFieldT, setMagneticFieldT] = useState(2.0)
-  const [electricFieldVPerM, setElectricFieldVPerM] = useState(3e4)
-  const [gapHalfWidthMm, setGapHalfWidthMm] = useState(0.06)
+  const [electricFieldVPerM, setElectricFieldVPerM] = useState(9e4)
+  const [gapHalfWidthMm, setGapHalfWidthMm] = useState(0.02)
   const [energyMode, setEnergyMode] = useState<CyclotronEnergyMode>('include-acceleration-time')
-  const [simulationTimeS, setSimulationTimeS] = useState(0)
   const [trailPoints, setTrailPoints] = useState<Point3[]>([[0, TRAJECTORY_Y, 0]])
 
   const config = useMemo(
@@ -74,11 +81,13 @@ export function useCyclotronSceneState(): CyclotronSceneState {
 
   const simulation = useCyclotronSimulation(config, SIMULATION_DT_S, launchState)
   const readings = deriveCyclotronReadings(simulation.state, config)
+  const maximumKineticEnergyJ = deriveCyclotronMaximumKineticEnergyJ(config, MAX_ORBIT_RADIUS_M)
+  const simulationTimeS = simulation.elapsedTimeS
   const gapWidthM = config.gapHalfWidthM * 2
   const cyclotronPeriodS =
     Number.isFinite(readings.periodS) && readings.periodS > 0 ? readings.periodS : 1e-8
   const adaptiveWindowS = deriveAdaptiveWindowS(cyclotronPeriodS)
-  const voltageAmplitudeV = electricFieldVPerM * gapWidthM
+  const voltageAmplitudeV = electricFieldVPerM * gapWidthM * (Math.sign(magneticFieldT) || 1)
 
   const particlePoint = useMemo(
     () => projectParticleToScene(simulation.state.position),
@@ -97,14 +106,7 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   const deltaEnergyJ = Math.abs(config.chargeC * voltageAmplitudeV)
   const crossingDurationS = gapWidthM / Math.max(1, readings.speed)
 
-  const currentEnergyJ = evaluateKineticEnergyAtTime({
-    mode: energyMode,
-    timeS: simulationTimeS,
-    periodS: cyclotronPeriodS,
-    initialEnergyJ,
-    deltaEnergyJ,
-    crossingDurationS,
-  })
+  const currentEnergyJ = readings.kineticEnergyJ
 
   const voltageSeries = buildTimeSeries({
     endTimeS: simulationTimeS,
@@ -118,14 +120,14 @@ export function useCyclotronSceneState(): CyclotronSceneState {
     windowS: adaptiveWindowS,
     samples: 260,
     evaluate: (timeS) =>
-      evaluateKineticEnergyAtTime({
+      Math.min(maximumKineticEnergyJ, evaluateKineticEnergyAtTime({
         mode: energyMode,
         timeS,
         periodS: cyclotronPeriodS,
         initialEnergyJ,
         deltaEnergyJ,
         crossingDurationS,
-      }),
+      })),
   })
 
   const voltageRange = useMemo<[number, number]>(() => {
@@ -134,10 +136,7 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   }, [voltageAmplitudeV])
 
   useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setSimulationTimeS(0)
-      setTrailPoints([launchPoint])
-    })
+    const frameId = requestAnimationFrame(() => setTrailPoints([launchPoint]))
     return () => cancelAnimationFrame(frameId)
   }, [launchPoint])
 
@@ -153,7 +152,6 @@ export function useCyclotronSceneState(): CyclotronSceneState {
 
     let frameId = 0
     const loop = () => {
-      setSimulationTimeS((time) => time + SIMULATION_DT_S)
       setTrailPoints((previous) => appendTrailPoint(previous, particlePointRef.current, MAX_TRAIL_POINTS))
       frameId = requestAnimationFrame(loop)
     }
@@ -163,9 +161,11 @@ export function useCyclotronSceneState(): CyclotronSceneState {
 
   const reset = () => {
     simulation.reset()
-    setSimulationTimeS(0)
     setTrailPoints([launchPoint])
   }
+
+  const particleReachedRim = Math.hypot(simulation.state.position.x, simulation.state.position.y) >=
+    MAX_ORBIT_RADIUS_M
 
   return {
     magneticFieldT,
@@ -182,6 +182,7 @@ export function useCyclotronSceneState(): CyclotronSceneState {
     voltageDirectionText,
     currentVoltageV,
     currentEnergyJ,
+    maximumKineticEnergyJ,
     cyclotronPeriodS,
     voltageSeries,
     energySeries,
@@ -190,6 +191,7 @@ export function useCyclotronSceneState(): CyclotronSceneState {
     trailPoints,
     voltagePhase,
     particleInGap,
+    particleReachedRim,
     deeGapWidth,
   }
 }

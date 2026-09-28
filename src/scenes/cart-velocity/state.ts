@@ -7,13 +7,14 @@ import {
   type MotionInput,
   type SpeedPoint,
 } from './model'
-import { motionOf, type CartSkin, type CartStage } from './pose'
+import { motionOf, type CartPart, type CartSkin, type CartStage } from './pose'
 
 export type CartRun = { hooks: number; v0: number; dh: number; a: number }
 
 export type CartState = {
   stage: CartStage
   view: 'home' | 'front' | 'top' | 'focus'
+  focusPart: CartPart | null
   assembly: number
   time: number
   running: boolean
@@ -25,13 +26,16 @@ export type CartState = {
   skin: CartSkin
   selected: number
   runs: CartRun[]
+  showFit: boolean
+  showSlopeTriangle: boolean
   notice: string
 }
 
 export function createCartState(): CartState {
   return {
-    stage: 'run',
+    stage: 'observe',
     view: 'home',
+    focusPart: null,
     assembly: 0,
     time: 0,
     running: false,
@@ -43,7 +47,9 @@ export function createCartState(): CartState {
     skin: 'classic',
     selected: 1,
     runs: [],
-    notice: '先接通打点计时器，再让小车运动。可用慢放和单步。',
+    showFit: true,
+    showSlopeTriangle: true,
+    notice: '装置已就绪：开始实验记录纸带，也可单步观察每个打点。',
   }
 }
 
@@ -120,8 +126,8 @@ export const ASSEMBLY_STEPS = [
 ]
 
 export function stepCart(state: CartState): CartState {
-  if (state.stage === 'assemble' && state.assembly < 5) {
-    return { ...state, notice: '先把钩码和滑轮装上，再开始运动。' }
+  if (state.stage === 'assemble') {
+    return { ...state, notice: '先完成装配，再开始运动。' }
   }
   const next = advanceCart({ ...state, running: true }, 0.02)
   return {
@@ -137,6 +143,7 @@ export function applyPreset(state: CartState, preset: 'uniform' | 'accelerated')
     ...state,
     hooks: uniform ? 0 : 3,
     v0: uniform ? 0.2 : 0.1,
+    dh: 0,
     time: 0,
     running: false,
     selected: 1,

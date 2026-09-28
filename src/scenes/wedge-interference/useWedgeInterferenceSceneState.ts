@@ -5,10 +5,12 @@ import {
   type WedgeMode,
   formatFringeSpacing,
   computeFringeCount,
+  computeMaximumThickness,
   waveLengthToHex,
 } from './model'
 
 export type WedgeInterferenceSceneState = WedgeParams & {
+  maxThickness: number
   lightColorHex: number
   fringeSpacingLabel: string
   fringeCount: number
@@ -17,7 +19,6 @@ export type WedgeInterferenceSceneState = WedgeParams & {
   isScanning: boolean
   setWavelength: (value: number) => void
   setWedgeAngle: (value: number) => void
-  setMaxThickness: (value: number) => void
   setMode: (value: WedgeMode) => void
   setBumpHeight: (value: number) => void
   setBumpPosition: (value: number) => void
@@ -36,6 +37,7 @@ export function useWedgeInterferenceSceneState(): WedgeInterferenceSceneState {
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const fringeSpacingLabel = useMemo(() => formatFringeSpacing(params), [params])
   const fringeCount = useMemo(() => computeFringeCount(params), [params])
+  const maxThickness = useMemo(() => computeMaximumThickness(params.wedgeAngle), [params.wedgeAngle])
 
   const setWavelength = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, wavelength: value }))
@@ -43,10 +45,6 @@ export function useWedgeInterferenceSceneState(): WedgeInterferenceSceneState {
 
   const setWedgeAngle = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, wedgeAngle: value }))
-  }, [])
-
-  const setMaxThickness = useCallback((value: number) => {
-    setParams((prev) => ({ ...prev, maxThickness: value }))
   }, [])
 
   const setMode = useCallback((value: WedgeMode) => {
@@ -82,6 +80,7 @@ export function useWedgeInterferenceSceneState(): WedgeInterferenceSceneState {
 
   return {
     ...params,
+    maxThickness,
     lightColorHex,
     fringeSpacingLabel,
     fringeCount,
@@ -90,7 +89,6 @@ export function useWedgeInterferenceSceneState(): WedgeInterferenceSceneState {
     isScanning,
     setWavelength,
     setWedgeAngle,
-    setMaxThickness,
     setMode,
     setBumpHeight,
     setBumpPosition,

@@ -4,7 +4,7 @@ const leftX = -1.3
 const rightX = 1.3
 const rodY = -0.45
 const rodZ = 0
-const meterCenter: Vec3 = [0, 0.55, -4.2]
+const meterCenter: Vec3 = [6.8, 0.55, -4.2]
 const meterBodySize: Vec3 = [3.1, 3.25, 0.72]
 const meterTerminalSpread = 0.84
 const meterTerminalY = meterCenter[1] - 1.42
@@ -27,8 +27,8 @@ export const MOTIONAL_EMF_LAYOUT = {
     center: [0, 0.2, 0] as Vec3,
     size: [4.2, 2.4, 4.8] as Vec3,
     lineXs: [-1.6, 0, 1.6] as number[],
-    lineZs: [-2, -1.2, -0.4, 0.4, 1.2, 2] as number[],
-    lineLengthY: 3.3,
+    lineZs: [-1.6, 0, 1.6] as number[],
+    lineLengthY: 2.4,
     lineRadius: 0.022,
     arrowHeadRadius: 0.12,
     arrowHeadLength: 0.42,

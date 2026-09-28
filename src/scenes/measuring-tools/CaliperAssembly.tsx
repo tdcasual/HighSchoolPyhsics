@@ -1,8 +1,9 @@
 import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
-import type { VernierDivisions } from './model'
+import { CALIPER_RANGE_MM, type VernierDivisions } from './model'
+import { createAxisDragHandlers } from './axisDrag'
 import { FIXED_INNER_JAW, FIXED_OUTER_JAW, MOVING_INNER_JAW, MOVING_OUTER_JAW } from './instrumentGeometry'
-import type { CaliperMeasure, CaliperPose } from './pose'
+import { CALIPER_INNER_CONTACT_Y, type CaliperMeasure, type CaliperPose, type ViewPreset } from './pose'
 import { ScaleDecal } from './ScaleDecal'
 import { MAIN_SCALE_SIZE, VERNIER_SCALE_SIZE, paintBrand, paintMainScale, paintVernier } from './scalePaint'
 
@@ -17,6 +18,10 @@ type CaliperAssemblyProps = {
   workSize: number
   showWork: boolean
   showLabels: boolean
+  viewPreset?: ViewPreset
+  locked?: boolean
+  onCaliperXChange?: (value: number) => void
+  onInstrumentDragChange?: (dragging: boolean) => void
 }
 
 function Metal({ color, metalness = 0.85, roughness = 0.27 }: { color: string; metalness?: number; roughness?: number }) {
@@ -49,7 +54,7 @@ function Box({
 function Jaw({ geometry }: { geometry: typeof FIXED_OUTER_JAW }) {
   return (
     <mesh geometry={geometry} castShadow receiveShadow>
-      <Metal color={STEEL} />
+      <Metal color={STEEL} metalness={0.18} roughness={0.62} />
     </mesh>
   )
 }
@@ -78,9 +83,9 @@ function VernierDecal({ divisions }: { divisions: VernierDivisions }) {
 function Workpiece({ measure, size }: { measure: CaliperMeasure; size: number }) {
   if (measure === 'inner') {
     return (
-      <mesh position={[size / 2, 21, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
+      <mesh position={[size / 2, CALIPER_INNER_CONTACT_Y, 0]} castShadow receiveShadow>
         <torusGeometry args={[size / 2 + 2.2, 2.2, 12, 48]} />
-        <Metal color={BRASS} metalness={0.85} roughness={0.3} />
+        <Metal color={BRASS} metalness={0.32} roughness={0.55} />
       </mesh>
     )
   }
@@ -92,12 +97,35 @@ function Workpiece({ measure, size }: { measure: CaliperMeasure; size: number })
   )
 }
 
-export function CaliperAssembly({ pose, divisions, measure, workSize, showWork, showLabels }: CaliperAssemblyProps) {
+export function CaliperAssembly({
+  pose,
+  divisions,
+  measure,
+  workSize,
+  showWork,
+  showLabels,
+  viewPreset = 'home',
+  locked = false,
+  onCaliperXChange,
+  onInstrumentDragChange,
+}: CaliperAssemblyProps) {
+  const dragHandlers = onCaliperXChange
+    ? createAxisDragHandlers({
+        value: pose.frame[0],
+        min: 0,
+        max: CALIPER_RANGE_MM,
+        locked,
+        onValueChange: onCaliperXChange,
+        onDraggingChange: onInstrumentDragChange,
+        onLockedAttempt: () => onCaliperXChange(pose.frame[0]),
+      })
+    : {}
+
   return (
     <group name="caliper-root" rotation={[0, 0, pose.rootRotationZ]} position={pose.rootPosition}>
       <mesh name="caliper-beam" position={[96.5, 8, 0]} castShadow receiveShadow>
         <boxGeometry args={[237, 16, 3.5]} />
-        <Metal color={STEEL} />
+        <Metal color={STEEL} metalness={0.08} roughness={0.72} />
         <ScaleDecal
           width={MAIN_SCALE_SIZE.width}
           height={MAIN_SCALE_SIZE.height}
@@ -110,10 +138,10 @@ export function CaliperAssembly({ pose, divisions, measure, workSize, showWork, 
       <Jaw geometry={FIXED_OUTER_JAW} />
       <Jaw geometry={FIXED_INNER_JAW} />
       <Box size={[8, 4, 1.75]} position={[-3, 18, 0.875]} color={STEEL} />
-      <group name="caliper-frame" position={pose.frame}>
-        <Box size={[62, 10, 1.25]} position={[27, 0, 2.375]} color={PLATE} metalness={0.72} roughness={0.36} />
+      <group name="caliper-frame" position={pose.frame} {...dragHandlers}>
+        <Box size={[62, 10, 1.25]} position={[27, 0, 2.375]} color={PLATE} metalness={0.18} roughness={0.64} />
         <Box size={[50, 4, 5.6]} position={[34, 18, 0.2]} color={PLATE} metalness={0.72} roughness={0.36} />
-        <Box size={[62, 25, 1.25]} position={[27, 7.5, -2.375]} color={PLATE} metalness={0.72} roughness={0.36} />
+        <Box size={[62, 25, 1.25]} position={[27, 7.5, -2.375]} color={PLATE} metalness={0.18} roughness={0.64} />
         <Box size={[58, 5, 3.5]} position={[29, -2.5, 0]} color={PLATE} metalness={0.72} roughness={0.36} />
         <Jaw geometry={MOVING_OUTER_JAW} />
         <Jaw geometry={MOVING_INNER_JAW} />
@@ -132,14 +160,27 @@ export function CaliperAssembly({ pose, divisions, measure, workSize, showWork, 
           </mesh>
         </group>
         <Box name="caliper-rod" size={[165, 1.6, 0.9]} position={[132.5, 7.8, pose.rodZ]} color={STEEL} />
-        {showLabels ? <PartLabel position={[22, -8, 4]}>游标尺</PartLabel> : null}
+        {showLabels ? <PartLabel position={viewPreset === 'focus' ? [6, -12, 4] : [8, -42, 4]}>游标尺</PartLabel> : null}
+        {showLabels && measure === 'inner' ? (
+          <PartLabel position={[0, viewPreset === 'focus' ? 29 : 50, 4]}>移动内爪</PartLabel>
+        ) : null}
+        {showLabels && measure === 'outer' && viewPreset !== 'focus' ? (
+          <PartLabel position={[24, -16, 4]}>移动外爪</PartLabel>
+        ) : null}
+        {showLabels && measure === 'depth' ? <PartLabel position={[180, 14, pose.rodZ]}>深度尺</PartLabel> : null}
       </group>
       {showWork && !pose.showDepthWork ? (
         <group name="caliper-work" position={[0, 0, pose.workZ]}>
           <Workpiece measure={measure} size={workSize} />
         </group>
       ) : null}
-      {showLabels ? <PartLabel position={[118, 20, 2]}>主尺</PartLabel> : null}
+      {showLabels ? <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [118, 20, 2]}>主尺</PartLabel> : null}
+      {showLabels && measure === 'inner' ? (
+        <PartLabel position={[0, viewPreset === 'focus' ? 29 : 39, 4]}>固定内爪</PartLabel>
+      ) : null}
+      {showLabels && measure === 'outer' && viewPreset !== 'focus' ? (
+        <PartLabel position={[-24, -16, 4]}>固定外爪</PartLabel>
+      ) : null}
     </group>
   )
 }
@@ -148,9 +189,17 @@ export function CaliperDepthWork({ pose, size, showWork }: { pose: CaliperPose; 
   if (!showWork || !pose.showDepthWork) return null
   return (
     <group name="caliper-depth-work" position={pose.depthRoot}>
-      <mesh position={[0, -size / 2, -8]} castShadow receiveShadow>
-        <boxGeometry args={[60, size, 16]} />
-        <Metal color={BRASS} metalness={0.85} roughness={0.3} />
+      <mesh name="depth-work-left-wall" position={[-18, -size / 2, -8]} castShadow receiveShadow>
+        <boxGeometry args={[24, size, 16]} />
+        <Metal color={BRASS} metalness={0.68} roughness={0.42} />
+      </mesh>
+      <mesh name="depth-work-right-wall" position={[18, -size / 2, -8]} castShadow receiveShadow>
+        <boxGeometry args={[24, size, 16]} />
+        <Metal color={BRASS} metalness={0.68} roughness={0.42} />
+      </mesh>
+      <mesh name="depth-work-bottom" position={[0, -size + 0.3, -8]} castShadow receiveShadow>
+        <boxGeometry args={[60, 0.8, 16]} />
+        <Metal color={BRASS} metalness={0.68} roughness={0.42} />
       </mesh>
     </group>
   )

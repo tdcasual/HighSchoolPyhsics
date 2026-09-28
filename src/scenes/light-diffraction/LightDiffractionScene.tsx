@@ -1,32 +1,37 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { FILTER_HEX, FILTER_LABEL, MODE_LABEL, formatWhiteLightFeatureValue } from './model'
+import { FILTER_HEX, FILTER_LABEL, GRATING_ILLUMINATED_WIDTH_MM, MODE_LABEL, formatScreenDistance, formatWhiteLightFeatureValue, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing } from './model'
 import { LightDiffractionChart } from './LightDiffractionChart'
 import { LightDiffractionControls } from './LightDiffractionControls'
 import { LightDiffractionRig3D } from './LightDiffractionRig3D'
 import { useLightDiffractionSceneState } from './useLightDiffractionSceneState'
 import './light-diffraction.css'
 
-const CAMERA = { position: [0, 15, 35] as const, fov: 45 }
-const CAMERA_CONTROLS = {
-  target: [0, 3, 0] as const,
-  minDistance: 10,
-  maxDistance: 60,
-  maxPolarAngle: Math.PI / 2 + 0.1,
+function createCamera(screenDistance: number) {
+  const tubeLength = 10 * screenDistance
+  const railStartX = -14
+  const railEndX = -2 + tubeLength + 3
+  const centerX = (railStartX + railEndX) / 2
+  const targetY = 0.8
+  const distance = Math.max(29, (railEndX - railStartX) * 1.4)
+  return {
+    camera: {
+      position: [centerX + distance * 0.9, targetY + distance * 0.25, distance * 0.35] as const,
+      fov: 32,
+    },
+    controls: {
+      target: [centerX, targetY, 0] as const,
+      minDistance: 10,
+      maxDistance: 90,
+      maxPolarAngle: Math.PI / 2 + 0.1,
+    },
+  }
 }
 
 export function LightDiffractionScene() {
   const state = useLightDiffractionSceneState()
-
-  const playbackActions = useMemo(
-    () => [
-      { key: 'toggle-light', label: state.isLightOn ? '关闭光源' : '打开光源', onClick: state.toggleLight },
-
-      { key: 'reset', label: '重置', onClick: state.reset },
-    ],
-    [state.isLightOn, state.toggleLight, state.reset],
-  )
+  const { camera, controls } = createCamera(state.screenDistance)
 
   const beamColorHex = useMemo(() => {
     if (!state.isWhiteLight) return state.lightColorHex
@@ -48,7 +53,7 @@ export function LightDiffractionScene() {
     <SceneLayout
       controls={<LightDiffractionControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack">
+        <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
           <p>
             <span>模式</span>
             <strong>{MODE_LABEL[state.mode]}</strong>
@@ -61,17 +66,46 @@ export function LightDiffractionScene() {
                 : `${Math.round(state.wavelength)} nm`}
             </strong>
           </p>
-          <p>
-            <span>{state.mode === 'diffraction-grating' ? '光栅缝宽' : state.mode === 'single-slit' ? '缝宽 a' : '孔径 D'}</span>
-            <strong>{state.apertureSize.toFixed(3)} mm</strong>
-          </p>
+          {state.mode === 'diffraction-grating' ? (
+            <>
+              <p>
+                <span>光栅常数 d</span>
+                <strong>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm</strong>
+              </p>
+              <p>
+                <span>狭缝宽 a（模型）</span>
+                <strong>{(gratingSlitWidth(state.gratingLines) * 1e6).toFixed(2)} μm</strong>
+              </p>
+              <p>
+                <span>线密度</span>
+                <strong>{state.gratingLines.toFixed(0)} 线/mm</strong>
+              </p>
+              <p>
+                <span>有效照明宽度</span>
+                <strong>{GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm（N = {gratingIlluminatedSlitCount(state.gratingLines)}）</strong>
+              </p>
+            </>
+          ) : (
+            <p>
+              <span>{state.mode === 'single-slit' ? '缝宽 a' : '孔径 D'}</span>
+              <strong>{state.apertureSize.toFixed(3)} mm</strong>
+            </p>
+          )}
           <p>
             <span>缝屏距 L</span>
-            <strong>{state.screenDistance.toFixed(2)} m</strong>
+            <strong>{formatScreenDistance(state.screenDistance)}</strong>
           </p>
           <p>
             <span>{state.featureLabel}</span>
-            <strong>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode) : state.featureValue}</strong>
+            <strong>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</strong>
+          </p>
+          {state.mode === 'circular-obstacle' && (
+            <p className="diffraction-readout-note">
+              近轴菲涅耳 / 巴比涅模型显示轴上亮斑；外圈采用理想圆盘近似。
+            </p>
+          )}
+          <p className="diffraction-readout-note">
+            3D 开口、光路与屏幕尺寸为示意；屏上颜色/亮度经过增强，定量以分析图表坐标为准。
           </p>
         </div>
       }
@@ -88,11 +122,12 @@ export function LightDiffractionScene() {
         ) : undefined
       }
       chartVisible={state.showChart}
-      playbackActions={playbackActions}
+      chartInitiallyCollapsed={false}
+      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
-          camera={CAMERA}
-          controls={CAMERA_CONTROLS}
+          camera={camera}
+          controls={controls}
           frameloop="demand"
           adaptiveFraming={false}
         >

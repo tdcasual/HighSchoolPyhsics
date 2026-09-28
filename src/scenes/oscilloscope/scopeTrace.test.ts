@@ -26,6 +26,23 @@ describe('oscilloscope phosphor trace', () => {
     expect(new Set(trace.map(([, y]) => y.toFixed(3))).size).toBeGreaterThan(30)
   })
 
+  it('clips combined full-scale X/Y signals to the same circular screen radius as the CRT', () => {
+    const trace = buildDisplayTracePoints({
+      timeCursor: 0,
+      fullScaleV: 10,
+      samples: 2,
+      windowS: 1,
+      evaluateX: () => 10,
+      evaluateY: () => 10,
+    })
+
+    expect(trace).toHaveLength(2)
+    for (const [horizontal, vertical] of trace) {
+      expect(horizontal).toBeCloseTo(Math.SQRT1_2)
+      expect(vertical).toBeCloseTo(Math.SQRT1_2)
+    }
+  })
+
   it('splits trace into segments when x performs a retrace jump', () => {
     const points: Array<[number, number]> = [
       [-0.9, 0.1],

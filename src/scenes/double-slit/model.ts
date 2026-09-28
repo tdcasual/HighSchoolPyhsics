@@ -31,9 +31,9 @@ export const FILTER_LABEL: Record<FilterColor, string> = {
 }
 
 export const FILTER_PROFILES: Record<Exclude<FilterColor, 'none'>, { center: number; halfWidth: number }> = {
-  red: { center: 620, halfWidth: 30 },
-  green: { center: 540, halfWidth: 25 },
-  blue: { center: 460, halfWidth: 25 },
+  red: { center: 650, halfWidth: 20 },
+  green: { center: 532, halfWidth: 20 },
+  blue: { center: 450, halfWidth: 20 },
 }
 
 export type DoubleSlitParams = {
@@ -50,7 +50,7 @@ export const DEFAULT_PARAMS: DoubleSlitParams = {
   slitWidth: 0.035,
 }
 
-export const PHYSICAL_VIEW_WIDTH = 0.02
+export const PHYSICAL_VIEW_WIDTH = 0.024
 
 export function waveLengthToRGB(wl: number): [number, number, number] {
   let r = 0
@@ -110,13 +110,16 @@ export function formatFringeSpacing(params: DoubleSlitParams): string {
   return spacingMm < 0.01 ? spacingMm.toExponential(2) + ' mm' : spacingMm.toFixed(3) + ' mm'
 }
 
-export function formatWhiteLightFringeRange(params: DoubleSlitParams): string {
+export function formatWhiteLightFringeRange(params: DoubleSlitParams, filterColor: FilterColor = 'none'): string {
   const d = params.slitDistance * 1e-3
   const L = params.screenDistance
-  const minMm = (L * 400e-9 / d) * 1000
-  const maxMm = (L * 700e-9 / d) * 1000
+  const profile = filterColor === 'none' ? null : FILTER_PROFILES[filterColor]
+  const minWavelength = profile ? Math.max(400, profile.center - profile.halfWidth) : 400
+  const maxWavelength = profile ? Math.min(700, profile.center + profile.halfWidth) : 700
+  const minMm = (L * minWavelength * 1e-9 / d) * 1000
+  const maxMm = (L * maxWavelength * 1e-9 / d) * 1000
   const fmt = (v: number) => v < 0.01 ? v.toExponential(2) : v.toFixed(3)
-  return `${fmt(minMm)}–${fmt(maxMm)} mm`
+  return fmt(minMm) + '–' + fmt(maxMm) + ' mm'
 }
 
 function drawEyepieceBorder(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
@@ -197,6 +200,7 @@ const PATTERN_CACHE_BUDGET = 30 * 1024 * 1024 // 30MB
 const _patternCacheBudget = PATTERN_CACHE_BUDGET
 let _patternCacheBytes = 0
 const patternCache: CachedPattern[] = []
+let patternCacheMaxEntries = 3
 
 function entryBytes(entry: CachedPattern): number {
   return entry.accR.byteLength + entry.accG.byteLength + entry.accB.byteLength
@@ -218,6 +222,13 @@ function getCachedPattern(key: string, n: number): CachedPattern | null {
 }
 
 function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array, accB: Float32Array): void {
+  if (patternCacheMaxEntries === 0) return
+  const existingIndex = patternCache.findIndex((entry) => entry.key === key)
+  if (existingIndex >= 0) {
+    const [existing] = patternCache.splice(existingIndex, 1)
+    _patternCacheBytes -= entryBytes(existing)
+  }
+
   const newEntry: CachedPattern = {
     key,
     accR: new Float32Array(accR),
@@ -225,9 +236,11 @@ function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array,
     accB: new Float32Array(accB),
   }
   const newBytes = entryBytes(newEntry)
-  // Evict oldest entries until budget allows new entry
-  while (_patternCacheBytes + newBytes > _patternCacheBudget && patternCache.length > 0) {
-    const evicted = patternCache.pop()!
+  if (newBytes > _patternCacheBudget) return
+
+  while (patternCache.length >= patternCacheMaxEntries || _patternCacheBytes + newBytes > _patternCacheBudget) {
+    const evicted = patternCache.pop()
+    if (!evicted) break
     _patternCacheBytes -= entryBytes(evicted)
   }
   patternCache.unshift(newEntry)
@@ -235,11 +248,15 @@ function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array,
 }
 
 export function setPatternCacheMax(maxEntries: number): void {
-  // Clamp cache to at most maxEntries entries (byte budget is computed from actual sizes).
-  while (patternCache.length > maxEntries) {
+  patternCacheMaxEntries = Number.isFinite(maxEntries) ? Math.max(0, Math.floor(maxEntries)) : 3
+  while (patternCache.length > patternCacheMaxEntries) {
     const evicted = patternCache.pop()!
     _patternCacheBytes -= entryBytes(evicted)
   }
+}
+
+export function getPatternCacheEntryCount(): number {
+  return patternCache.length
 }
 
 function buildPatternCacheKey(params: DoubleSlitParams, filterColor: FilterColor, doubleSlitAngle: number, singleSlitAngle: number, wavelengthStep: number, width: number, height: number): string {
@@ -551,7 +568,7 @@ export function drawWhiteLightPattern(
       const dist = Math.abs(wl - filterProfile.center)
       filterWeight = dist <= filterProfile.halfWidth
         ? 1.0 - 0.7 * (dist / filterProfile.halfWidth) ** 2
-        : 0.15
+        : 0
     }
 
     const lambda = wl * 1e-9

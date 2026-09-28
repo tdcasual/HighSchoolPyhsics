@@ -2,7 +2,8 @@ export const FREQUENCY = 50
 export const DURATION = 1.6
 export const G = 9.8
 export const CART_MASS = 0.5
-export const PULLEY_DISTANCE = 1.634
+// Horizontal distance from the cart string attachment to the pulley at t=0.
+export const PULLEY_DISTANCE = 1.65
 export const HOOK_MASS = 0.01
 export const MAX_HOOKS = 5
 
@@ -16,6 +17,13 @@ export function hookAcceleration(hooks: number): number {
 
 export function hangingMass(input: MotionInput): number {
   return input.a > 0 ? CART_MASS * input.a / (G - input.a) : 0
+}
+
+export function hangingDrop(input: MotionInput, position: number): number {
+  const initialDistance = Math.max(0.05, input.d0 || PULLEY_DISTANCE)
+  const distance = Math.max(0.05, initialDistance - Math.max(0, position))
+  const height = Math.abs(input.dh || 0)
+  return Math.hypot(initialDistance, height) - Math.hypot(distance, height)
 }
 
 export function stringAngle(input: MotionInput, position: number): number {

@@ -24,7 +24,7 @@ function collectElements(node: ReactNode): SceneElement[] {
 
 describe('electromagnetic-drive rig', () => {
   it('keeps the crank handle vertical while the crank group rotates with the magnet', () => {
-    const tree = ElectromagneticDriveRig3D({ magnetAngle: 1.25, frameAngle: 0.4 })
+    const tree = ElectromagneticDriveRig3D({ magnetAngle: 1.25, frameAngle: 0.4, magnetSpeed: 0, frameSpeed: 0 })
     const elements = collectElements(tree)
 
     const crankGroup = elements.find((element) => {

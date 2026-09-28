@@ -1,6 +1,9 @@
 import { Vector2, type Vector3Tuple } from 'three'
 
 export const POTENTIAL_SURFACE_FULL_ANGLE = Math.PI * 2
+export const POTENTIAL_FIELD_SCALE = 12
+export const POTENTIAL_DISPLAY_LIMIT = 18
+export const POTENTIAL_DISPLAY_MIN_RADIUS = POTENTIAL_FIELD_SCALE / POTENTIAL_DISPLAY_LIMIT
 
 export type PotentialSlicePoint = {
   radius: number
@@ -27,17 +30,21 @@ export function buildPotentialSlicePoints(
     maxAbsPotential?: number
   } = {},
 ): PotentialSlicePoint[] {
-  const sampleCount = Math.max(6, Math.round(options.sampleCount ?? 60))
-  const radiusStep = Math.max(0.05, options.radiusStep ?? 0.3)
-  const fieldScale = options.fieldScale ?? 12
-  const maxAbsPotential = Math.max(1, options.maxAbsPotential ?? 18)
+  const requestedSampleCount = options.sampleCount ?? 60
+  const requestedRadiusStep = options.radiusStep ?? 0.3
+  const requestedFieldScale = options.fieldScale ?? POTENTIAL_FIELD_SCALE
+  const requestedLimit = options.maxAbsPotential ?? POTENTIAL_DISPLAY_LIMIT
+  const sampleCount = Number.isFinite(requestedSampleCount) ? Math.max(6, Math.round(requestedSampleCount)) : 60
+  const radiusStep = Number.isFinite(requestedRadiusStep) ? Math.max(0.05, Math.abs(requestedRadiusStep)) : 0.3
+  const fieldScale = Number.isFinite(requestedFieldScale) ? Math.abs(requestedFieldScale) : POTENTIAL_FIELD_SCALE
+  const maxAbsPotential = Number.isFinite(requestedLimit) ? Math.max(1, Math.abs(requestedLimit)) : POTENTIAL_DISPLAY_LIMIT
+  const minimumRadius = fieldScale > 0 ? fieldScale / maxAbsPotential : 0.05
 
   const points: PotentialSlicePoint[] = []
-  for (let index = 1; index <= sampleCount; index += 1) {
-    const radius = index * radiusStep
-    const potential = chargeSign * (fieldScale / radius)
-    const clampedPotential = Math.max(-maxAbsPotential, Math.min(maxAbsPotential, potential))
-    points.push({ radius, potential: clampedPotential })
+  for (let index = 0; index < sampleCount; index += 1) {
+    const radius = minimumRadius + index * radiusStep
+    const potential = fieldScale > 0 ? chargeSign * (fieldScale / radius) : 0
+    points.push({ radius, potential })
   }
 
   return points

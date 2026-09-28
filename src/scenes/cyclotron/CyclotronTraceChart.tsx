@@ -69,6 +69,9 @@ export function CyclotronTraceChart({
   }, [fixedRange, series])
 
   const latest = series[series.length - 1]
+  const zeroAxisY = plot.yRange[0] <= 0 && plot.yRange[1] >= 0
+    ? (plot.yRange[1] / (plot.yRange[1] - plot.yRange[0])) * CHART_HEIGHT
+    : null
 
   return (
     <div className={`cyclotron-plot-card ${tone}`}>
@@ -89,7 +92,9 @@ export function CyclotronTraceChart({
               return <line key={`grid-y-${title}-${y}`} x1={0} y1={y} x2={CHART_WIDTH} y2={y} />
             })}
           </g>
-          <line className="cyclotron-plot-axis" x1={0} y1={CHART_HEIGHT / 2} x2={CHART_WIDTH} y2={CHART_HEIGHT / 2} />
+          {zeroAxisY === null ? null : (
+            <line className="cyclotron-plot-axis" x1={0} y1={zeroAxisY} x2={CHART_WIDTH} y2={zeroAxisY} />
+          )}
           <line className="cyclotron-plot-axis" x1={0} y1={0} x2={0} y2={CHART_HEIGHT} />
           {plot.polyline.length > 0 ? (
             <polyline

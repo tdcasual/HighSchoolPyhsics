@@ -10,7 +10,7 @@ describe('RotationalEmfRig3D', () => {
   it('renders only the rod apparatus in rod mode', () => {
     const { container } = render(
       <svg>
-        <RotationalEmfRig3D scenario="rod" angleRad={0} />
+        <RotationalEmfRig3D scenario="rod" angleRad={0} effectiveLengthM={1} />
       </svg>,
     )
 
@@ -21,7 +21,7 @@ describe('RotationalEmfRig3D', () => {
   it('renders only the frame apparatus in frame mode', () => {
     const { container } = render(
       <svg>
-        <RotationalEmfRig3D scenario="frame" angleRad={0} />
+        <RotationalEmfRig3D scenario="frame" angleRad={0} effectiveLengthM={1} />
       </svg>,
     )
 

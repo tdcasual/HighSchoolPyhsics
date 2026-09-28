@@ -80,6 +80,42 @@
   text-align: right;
 }
 
+.scope-telemetry p {
+  display: grid;
+  grid-template-columns: minmax(5.2rem, auto) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 0.55rem;
+}
+
+.scope-telemetry p > span {
+  color: var(--readout-ink-soft, var(--readout-ink));
+}
+
+.scope-telemetry p > strong {
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.scope-telemetry .scope-equation {
+  grid-column: 2;
+  min-width: 0;
+  color: var(--readout-ink-soft, var(--readout-ink));
+  font-size: 0.74rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.scope-telemetry .scope-overrange > strong {
+  color: #b44931;
+}
+
+@media (max-width: 767px) {
+  .mobile-data-strip .scope-telemetry .scope-equation {
+    display: none;
+  }
+}
+
 .app-shell.theme-night .scope-card {
   --scope-card-border: #4a6986;
 }

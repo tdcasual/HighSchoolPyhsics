@@ -6,12 +6,12 @@ const MAIN_M0 = -6
 const MAIN_M1 = 161
 
 export function paintMainScale(context: CanvasRenderingContext2D, _width: number, height: number) {
-  context.fillStyle = '#1d2629'
-  context.strokeStyle = '#1d2629'
+  context.fillStyle = '#172125'
+  context.strokeStyle = '#172125'
   for (let mark = 0; mark <= 150; mark += 1) {
     const x = (mark - MAIN_M0) * MAIN_PX
     const length = mark % 10 === 0 ? 5.2 : mark % 5 === 0 ? 3.7 : 2.5
-    context.lineWidth = mark % 10 === 0 ? 4 : 3
+    context.lineWidth = mark % 10 === 0 ? 5.2 : 3.8
     context.beginPath()
     context.moveTo(x, height)
     context.lineTo(x, height - length * MAIN_PX)
@@ -34,12 +34,14 @@ export function paintVernier(divisions: VernierDivisions): ScalePaint {
   const every = divisions === 20 ? 4 : 5
   return (context, _width, height) => {
     context.clearRect(0, 0, context.canvas.width, height)
-    context.strokeStyle = '#182124'
-    context.fillStyle = '#182124'
+    context.strokeStyle = '#152025'
+    context.fillStyle = '#152025'
     for (let mark = 0; mark <= divisions; mark += 1) {
       const x = (mark * spec.spacing - origin) * px
       const labeled = mark % every === 0
-      context.lineWidth = labeled ? 4.5 : 3.4
+      context.strokeStyle = mark === 0 ? '#9a4f2e' : '#152025'
+      context.fillStyle = mark === 0 ? '#9a4f2e' : '#152025'
+      context.lineWidth = mark === 0 ? 6 : labeled ? 5 : 4
       context.beginPath()
       context.moveTo(x, 0)
       context.lineTo(x, (labeled ? 3.4 : 2.2) * px)
@@ -89,24 +91,39 @@ export function paintSleeveScale(context: CanvasRenderingContext2D, width: numbe
   const phi0 = ref - 55 * Math.PI / 180
   const phi1 = ref + 55 * Math.PI / 180
   const yRef = height * (1 - (ref - phi0) / (phi1 - phi0))
+  const backing = context.createLinearGradient(0, 0, 0, height)
+  backing.addColorStop(0, '#c8d1d4')
+  backing.addColorStop(0.5, '#eef2f3')
+  backing.addColorStop(1, '#bec9cd')
+  context.fillStyle = backing
+  context.fillRect(0, 0, width, height)
+  context.strokeStyle = '#9aa7ac'
+  context.lineWidth = 2
+  context.beginPath()
+  context.moveTo(0, 3)
+  context.lineTo(width, 3)
+  context.moveTo(0, height - 3)
+  context.lineTo(width, height - 3)
+  context.stroke()
   context.strokeStyle = '#141c1f'
   context.fillStyle = '#141c1f'
-  context.lineWidth = 4
+  context.lineWidth = 7
   context.beginPath()
   context.moveTo((THIMBLE_PITCH_X - 1.2 - SLEEVE_X0) * SLEEVE_PX, yRef)
   context.lineTo(width, yRef)
   context.stroke()
   for (let mark = 0; mark <= 25; mark += 1) {
     const x = (THIMBLE_PITCH_X + mark - SLEEVE_X0) * SLEEVE_PX
-    context.lineWidth = 3.6
+    context.lineWidth = mark % 5 === 0 ? 5 : 4
     context.beginPath()
     context.moveTo(x, yRef)
-    context.lineTo(x, yRef - (mark % 5 === 0 ? 2.5 : 2.0) * SLEEVE_PX)
+    context.lineTo(x, yRef - (mark % 5 === 0 ? 2.7 : 2.0) * SLEEVE_PX)
     context.stroke()
     if (mark < 25) {
       const half = x + 0.5 * SLEEVE_PX
       context.beginPath()
       context.moveTo(half, yRef)
+      context.lineWidth = 4.2
       context.lineTo(half, yRef + 1.55 * SLEEVE_PX)
       context.stroke()
     }
@@ -133,7 +150,7 @@ export function paintThimbleScale(context: CanvasRenderingContext2D, width: numb
     const y = height * (1 - mark / 50)
     const rows = mark === 0 ? [0, height] : [y]
     for (const row of rows) {
-      context.lineWidth = 4
+      context.lineWidth = mark % 5 === 0 ? 5 : 3.8
       context.beginPath()
       context.moveTo(0, row)
       context.lineTo(width * (bevelU + (mark % 5 === 0 ? 0.1 : 0.055)), row)

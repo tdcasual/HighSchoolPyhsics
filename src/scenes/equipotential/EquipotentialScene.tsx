@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { EquipotentialControls } from './EquipotentialControls'
 import { EquipotentialRig3D } from './EquipotentialRig3D'
-import { buildEquipotentialClouds, type EquipotentialCharge } from './model'
+import { buildEquipotentialSurfaces, type EquipotentialCharge } from './model'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
 const SCENE_BOUNDS = 5
-const SOFTENING_FACTOR = 0.34
-const SOFT_POTENTIAL_LIMIT = 24
+const SOFTENING_EPSILON = 0.18
 
 function createCharge(id: string, x: number, y: number, z: number, magnitude: number): EquipotentialCharge {
   return { id, x, y, z, magnitude }
@@ -42,23 +42,14 @@ function nextChargeId(charges: ReadonlyArray<EquipotentialCharge>): string {
   return `C${maxIndex + 1}`
 }
 
-function formatDominantPolarityLabel(
-  dominantPolarity: 'positive' | 'negative' | 'balanced',
-): string {
-  if (dominantPolarity === 'positive') {
-    return '正势区更强'
-  }
-  if (dominantPolarity === 'negative') {
-    return '负势区更强'
-  }
-  return '正负势区接近平衡'
-}
-
 export function EquipotentialScene() {
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const [charges, setCharges] = useState<EquipotentialCharge[]>(() => createDipolePreset())
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
   const [shellCount, setShellCount] = useState(4)
   const [sampleResolution, setSampleResolution] = useState(20)
+  const [activePreset, setActivePreset] = useState<'dipole' | 'quadrupole' | 'custom'>('dipole')
+  const maxCharges = 12
 
   const selectedCharge = useMemo(
     () => charges.find((charge) => charge.id === selectedChargeId) ?? null,
@@ -66,36 +57,39 @@ export function EquipotentialScene() {
   )
 
   const perf = resolvePerformanceProfile()
+  const maxSampleResolution = Math.max(14, Math.min(26, Math.round(14 + 12 * Math.sqrt(perf.equipotentialMaxPointsPerSurface / 1200))))
+  const effectiveResolution = Math.min(sampleResolution, maxSampleResolution)
 
   const cloudResult = useMemo(
     () =>
-      buildEquipotentialClouds({
+      buildEquipotentialSurfaces({
         charges,
         bounds: SCENE_BOUNDS,
-        resolution: sampleResolution,
+        resolution: effectiveResolution,
         shellCount,
-        softeningFactor: SOFTENING_FACTOR,
-        softPotentialLimit: SOFT_POTENTIAL_LIMIT,
-        maxPointsPerSurface: perf.equipotentialMaxPointsPerSurface,
+        softeningEpsilon: SOFTENING_EPSILON,
       }),
-    [charges, sampleResolution, shellCount, perf.equipotentialMaxPointsPerSurface],
+    [charges, effectiveResolution, shellCount],
   )
 
   const addCharge = (magnitude: number) => {
-    setCharges((prevCharges) => {
-      const base = prevCharges.length
-      const theta = (base * Math.PI) / 4
-      const radius = 2.8
-      const newCharge = createCharge(
-        nextChargeId(prevCharges),
-        Number((Math.cos(theta) * radius).toFixed(1)),
-        0,
-        Number((Math.sin(theta) * radius).toFixed(1)),
-        magnitude,
-      )
-      setSelectedChargeId(newCharge.id)
-      return [...prevCharges, newCharge]
-    })
+    if (charges.length >= maxCharges) {
+      return
+    }
+    const id = nextChargeId(charges)
+    const chargeIndex = Number(id.slice(1)) - 1
+    const theta = ((chargeIndex % 8) * Math.PI) / 4
+    const radius = Math.min(2.8 + Math.floor(chargeIndex / 8) * 0.2, 3)
+    const newCharge = createCharge(
+      id,
+      Number((Math.cos(theta) * radius).toFixed(1)),
+      0,
+      Number((Math.sin(theta) * radius).toFixed(1)),
+      magnitude,
+    )
+    setCharges([...charges, newCharge])
+    setSelectedChargeId(newCharge.id)
+    setActivePreset('custom')
   }
 
   const updateSelectedCharge = (
@@ -105,8 +99,8 @@ export function EquipotentialScene() {
       return
     }
 
-    setCharges((prevCharges) =>
-      prevCharges.map((charge) =>
+    setCharges(
+      charges.map((charge) =>
         charge.id === selectedChargeId
           ? {
               ...charge,
@@ -115,6 +109,7 @@ export function EquipotentialScene() {
           : charge,
       ),
     )
+    setActivePreset('custom')
   }
 
   const deleteSelectedCharge = () => {
@@ -122,20 +117,18 @@ export function EquipotentialScene() {
       return
     }
 
-    setCharges((prevCharges) => {
-      const nextCharges = prevCharges.filter((charge) => charge.id !== selectedChargeId)
-      setSelectedChargeId(nextCharges[0]?.id ?? null)
-      return nextCharges
-    })
+    const nextCharges = charges.filter((charge) => charge.id !== selectedChargeId)
+    setCharges(nextCharges)
+    setSelectedChargeId(nextCharges[0]?.id ?? null)
+    setActivePreset('custom')
   }
 
   const applyPreset = (presetName: 'dipole' | 'quadrupole') => {
     const nextCharges = presetName === 'quadrupole' ? createQuadrupolePreset() : createDipolePreset()
     setCharges(nextCharges)
     setSelectedChargeId(nextCharges[0]?.id ?? null)
+    setActivePreset(presetName)
   }
-
-  const coreDominantLabel = formatDominantPolarityLabel(cloudResult.stats.dominantPolarity)
 
   return (
     <SceneLayout
@@ -143,6 +136,9 @@ export function EquipotentialScene() {
         <EquipotentialControls
           charges={charges}
           selectedChargeId={selectedChargeId}
+          activePreset={activePreset}
+          maxCharges={maxCharges}
+          onSelectCustom={() => setActivePreset('custom')}
           onSelectCharge={(chargeId) => setSelectedChargeId(chargeId)}
           selectedCharge={selectedCharge}
           onUpdateSelectedCharge={updateSelectedCharge}
@@ -153,29 +149,35 @@ export function EquipotentialScene() {
           onApplyQuadrupolePreset={() => applyPreset('quadrupole')}
           shellCount={shellCount}
           onShellCountChange={setShellCount}
-          sampleResolution={sampleResolution}
+          sampleResolution={effectiveResolution}
+          sampleResolutionMax={maxSampleResolution}
           onSampleResolutionChange={setSampleResolution}
           stats={cloudResult.stats}
+          positiveIsoValues={cloudResult.positiveSurfaces.map((surface) => surface.isoValue)}
+          negativeIsoValues={cloudResult.negativeSurfaces.map((surface) => surface.isoValue)}
         />
       }
+      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            电荷数: {charges.length}（+{cloudResult.stats.positiveChargeCount} / -
+            电荷数: {charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / -
             {cloudResult.stats.negativeChargeCount}）
           </p>
           <p>
-            势场范围: {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
+            网格相对电势范围: {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
           </p>
           <p>
-            等势采样: 正 {cloudResult.stats.positivePointCount} 点 · 负 {cloudResult.stats.negativePointCount} 点
+            正势层值: {cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无'}
           </p>
-          <p>主导势区: {coreDominantLabel}</p>
+          <p>
+            负势层值: {cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无'}
+          </p>
         </div>
       }
       viewport={
         <InteractiveCanvas
-          camera={{ position: [8, 6, 8], fov: 44 }}
+          camera={{ position: isMobile ? [10, 7.5, 10] : [8, 6, 8], fov: isMobile ? 46 : 44 }}
           controls={{
             target: [0, 0, 0],
             minDistance: 4,
@@ -187,6 +189,7 @@ export function EquipotentialScene() {
           <EquipotentialRig3D
             bounds={SCENE_BOUNDS}
             charges={charges}
+            selectedChargeId={selectedChargeId}
             positiveSurfaces={cloudResult.positiveSurfaces}
             negativeSurfaces={cloudResult.negativeSurfaces}
           />

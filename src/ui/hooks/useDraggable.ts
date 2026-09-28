@@ -25,30 +25,47 @@ function resolveBounds(bounds: DragBounds | (() => DragBounds) | undefined): Dra
 
 export function useDraggable(options?: UseDraggableOptions) {
   const { initialPosition = { x: 0, y: 0 }, bounds, offsetX } = options ?? {}
+  const initialX = initialPosition.x
+  const initialY = initialPosition.y
   const [position, setPositionRaw] = useState<Position>(initialPosition)
   const [effectiveOffsetX, setEffectiveOffsetX] = useState(offsetX)
   const basePositionRef = useRef(initialPosition)
   const prevOffsetXRef = useRef(offsetX)
+  const prevInitialPositionRef = useRef(initialPosition)
+  const userMovedRef = useRef(false)
   const boundsRef = useRef(bounds)
   const draggingRef = useRef(false)
 
   useEffect(() => { boundsRef.current = bounds }, [bounds])
 
-  // Adjust base position when offsetX changes so displayed position stays stable.
-  /* eslint-disable react-hooks/set-state-in-effect -- syncs offsetX prop to state */
+  // Follow layout positions while preserving the displayed position for offset-only changes.
   useEffect(() => {
+    const previousPosition = prevInitialPositionRef.current
+    const positionChanged =
+      previousPosition.x !== initialX || previousPosition.y !== initialY
+    prevInitialPositionRef.current = { x: initialX, y: initialY }
+
+    const followsLayout = positionChanged && !userMovedRef.current && !draggingRef.current
+    if (followsLayout) {
+      const next = clampPos({ x: initialX, y: initialY }, resolveBounds(boundsRef.current))
+      basePositionRef.current = next
+      setPositionRaw(next)
+    }
+
     if (offsetX === undefined) {
       prevOffsetXRef.current = undefined
       setEffectiveOffsetX(undefined)
       return
     }
 
-    const prevOffsetX = prevOffsetXRef.current
+    const previousOffsetX = prevOffsetXRef.current
     prevOffsetXRef.current = offsetX
     setEffectiveOffsetX(offsetX)
 
-    if (prevOffsetX !== undefined && offsetX !== prevOffsetX) {
-      const dx = offsetX - prevOffsetX
+    // If the layout supplied a new base position in this render, its offset is
+    // part of that position; applying the delta again would move the panel twice.
+    if (previousOffsetX !== undefined && offsetX !== previousOffsetX && !followsLayout) {
+      const dx = offsetX - previousOffsetX
       const clamped = clampPos(
         { x: basePositionRef.current.x + dx, y: basePositionRef.current.y },
         resolveBounds(boundsRef.current),
@@ -56,8 +73,22 @@ export function useDraggable(options?: UseDraggableOptions) {
       basePositionRef.current = clamped
       setPositionRaw(clamped)
     }
-  }, [offsetX])
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }, [initialX, initialY, offsetX])
+
+  useEffect(() => {
+    const clampToViewport = () => {
+      const current = basePositionRef.current
+      const next = clampPos(current, resolveBounds(boundsRef.current))
+      if (next.x !== current.x || next.y !== current.y) {
+        basePositionRef.current = next
+        setPositionRaw(next)
+      }
+    }
+    window.addEventListener("resize", clampToViewport)
+    clampToViewport()
+    return () => window.removeEventListener("resize", clampToViewport)
+  }, [])
+
 
   const setPosition = useCallback(
     (pos: Position) => {
@@ -78,6 +109,7 @@ export function useDraggable(options?: UseDraggableOptions) {
       const startPos = { ...basePositionRef.current }
       const startPointer = { x: event.clientX, y: event.clientY }
       const onMove = (e: PointerEvent) => {
+        userMovedRef.current = true
         const dx = e.clientX - startPointer.x
         const dy = e.clientY - startPointer.y
         const resolved = resolveBounds(boundsRef.current)

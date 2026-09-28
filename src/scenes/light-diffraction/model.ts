@@ -38,10 +38,19 @@ export const FILTER_PROFILES: Record<Exclude<FilterColor, 'none'>, { center: num
   blue: { center: 460, halfWidth: 25 },
 }
 
+/** Raised-cosine pass band; wavelengths outside the filter band are blocked. */
+export function filterTransmission(wavelength: number, filterColor: FilterColor): number {
+  if (filterColor === 'none') return 1
+  const { center, halfWidth } = FILTER_PROFILES[filterColor]
+  const normalizedDistance = Math.abs(wavelength - center) / halfWidth
+  if (normalizedDistance >= 1) return 0
+  return 0.5 * (1 + Math.cos(Math.PI * normalizedDistance))
+}
+
 export const MODE_LABEL: Record<DiffractionMode, string> = {
   'single-slit': '单缝衍射',
   'circular-aperture': '圆孔衍射',
-  'circular-obstacle': '圆球衍射',
+  'circular-obstacle': '圆盘衍射（泊松亮斑）',
   'diffraction-grating': '衍射光栅',
 }
 
@@ -61,16 +70,76 @@ export const DEFAULT_PARAMS: DiffractionParams = {
 
 export const DEFAULT_MODE: DiffractionMode = 'single-slit'
 
-// Physical view width on screen (m)
-export const PHYSICAL_VIEW_WIDTH = 0.02
-const PHYSICAL_VIEW_WIDTH_GRATING = 0.5
+// Minimum physical viewport widths (m). The final view expands with the
+// selected parameters so the feature being measured stays inside the screen.
+export const PHYSICAL_VIEW_WIDTH = 0.008
+const PHYSICAL_VIEW_WIDTH_GRATING = 0.08
 
-export function getPhysicalViewWidth(mode: DiffractionMode): number {
-  return mode === 'diffraction-grating' ? PHYSICAL_VIEW_WIDTH_GRATING : PHYSICAL_VIEW_WIDTH
+export function getPhysicalViewWidth(mode: DiffractionMode, params: DiffractionParams = DEFAULT_PARAMS): number {
+  switch (mode) {
+    case 'single-slit':
+      return Math.max(PHYSICAL_VIEW_WIDTH, singleSlitCentralWidth(params) * 2.4)
+    case 'circular-aperture':
+      return Math.max(PHYSICAL_VIEW_WIDTH, airyDiskRadius(params) * 4.2)
+    case 'circular-obstacle':
+      return Math.max(PHYSICAL_VIEW_WIDTH, poissonSpotFirstDarkRadius(params) * 5)
+    case 'diffraction-grating': {
+      const firstOrder = gratingFirstOrderDisplacement(params)
+      return Math.max(PHYSICAL_VIEW_WIDTH_GRATING, Number.isFinite(firstOrder) ? firstOrder * 2.6 : PHYSICAL_VIEW_WIDTH_GRATING)
+    }
+  }
 }
 
-// Effective illuminated width on the grating (m)
-const GRATING_ILLUMINATED_WIDTH = 1.5e-3
+export const GRATING_ILLUMINATED_WIDTH_MM = 0.5
+export const MAX_FAR_FIELD_FRESNEL_NUMBER = 0.1
+
+/** Grating spacing d in meters for a line density given in lines/mm. */
+export function gratingSpacing(gratingLines: number): number {
+  return 1e-3 / gratingLines
+}
+
+/** The rendered grating model uses a slit width equal to 20% of d. */
+export function gratingSlitWidth(gratingLines: number): number {
+  return gratingSpacing(gratingLines) * 0.2
+}
+
+/** Number of slits illuminated by the fixed 0.5 mm beam. */
+export function gratingIlluminatedSlitCount(gratingLines: number): number {
+  return Math.max(1, Math.round(GRATING_ILLUMINATED_WIDTH_MM * gratingLines))
+}
+
+export function formatScreenDistance(value: number): string {
+  const roundedUp = Math.ceil((value - 1e-9) * 1000) / 1000
+  return `${Number(roundedUp.toFixed(3))} m`
+}
+
+/**
+ * Conservative screen-distance floor for the Fraunhofer model. wavelengthNm
+ * should be the shortest wavelength contributing to the pattern.
+ */
+export function getFarFieldMinimumScreenDistance(
+  mode: DiffractionMode,
+  params: DiffractionParams,
+  wavelengthNm = params.wavelength,
+): number {
+  let halfWidthM = 0
+  switch (mode) {
+    case 'single-slit':
+    case 'circular-aperture':
+      halfWidthM = params.apertureSize * 1e-3 / 2
+      break
+    case 'diffraction-grating':
+      halfWidthM = GRATING_ILLUMINATED_WIDTH_MM * 1e-3 / 2
+      break
+    case 'circular-obstacle':
+      // This mode uses a separate near-axis Poisson-spot approximation.
+      return 0
+  }
+
+  const wavelengthM = wavelengthNm * 1e-9
+  if (!(wavelengthM > 0) || !Number.isFinite(halfWidthM)) return Number.POSITIVE_INFINITY
+  return (halfWidthM * halfWidthM) / (wavelengthM * MAX_FAR_FIELD_FRESNEL_NUMBER)
+}
 
 // ====== Wavelength utilities (shared with double-slit) ======
 
@@ -119,7 +188,23 @@ export function waveLengthToHex(wl: number): number {
   return (r << 16) | (g << 8) | b
 }
 
-// ====== Bessel J1 approximation ======
+// ====== Bessel approximations ======
+
+function besselJ0(x: number): number {
+  const ax = Math.abs(x)
+  if (ax < 8) {
+    const y = x * x
+    const numerator = 57568490574.0 + y * (-13362590354.0 + y * (651619640.7 + y * (-11214424.18 + y * (77392.33017 - y * 184.9052456))))
+    const denominator = 57568490411.0 + y * (1029532985.0 + y * (9494680.718 + y * (59272.64853 + y * (267.8532712 + y))))
+    return numerator / denominator
+  }
+  const z = 8 / ax
+  const y = z * z
+  const phase = ax - 0.785398164
+  const p = 1 + y * (-0.001098628627 + y * (0.00002734510407 + y * (-0.000002073370639 + y * 0.0000002093887211)))
+  const q = -0.01562499995 + y * (0.0001430488765 + y * (-0.000006911147651 + y * (0.0000007621095161 - y * 0.0000000934945152)))
+  return Math.sqrt(0.636619772 / ax) * (Math.cos(phase) * p - z * Math.sin(phase) * q)
+}
 
 function besselJ1(x: number): number {
   const ax = Math.abs(x)
@@ -151,13 +236,17 @@ export function fastPow08(x: number): number {
 /**
  * Single-slit diffraction intensity (Fraunhofer)
  * I(θ) = I0 * (sinβ/β)², β = (πa sinθ)/λ
- * For small angles: sinθ ≈ y/L, so β ≈ πa*y/(λ*L)
+ * A flat screen at distance L has sinθ = y / sqrt(L²+y²).
  */
+function screenSinTheta(y: number, screenDistance: number): number {
+  return y / Math.hypot(screenDistance, y)
+}
+
 export function singleSlitIntensity(y: number, params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
   const a = params.apertureSize * 1e-3
   const L = params.screenDistance
-  const beta = (Math.PI * a * y) / (lambda * L)
+  const beta = (Math.PI * a * screenSinTheta(y, L)) / lambda
   if (Math.abs(beta) < 1e-10) return 1.0
   const sinc = Math.sin(beta) / beta
   return sinc * sinc
@@ -173,7 +262,7 @@ export function circularApertureIntensity(y: number, params: DiffractionParams):
   const L = params.screenDistance
   // For radial coordinate r = |y| on screen (small angle)
   const r = Math.abs(y)
-  const x = (Math.PI * D * r) / (lambda * L)
+  const x = (Math.PI * D * screenSinTheta(r, L)) / lambda
   if (Math.abs(x) < 1e-10) return 1.0
   const j1 = besselJ1(x)
   const v = (2.0 * j1) / x
@@ -181,24 +270,19 @@ export function circularApertureIntensity(y: number, params: DiffractionParams):
 }
 
 /**
- * Circular obstacle diffraction intensity (Poisson spot, Babinet's principle)
- * I(θ) ≈ I0 * [1 - 2J1(x)/x]²
+ * Near-axis Fresnel/Babinet approximation for the Poisson spot behind a
+ * circular opaque disk. For D << L, I(r)/I0 ≈ J0²(πDr/(λL)); the axis is bright.
  */
 export function circularObstacleIntensity(y: number, params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
   const D = params.apertureSize * 1e-3
   const L = params.screenDistance
   const r = Math.abs(y)
-  const x = (Math.PI * D * r) / (lambda * L)
-  if (Math.abs(x) < 1e-10) {
-    // Teaching compromise: Poisson spot is a near-field / Fresnel effect.
-    // In the Fraunhofer limit the center goes to zero, but we keep a
-    // visibly bright value so the Poisson spot can be seen in the pattern.
-    return 0.40
-  }
-  const j1 = besselJ1(x)
-  const v = 1.0 - (2.0 * j1) / x
-  return v * v
+  const radius = D / 2
+  const effectiveDistance = Math.hypot(L, radius)
+  const x = (Math.PI * D * r) / (lambda * effectiveDistance)
+  const obliquity = (L / effectiveDistance) ** 2
+  return obliquity * besselJ0(x) ** 2
 }
 
 /**
@@ -210,11 +294,10 @@ export function circularObstacleIntensity(y: number, params: DiffractionParams):
  */
 export function gratingIntensity(y: number, params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
-  const d = 1e-3 / params.gratingLines // grating spacing in m
-  const a = d * 0.2 // slit width = 20% of spacing
+  const d = gratingSpacing(params.gratingLines)
+  const a = gratingSlitWidth(params.gratingLines)
   const L = params.screenDistance
-  const theta = y / L // small angle approximation
-  const sinTheta = Math.sin(theta)
+  const sinTheta = screenSinTheta(y, L)
 
   // Single-slit envelope
   const beta = (Math.PI * a * sinTheta) / lambda
@@ -228,7 +311,7 @@ export function gratingIntensity(y: number, params: DiffractionParams): number {
     // gamma ≈ mπ, grating factor → 1 in the limit
     return envelope
   }
-  const N = Math.max(10, Math.round(GRATING_ILLUMINATED_WIDTH * params.gratingLines))
+  const N = gratingIlluminatedSlitCount(params.gratingLines)
   const grating = (Math.sin(N * gamma) / sinGamma) ** 2 / (N * N)
 
   return envelope * grating
@@ -252,10 +335,15 @@ export function getIntensityFunction(mode: DiffractionMode): (y: number, params:
  * Central maximum width (single-slit): Δy = 2λL/a
  */
 export function singleSlitCentralWidth(params: DiffractionParams): number {
+  return 2 * singleSlitFirstMinimumPosition(params)
+}
+
+export function singleSlitFirstMinimumPosition(params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
   const a = params.apertureSize * 1e-3
-  const L = params.screenDistance
-  return (2 * lambda * L) / a
+  const ratio = lambda / a
+  if (ratio >= 1) return Number.POSITIVE_INFINITY
+  return params.screenDistance * Math.tan(Math.asin(ratio))
 }
 
 /**
@@ -264,8 +352,17 @@ export function singleSlitCentralWidth(params: DiffractionParams): number {
 export function airyDiskRadius(params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
   const D = params.apertureSize * 1e-3
-  const L = params.screenDistance
-  return (1.22 * lambda * L) / D
+  const ratio = (1.22 * lambda) / D
+  if (ratio >= 1) return Number.POSITIVE_INFINITY
+  return params.screenDistance * Math.tan(Math.asin(ratio))
+}
+
+/** First dark ring radius of the near-axis Poisson spot pattern. */
+export function poissonSpotFirstDarkRadius(params: DiffractionParams): number {
+  const lambda = params.wavelength * 1e-9
+  const D = params.apertureSize * 1e-3
+  const effectiveDistance = Math.hypot(params.screenDistance, D / 2)
+  return (2.4048255577 * lambda * effectiveDistance) / (Math.PI * D)
 }
 
 /**
@@ -282,10 +379,17 @@ export function firstMinimumAngle(params: DiffractionParams): number {
  */
 export function gratingFirstOrderAngle(params: DiffractionParams): number {
   const lambda = params.wavelength * 1e-9
-  const d = 1e-3 / params.gratingLines
+  const d = gratingSpacing(params.gratingLines)
   const sinTheta = lambda / d
-  if (sinTheta > 1) return 90
+  if (sinTheta >= 1) return 90
   return Math.asin(sinTheta) * (180 / Math.PI)
+}
+
+/** Screen displacement of the first grating order on a flat screen. */
+export function gratingFirstOrderDisplacement(params: DiffractionParams): number {
+  const angle = (gratingFirstOrderAngle(params) * Math.PI) / 180
+  if (angle >= Math.PI / 2) return Number.POSITIVE_INFINITY
+  return params.screenDistance * Math.tan(angle)
 }
 
 export function formatCentralWidth(params: DiffractionParams, mode: DiffractionMode): string {
@@ -293,18 +397,15 @@ export function formatCentralWidth(params: DiffractionParams, mode: DiffractionM
     const w = singleSlitCentralWidth(params) * 1000 // m -> mm
     return w < 0.01 ? w.toExponential(2) + ' mm' : w.toFixed(3) + ' mm'
   }
-  if (mode === 'circular-aperture' || mode === 'circular-obstacle') {
-    const r = airyDiskRadius(params) * 1000 // m -> mm
-    return r < 0.01 ? r.toExponential(2) + ' mm' : r.toFixed(3) + ' mm'
-  }
-  return '--'
+  const r = (mode === 'circular-obstacle' ? poissonSpotFirstDarkRadius(params) : airyDiskRadius(params)) * 1000
+  return r < 0.01 ? r.toExponential(2) + ' mm' : r.toFixed(3) + ' mm'
 }
 
 export function formatFeatureLabel(mode: DiffractionMode): string {
   switch (mode) {
     case 'single-slit': return '中央亮纹宽度'
     case 'circular-aperture': return '艾里斑半径'
-    case 'circular-obstacle': return '第一暗环半径'
+    case 'circular-obstacle': return '泊松亮斑第一暗环半径'
     case 'diffraction-grating': return '一级衍射角'
   }
 }
@@ -316,20 +417,29 @@ export function formatFeatureValue(params: DiffractionParams, mode: DiffractionM
     case 'circular-obstacle':
       return formatCentralWidth(params, mode)
     case 'diffraction-grating':
-      return gratingFirstOrderAngle(params).toFixed(2) + '°'
+      return params.wavelength * 1e-9 >= gratingSpacing(params.gratingLines)
+        ? '无一级衍射'
+        : gratingFirstOrderAngle(params).toFixed(2) + '°'
   }
 }
 
-export function formatWhiteLightFeatureValue(params: DiffractionParams, mode: DiffractionMode): string {
+export function formatWhiteLightFeatureValue(
+  params: DiffractionParams,
+  mode: DiffractionMode,
+  filterColor: FilterColor = 'none',
+): string {
+  const filterProfile = filterColor === 'none' ? null : FILTER_PROFILES[filterColor]
+  const minWavelength = filterProfile ? filterProfile.center - filterProfile.halfWidth : 400
+  const maxWavelength = filterProfile ? filterProfile.center + filterProfile.halfWidth : 700
+
   if (mode === 'diffraction-grating') {
-    const minAngle = gratingFirstOrderAngle({ ...params, wavelength: 400 })
-    const maxAngle = gratingFirstOrderAngle({ ...params, wavelength: 700 })
+    const minAngle = gratingFirstOrderAngle({ ...params, wavelength: minWavelength })
+    const maxAngle = gratingFirstOrderAngle({ ...params, wavelength: maxWavelength })
     return `${minAngle.toFixed(2)}°–${maxAngle.toFixed(2)}°`
   }
-  const minParams = { ...params, wavelength: 400 }
-  const maxParams = { ...params, wavelength: 700 }
-  const minW = formatCentralWidth(minParams, mode)
-  const maxW = formatCentralWidth(maxParams, mode)
+
+  const minW = formatCentralWidth({ ...params, wavelength: minWavelength }, mode).replace(/ mm$/, '')
+  const maxW = formatCentralWidth({ ...params, wavelength: maxWavelength }, mode)
   return `${minW}–${maxW}`
 }
 
@@ -442,18 +552,12 @@ export function drawDiffractionPattern(
 
   const n = width * height
   const rgb = waveLengthToRGB(params.wavelength)
-  const physicalViewWidth = getPhysicalViewWidth(mode)
+  const physicalViewWidth = getPhysicalViewWidth(mode, params)
 
   const { imgData, imgDataU32 } = ensureBuffers(ctx, n)
   const data = imgData.data
 
   const intensityFn = getIntensityFunction(mode)
-
-  // Pre-compute per-column physical coordinates
-  const colX = new Float32Array(width)
-  for (let px = 0; px < width; px++) {
-    colX[px] = (px / width - 0.5) * physicalViewWidth
-  }
 
   imgDataU32.fill(0)
 
@@ -461,7 +565,7 @@ export function drawDiffractionPattern(
     // 2D radial pattern — use radial LUT to avoid per-pixel intensityFn calls
     const radius = Math.min(width, height) / 2 - 2
     const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, radius)
-    const scalePhys = physicalViewWidth / width
+    const scalePhys = physicalViewWidth / Math.min(width, height)
     const maxPxRadius = Math.ceil(radius)
     const radialLut = new Float32Array(maxPxRadius + 1)
     for (let rPx = 0; rPx <= maxPxRadius; rPx++) {
@@ -491,8 +595,15 @@ export function drawDiffractionPattern(
     // 1D horizontal pattern (single-slit or grating)
     // Compute intensity for each column, then replicate vertically
     const colInt = new Float32Array(width)
+    const subSamples = mode === 'diffraction-grating' ? 16 : 1
     for (let px = 0; px < width; px++) {
-      colInt[px] = fastPow08(intensityFn(colX[px], params))
+      let sampledIntensity = 0
+      for (let sample = 0; sample < subSamples; sample++) {
+        const normalizedX = (px + (sample + 0.5) / subSamples) / width
+        const screenX = (normalizedX - 0.5) * physicalViewWidth
+        sampledIntensity += intensityFn(screenX, params)
+      }
+      colInt[px] = fastPow08(sampledIntensity / subSamples)
     }
 
     // For single-slit and grating, draw a rectangular strip with vertical fringes
@@ -584,9 +695,10 @@ function buildPatternCacheKey(
   filterColor: FilterColor,
   width: number,
   height: number,
+  wavelengthStep: number,
 ): string {
-  // Wavelength is omitted because white-light patterns do not depend on the monochromatic wavelength
-  return `${mode}_${width}_${height}_${params.apertureSize.toFixed(3)}_${params.screenDistance.toFixed(2)}_${params.gratingLines}_${filterColor}`
+  // Include spectral sampling density because it changes the rendered mixture.
+  return [mode, width, height, params.apertureSize.toFixed(3), params.screenDistance.toFixed(2), params.gratingLines, filterColor, wavelengthStep].join('_')
 }
 
 export function drawWhiteLightPattern(
@@ -602,9 +714,9 @@ export function drawWhiteLightPattern(
   const cy = height / 2
   const n = width * height
 
-  const physicalViewWidth = getPhysicalViewWidth(mode)
-  const filterProfile = filterColor !== 'none' ? FILTER_PROFILES[filterColor] : null
-  const cacheKey = buildPatternCacheKey(mode, params, filterColor, width, height)
+  const viewParams = { ...params, wavelength: 700 }
+  const physicalViewWidth = getPhysicalViewWidth(mode, viewParams)
+  const cacheKey = buildPatternCacheKey(mode, params, filterColor, width, height, wavelengthStep)
 
   const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, Math.min(width, height) / 2 - 2)
   const { imgData } = ensureBuffers(ctx, n)
@@ -629,35 +741,16 @@ export function drawWhiteLightPattern(
   accG.fill(0)
   accB.fill(0)
 
-  // Pre-compute column physical coords
-  const colX = new Float32Array(width)
-  for (let px = 0; px < width; px++) {
-    colX[px] = (px / width - 0.5) * physicalViewWidth
-  }
-
   const is2D = mode === 'circular-aperture' || mode === 'circular-obstacle'
-  const colY = is2D ? new Float32Array(height) : null
-  if (colY) {
-    for (let py = 0; py < height; py++) {
-      colY[py] = (py / height - 0.5) * physicalViewWidth
-    }
-  }
-
   const intensityFn = getIntensityFunction(mode)
 
   // Pre-compute radial LUT for 2D modes to avoid per-pixel intensityFn calls
-  const scalePhys = physicalViewWidth / width
+  const scalePhys = physicalViewWidth / Math.min(width, height)
   const maxPxRadius = is2D ? Math.ceil(Math.min(width, height) / 2 - 2) : 0
   const radialLut = is2D ? new Float32Array(maxPxRadius + 1) : null
 
   for (let wl = 400; wl <= 700; wl += wavelengthStep) {
-    let filterWeight = 1.0
-    if (filterProfile) {
-      const dist = Math.abs(wl - filterProfile.center)
-      filterWeight = dist <= filterProfile.halfWidth
-        ? 1.0 - 0.7 * (dist / filterProfile.halfWidth) ** 2
-        : 0.15
-    }
+    const filterWeight = filterTransmission(wl, filterColor)
 
     const rgb = waveLengthToRGB(wl)
     if (rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) continue
@@ -689,8 +782,16 @@ export function drawWhiteLightPattern(
     } else {
       // 1D: accumulate column intensities, then replicate
       const colInt = new Float32Array(width)
+      const wavelengthParams = { ...params, wavelength: wl }
+      const subSamples = mode === 'diffraction-grating' ? 16 : 1
       for (let px = 0; px < width; px++) {
-        colInt[px] = fastPow08(intensityFn(colX[px], { ...params, wavelength: wl }))
+        let sampledIntensity = 0
+        for (let sample = 0; sample < subSamples; sample++) {
+          const normalizedX = (px + (sample + 0.5) / subSamples) / width
+          const screenX = (normalizedX - 0.5) * physicalViewWidth
+          sampledIntensity += intensityFn(screenX, wavelengthParams)
+        }
+        colInt[px] = fastPow08(sampledIntensity / subSamples)
       }
       const stripHalfHeight = height * 0.35
       const stripTop = Math.round(cy - stripHalfHeight)
@@ -818,6 +919,26 @@ function normalizeToRectImageData(
 
 // ====== Profile drawing for chart ======
 
+export function whiteLightIntensity(
+  y: number,
+  mode: DiffractionMode,
+  params: DiffractionParams,
+  filterColor: FilterColor = 'none',
+): number {
+  const intensityFn = getIntensityFunction(mode)
+  let weightedIntensity = 0
+  let totalWeight = 0
+  for (let wavelength = 400; wavelength <= 700; wavelength += 5) {
+    const [red, green, blue] = waveLengthToRGB(wavelength)
+    const luminanceWeight = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255
+    const weight = luminanceWeight * filterTransmission(wavelength, filterColor)
+    if (weight === 0) continue
+    weightedIntensity += weight * intensityFn(y, { ...params, wavelength })
+    totalWeight += weight
+  }
+  return totalWeight > 0 ? weightedIntensity / totalWeight : 0
+}
+
 export function drawDiffractionProfile(
   ctx: CanvasRenderingContext2D,
   mode: DiffractionMode,
@@ -865,7 +986,8 @@ export function drawDiffractionProfile(
 
   // Profile curve
   const intensityFn = getIntensityFunction(mode)
-  const physicalViewWidth = getPhysicalViewWidth(mode)
+  const viewParams = { ...params, wavelength: isWhiteLight ? 700 : params.wavelength }
+  const physicalViewWidth = getPhysicalViewWidth(mode, viewParams)
   let colorStr: string
   if (isWhiteLight) {
     if (filterColor && filterColor !== 'none') {
@@ -883,11 +1005,13 @@ export function drawDiffractionProfile(
   ctx.lineWidth = 2
   ctx.beginPath()
 
-  const samples = mode === 'diffraction-grating' ? Math.min(plotW, 2400) : Math.min(plotW, 600)
+  const samples = mode === 'diffraction-grating' ? Math.min(8192, Math.max(1, plotW) * 32) : Math.min(plotW, 600)
   for (let i = 0; i <= samples; i++) {
     const frac = i / samples
     const yPhys = (frac - 0.5) * physicalViewWidth
-    const intensity = intensityFn(yPhys, params)
+    const intensity = isWhiteLight
+      ? whiteLightIntensity(yPhys, mode, params, filterColor ?? 'none')
+      : intensityFn(yPhys, params)
     const px = padding + frac * plotW
     const py = bottom - intensity * plotH
     if (i === 0) ctx.moveTo(px, py)
@@ -896,11 +1020,13 @@ export function drawDiffractionProfile(
   ctx.stroke()
 
   // Fill under curve
-  ctx.fillStyle = colorStr.replace('rgb', 'rgba').replace(')', ',0.15)')
+  ctx.globalAlpha = 0.15
+  ctx.fillStyle = colorStr
   ctx.lineTo(width - padding, bottom)
   ctx.lineTo(padding, bottom)
   ctx.closePath()
   ctx.fill()
+  ctx.globalAlpha = 1
 
   // X-axis physical ticks
   const halfW = physicalViewWidth / 2

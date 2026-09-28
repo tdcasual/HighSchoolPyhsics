@@ -3,14 +3,38 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
+  InteractiveCanvas: ({
+    children,
+    frameloop,
+    camera,
+    cameraUp,
+    syncCamera,
+    adaptiveFraming,
+  }: {
+    children: ReactNode
+    frameloop?: 'always' | 'demand'
+    camera: { position: number[]; fov: number }
+    cameraUp: number[]
+    syncCamera: boolean
+    adaptiveFraming: boolean
+  }) => (
+    <div
+      data-testid="interactive-canvas"
+      data-frameloop={frameloop ?? 'always'}
+      data-camera-position={camera.position.join(',')}
+      data-camera-up={cameraUp.join(',')}
+      data-sync-camera={syncCamera}
+      data-adaptive-framing={adaptiveFraming}
+    >
       {children}
     </div>
   ),
 }))
 
 vi.mock('../RotationalEmfRig3D', () => ({
+  FRAME_FIELD_SHAFT_LENGTH: 5.4,
+  ROD_FIELD_SHAFT_LENGTH: 2.8,
+  ROTATIONAL_EMF_VISUAL_UNITS_PER_METER: 3.4,
   RotationalEmfRig3D: () => <div data-testid="rotational-emf-rig" />,
 }))
 
@@ -25,8 +49,15 @@ describe('rotational-emf structure', () => {
     expect(screen.getByRole('radio', { name: '旋转矩形线框' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '主视图' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '俯视图' })).toBeInTheDocument()
+    const canvas = screen.getByTestId('interactive-canvas')
+    expect(canvas).toHaveAttribute('data-frameloop', 'demand')
+    expect(canvas).toHaveAttribute('data-sync-camera', 'true')
+    expect(canvas).toHaveAttribute('data-adaptive-framing', 'false')
+    expect(canvas).toHaveAttribute('data-camera-up', '0,1,0')
+    expect(screen.getByRole('region', { name: '数据' }).querySelector('button')).toHaveAttribute('aria-label', '展开')
+    expect(screen.getByRole('region', { name: '播放控制' }).querySelector('button')).toHaveAttribute('aria-label', '展开')
+    fireEvent.click(screen.getByRole('region', { name: '数据' }).querySelector('button') as HTMLButtonElement)
     expect(screen.getByText(/感应电动势/)).toBeInTheDocument()
-    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
     expect(screen.getByTestId('rotational-emf-rig')).toBeInTheDocument()
   })
 
@@ -36,7 +67,11 @@ describe('rotational-emf structure', () => {
     fireEvent.click(screen.getByRole('radio', { name: '旋转矩形线框' }))
     expect(screen.getAllByText(/旋转矩形线框/).length).toBeGreaterThanOrEqual(1)
 
+    const mainCameraPosition = screen.getByTestId('interactive-canvas').getAttribute('data-camera-position')
     fireEvent.click(screen.getByRole('radio', { name: '俯视图' }))
     expect(screen.getAllByText(/俯视图/).length).toBeGreaterThanOrEqual(1)
+    const topCanvas = screen.getByTestId('interactive-canvas')
+    expect(topCanvas.getAttribute('data-camera-position')).not.toBe(mainCameraPosition)
+    expect(topCanvas).toHaveAttribute('data-camera-up', '0,0,-1')
   })
 })

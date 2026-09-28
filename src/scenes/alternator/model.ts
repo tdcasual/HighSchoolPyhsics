@@ -54,7 +54,7 @@ function trimHistory(values: number[]) {
 
 export function deriveAlternatorReadings(config: AlternatorConfig): AlternatorReadings {
   const peakVoltageV = config.magneticFieldT * config.turnCount * config.coilAreaM2 * config.angularSpeedRad
-  const fluxWb = config.magneticFieldT * config.turnCount * config.coilAreaM2 * Math.cos(config.angleRad)
+  const fluxWb = config.magneticFieldT * config.coilAreaM2 * Math.cos(config.angleRad)
   const instantaneousVoltageV = peakVoltageV * Math.sin(config.angleRad)
   const instantaneousCurrentA = config.loadResistanceOhm > 0
     ? instantaneousVoltageV / config.loadResistanceOhm

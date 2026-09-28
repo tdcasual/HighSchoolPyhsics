@@ -25,6 +25,7 @@ type MotionalEmfRig3DProps = {
   rodVelocityAngleDeg: RodVelocityAnglePreset
   motionDirection: MotionDirectionPreset
   magneticFieldDirection: MagneticFieldDirection
+  velocitySpeedMps: number
   currentActive: boolean
   needleAngleRad: number
 }
@@ -113,6 +114,7 @@ export function MotionalEmfRig3D({
   rodVelocityAngleDeg,
   motionDirection,
   magneticFieldDirection,
+  velocitySpeedMps,
   currentActive,
   needleAngleRad,
 }: MotionalEmfRig3DProps) {
@@ -177,10 +179,10 @@ export function MotionalEmfRig3D({
       <pointLight position={[0, 6, 4]} intensity={0.35} color="#c8e6ff" />
       <color attach="background" args={['#0f1620']} />
 
-      <gridHelper args={[18, 18, '#405468', '#22303c']} position={[0, -1.4, 0]} />
+      <gridHelper args={[18, 18, '#9aa7b5', '#d5dce4']} position={[0, -1.4, 0]} />
 
       {MOTIONAL_EMF_LAYOUT.field.lineZs.map((z) => (
-        <group key={`field-line-${z}`} position={[0, 1, z]}>
+        <group key={`field-line-${z}`} position={[MOTIONAL_EMF_LAYOUT.field.center[0], MOTIONAL_EMF_LAYOUT.field.center[1], z]}>
           {MOTIONAL_EMF_LAYOUT.field.lineXs.map((x) => {
             const fieldArrowSign = magneticFieldDirection === 'up' ? 1 : -1
             const arrowOffsetY = fieldArrowSign * (
@@ -194,7 +196,7 @@ export function MotionalEmfRig3D({
                   <cylinderGeometry
                     args={[MOTIONAL_EMF_LAYOUT.field.lineRadius, MOTIONAL_EMF_LAYOUT.field.lineRadius, MOTIONAL_EMF_LAYOUT.field.lineLengthY, 8]}
                   />
-                  <meshBasicMaterial color="#62b0ff" />
+                  <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
                 </mesh>
                 <mesh position={[0, arrowOffsetY, 0]} rotation={arrowRotation}>
                   <coneGeometry
@@ -204,7 +206,7 @@ export function MotionalEmfRig3D({
                       12,
                     ]}
                   />
-                  <meshBasicMaterial color="#62b0ff" />
+                  <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
                 </mesh>
               </group>
             )
@@ -237,7 +239,7 @@ export function MotionalEmfRig3D({
         anchor={vectorAnchors.velocity}
         direction={velocityDirection}
         color="#ff9a3c"
-        length={1.48}
+        length={1.48 * clamp(velocitySpeedMps / 2, 0, 1.8)}
         opacity={0.78}
       />
       <Arrow3D

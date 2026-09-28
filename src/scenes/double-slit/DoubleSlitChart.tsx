@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react'
-import { drawInterferencePattern, drawWhiteLightPattern, setPatternCacheMax, PHYSICAL_VIEW_WIDTH, type DoubleSlitParams, type FilterColor } from './model'
+import { drawInterferencePattern, drawWhiteLightPattern, setPatternCacheMax, PHYSICAL_VIEW_WIDTH, FILTER_PROFILES, type DoubleSlitParams, type FilterColor } from './model'
+import { INITIAL_MEASUREMENT_READOUT_MM } from './measurement'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import './double-slit.css'
 
@@ -11,65 +12,72 @@ type DoubleSlitChartProps = {
   doubleSlitAngle: number
   singleSlitAngle: number
   eyepieceAngle: number
+  wheelReadoutMm: number
+  showFringeOrders: boolean
 }
 
-export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, eyepieceAngle }: DoubleSlitChartProps) {
+export const DoubleSlitChart = memo(function DoubleSlitChart({
+  params,
+  isLightOn,
+  isWhiteLight,
+  filterColor,
+  doubleSlitAngle,
+  singleSlitAngle,
+  eyepieceAngle,
+  wheelReadoutMm,
+  showFringeOrders,
+}: DoubleSlitChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const patternCanvasRef = useRef<HTMLCanvasElement>(null)
   const reticleCanvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasSize, setCanvasSize] = useState(() =>
     typeof ResizeObserver === 'undefined' ? 800 : 0
   )
+  const [renderRevision, setRenderRevision] = useState(0)
   const perf = useMemo(() => resolvePerformanceProfile(), [])
   const dpr = useMemo(() => typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, perf.canvas.dpr[1]) : 1, [perf])
 
-  // Runtime adaptive resolution: measures draw time and auto-adjusts scale
   const adaptiveScaleRef = useRef(perf.doubleSlitChartScale)
   const frameTimesRef = useRef<number[]>([])
-
-  // White-light adaptive quality: coarse during interaction, full after settling
   const wlFullQualityRef = useRef(true)
-  const qualityTimerRef = useRef(0)
+  const qualityTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!isWhiteLight) {
-      clearTimeout(qualityTimerRef.current)
+      if (qualityTimerRef.current !== null) window.clearTimeout(qualityTimerRef.current)
+      qualityTimerRef.current = null
       wlFullQualityRef.current = true
       return
     }
-    // Coarse immediately, schedule full quality after settling
     wlFullQualityRef.current = false
-    clearTimeout(qualityTimerRef.current)
+    if (qualityTimerRef.current !== null) window.clearTimeout(qualityTimerRef.current)
     qualityTimerRef.current = window.setTimeout(() => {
       wlFullQualityRef.current = true
-      // Trigger re-render so the draw effect picks up the quality change
-      setCanvasSize(s => s)
+      setRenderRevision((revision) => revision + 1)
     }, 200)
-    return () => clearTimeout(qualityTimerRef.current)
+    return () => {
+      if (qualityTimerRef.current !== null) window.clearTimeout(qualityTimerRef.current)
+      qualityTimerRef.current = null
+    }
   }, [params, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle])
 
-  // Apply configurable pattern cache limit from performance profile
   useEffect(() => {
     setPatternCacheMax(perf.doubleSlitPatternCacheMax)
   }, [perf.doubleSlitPatternCacheMax])
 
-  // Responsive canvas sizing
   useEffect(() => {
     const container = containerRef.current
     if (!container || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (!entry) return
-      const w = Math.round(Math.min(entry.contentRect.width, 800))
-      if (w > 0) {
-        setCanvasSize(w)
-      }
+      const width = Math.round(Math.min(entry.contentRect.width, 800))
+      if (width > 0) setCanvasSize((current) => current === width ? current : width)
     })
     observer.observe(container)
     return () => observer.disconnect()
   }, [])
 
-  // Pattern rendering (depends on physics params, NOT eyepieceAngle)
   useEffect(() => {
     const canvas = patternCanvasRef.current
     if (!canvas) return
@@ -77,101 +85,88 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     if (!ctx) return
 
     const cssSize = canvasSize || 800
-    const scale = adaptiveScaleRef.current
-    const renderCssSize = Math.round(cssSize * scale)
-    if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
-      canvas.width = renderCssSize * dpr
-      canvas.height = renderCssSize * dpr
+    const renderCssSize = Math.round(cssSize * adaptiveScaleRef.current)
+    const pixelSize = renderCssSize * dpr
+    if (canvas.width !== pixelSize || canvas.height !== pixelSize) {
+      canvas.width = pixelSize
+      canvas.height = pixelSize
     }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
+    // The model writes ImageData and draws its border in device-pixel coordinates.
+    // Keep an identity transform here; DPR scaling belongs to the reticle canvas only.
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
     if (!isLightOn) {
       ctx.fillStyle = '#000'
-      ctx.fillRect(0, 0, renderCssSize, renderCssSize)
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
       return
     }
 
-    const t0 = performance.now()
-
+    const startedAt = performance.now()
     if (isWhiteLight) {
-      const step = wlFullQualityRef.current
+      const wavelengthStep = wlFullQualityRef.current
         ? perf.doubleSlitWhiteLightWavelengthStep
         : perf.doubleSlitWhiteLightWavelengthStep * 4
-      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle, step)
+      drawWhiteLightPattern(ctx, params, filterColor, doubleSlitAngle, singleSlitAngle, wavelengthStep)
     } else {
       drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
     }
 
-    const elapsed = performance.now() - t0
     const times = frameTimesRef.current
-    times.push(elapsed)
-    if (times.length >= 3) {
-      const avg = times.reduce((a, b) => a + b, 0) / times.length
-      if (avg > 25) {
-        adaptiveScaleRef.current = Math.max(0.35, +(adaptiveScaleRef.current - 0.1).toFixed(2))
-        frameTimesRef.current = []
-      } else if (avg < 10) {
-        adaptiveScaleRef.current = Math.min(perf.doubleSlitChartScale, +(adaptiveScaleRef.current + 0.05).toFixed(2))
-        frameTimesRef.current = []
+    times.push(performance.now() - startedAt)
+    if (times.length > 3) times.shift()
+    if (times.length === 3) {
+      const average = times.reduce((sum, value) => sum + value, 0) / times.length
+      const currentScale = adaptiveScaleRef.current
+      const nextScale = average > 25
+        ? Math.max(0.35, +(currentScale - 0.1).toFixed(2))
+        : average < 10
+          ? Math.min(perf.doubleSlitChartScale, +(currentScale + 0.05).toFixed(2))
+          : currentScale
+      if (nextScale !== currentScale) {
+        adaptiveScaleRef.current = nextScale
+        times.length = 0
+        setRenderRevision((revision) => revision + 1)
       }
     }
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf, dpr])
+  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf, dpr, renderRevision])
 
-  // Reticle overlay (depends ONLY on eyepieceAngle and canvas size)
   useEffect(() => {
     const canvas = reticleCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
     const cssSize = canvasSize || 800
     const renderCssSize = Math.round(cssSize * adaptiveScaleRef.current)
-    if (canvas.width !== renderCssSize * dpr || canvas.height !== renderCssSize * dpr) {
-      canvas.width = renderCssSize * dpr
-      canvas.height = renderCssSize * dpr
+    const pixelSize = renderCssSize * dpr
+    if (canvas.width !== pixelSize || canvas.height !== pixelSize) {
+      canvas.width = pixelSize
+      canvas.height = pixelSize
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-
     ctx.clearRect(0, 0, renderCssSize, renderCssSize)
 
     const cx = renderCssSize / 2
     const cy = renderCssSize / 2
-    const radius = Math.min(renderCssSize, renderCssSize) / 2 - 2
+    const radius = renderCssSize / 2 - 2
+    const wheelOffsetMm = wheelReadoutMm - INITIAL_MEASUREMENT_READOUT_MM
+    const reticleOffsetPx = wheelOffsetMm * 1e-3 / PHYSICAL_VIEW_WIDTH * renderCssSize
 
     if (!isLightOn) {
-      // Dark circle border
       ctx.beginPath()
       ctx.arc(cx, cy, radius, 0, Math.PI * 2)
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
       ctx.lineWidth = 1.5
       ctx.stroke()
-
-      // Reticle crosshair
-      ctx.save()
-      ctx.translate(cx, cy)
-      ctx.rotate(eyepieceAngle * Math.PI / 180)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)'
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      ctx.moveTo(-radius * 0.48, 0)
-      ctx.lineTo(radius * 0.48, 0)
-      ctx.moveTo(0, -radius * 0.48)
-      ctx.lineTo(0, radius * 0.48)
-      ctx.stroke()
-      ctx.restore()
-
-      // Center dot
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-      ctx.beginPath()
-      ctx.arc(cx, cy, 3, 0, Math.PI * 2)
-      ctx.fill()
-      return
     }
 
-    // Reticle crosshair on top of pattern
     ctx.save()
-    ctx.translate(cx, cy)
+    ctx.beginPath()
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.translate(cx + reticleOffsetPx, cy)
     ctx.rotate(eyepieceAngle * Math.PI / 180)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)'
+    ctx.strokeStyle = isLightOn ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.75)'
     ctx.lineWidth = 1.5
     ctx.beginPath()
     ctx.moveTo(-radius * 0.48, 0)
@@ -179,18 +174,18 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
     ctx.moveTo(0, -radius * 0.48)
     ctx.lineTo(0, radius * 0.48)
     ctx.stroke()
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
+    ctx.beginPath()
+    ctx.arc(0, 0, 3, 0, Math.PI * 2)
+    ctx.fill()
     ctx.restore()
 
-    // Center dot
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
-    ctx.beginPath()
-    ctx.arc(cx, cy, 3, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Scale bar: 1 fringe spacing at bottom
-    const spacingM = (params.screenDistance * params.wavelength * 1e-9) / (params.slitDistance * 1e-3)
-    const spacingPx = (spacingM / PHYSICAL_VIEW_WIDTH) * renderCssSize
-    if (spacingPx > 8) {
+    const displayWavelengthNm = isWhiteLight
+      ? filterColor === 'none' ? null : FILTER_PROFILES[filterColor].center
+      : params.wavelength
+    const spacingM = displayWavelengthNm === null ? 0 : (params.screenDistance * displayWavelengthNm * 1e-9) / (params.slitDistance * 1e-3)
+    const spacingPx = spacingM / PHYSICAL_VIEW_WIDTH * renderCssSize
+    if (spacingPx > 8 && Number.isFinite(spacingPx)) {
       const barY = cy + radius * 0.72
       const barStartX = cx - spacingPx / 2
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)'
@@ -198,40 +193,54 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({ params, isLightOn
       ctx.beginPath()
       ctx.moveTo(barStartX, barY)
       ctx.lineTo(barStartX + spacingPx, barY)
-      ctx.stroke()
-
-      ctx.beginPath()
       ctx.moveTo(barStartX, barY - 3)
       ctx.lineTo(barStartX, barY + 3)
       ctx.moveTo(barStartX + spacingPx, barY - 3)
       ctx.lineTo(barStartX + spacingPx, barY + 3)
       ctx.stroke()
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)'
       ctx.font = '11px ui-monospace, monospace'
       ctx.textAlign = 'center'
       ctx.fillText('Δx', cx, barY + 12)
     }
-  }, [eyepieceAngle, isLightOn, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf])
+
+    if (showFringeOrders && !isWhiteLight && spacingPx > 8 && Number.isFinite(spacingPx)) {
+      const maxOrder = Math.min(12, Math.floor(radius / spacingPx))
+      ctx.font = '10px ui-monospace, monospace'
+      ctx.textAlign = 'center'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
+      for (let order = -maxOrder; order <= maxOrder; order += 1) {
+        const x = cx + order * spacingPx
+        ctx.beginPath()
+        ctx.moveTo(x, cy - 5)
+        ctx.lineTo(x, cy + 5)
+        ctx.stroke()
+        ctx.fillText(String(order), x, cy - radius * 0.12)
+      }
+    }
+  }, [eyepieceAngle, wheelReadoutMm, showFringeOrders, isLightOn, isWhiteLight, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf, renderRevision])
+
+  const spectrumLabel = filterColor === 'none' ? '白光' : filterColor === 'red' ? '红色滤光片' : filterColor === 'green' ? '绿色滤光片' : '蓝色滤光片'
 
   return (
     <div className="double-slit-chart" ref={containerRef}>
-      <h3>毛玻璃上的干涉图样</h3>
+      <h3>毛玻璃视场与测量分划板</h3>
       <div className="double-slit-canvas-stack">
         <canvas
           ref={patternCanvasRef}
           role="img"
-          aria-label="双缝干涉图样"
+          aria-label={isWhiteLight ? spectrumLabel + '双缝干涉图样' : '双缝干涉图样'}
           className="double-slit-canvas double-slit-canvas-layer"
         />
         <canvas
           ref={reticleCanvasRef}
           role="img"
-          aria-label="十字准线与标尺"
+          aria-label="随测量头移动的分划板与亮纹序号"
           className="double-slit-canvas double-slit-canvas-layer"
         />
       </div>
-      <p className="double-slit-formula">Δx = Lλ / d</p>
+      <p className="double-slit-formula">{isWhiteLight && filterColor === 'none' ? '白光：不同波长的条纹间距不同' : 'Δx = Lλ / d　　λ = dΔx / L'}</p>
     </div>
   )
 })

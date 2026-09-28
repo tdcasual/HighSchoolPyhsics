@@ -2,6 +2,7 @@ import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectrostaticLabControls } from './ElectrostaticLabControls'
 import { ElectrostaticLabRig3D } from './ElectrostaticLabRig3D'
+import { samplePotentialTerrainHeight } from './model'
 import {
   ELECTROSTATIC_LAB_SCENE_BOUNDS,
   useElectrostaticLabState,
@@ -9,16 +10,21 @@ import {
 
 export function ElectrostaticLabScene() {
   const state = useElectrostaticLabState()
+  const resolveFocusHeight = (point: { x: number; z: number }) =>
+    state.displayMode === 'potential'
+      ? samplePotentialTerrainHeight(state.terrain, ELECTROSTATIC_LAB_SCENE_BOUNDS, point) + 0.2
+      : 0.24
   const focusTarget = state.probePoint
-    ? ([state.probePoint.x, 0.24, state.probePoint.z] as [number, number, number])
+    ? ([state.probePoint.x, resolveFocusHeight(state.probePoint), state.probePoint.z] as [number, number, number])
     : state.selectedCharge
-      ? ([state.selectedCharge.x, 0.24, state.selectedCharge.z] as [number, number, number])
+      ? ([state.selectedCharge.x, resolveFocusHeight(state.selectedCharge), state.selectedCharge.z] as [number, number, number])
       : null
   const presentationFocus = focusTarget ? { mode: 'focus' as const, primary: focusTarget } : { mode: 'overview' as const }
 
   return (
     <SceneLayout
       controls={<ElectrostaticLabControls state={state} />}
+      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
@@ -26,14 +32,14 @@ export function ElectrostaticLabScene() {
             {state.chargeSummary.negativeCount}）
           </p>
           <p>
-            势场范围: {state.terrain.stats.minPotential.toFixed(2)} ~{' '}
+            相对电势范围: {state.terrain.stats.minPotential.toFixed(2)} ~{' '}
             {state.terrain.stats.maxPotential.toFixed(2)}
           </p>
           <p>当前模式: {state.modeLabel}</p>
           <p>
-            探针读数:{' '}
+            探针读数（相对）:{' '}
             {state.probeReadout
-              ? `V=${state.probeReadout.potential.toFixed(2)}, |E|=${state.probeReadout.field.magnitude.toFixed(2)}`
+              ? `φ=${state.probeReadout.potential.toFixed(2)}, |E|=${state.probeReadout.field.magnitude.toFixed(2)}`
               : '未放置'}
           </p>
         </div>

@@ -8,6 +8,8 @@ import {
   rheostat,
   seriesResistor,
   shuntResistor,
+  meterResistance,
+  RANGE,
   trialContact,
   voltAmmeter,
 } from './model'
@@ -24,6 +26,8 @@ describe('multimeter model', () => {
     const result = voltAmmeter({ Rx: 20, RA: 1, RV: 3000, E: 3, Rs: 10 })
     expect(result.external.R).toBeLessThan(20)
     expect(result.internal.R).toBeGreaterThan(20)
+    expect(result.internal.R).toBeCloseTo(21, 8)
+    expect(result.internal.I).toBeLessThan(3 / (10 + 1 + 20))
     expect(result.critical).toBeCloseTo(Math.sqrt(3000), 8)
     expect(trialContact({ Rx: 20, RA: 1, RV: 3000, E: 3, Rs: 10 }).choose).toBe(result.better)
   })
@@ -41,7 +45,14 @@ describe('multimeter model', () => {
     const cell = measure({ range: 'V2.5', target: 'cell' })
     expect(cell.truth).toBeCloseTo(1.5 * 50000 / 50000.6, 4)
     expect(cell.fraction).toBeCloseTo((cell.truth ?? 0) / 2.5, 6)
+    const offsetCell = measure({ range: 'V2.5', target: 'cell', mechanical: 0.028 })
+    expect(offsetCell.indicated).toBeCloseTo(1.57, 2)
+    expect(offsetCell.truth).toBeCloseTo(1.5, 2)
+    const reverseCell = measure({ range: 'V2.5', target: 'cell', swapped: true, mechanical: 0 })
+    expect(reverseCell.indicated).toBeLessThan(0)
     expect(measure({ range: 'mA10', target: 'cell' }).damage).toBe(true)
     expect(bestOhmRange(150)).toBe('R10')
+    expect(meterResistance(RANGE.mA10)).toBeCloseTo(3, 6)
+    expect(meterResistance(RANGE.mA100)).toBeCloseTo(0.3, 6)
   })
 })

@@ -11,8 +11,8 @@ describe('computeFringeSpacing', () => {
   it('returns correct spacing for typical values', () => {
     // λ = 550nm, θ = 0.1°
     const spacing = computeFringeSpacing(550, 0.1)
-    // l = λ/(2sinθ) = 550e-3 μm / (2 × sin(0.1°)) = 0.55 / (2 × 0.001745) ≈ 157.5 μm
-    expect(spacing).toBeCloseTo(157.57, 0)
+    // l = λ/(2tanθ) = 0.55 / (2 × tan(0.1°)) ≈ 157.56 μm
+    expect(spacing).toBeCloseTo(157.56, 0)
   })
 
   it('increases spacing for smaller angles', () => {
@@ -69,6 +69,10 @@ describe('computeFringeCount', () => {
 })
 
 describe('formatFringeSpacing', () => {
+  it('matches Dmit’s sodium-yellow wedge reference at 0.150 mrad', () => {
+    expect(formatFringeSpacing({ ...DEFAULT_PARAMS, wavelength: 589, wedgeAngle: 0.0086 })).toBe('1.962 mm')
+  })
+
   it('formats default spacing in mm or μm', () => {
     const label = formatFringeSpacing(DEFAULT_PARAMS)
     expect(label).toMatch(/μm|mm/)

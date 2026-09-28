@@ -1,4 +1,4 @@
-import { Text } from '@react-three/drei/core/Text'
+import { Html } from '@react-three/drei/web/Html'
 import { useEffect, useMemo } from 'react'
 import { ExtrudeGeometry, Shape } from 'three'
 
@@ -55,16 +55,11 @@ export function ArcMagnet({ polarity, position, color, labelColor }: ArcMagnetPr
         />
       </mesh>
 
-      <Text
-        position={[-4.9, 0, 0]}
-        rotation={[0, -Math.PI / 2, 0]}
-        color={labelColor}
-        fontSize={1.55}
-        anchorX="center"
-        anchorY="middle"
-      >
-        {polarity}
-      </Text>
+      <Html position={[-4.9, 0, 0]} center style={{ pointerEvents: 'none', userSelect: 'none' }}>
+        <span style={{ color: labelColor, fontSize: '22px', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
+          {polarity}
+        </span>
+      </Html>
     </group>
   )
 }

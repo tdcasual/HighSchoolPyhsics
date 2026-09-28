@@ -18,6 +18,11 @@ export function TickerTimerScene() {
   return (
     <SceneLayout
       controls={<TickerTimerControls state={state} />}
+      panelPlacement="default"
+      auxiliaryPanelPlacement="after-sidebar"
+      dataInitiallyCollapsed
+      chartInitiallyCollapsed
+      playbackInitiallyCollapsed
       dataOverlay={
         <div className="ticker-telemetry scene-core-summary-stack">
           <p>
@@ -34,6 +39,18 @@ export function TickerTimerScene() {
             <span>打点周期 T</span>
             <strong>
               {state.periodLabel}（{state.frequencyLabel}）
+            </strong>
+          </p>
+          <p>
+            <span>实验状态</span>
+            <strong>
+              {state.finished
+                ? "记录已结束 · 请重置"
+                : state.released
+                  ? "纸带运动中"
+                  : state.powered
+                    ? "已通电 · 待释放"
+                    : "待通电"}
             </strong>
           </p>
           <p>
@@ -87,6 +104,7 @@ export function TickerTimerScene() {
           key: "power",
           label: state.powered ? "断电" : "通电",
           onClick: state.togglePower,
+          disabled: state.finished && !state.powered,
         },
         {
           key: "release",
@@ -109,13 +127,11 @@ export function TickerTimerScene() {
           <TickerTimerRig3D
             kind={state.kind}
             powered={state.powered}
-            released={state.released}
             phase01={state.phase01}
             printQuality={state.printQuality}
             displacementM={state.displacementM}
             dots={state.dots}
             showLabels={state.showLabels}
-            motionMode={state.motionMode}
           />
         </InteractiveCanvas>
       }

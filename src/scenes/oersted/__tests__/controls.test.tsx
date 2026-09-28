@@ -1,14 +1,19 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { OerstedScene } from '../OerstedScene'
 
 describe('oersted controls', () => {
+  const expandDataPanel = async () => {
+    const dataPanel = await screen.findByRole('region', { name: '数据' })
+    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+  }
+
   it('exposes classroom core controls and keeps advanced controls collapsed by default', async () => {
     render(<OerstedScene />)
 
     expect(await screen.findByText('奥斯特实验控制')).toBeInTheDocument()
     expect(await screen.findByLabelText('电流 I')).toBeInTheDocument()
-    expect(await screen.findByLabelText('导线高度 h')).toBeInTheDocument()
+    expect(await screen.findByLabelText('导线最低净空 h_min')).toBeInTheDocument()
     const advancedToggle = await screen.findByRole('button', { name: /高级参数/ })
     expect(advancedToggle).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByLabelText('地磁场 B0')).not.toBeInTheDocument()
@@ -18,12 +23,16 @@ describe('oersted controls', () => {
     expect(screen.queryByText('三枚小磁针位置（鼠标拖拽）')).not.toBeInTheDocument()
     expect(screen.queryByText(/磁针1: X/)).not.toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '通电' })).toBeInTheDocument()
+    expect(await screen.findByRole('radio', { name: '有利摆放' })).toHaveAttribute('aria-checked', 'false')
+    expect(await screen.findByRole('radio', { name: '不利摆放' })).toHaveAttribute('aria-checked', 'false')
+    expect(await screen.findByRole('radio', { name: '方向已对齐' })).toHaveAttribute('aria-checked', 'false')
   })
 
   it('updates observed swing value when current changes', async () => {
     render(<OerstedScene />)
+    await expandDataPanel()
 
-    const beforeText = (await screen.findByTestId('oersted-swing-1')).textContent ?? ''
+    const beforeText = (await screen.findByTestId('oersted-target-swing-1')).textContent ?? ''
     const parseSwing = (text: string) => Number(text.match(/([-+]?\d+(?:\.\d+)?)°/)?.[1] ?? '0')
     const before = Math.abs(parseSwing(beforeText))
 
@@ -32,7 +41,7 @@ describe('oersted controls', () => {
     vi.advanceTimersToNextTimer()
     vi.useRealTimers()
 
-    const afterText = (await screen.findByTestId('oersted-swing-1')).textContent ?? ''
+    const afterText = (await screen.findByTestId('oersted-target-swing-1')).textContent ?? ''
     const after = Math.abs(parseSwing(afterText))
 
     expect(after).not.toBe(before)
@@ -40,6 +49,7 @@ describe('oersted controls', () => {
 
   it('applies classroom presets in one click', async () => {
     render(<OerstedScene />)
+    await expandDataPanel()
 
     const favorablePreset = await screen.findByRole('radio', { name: '有利摆放' })
     const adversePreset = await screen.findByRole('radio', { name: '不利摆放' })
@@ -60,7 +70,7 @@ describe('oersted controls', () => {
   it('allows adjusting wire orientation and height in 3d controls', async () => {
     render(<OerstedScene />)
 
-    const height = await screen.findByLabelText('导线高度 h')
+    const height = await screen.findByLabelText('导线最低净空 h_min')
     fireEvent.click(await screen.findByRole('button', { name: /高级参数/ }))
 
     const azimuth = await screen.findByLabelText('导线方位角 ψ')

@@ -21,10 +21,17 @@ type TickerTimerControlsProps = {
 }
 
 export function TickerTimerControls({ state }: TickerTimerControlsProps) {
+  const settingsLocked = state.powered || state.dotCount > 0
+
   return (
     <div className="grid gap-[0.8rem]">
       <h2>打点计时器控制</h2>
 
+      <fieldset
+        disabled={settingsLocked}
+        className="m-0 grid min-w-0 gap-[0.8rem] border-0 p-0 disabled:opacity-50"
+        aria-label="实验参数"
+      >
       <ControlSection title="计时器类型">
         <SegmentedControl
           options={KIND_OPTIONS}
@@ -53,18 +60,25 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
           onChange={state.setFrequencyHz}
         />
         {state.kind === 'electromagnetic' ? (
-          <RangeField
-            id="ticker-voltage"
-            label="工作电压 U"
-            unit="V"
-            min={3}
-            max={9}
-            step={0.1}
-            value={state.voltageV}
-            onChange={state.setVoltageV}
-          />
+          <>
+            <RangeField
+              id="ticker-voltage"
+              label="工作电压 U"
+              unit="V"
+              min={3}
+              max={9}
+              step={0.1}
+              value={state.voltageV}
+              onChange={state.setVoltageV}
+            />
+            <p className="ticker-hint" role="note">
+              实物通常使用 4–6 V AC；模型用低电压示意漏点、过大振幅示意拖尾，故障阈值仅作定性演示。
+            </p>
+          </>
         ) : (
-          <p className="ticker-hint">电火花计时器接 220 V 交流市电，按下脉冲开关后放电打点。</p>
+          <p className="ticker-hint" role="note">
+            电火花计时器使用专用 220 V AC 脉冲电源。这里只作设备示意；真实实验须由教师指导，通电后勿触碰电极与端子。
+          </p>
         )}
       </ControlSection>
 
@@ -98,6 +112,14 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
         </ControlSection>
       ) : null}
 
+      </fieldset>
+
+      {settingsLocked ? (
+        <p className="ticker-hint m-0" role="note">
+          已有运行点迹；重置后再调整实验参数，避免改写已记录的数据。
+        </p>
+      ) : null}
+
       <ControlSection title="显示">
         <SegmentedControl
           options={[
@@ -114,8 +136,11 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
         <ul>
           <li>先通电打点，再释放纸带，避免起始点挤在一起无法计数。</li>
           <li>电磁式：复写纸在上、纸带在下，穿过两侧限位孔。</li>
-          <li>电火花：纸带在墨粉盘下面，阻力明显更小。</li>
+          <li>电火花：纸带从墨粉盘下方通过，纸带带动墨粉盘转动；阻力较小。</li>
+          <li>低压漏点是示意性故障。漏点后按实际点迹时间计算 v-t；可见点时间间隔不等时不套用等间隔逐差法。</li>
           <li>相邻两点时间间隔 T = 1/f；50 Hz 时 T = 0.02 s，5 个间隔为 0.10 s。</li>
+          <li>纸带到达模型行程或 240 个计时周期上限时自动停止，重置后可再做实验。</li>
+          <li>匀速模式假设拉力平衡纸带阻力；匀加速模式显示扣除阻力后的净加速度。</li>
         </ul>
       </div>
     </div>

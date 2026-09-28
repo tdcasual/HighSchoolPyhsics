@@ -37,10 +37,13 @@ export function CyclotronScene() {
       }
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>状态: {state.simulation.running ? '运行中' : '已暂停'}</p>
+          <p>
+            状态: {state.particleReachedRim ? '粒子已到达 D 形盒边缘' : state.simulation.running ? '运行中' : '已暂停'}
+          </p>
           <p>电压方向: {state.voltageDirectionText}</p>
           <p>U: {state.currentVoltageV.toExponential(2)} V</p>
-          <p>Ek: {state.currentEnergyJ.toExponential(2)} J</p>
+          <p>Ek（粒子实时值）: {state.currentEnergyJ.toExponential(2)} J</p>
+          <p>理想圆轨道 Ek,max（R=0.675 mm）: {state.maximumKineticEnergyJ.toExponential(2)} J</p>
           <p>自适应周期 T: {state.cyclotronPeriodS.toExponential(2)} s</p>
           <p>自适应出发 y0: {state.launchPositionY.toExponential(2)} m</p>
           {state.simulation.error ? <p>错误: {state.simulation.error}</p> : null}
@@ -58,7 +61,7 @@ export function CyclotronScene() {
             fixedRange={state.voltageRange}
           />
           <CyclotronTraceChart
-            title="Ek-t 曲线"
+            title="Ek-t 曲线（理论）"
             series={state.energySeries}
             running={state.simulation.running}
             valueLabel="Ek"
@@ -70,7 +73,8 @@ export function CyclotronScene() {
       playbackActions={[
         {
           key: 'toggle-running',
-          label: state.simulation.running ? '暂停' : '播放',
+          label: state.particleReachedRim ? '已出射' : state.simulation.running ? '暂停' : '播放',
+          disabled: state.particleReachedRim,
           onClick: state.simulation.toggleRunning,
         },
         {

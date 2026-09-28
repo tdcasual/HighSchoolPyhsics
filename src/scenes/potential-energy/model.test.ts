@@ -14,6 +14,20 @@ describe('potential-energy model', () => {
     expect(points[0].potential).toBeGreaterThan(0)
   })
 
+  it('starts at the display boundary without flattening the near-field curve', () => {
+    const points = buildPotentialSlicePoints(1, {
+      sampleCount: 12,
+      radiusStep: 0.4,
+      fieldScale: 12,
+      maxAbsPotential: 18,
+    })
+
+    expect(points[0].radius).toBeCloseTo(12 / 18, 10)
+    expect(points[0].potential).toBeCloseTo(18, 10)
+    expect(points[1].potential).toBeLessThan(points[0].potential)
+    expect(points.every((point) => point.potential <= 18 && point.potential > 0)).toBe(true)
+  })
+
   it('builds negative slice with negative potential', () => {
     const points = buildPotentialSlicePoints(-1, { sampleCount: 10, radiusStep: 0.5, fieldScale: 10 })
     expect(points.every((point) => point.potential <= 0)).toBe(true)

@@ -118,12 +118,14 @@ export type MicrometerReading = {
 }
 
 export function micrometerReading(r: number): MicrometerReading {
-  const half = Math.floor(r / MICROMETER_PITCH_MM + 1e-7)
+  // Negative zero error is a small reading before the fixed-scale zero mark, not a
+  // fictitious negative 0.5 mm sleeve line. Keep it as a signed thimble offset.
+  const half = r < 0 ? 0 : Math.floor(r / MICROMETER_PITCH_MM + 1e-7)
   const fixed = half * MICROMETER_PITCH_MM
-  const divisions = Math.max(0, (r - fixed) / MICROMETER_LEAST_MM)
+  const divisions = (r - fixed) / MICROMETER_LEAST_MM
   const value = roundTo(r, 0.001)
   const normalized = Object.is(value, -0) ? 0 : value
-  return { r, fixed, divisions, halfLine: half % 2 !== 0, value: normalized, text: normalized.toFixed(3) }
+  return { r, fixed, divisions, halfLine: r >= 0 && half % 2 !== 0, value: normalized, text: normalized.toFixed(3) }
 }
 
 export function checkMicrometer(input: string, r: number): CheckResult {
@@ -134,7 +136,7 @@ export function checkMicrometer(input: string, r: number): CheckResult {
     return { ok: false, truth, notes: [`请输入以 mm 为单位的数字，例如 ${truth.text}。`] }
   }
   const diff = parsed.value - truth.value
-  const valueOk = Math.abs(diff) <= 0.002 + 1e-9
+  const valueOk = Math.abs(diff) <= 0.0005 + 1e-9
   const formatOk = parsed.decimals === 3
   if (!valueOk) {
     if (Math.abs(Math.abs(diff) - 0.5) <= 0.002 + 1e-9) notes.push('半毫米刻度线判断有误：看固定刻度下方的半毫米线是否已经露出。')

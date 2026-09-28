@@ -7,6 +7,13 @@ import {
   formatWhiteLightFringeRange,
   waveLengthToHex,
 } from './model'
+import {
+  clampMicrometerReadout,
+  computeWavelengthMeasurement,
+  DEFAULT_FRINGE_COUNT,
+  INITIAL_MEASUREMENT_READOUT_MM,
+  type WavelengthMeasurement,
+} from './measurement'
 
 export type DoubleSlitSceneState = DoubleSlitParams & {
   lightColorHex: number
@@ -30,6 +37,22 @@ export type DoubleSlitSceneState = DoubleSlitParams & {
   setDoubleSlitAngle: (value: number) => void
   eyepieceAngle: number
   setEyepieceAngle: (value: number) => void
+  isBlindMode: boolean
+  setBlindMode: (value: boolean) => void
+  wheelReadoutMm: number
+  setWheelReadoutMm: (value: number) => void
+  stepWheel: (deltaMm: number) => void
+  fringeCount: number
+  setFringeCount: (value: number) => void
+  firstReadingMm: number | null
+  secondReadingMm: number | null
+  recordFirstReading: () => void
+  recordSecondReading: () => void
+  measurementResult: WavelengthMeasurement | null
+  calculateMeasuredWavelength: () => void
+  clearMeasurements: () => void
+  showFringeOrders: boolean
+  toggleFringeOrders: () => void
 }
 
 export function useDoubleSlitSceneState(): DoubleSlitSceneState {
@@ -41,23 +64,33 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const [singleSlitAngle, setSingleSlitAngle] = useState(0)
   const [doubleSlitAngle, setDoubleSlitAngle] = useState(0)
   const [eyepieceAngle, setEyepieceAngle] = useState(0)
+  const [isBlindMode, setIsBlindModeState] = useState(false)
+  const [wheelReadoutMm, setWheelReadoutMmState] = useState(INITIAL_MEASUREMENT_READOUT_MM)
+  const [fringeCount, setFringeCountState] = useState(DEFAULT_FRINGE_COUNT)
+  const [firstReadingMm, setFirstReadingMm] = useState<number | null>(null)
+  const [secondReadingMm, setSecondReadingMm] = useState<number | null>(null)
+  const [measurementResult, setMeasurementResult] = useState<WavelengthMeasurement | null>(null)
+  const [showFringeOrders, setShowFringeOrders] = useState(true)
 
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const fringeSpacingLabel = useMemo(
-    () => isWhiteLight ? formatWhiteLightFringeRange(params) : formatFringeSpacing(params),
-    [isWhiteLight, params],
+    () => isWhiteLight ? formatWhiteLightFringeRange(params, filterColor) : formatFringeSpacing(params),
+    [isWhiteLight, filterColor, params],
   )
 
   const setWavelength = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, wavelength: value }))
+    setMeasurementResult(null)
   }, [])
 
   const setSlitDistance = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, slitDistance: value }))
+    setMeasurementResult(null)
   }, [])
 
   const setScreenDistance = useCallback((value: number) => {
     setParams((prev) => ({ ...prev, screenDistance: value }))
+    setMeasurementResult(null)
   }, [])
 
   const setSlitWidth = useCallback((value: number) => {
@@ -74,13 +107,71 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
 
   const toggleWhiteLight = useCallback(() => {
     setIsWhiteLight((prev) => {
-      if (prev) setFilterColorState('none') // switching off white light clears filter
+      if (prev) setFilterColorState('none')
+      else setIsBlindModeState(false)
       return !prev
     })
+    setMeasurementResult(null)
   }, [])
 
   const setFilterColor = useCallback((value: FilterColor) => {
     setFilterColorState(value)
+    setMeasurementResult(null)
+  }, [])
+
+  const setBlindMode = useCallback((value: boolean) => {
+    setIsBlindModeState(value && !isWhiteLight)
+    setMeasurementResult(null)
+  }, [isWhiteLight])
+
+  const setWheelReadoutMm = useCallback((value: number) => {
+    setWheelReadoutMmState(clampMicrometerReadout(value))
+    setMeasurementResult(null)
+  }, [])
+
+  const stepWheel = useCallback((deltaMm: number) => {
+    setWheelReadoutMmState((previous) => clampMicrometerReadout(previous + deltaMm))
+    setMeasurementResult(null)
+  }, [])
+
+  const setFringeCount = useCallback((value: number) => {
+    setFringeCountState(Math.min(11, Math.max(2, Math.round(value))))
+    setMeasurementResult(null)
+  }, [])
+
+  const recordFirstReading = useCallback(() => {
+    setFirstReadingMm(wheelReadoutMm)
+    setSecondReadingMm(null)
+    setMeasurementResult(null)
+  }, [wheelReadoutMm])
+
+  const recordSecondReading = useCallback(() => {
+    setSecondReadingMm(wheelReadoutMm)
+    setMeasurementResult(null)
+  }, [wheelReadoutMm])
+
+  const calculateMeasuredWavelength = useCallback(() => {
+    if (firstReadingMm === null || secondReadingMm === null || isWhiteLight) {
+      setMeasurementResult(null)
+      return
+    }
+    setMeasurementResult(computeWavelengthMeasurement({
+      slitDistanceMm: params.slitDistance,
+      screenDistanceM: params.screenDistance,
+      firstReadingMm,
+      secondReadingMm,
+      fringeCount,
+    }))
+  }, [firstReadingMm, secondReadingMm, isWhiteLight, params.slitDistance, params.screenDistance, fringeCount])
+
+  const clearMeasurements = useCallback(() => {
+    setFirstReadingMm(null)
+    setSecondReadingMm(null)
+    setMeasurementResult(null)
+  }, [])
+
+  const toggleFringeOrders = useCallback(() => {
+    setShowFringeOrders((previous) => !previous)
   }, [])
 
   const reset = useCallback(() => {
@@ -92,6 +183,13 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setSingleSlitAngle(0)
     setDoubleSlitAngle(0)
     setEyepieceAngle(0)
+    setIsBlindModeState(false)
+    setWheelReadoutMmState(INITIAL_MEASUREMENT_READOUT_MM)
+    setFringeCountState(DEFAULT_FRINGE_COUNT)
+    setFirstReadingMm(null)
+    setSecondReadingMm(null)
+    setMeasurementResult(null)
+    setShowFringeOrders(true)
   }, [])
 
   return {
@@ -117,5 +215,21 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setDoubleSlitAngle,
     eyepieceAngle,
     setEyepieceAngle,
+    isBlindMode,
+    setBlindMode,
+    wheelReadoutMm,
+    setWheelReadoutMm,
+    stepWheel,
+    fringeCount,
+    setFringeCount,
+    firstReadingMm,
+    secondReadingMm,
+    recordFirstReading,
+    recordSecondReading,
+    measurementResult,
+    calculateMeasuredWavelength,
+    clearMeasurements,
+    showFringeOrders,
+    toggleFringeOrders,
   }
 }

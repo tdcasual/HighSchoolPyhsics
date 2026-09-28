@@ -35,6 +35,11 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
+export function wrapPhase(phase: number): number {
+  const wrapped = phase % TWO_PI
+  return wrapped < 0 ? wrapped + TWO_PI : wrapped
+}
+
 export function phaseAt(x: number, time: number, params: EmWaveParams): number {
   const directionSign = params.direction === 'right' ? 1 : -1
   const wavelength = Math.max(EPSILON, params.wavelength)
@@ -46,9 +51,10 @@ export function electricFieldAt(x: number, time: number, params: EmWaveParams): 
 }
 
 export function magneticFieldAt(x: number, time: number, params: EmWaveParams): number {
-  // E and B are in phase; the scene uses normalized field amplitudes so their
-  // perpendicular directions remain visible in every projection.
-  return params.amplitude * Math.sin(phaseAt(x, time, params))
+  // For propagation along +x, E_y × B_z points along +x. Reversing propagation
+  // must therefore reverse B_z while keeping E_y on its fixed y-axis.
+  const magneticDirection = params.direction === 'right' ? 1 : -1
+  return magneticDirection * params.amplitude * Math.sin(phaseAt(x, time, params))
 }
 
 export function buildFieldSamples(time: number, params: EmWaveParams, samples = 129): EmFieldSample[] {
@@ -56,7 +62,9 @@ export function buildFieldSamples(time: number, params: EmWaveParams, samples = 
   return Array.from({ length: count }, (_, index) => {
     const x = index / (count - 1) * WAVE_LENGTH
     const phase = phaseAt(x, time, params)
-    return { x, phase, e: params.amplitude * Math.sin(phase), b: params.amplitude * Math.sin(phase) }
+    const e = params.amplitude * Math.sin(phase)
+    const b = (params.direction === 'right' ? 1 : -1) * e
+    return { x, phase, e, b }
   })
 }
 

@@ -1,20 +1,18 @@
 import { Html } from "@react-three/drei/web/Html";
 import { useMemo } from "react";
 import { CatmullRomCurve3, DoubleSide, Vector3 } from "three";
-import { EM_LAYOUT, SPARK_LAYOUT, TAPE, tapeWorldX } from "./layout";
-import type { MotionMode, PrintQuality, TapeDot, TimerKind } from "./model";
+import { EM_LAYOUT, SPARK_LAYOUT, TAPE, sparkDiscRotationRad, tapeWorldX } from "./layout";
+import type { PrintQuality, TapeDot, TimerKind } from "./model";
 import { TICKER_CANDY as C } from "./palette";
 
 type TickerTimerRig3DProps = {
   kind: TimerKind;
   powered: boolean;
-  released: boolean;
   phase01: number;
   printQuality: PrintQuality;
   displacementM: number;
   dots: TapeDot[];
   showLabels: boolean;
-  motionMode: MotionMode;
 };
 
 function PartLabel({
@@ -204,13 +202,12 @@ function PaperTape({
   dots: TapeDot[];
   printQuality: PrintQuality;
 }) {
-  const tapeCenterX = 0.5;
-  const tapeMinX = tapeCenterX - TAPE.visibleLength / 2 + 0.07;
-  const tapeMaxX = tapeCenterX + TAPE.visibleLength / 2 - 0.15;
+  const tapeMinX = TAPE.centerX - TAPE.visibleLength / 2 + 0.07;
+  const tapeMaxX = TAPE.centerX + TAPE.visibleLength / 2 - 0.06;
 
   return (
     <group position={[0.8, 0, -0.8]} rotation={[0, -Math.PI / 2, 0]}>
-      <mesh position={[0.5, TAPE.y, 0]} receiveShadow>
+      <mesh position={[TAPE.centerX, TAPE.y, 0]} receiveShadow>
         <boxGeometry args={[TAPE.visibleLength, TAPE.thickness, TAPE.width]} />
         <meshStandardMaterial
           color={C.tape}
@@ -226,25 +223,18 @@ function PaperTape({
         return (
           <mesh
             key={`${dot.index}-${dot.timeS}`}
-            position={[x, TAPE.y + 0.018, 0]}
+            position={[x, TAPE.y + TAPE.thickness / 2 + 0.002, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={dot.smeared || printQuality === "smeared" ? [2.6, 1, 1] : [1, 1, 1]}
           >
-            <sphereGeometry
-              args={[
-                dot.smeared || printQuality === "smeared" ? 0.035 : 0.022,
-                10,
-                10,
-              ]}
-            />
+            <circleGeometry args={[dot.smeared || printQuality === "smeared" ? 0.022 : 0.012, 16]} />
             <meshBasicMaterial
               color={printQuality === "smeared" ? C.smeared : C.dot}
+              side={DoubleSide}
             />
           </mesh>
         );
       })}
-      <mesh position={[tapeMaxX + 0.12, 0.48, 0]}>
-        <boxGeometry args={[0.22, 0.08, 0.42]} />
-        <meshStandardMaterial color={C.terminalPositive} roughness={0.4} />
-      </mesh>
     </group>
   );
 }
@@ -461,10 +451,12 @@ function ElectromagneticTimer({
 function SparkTimer({
   powered,
   phase01,
+  displacementM,
   showLabels,
 }: {
   powered: boolean;
   phase01: number;
+  displacementM: number;
   showLabels: boolean;
 }) {
   const sparkOn = powered && phase01 < 0.12;
@@ -494,7 +486,7 @@ function SparkTimer({
           roughness={0.4}
         />
       </mesh>
-      <mesh position={SPARK_LAYOUT.head.position}>
+      <mesh position={SPARK_LAYOUT.head.position} castShadow receiveShadow>
         <boxGeometry args={[...SPARK_LAYOUT.head.size]} />
         <meshStandardMaterial
           color={C.sparkHead}
@@ -502,17 +494,46 @@ function SparkTimer({
           roughness={0.4}
         />
       </mesh>
-      <mesh position={SPARK_LAYOUT.disc.position} castShadow>
-        <cylinderGeometry
-          args={[
-            SPARK_LAYOUT.disc.radius,
-            SPARK_LAYOUT.disc.radius,
-            SPARK_LAYOUT.disc.thickness,
-            48,
-          ]}
-        />
-        <meshStandardMaterial color={C.sparkDisc} roughness={0.86} />
-      </mesh>
+      {SPARK_LAYOUT.framePosts.map((post, index) => (
+        <mesh key={`spark-post-${index}`} position={post.position} castShadow>
+          <boxGeometry args={[...post.size]} />
+          <meshStandardMaterial
+            color={C.sparkHead}
+            metalness={0.48}
+            roughness={0.36}
+          />
+        </mesh>
+      ))}
+      {SPARK_LAYOUT.frameRails.map((rail, index) => (
+        <mesh key={`spark-rail-${index}`} position={rail.position} castShadow>
+          <boxGeometry args={[...rail.size]} />
+          <meshStandardMaterial
+            color={C.sparkHead}
+            metalness={0.48}
+            roughness={0.36}
+          />
+        </mesh>
+      ))}
+      <group
+        position={SPARK_LAYOUT.disc.position}
+        rotation={[0, sparkDiscRotationRad(displacementM), 0]}
+      >
+        <mesh castShadow>
+          <cylinderGeometry
+            args={[
+              SPARK_LAYOUT.disc.radius,
+              SPARK_LAYOUT.disc.radius,
+              SPARK_LAYOUT.disc.thickness,
+              48,
+            ]}
+          />
+          <meshStandardMaterial color={C.sparkDisc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0, SPARK_LAYOUT.disc.thickness / 2 + 0.004, 0.24]}>
+          <boxGeometry args={[0.07, 0.006, 0.12]} />
+          <meshStandardMaterial color="#aaa4ad" roughness={0.7} />
+        </mesh>
+      </group>
       <mesh position={SPARK_LAYOUT.discShaft.position}>
         <cylinderGeometry args={[0.035, 0.035, 0.42, 18]} />
         <meshStandardMaterial color={C.pin} metalness={0.82} roughness={0.28} />
@@ -574,8 +595,8 @@ function SparkTimer({
       <PartLabel visible={showLabels} position={[-1.4, 2.05, 0]}>
         脉冲电源盒 · 220 V
       </PartLabel>
-      <PartLabel visible={showLabels} position={[0.8, 1.35, 0]}>
-        墨粉纸盘与放电针
+      <PartLabel visible={showLabels} position={[1.7, 1.48, 0.45]}>
+        墨粉纸盘（随纸带转动）
       </PartLabel>
     </group>
   );
@@ -621,6 +642,7 @@ export function TickerTimerRig3D({
         <SparkTimer
           powered={powered}
           phase01={phase01}
+          displacementM={displacementM}
           showLabels={showLabels}
         />
       )}

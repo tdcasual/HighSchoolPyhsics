@@ -12,23 +12,14 @@ describe('cyclotron trace helpers', () => {
     expect(deriveAdaptiveWindowS(periodS)).toBeCloseTo(periodS * 4)
   })
 
-  it('flips gap voltage sign every half period', () => {
+  it('models a sinusoidal RF voltage synchronized to the cyclotron period', () => {
     const periodS = 2e-8
     const amplitudeV = 120
 
-    const firstHalfA = evaluateGapVoltageAtTime(periodS * 0.1, amplitudeV, periodS)
-    const firstHalfB = evaluateGapVoltageAtTime(periodS * 0.4, amplitudeV, periodS)
-    const secondHalfA = evaluateGapVoltageAtTime(periodS * 0.6, amplitudeV, periodS)
-    const secondHalfB = evaluateGapVoltageAtTime(periodS * 0.9, amplitudeV, periodS)
-    const beforeFlip = evaluateGapVoltageAtTime(periodS * 0.499, amplitudeV, periodS)
-    const afterFlip = evaluateGapVoltageAtTime(periodS * 0.501, amplitudeV, periodS)
-
-    expect(firstHalfA).toBeCloseTo(amplitudeV, 6)
-    expect(firstHalfB).toBeCloseTo(amplitudeV, 6)
-    expect(secondHalfA).toBeCloseTo(-amplitudeV, 6)
-    expect(secondHalfB).toBeCloseTo(-amplitudeV, 6)
-    expect(beforeFlip).toBeCloseTo(amplitudeV, 6)
-    expect(afterFlip).toBeCloseTo(-amplitudeV, 6)
+    expect(evaluateGapVoltageAtTime(0, amplitudeV, periodS)).toBeCloseTo(amplitudeV, 6)
+    expect(evaluateGapVoltageAtTime(periodS / 4, amplitudeV, periodS)).toBeCloseTo(0, 6)
+    expect(evaluateGapVoltageAtTime(periodS / 2, amplitudeV, periodS)).toBeCloseTo(-amplitudeV, 6)
+    expect(evaluateGapVoltageAtTime(periodS, amplitudeV, periodS)).toBeCloseTo(amplitudeV, 6)
   })
 
   it('keeps ignore-time mode as step jump while include-time mode ramps', () => {

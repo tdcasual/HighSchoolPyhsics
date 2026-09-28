@@ -24,7 +24,7 @@ describe('rotational-emf model', () => {
     expect(atQuarterTurn).toBeCloseTo(atZero)
   })
 
-  it('makes the rotating frame magnitude vary with angle and vanish at the aligned state', () => {
+  it('makes the rotating frame magnitude peak when its plane is parallel to the field and vanish after a quarter turn', () => {
     const atZero = deriveRotatingFrameEmfMagnitude({
       magneticFieldT: 1,
       angularSpeed: 1,
@@ -38,9 +38,8 @@ describe('rotational-emf model', () => {
       angleRad: Math.PI / 2,
     })
 
-    expect(atZero).toBeCloseTo(0)
-    expect(atQuarterTurn).toBeGreaterThan(atZero)
-    expect(atQuarterTurn).toBeCloseTo(1)
+    expect(atZero).toBeCloseTo(1)
+    expect(atQuarterTurn).toBeCloseTo(0)
   })
 
   it('scales both scenarios with B, ω, and effective length', () => {
@@ -63,13 +62,13 @@ describe('rotational-emf model', () => {
       magneticFieldT: 1,
       angularSpeed: 1,
       effectiveLengthM: 1,
-      angleRad: Math.PI / 2,
+      angleRad: 0,
     })
     const frameScaled = deriveRotatingFrameEmfMagnitude({
       magneticFieldT: 2,
       angularSpeed: 2,
       effectiveLengthM: 2,
-      angleRad: Math.PI / 2,
+      angleRad: 0,
     })
 
     expect(frameScaled).toBeGreaterThan(frameBase)
@@ -91,6 +90,6 @@ describe('rotational-emf model', () => {
       angleRad: 0,
     })
 
-    expect(rod.emfMagnitudeV).toBeGreaterThan(frame.emfMagnitudeV)
+    expect(frame.emfMagnitudeV).toBeGreaterThan(rod.emfMagnitudeV)
   })
 })

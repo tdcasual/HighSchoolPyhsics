@@ -1,18 +1,29 @@
 import { Line } from '@react-three/drei/core/Line'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { buildBeamFlightTrailPoints, buildBeamPathPoints, deriveBeamPhase } from './beamPath'
+import { buildCrtScreenGridSegments, mapDisplayPointToCrtScreen } from './screenGeometry'
 import { BEAM_VISUAL_STYLE } from './beamVisual'
 
 type OscilloscopeCrt3DProps = {
   beamX: number
   beamY: number
   timeCursor: number
+  traceSegments: Array<Array<[number, number]>>
   running: boolean
 }
 
-function CtrModel({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps) {
+const CRT_FOV_DEG = 34
+const CRT_HORIZONTAL_BOUNDS = 11.5
+const CRT_SCREEN_GRID = buildCrtScreenGridSegments()
+const CRT_CAMERA_TARGET: [number, number, number] = [-1, 0, -0.42]
+
+function CtrModel({ beamX, beamY, timeCursor, traceSegments, running }: OscilloscopeCrt3DProps) {
   const beamPoints = useMemo(() => buildBeamPathPoints(beamX, beamY), [beamX, beamY])
+  const screenTraceSegments = useMemo(
+    () => traceSegments.map((segment) => segment.map(mapDisplayPointToCrtScreen)),
+    [traceSegments],
+  )
   const beamPhase = useMemo(() => deriveBeamPhase(timeCursor, running), [running, timeCursor])
   const flightTrailPoints = useMemo(
     () => buildBeamFlightTrailPoints(beamPoints, beamPhase, 14),
@@ -43,8 +54,33 @@ function CtrModel({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps)
 
       <mesh position={[3.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.97, 0.97, 0.08, 64]} />
-        <meshStandardMaterial color="#88cde8" emissive="#79d2ce" emissiveIntensity={0.35} />
+        <meshStandardMaterial color="#12434a" emissive="#0b3d31" emissiveIntensity={0.3} roughness={0.5} />
       </mesh>
+
+      {CRT_SCREEN_GRID.map((points, index) => (
+        <Line
+          key={'crt-grid-' + index}
+          points={points}
+          color="#91c7ad"
+          lineWidth={0.85}
+          transparent
+          opacity={0.32}
+          depthTest={false}
+        />
+      ))}
+      {screenTraceSegments.map((points, index) => (
+        points.length >= 2 ? (
+          <Line
+            key={'crt-phosphor-trace-' + index}
+            points={points}
+            color="#baff63"
+            lineWidth={2.2}
+            transparent
+            opacity={0.96}
+            depthTest={false}
+          />
+        ) : null
+      ))}
 
       <mesh position={[-3.1, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.48, 0.3, 0.9, 40]} />
@@ -125,13 +161,43 @@ function CtrModel({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps)
   )
 }
 
-export function OscilloscopeCrt3D({ beamX, beamY, timeCursor, running }: OscilloscopeCrt3DProps) {
+export function OscilloscopeCrt3D({ beamX, beamY, timeCursor, traceSegments, running }: OscilloscopeCrt3DProps) {
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [aspect, setAspect] = useState(16 / 9)
+  const distance = Math.max(
+    7.2,
+    (CRT_HORIZONTAL_BOUNDS / (2 * Math.tan((CRT_FOV_DEG * Math.PI) / 360) * Math.max(0.35, aspect))) * 1.1,
+  )
+
+  useEffect(() => {
+    const surface = frameRef.current?.querySelector('.interactive-canvas-surface')
+    if (!surface) return
+
+    const updateAspect = () => {
+      const { width, height } = surface.getBoundingClientRect()
+      if (width > 0 && height > 0) setAspect(width / height)
+    }
+    updateAspect()
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateAspect)
+      return () => window.removeEventListener('resize', updateAspect)
+    }
+    const observer = new ResizeObserver(updateAspect)
+    observer.observe(surface)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <InteractiveCanvas
-      camera={{ position: [0, 1.25, 7.2], fov: 34 }}
-      frameloop={running ? 'always' : 'demand'}
-    >
-      <CtrModel beamX={beamX} beamY={beamY} timeCursor={timeCursor} running={running} />
-    </InteractiveCanvas>
+    <div ref={frameRef} className="h-full w-full">
+      <InteractiveCanvas
+        camera={{ position: [CRT_CAMERA_TARGET[0] - distance * 0.42, distance * 0.17, CRT_CAMERA_TARGET[2] + distance], fov: CRT_FOV_DEG }}
+        controls={{ target: CRT_CAMERA_TARGET, minDistance: 3, maxDistance: Math.max(24, distance * 1.35) }}
+        syncCamera
+        adaptiveFraming={false}
+        frameloop={running ? 'always' : 'demand'}
+      >
+        <CtrModel beamX={beamX} beamY={beamY} timeCursor={timeCursor} traceSegments={traceSegments} running={running} />
+      </InteractiveCanvas>
+    </div>
   )
 }

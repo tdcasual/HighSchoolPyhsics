@@ -77,7 +77,7 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
     }
 
     // Scale bar: 1 fringe spacing at bottom
-    const fringeSpacingM = (params.wavelength * 1e-9) / (2 * Math.sin(params.wedgeAngle * Math.PI / 180))
+    const fringeSpacingM = (params.wavelength * 1e-9) / (2 * Math.tan(params.wedgeAngle * Math.PI / 180))
     const fringePx = (fringeSpacingM / PHYSICAL_VIEW_WIDTH) * renderW
     if (fringePx > 4) {
       const barY = renderH - 12
@@ -112,7 +112,7 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
         aria-label="劈尖干涉图样"
         className="wedge-chart-canvas"
       />
-      <p className="wedge-formula">l = λ / (2sinθ)</p>
+      <p className="wedge-formula">l = λ / (2tanθ) ≈ λ / (2θ)，θ 用弧度</p>
     </div>
   )
 })

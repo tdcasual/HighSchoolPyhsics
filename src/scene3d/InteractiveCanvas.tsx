@@ -1,8 +1,9 @@
 import { OrbitControls } from '@react-three/drei/core/OrbitControls'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useAppStore } from '../store/useAppStore'
 import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile } from '../app/touchProfile'
-import { useCallback, useEffect, useMemo, useRef, type ComponentProps, type PropsWithChildren } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, type ComponentProps, type PropsWithChildren, type RefObject } from 'react'
+import type { Camera, PerspectiveCamera } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
@@ -18,6 +19,97 @@ installThreeConsoleFilter()
 
 const OVERVIEW_PRESENTATION_FOCUS: PresentationFocus = { mode: 'overview' }
 
+
+type Vec3Tuple = [number, number, number]
+
+type CameraSyncConfig = {
+  position?: unknown
+  fov?: number
+  near?: number
+  far?: number
+  zoom?: number
+}
+
+function readVec3(value: unknown): Vec3Tuple | undefined {
+  if (Array.isArray(value) && value.length >= 3) {
+    return [Number(value[0]), Number(value[1]), Number(value[2])]
+  }
+  if (value && typeof value === 'object' && 'x' in value && 'y' in value && 'z' in value) {
+    const vector = value as { x: number; y: number; z: number }
+    return [vector.x, vector.y, vector.z]
+  }
+  return undefined
+}
+
+function synchronizeCamera(
+  activeCamera: Camera,
+  config: CameraSyncConfig,
+  targetPosition: Vec3Tuple | undefined,
+  controlsRef: RefObject<OrbitControlsImpl | null>,
+  cameraUp?: Vec3Tuple,
+) {
+  const position = readVec3(config.position)
+  if (position) activeCamera.position.set(...position)
+  if (cameraUp) activeCamera.up.set(...cameraUp)
+  const perspectiveCamera = activeCamera as PerspectiveCamera
+  if (typeof config.fov === 'number') perspectiveCamera.fov = config.fov
+  if (typeof config.near === 'number') perspectiveCamera.near = config.near
+  if (typeof config.far === 'number') perspectiveCamera.far = config.far
+  if (typeof config.zoom === 'number') perspectiveCamera.zoom = config.zoom
+  perspectiveCamera.updateProjectionMatrix()
+
+  if (targetPosition) {
+    const controls = controlsRef.current
+    if (controls) {
+      controls.target.set(...targetPosition)
+      controls.update()
+    } else {
+      activeCamera.lookAt(...targetPosition)
+    }
+  }
+}
+
+function CameraSynchronizer({
+  camera,
+  cameraUp,
+  target,
+  controlsRef,
+  cameraKey,
+  targetKey,
+}: {
+  camera: NonNullable<ComponentProps<typeof Canvas>['camera']>
+  cameraUp?: Vec3Tuple
+  target: ComponentProps<typeof OrbitControls>['target']
+  controlsRef: RefObject<OrbitControlsImpl | null>
+  cameraKey: string
+  targetKey: string
+}) {
+  const activeCamera = useThree((state) => state.camera)
+  const invalidate = useThree((state) => state.invalidate)
+  const cameraRef = useRef(camera)
+  const cameraUpRef = useRef(cameraUp)
+  const targetRef = useRef(target)
+
+  useLayoutEffect(() => {
+    cameraRef.current = camera
+    cameraUpRef.current = cameraUp
+    targetRef.current = target
+  })
+
+  useLayoutEffect(() => {
+    synchronizeCamera(
+      activeCamera,
+      cameraRef.current as unknown as CameraSyncConfig,
+      readVec3(targetRef.current),
+      controlsRef,
+      cameraUpRef.current,
+    )
+    invalidate()
+  }, [activeCamera, cameraKey, controlsRef, invalidate, targetKey])
+
+  return null
+}
+
 function isTestRuntime(): boolean {
   const viteEnv = (import.meta as { env?: Record<string, unknown> }).env
   return Boolean(viteEnv && (viteEnv.MODE === 'test' || viteEnv.VITEST === true))
@@ -25,8 +117,11 @@ function isTestRuntime(): boolean {
 
 type InteractiveCanvasProps = PropsWithChildren<{
   camera: NonNullable<ComponentProps<typeof Canvas>['camera']>
+  cameraUp?: Vec3Tuple
   frameloop?: ComponentProps<typeof Canvas>['frameloop']
   controlsEnabled?: boolean
+  /** Apply changing camera fit/preset inputs to the live Three.js camera. */
+  syncCamera?: boolean
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
   adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
   presentationFocus?: PresentationFocus
@@ -35,8 +130,10 @@ type InteractiveCanvasProps = PropsWithChildren<{
 
 export function InteractiveCanvas({
   camera,
+  cameraUp,
   frameloop = 'always',
   controlsEnabled = true,
+  syncCamera = false,
   controls,
   adaptiveFraming = true,
   presentationFocus,
@@ -56,10 +153,8 @@ export function InteractiveCanvas({
   const presentationLockUntilRef = useRef(0)
   const { onChange: controlsOnChange, onStart: controlsOnStart, ...controlsProps } = controls ?? {}
   const targetProp = controls?.target
-  const targetKey =
-    Array.isArray(targetProp) && targetProp.length === 3
-      ? targetProp.map((value) => Number(value).toFixed(4)).join(',')
-      : 'default'
+  const targetValues = readVec3(targetProp)
+  const targetKey = targetValues?.map((value) => value.toFixed(4)).join(',') ?? 'default'
   const touchProfile = useMemo(
     () => findRuntimeTouchProfile(activeScenePath) ?? ENHANCED_TOUCH_PROFILE,
     [activeScenePath],
@@ -68,6 +163,9 @@ export function InteractiveCanvas({
   const presentationFocusKey = resolvedPresentationFocus
     ? `${resolvedPresentationFocus.mode}:${resolvedPresentationFocus.primary?.join(',') ?? 'none'}:${resolvedPresentationFocus.secondary?.join(',') ?? 'none'}`
     : 'none'
+  const cameraConfig = camera as unknown as { position?: unknown; fov?: number; near?: number; far?: number; zoom?: number }
+  const cameraPosition = readVec3(cameraConfig.position)
+  const cameraSyncKey = [cameraPosition?.join(',') ?? 'none', cameraUp?.join(',') ?? 'default-up', cameraConfig.fov, cameraConfig.near, cameraConfig.far, cameraConfig.zoom].join(':')
   const adaptiveFramingOptions = useMemo(() => {
     if (adaptiveFraming === false) {
       return null
@@ -272,6 +370,7 @@ export function InteractiveCanvas({
           shadows={shadowsEnabled ? 'percentage' : false}
         >
           {children}
+          {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
           <OrbitControls
             ref={controlsRef}
             makeDefault

@@ -1,8 +1,12 @@
 import { Line } from '@react-three/drei/core/Line'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useMemo, useState } from 'react'
-import { DoubleSide, Plane, Vector3 } from 'three'
-import type { ElectrostaticCharge, PotentialTerrain } from './model'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { BufferAttribute, BufferGeometry, DoubleSide, Plane, Vector3 } from 'three'
+import {
+  samplePotentialTerrainHeight,
+  type ElectrostaticCharge,
+  type PotentialTerrain,
+} from './model'
 
 type ProbePoint = {
   x: number
@@ -36,6 +40,58 @@ type ContourGroup = {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+type LinePoint = [number, number, number]
+
+function buildFieldArrowheads(
+  lines: ReadonlyArray<ReadonlyArray<LinePoint>>,
+  charges: ReadonlyArray<ElectrostaticCharge>,
+): LinePoint[][] {
+  const hasPositiveSource = charges.some((charge) => charge.magnitude > 1e-6)
+  const orientation = hasPositiveSource ? 1 : -1
+  const arrowheads: LinePoint[][] = []
+
+  for (const line of lines) {
+    if (line.length < 3) {
+      continue
+    }
+
+    const tipIndex = Math.floor((line.length - 1) * 0.58)
+    const previous = line[tipIndex - 1]
+    const tip = line[tipIndex]
+    const next = line[tipIndex + 1]
+    if (!previous || !tip || !next) {
+      continue
+    }
+
+    const dx = (next[0] - previous[0]) * orientation
+    const dz = (next[2] - previous[2]) * orientation
+    const length = Math.hypot(dx, dz)
+    if (length < 1e-6) {
+      continue
+    }
+
+    const ux = dx / length
+    const uz = dz / length
+    const backLength = 0.24
+    const wingLength = 0.13
+    const y = tip[1] + 0.045
+    const arrowTip: LinePoint = [tip[0], y, tip[2]]
+    const leftWing: LinePoint = [
+      tip[0] - ux * backLength - uz * wingLength,
+      y,
+      tip[2] - uz * backLength + ux * wingLength,
+    ]
+    const rightWing: LinePoint = [
+      tip[0] - ux * backLength + uz * wingLength,
+      y,
+      tip[2] - uz * backLength - ux * wingLength,
+    ]
+    arrowheads.push([leftWing, arrowTip, rightWing])
+  }
+
+  return arrowheads
 }
 
 function resolveContourColor(level: number): string {
@@ -93,9 +149,34 @@ export function ElectrostaticLabRig3D({
 }: ElectrostaticLabRig3DProps) {
   const showTerrain = displayMode === 'potential'
   const showFieldLines = displayMode === 'field' || (showTerrain && overlayFieldLines)
+  const terrainGeometry = useMemo(() => {
+    const geometry = new BufferGeometry()
+    geometry.setAttribute('position', new BufferAttribute(terrain.vertexPositions, 3))
+    geometry.setAttribute('color', new BufferAttribute(terrain.vertexColors, 3))
+    geometry.setIndex(new BufferAttribute(terrain.indices, 1))
+    geometry.computeVertexNormals()
+    return geometry
+  }, [terrain])
+  useEffect(() => () => terrainGeometry.dispose(), [terrainGeometry])
+  const displayFieldLines = useMemo(
+    () =>
+      fieldLines.map((line) =>
+        line.map(([x, , z]): [number, number, number] => [
+          x,
+          showTerrain ? samplePotentialTerrainHeight(terrain, bounds, { x, z }) + 0.1 : 0.08,
+          z,
+        ]),
+      ),
+    [bounds, fieldLines, showTerrain, terrain],
+  )
   const contourGroups = useMemo(() => groupContourSegments(terrain), [terrain])
-  const dragPlane = useMemo(() => new Plane(new Vector3(0, 1, 0), 0), [])
+  const fieldArrowheads = useMemo(
+    () => buildFieldArrowheads(displayFieldLines, charges),
+    [charges, displayFieldLines],
+  )
+  const dragPlaneRef = useRef(new Plane(new Vector3(0, 1, 0), 0))
   const dragHitPoint = useMemo(() => new Vector3(), [])
+  const dragOffsetRef = useRef({ x: 0, z: 0 })
   const [draggingChargeId, setDraggingChargeId] = useState<string | null>(null)
 
   const capturePointer = (event: ThreeEvent<PointerEvent>) => {
@@ -112,12 +193,27 @@ export function ElectrostaticLabRig3D({
     }
   }
 
+  const startChargeDrag = (
+    event: ThreeEvent<PointerEvent>,
+    charge: ElectrostaticCharge,
+    markerY: number,
+  ) => {
+    dragPlaneRef.current.constant = -markerY
+    if (event.ray.intersectPlane(dragPlaneRef.current, dragHitPoint)) {
+      dragOffsetRef.current = {
+        x: charge.x - dragHitPoint.x,
+        z: charge.z - dragHitPoint.z,
+      }
+    }
+  }
+
   const applyChargePositionFromRay = (event: ThreeEvent<PointerEvent>, chargeId: string) => {
-    if (!event.ray.intersectPlane(dragPlane, dragHitPoint)) {
+    if (!event.ray.intersectPlane(dragPlaneRef.current, dragHitPoint)) {
       return
     }
-    const x = clamp(dragHitPoint.x, -bounds, bounds)
-    const z = clamp(dragHitPoint.z, -bounds, bounds)
+    const chargeLimit = Math.max(0, bounds - 1)
+    const x = clamp(dragHitPoint.x + dragOffsetRef.current.x, -chargeLimit, chargeLimit)
+    const z = clamp(dragHitPoint.z + dragOffsetRef.current.z, -chargeLimit, chargeLimit)
     onChargePositionChange(chargeId, {
       x: Number(x.toFixed(2)),
       z: Number(z.toFixed(2)),
@@ -151,8 +247,9 @@ export function ElectrostaticLabRig3D({
             return
           }
           event.stopPropagation()
-          const x = clamp(event.point.x, -bounds, bounds)
-          const z = clamp(event.point.z, -bounds, bounds)
+          const chargeLimit = Math.max(0, bounds - 1)
+          const x = clamp(event.point.x, -chargeLimit, chargeLimit)
+          const z = clamp(event.point.z, -chargeLimit, chargeLimit)
           const sign: 1 | -1 = event.nativeEvent.shiftKey ? -1 : 1
           onAddChargeAt({ x, z }, sign)
         }}
@@ -162,12 +259,7 @@ export function ElectrostaticLabRig3D({
       </mesh>
 
       {showTerrain ? (
-        <mesh renderOrder={1}>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[terrain.vertexPositions, 3]} />
-            <bufferAttribute attach="attributes-color" args={[terrain.vertexColors, 3]} />
-            <bufferAttribute attach="index" args={[terrain.indices, 1]} />
-          </bufferGeometry>
+        <mesh geometry={terrainGeometry} renderOrder={1}>
           <meshStandardMaterial
             vertexColors
             side={DoubleSide}
@@ -192,10 +284,10 @@ export function ElectrostaticLabRig3D({
         : null}
 
       {showFieldLines
-        ? fieldLines.map((line, index) => (
+        ? displayFieldLines.map((line, index) => (
             <Line
               key={`field-line-${index}`}
-              points={line as Array<[number, number, number]>}
+              points={line}
               color="#ffcf5f"
               lineWidth={1.7}
               transparent
@@ -203,15 +295,32 @@ export function ElectrostaticLabRig3D({
             />
           ))
         : null}
+      {showFieldLines
+        ? fieldArrowheads.map((points, index) => (
+            <Line
+              key={`field-arrow-${index}`}
+              points={points}
+              color="#fff2b2"
+              lineWidth={2.4}
+              transparent
+              opacity={0.98}
+            />
+          ))
+        : null}
 
       {charges.map((charge) => {
         const isSelected = charge.id === selectedChargeId
-        const color = charge.magnitude >= 0 ? '#ff6b6b' : '#5c86ff'
+        const color =
+          charge.magnitude > 1e-6 ? '#ff6b6b' : charge.magnitude < -1e-6 ? '#5c86ff' : '#aeb8c7'
         const radius = 0.2 + Math.min(0.18, Math.abs(charge.magnitude) * 0.03)
+        const surfaceHeight = showTerrain
+          ? samplePotentialTerrainHeight(terrain, bounds, { x: charge.x, z: charge.z })
+          : 0
+        const markerY = showTerrain ? surfaceHeight + radius * 0.86 : 0.18
         return (
           <mesh
             key={charge.id}
-            position={[charge.x, 0.18, charge.z]}
+            position={[charge.x, markerY, charge.z]}
             onClick={(event) => {
               event.stopPropagation()
               if (probeMode) {
@@ -226,9 +335,9 @@ export function ElectrostaticLabRig3D({
               }
               event.stopPropagation()
               capturePointer(event)
+              startChargeDrag(event, charge, markerY)
               setDraggingChargeId(charge.id)
               onSelectCharge(charge.id)
-              applyChargePositionFromRay(event, charge.id)
             }}
             onPointerMove={(event) => {
               if (!advancedInteractionsEnabled || draggingChargeId !== charge.id || probeMode) {
@@ -275,14 +384,29 @@ export function ElectrostaticLabRig3D({
 
       {probePoint ? (
         <group>
-          <mesh position={[probePoint.x, 0.14, probePoint.z]} renderOrder={4}>
+          <mesh
+            position={[
+              probePoint.x,
+              (showTerrain ? samplePotentialTerrainHeight(terrain, bounds, probePoint) : 0) + 0.14,
+              probePoint.z,
+            ]}
+            renderOrder={4}
+          >
             <sphereGeometry args={[0.12, 18, 16]} />
             <meshBasicMaterial color="#ffe15a" transparent opacity={0.95} />
           </mesh>
           <Line
             points={[
-              [probePoint.x, 0.04, probePoint.z],
-              [probePoint.x, 0.92, probePoint.z],
+              [
+                probePoint.x,
+                showTerrain ? samplePotentialTerrainHeight(terrain, bounds, probePoint) + 0.04 : 0.04,
+                probePoint.z,
+              ],
+              [
+                probePoint.x,
+                (showTerrain ? samplePotentialTerrainHeight(terrain, bounds, probePoint) : 0.04) + 0.92,
+                probePoint.z,
+              ],
             ]}
             color="#ffe15a"
             lineWidth={1.5}

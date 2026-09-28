@@ -28,6 +28,26 @@ describe('resistivity model', () => {
     expect(reading.Rmeasured).toBeLessThan(reading.Rtrue)
   })
 
+  it('models the internal connection and the divider endpoints with the correct polarity', () => {
+    const input = {
+      material: 'nichrome' as const,
+      diameter: 0.4,
+      length: 0.5,
+      ammeter: 'A06' as const,
+      voltmeter: 'V3' as const,
+      method: 'internal' as const,
+      closed: true,
+    }
+    const internal = measurement({ ...input, control: 'limit', slider: 0.5 })
+    expect(internal.Rmeasured).toBeCloseTo(internal.Rtrue + 0.125, 6)
+    const zero = measurement({ ...input, method: 'external', control: 'divider', slider: 0 })
+    const half = measurement({ ...input, method: 'external', control: 'divider', slider: 0.5 })
+    const full = measurement({ ...input, method: 'external', control: 'divider', slider: 1 })
+    expect(zero.Ux).toBeCloseTo(0, 6)
+    expect(half.Ux).toBeGreaterThan(zero.Ux)
+    expect(full.Ux).toBeGreaterThan(half.Ux)
+  })
+
   it('recommends the external connection for a few-ohm wire', () => {
     const error = systematicError(4, 'external', 'A06', 'V3')
     expect(error.recommend).toBe('external')

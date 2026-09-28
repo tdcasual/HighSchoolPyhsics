@@ -23,6 +23,34 @@ describe('SceneActions', () => {
     expect(onReset).toHaveBeenCalledTimes(1)
   })
 
+  it('supports vertically stacked actions for narrow control panels', () => {
+    const { container } = render(
+      <SceneActions
+        layout="column"
+        actions={[{ key: 'slice', label: '显示切片', onClick: vi.fn() }]}
+      />,
+    )
+
+    expect(container.firstChild).toHaveClass('scene-actions-column')
+  })
+
+  it('supports a two-column action grid for narrow sidebars', () => {
+    const { container } = render(
+      <SceneActions
+        layout="grid-2"
+        actions={[
+          { key: 'add-positive', label: '添加 + 电荷', onClick: vi.fn() },
+          { key: 'add-negative', label: '添加 - 电荷', onClick: vi.fn() },
+          { key: 'delete', label: '删除选中', onClick: vi.fn() },
+          { key: 'probe', label: '开启探针模式', onClick: vi.fn() },
+        ]}
+      />,
+    )
+
+    expect(container.firstChild).toHaveClass('scene-actions-grid-2')
+    expect(screen.getAllByRole('button')).toHaveLength(4)
+  })
+
   it('supports active button style by action key', () => {
     render(
       <SceneActions

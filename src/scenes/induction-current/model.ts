@@ -1,4 +1,5 @@
 export type PoleSetting = 's-top-n-down' | 's-bottom-n-up'
+export const INDUCTION_COIL_RADIUS = 4
 export type MotionDirection = 'approach' | 'recede'
 export type VerticalDirection = 'up' | 'down'
 export type FluxChange = 'increase' | 'decrease'
@@ -75,6 +76,25 @@ export function deriveInductionOutcome(
   }
 }
 
+/** Relative visual current based on the rate of change of a dipole's flux through a circular coil. */
+export function deriveRelativeInducedCurrent(options: {
+  poleSetting: PoleSetting
+  motion: MotionDirection
+  magnetOffset: number
+  magnetVelocity: number
+}): number {
+  const radiusSquared = INDUCTION_COIL_RADIUS ** 2
+  const offsetSquared = options.magnetOffset ** 2
+  const denominator = (radiusSquared + offsetSquared) ** 2.5
+  const fluxGradient = denominator > 0
+    ? (3 * radiusSquared * Math.abs(options.magnetOffset)) / denominator
+    : 0
+  const outcome = deriveInductionOutcome(options)
+  const visualGain = 0.25
+
+  return outcome.needleSign * Math.abs(options.magnetVelocity) * fluxGradient * visualGain
+}
+
 export function createExperimentRecord(
   options: CreateExperimentRecordOptions,
 ): ExperimentRecord {
@@ -95,7 +115,7 @@ export function formatVerticalDirection(direction: VerticalDirection): string {
 }
 
 export function formatFluxChange(fluxChange: FluxChange): string {
-  return fluxChange === 'increase' ? '增加 (接近)' : '减少 (远离)'
+  return fluxChange === 'increase' ? '|Φ| 增加 (接近)' : '|Φ| 减少 (远离)'
 }
 
 export function formatCurrentDirection(direction: CurrentDirection): string {

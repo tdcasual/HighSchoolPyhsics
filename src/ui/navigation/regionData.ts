@@ -16,7 +16,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#818cf8',
     position: [4, 0, 3],
     description: '电场、电势与电荷分布',
-    scenePageIds: ['equipotential', 'potential-energy', 'electrostatic-lab', 'equipotential-dipole', 'same-charge'],
+    scenePageIds: ['equipotential', 'potential-energy', 'electrostatic-lab', 'equipotential-dipole'],
   },
   {
     id: 'electromagnetism',
@@ -25,7 +25,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#fbbf24',
     position: [-4, 0, 3],
     description: '磁场、电流与洛伦兹力',
-    scenePageIds: ['oersted', 'cyclotron', 'dynamic-circle', 'cyclotron-core', 'orthogonal-em-wave', 'measuring-tools', 'resistivity', 'multimeter'],
+    scenePageIds: ['oersted', 'cyclotron', 'cyclotron-core', 'orthogonal-em-wave', 'measuring-tools', 'resistivity', 'multimeter'],
   },
   {
     id: 'electromagnetic-induction',
@@ -41,7 +41,6 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
       'rotational-emf',
       'alternator',
       'generator-core',
-      'faraday-disc',
       'mhd',
     ],
   },
@@ -52,7 +51,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#2dd4bf',
     position: [4, 0, -4],
     description: '机械波、波形与振动合成',
-    scenePageIds: ['double-slit', 'wedge-interference', 'wave-interference', 'light-diffraction', 'diffraction', 'oscilloscope', 'oscilloscope-3d', 'wave-state', 'mechanical-wave-graphs'],
+    scenePageIds: ['double-slit', 'wedge-interference', 'wave-interference', 'light-diffraction', 'diffraction', 'oscilloscope', 'oscilloscope-3d', 'wave-state'],
   },
   {
     id: 'mechanics',
@@ -61,7 +60,7 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     hoverColor: '#84cc16',
     position: [-4, 0, -4],
     description: '运动、力与能量守恒',
-    scenePageIds: ['ticker-timer', 'train-turning', 'centripetal-factors', 'force-parallelogram', 'binary-stars', 'cart-velocity', 'celestial-motion'],
+    scenePageIds: ['ticker-timer', 'cart-velocity', 'celestial-motion'],
   },
   {
     id: 'thermal',

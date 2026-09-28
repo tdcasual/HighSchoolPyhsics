@@ -38,7 +38,7 @@ describe('cart model', () => {
     const flat = at(1.6, accelerated)
     const tilted = at(1.6, { ...accelerated, dh: 0.05 })
     expect(flat.x).toBeCloseTo(0.8700377358490566, 10)
-    expect(tilted.x).toBeCloseTo(0.8696479408606073, 8)
+    expect(tilted.x).toBeCloseTo(0.8696568952264557, 8)
     expect(tilted.x).toBeLessThan(flat.x)
   })
 })

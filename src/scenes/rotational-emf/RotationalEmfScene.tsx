@@ -2,23 +2,55 @@ import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { RotationalEmfControls } from './RotationalEmfControls'
-import { RotationalEmfRig3D } from './RotationalEmfRig3D'
+import {
+  FRAME_FIELD_SHAFT_LENGTH,
+  ROD_FIELD_SHAFT_LENGTH,
+  ROTATIONAL_EMF_VISUAL_UNITS_PER_METER,
+  RotationalEmfRig3D,
+} from './RotationalEmfRig3D'
 import { useRotationalEmfSceneState } from './useRotationalEmfSceneState'
-
-const CAMERA_PRESETS = {
-  main: {
-    camera: { position: [5.5, 4.8, 7.2] as [number, number, number], fov: 38 },
-    controls: { target: [0, 0, 0] as [number, number, number], minDistance: 4, maxDistance: 20 },
-  },
-  top: {
-    camera: { position: [0, 9.5, 0.001] as [number, number, number], up: [0, 0, -1] as [number, number, number], fov: 30 },
-    controls: { target: [0, 0, 0] as [number, number, number], minDistance: 4, maxDistance: 20 },
-  },
-} as const
 
 export function RotationalEmfScene() {
   const state = useRotationalEmfSceneState()
-  const activeCameraPreset = useMemo(() => CAMERA_PRESETS[state.viewMode], [state.viewMode])
+  const activeCameraPreset = useMemo(() => {
+    const length = state.effectiveLengthM
+    const visualLength = ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length
+    const maxDimension = state.scenario === 'rod'
+      ? Math.max(
+          2 * visualLength,
+          2 * Math.hypot(
+            0.55 * visualLength,
+            0.55 * visualLength,
+            (ROD_FIELD_SHAFT_LENGTH / 2 + 0.34) * length,
+          ),
+        )
+      : 2 * Math.hypot(
+          (FRAME_FIELD_SHAFT_LENGTH / 2 + 0.16) * length,
+          0.75 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length,
+          0.65 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length,
+        )
+
+    if (state.viewMode === 'top') {
+      const fov = 30
+      const distance = Math.max(4, maxDimension / (2 * Math.tan((fov * Math.PI) / 360)) * 1.12)
+      return {
+        camera: { position: [0, distance, 0.001] as [number, number, number], fov },
+        cameraUp: [0, 0, -1] as [number, number, number],
+        controls: { target: [0, 0, 0] as [number, number, number], minDistance: Math.max(2.5, distance * 0.45), maxDistance: distance * 2 },
+      }
+    }
+
+    const fov = 38
+    const distance = Math.max(4, maxDimension / (2 * Math.tan((fov * Math.PI) / 360)) * 1.12)
+    const basePosition = state.scenario === 'frame' ? [2.5, 3.6, 9] : [5.5, 4.8, 7.2]
+    const baseDistance = Math.hypot(...basePosition)
+    const scale = distance / baseDistance
+    return {
+      camera: { position: basePosition.map((value) => value * scale) as [number, number, number], fov },
+      cameraUp: [0, 1, 0] as [number, number, number],
+      controls: { target: [0, 0, 0] as [number, number, number], minDistance: Math.max(2.5, distance * 0.45), maxDistance: distance * 2 },
+    }
+  }, [state.effectiveLengthM, state.scenario, state.viewMode])
 
   return (
     <SceneLayout
@@ -41,9 +73,13 @@ export function RotationalEmfScene() {
           <p>实验类型: {state.scenarioLabel}</p>
           <p>当前视图: {state.viewLabel}</p>
           <p>当前转角: {state.angleLabel}</p>
+          <p>B: {state.magneticFieldT.toFixed(1)} T · ω: {state.angularSpeed.toFixed(1)} rad/s · L: {state.effectiveLengthM.toFixed(1)} m</p>
           <p>感应电动势: {state.emfMagnitudeLabel}</p>
         </div>
       }
+      panelPlacement="after-sidebar"
+      dataInitiallyCollapsed
+      playbackInitiallyCollapsed
       playbackActions={[
         {
           key: 'toggle-running',
@@ -59,10 +95,13 @@ export function RotationalEmfScene() {
       viewport={
         <InteractiveCanvas
           camera={activeCameraPreset.camera}
+          cameraUp={activeCameraPreset.cameraUp}
           controls={activeCameraPreset.controls}
+          syncCamera
+          adaptiveFraming={false}
           frameloop={state.running ? 'always' : 'demand'}
         >
-          <RotationalEmfRig3D scenario={state.scenario} angleRad={state.angleRad} />
+          <RotationalEmfRig3D scenario={state.scenario} angleRad={state.angleRad} effectiveLengthM={state.effectiveLengthM} />
         </InteractiveCanvas>
       }
     />

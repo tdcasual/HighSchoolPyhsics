@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { deriveGeneratorReadings, positionDescription, type GeneratorMode } from './model'
+import { deriveGeneratorReadings, positionDescription, wrapAngle, type GeneratorMode } from './model'
 
 export type GeneratorCoreSceneState = {
   mode: GeneratorMode
@@ -39,7 +39,7 @@ export function useGeneratorCoreSceneState(): GeneratorCoreSceneState {
       if (previous !== null) {
         const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
         const current = simulationRef.current
-        const next = { ...current, angleRad: current.angleRad + delta * current.angularSpeedRad }
+        const next = { ...current, angleRad: wrapAngle(current.angleRad + delta * current.angularSpeedRad) }
         simulationRef.current = next
         setSimulation(next)
       }

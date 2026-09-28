@@ -7,8 +7,8 @@ describe('oscilloscope structure', () => {
     render(<OscilloscopeScene />)
 
     expect(await screen.findByText('示波器控制')).toBeInTheDocument()
-    expect(await screen.findByText('X 电场 Ux(t)')).toBeInTheDocument()
-    expect(await screen.findByText('Y 电场 Uy(t)')).toBeInTheDocument()
+    expect(await screen.findByText('X 偏转电压 Ux(t)')).toBeInTheDocument()
+    expect(await screen.findByText('Y 偏转电压 Uy(t)')).toBeInTheDocument()
     expect(await screen.findByLabelText('Ux(t) 函数')).toBeInTheDocument()
     expect(await screen.findByLabelText('Uy(t) 函数')).toBeInTheDocument()
     expect(await screen.findByText(/支持 \+ - \* \/ \^、括号/)).toBeInTheDocument()

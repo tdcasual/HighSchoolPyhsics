@@ -6,6 +6,7 @@ import {
   FIXED_STEP_S,
   MAX_DOTS,
   createTickerTimerState,
+  deriveTapeSpeedSeries,
   deriveEffectiveAccelerationMps2,
   derivePeriodS,
   derivePrintQuality,
@@ -65,6 +66,41 @@ describe("ticker timer model", () => {
     const interval = dots[4].positionM - dots[3].positionM;
     expect(interval).toBeCloseTo(0.5 * 0.02, 6);
     expect(dots[1].positionM - dots[0].positionM).toBeCloseTo(interval, 6);
+  });
+
+  it("plots finite-difference speeds at the true interval midpoint when dots are missed", () => {
+    const period = 0.02;
+    const acceleration = 2;
+    const initialSpeed = 0.4;
+    const times = [0, period, period * 3, period * 4];
+    const dots = times.map((timeS, index) => ({
+      index: [0, 1, 3, 4][index],
+      timeS,
+      positionM: initialSpeed * timeS + 0.5 * acceleration * timeS * timeS,
+      smeared: false,
+    }));
+
+    const samples = deriveTapeSpeedSeries(dots, period);
+
+    expect(samples[0].timeS).toBeCloseTo(0.03, 8);
+    expect(samples[0].speedMps).toBeCloseTo(0.46, 8);
+    expect(samples[1].timeS).toBeCloseTo(0.05, 8);
+    expect(samples[1].speedMps).toBeCloseTo(0.5, 8);
+  });
+
+  it("stops a stationary run when the recording period limit is reached", () => {
+    let state = togglePowered(
+      createTickerTimerState({ motionMode: "rest", frequencyHz: 50 }),
+    );
+    state = releaseTape(state);
+    state = stepTickerTimerState(state, (MAX_DOTS - 1) * DEFAULT_PERIOD_S);
+
+    expect(state.finished).toBe(true);
+    expect(deriveTapeDots(state)).toHaveLength(MAX_DOTS);
+    expect(state.powered).toBe(true);
+    expect(togglePowered(state).powered).toBe(false);
+    const poweredOff = togglePowered(state);
+    expect(togglePowered(poweredOff)).toEqual(poweredOff);
   });
 
   it("ignores the stacked start cluster when measuring acceleration after a delayed release", () => {
@@ -168,7 +204,7 @@ describe("ticker timer model", () => {
     }
     const analysis = deriveTapeAnalysis(state);
     const chartSpeed =
-      analysis.speedSeriesMps[analysis.speedSeriesMps.length - 1];
+      analysis.speedSeriesMps[analysis.speedSeriesMps.length - 1].speedMps;
     expect(chartSpeed).toBeGreaterThan(0);
     expect(analysis.instantaneousSpeedMps).toBeCloseTo(chartSpeed, 8);
   });

@@ -2,6 +2,10 @@ import type { ReactNode } from 'react'
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('@react-three/drei/web/Html', () => ({
+  Html: ({ children }: { children: ReactNode }) => <group>{children}</group>,
+}))
+
 vi.mock('@react-three/drei/core/Text', () => ({
   Text: ({
     children,
@@ -25,7 +29,7 @@ describe('AlternatorRig3D', () => {
   it('renders the reference stator, rotor wires, brushes, and labels', () => {
     const { container } = render(
       <svg>
-        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} theme="night" />
+        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} currentA={0.5} isMeterOverRange={false} theme="night" />
       </svg>,
     )
 
@@ -36,16 +40,19 @@ describe('AlternatorRig3D', () => {
     expect(container.querySelector('[name="blue-wire"]')).toBeInTheDocument()
     expect(container.querySelector('[name="brush-left"]')).toBeInTheDocument()
     expect(container.querySelector('[name="brush-right"]')).toBeInTheDocument()
-    expect(container.querySelector('[name="label-A"]')).toBeInTheDocument()
-    expect(container.querySelector('[name="label-B"]')).toBeInTheDocument()
-    expect(container.querySelector('[name="label-C"]')).toBeInTheDocument()
-    expect(container.querySelector('[name="label-D"]')).toBeInTheDocument()
+    expect(container.textContent).toContain('A')
+    expect(container.textContent).toContain('B')
+    expect(container.textContent).toContain('C')
+    expect(container.textContent).toContain('D')
+    expect(container.querySelector('[name="current-indicators"]')).toBeInTheDocument()
+    expect(container.querySelector('[name="current-arrow-left"]')).toBeInTheDocument()
+    expect(container.querySelector('[name="current-arrow-right"]')).toBeInTheDocument()
   })
 
   it('includes the reference viewport structures like axis line, field lines, and ammeter', () => {
     const { container } = render(
       <svg>
-        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} theme="night" />
+        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} currentA={0.5} isMeterOverRange={false} theme="night" />
       </svg>,
     )
 
@@ -55,6 +62,8 @@ describe('AlternatorRig3D', () => {
     expect(container.querySelector('[name="ammeter-casing"]')).toBeInTheDocument()
     expect(container.querySelector('[name="ammeter-border"]')).toBeInTheDocument()
     expect(container.querySelector('[name="ammeter-needle"]')).toBeInTheDocument()
+    expect(container.querySelector('[name="ammeter-major-tick-0"]')).toBeInTheDocument()
+    expect(container.querySelector('[name="ammeter-minor-tick-1"]')).toBeInTheDocument()
     expect(container.querySelector('[name="ring-orange"]')).toBeInTheDocument()
     expect(container.querySelector('[name="ring-blue"]')).toBeInTheDocument()
   })
@@ -62,7 +71,7 @@ describe('AlternatorRig3D', () => {
   it('keeps the coil, slip rings, and shaft inside one rotating rotor assembly', () => {
     const { container } = render(
       <svg>
-        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} theme="night" />
+        <AlternatorRig3D angleRad={0} meterNeedleAngleRad={0} currentA={0.5} isMeterOverRange={false} theme="night" />
       </svg>,
     )
 

@@ -45,3 +45,41 @@
   background: #f7fbfb;
   border-radius: 12px;
 }
+
+.resistivity-table-wrap {
+  max-width: min(76vw, 620px);
+  overflow-x: auto;
+  border: 1px solid rgba(87, 111, 118, 0.22);
+  border-radius: 8px;
+}
+
+.resistivity-table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.resistivity-table th,
+.resistivity-table td {
+  padding: 0.38rem 0.46rem;
+  border-bottom: 1px solid rgba(87, 111, 118, 0.16);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.resistivity-table th:first-child,
+.resistivity-table td:first-child {
+  text-align: left;
+}
+
+.resistivity-table thead,
+.resistivity-table tfoot {
+  background: rgba(57, 102, 111, 0.08);
+  color: var(--control-ink);
+}
+
+.resistivity-table tbody tr:last-child td {
+  border-bottom: 0;
+}

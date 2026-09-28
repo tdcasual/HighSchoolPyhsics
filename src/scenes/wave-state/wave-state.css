@@ -6,15 +6,15 @@
 .wave-state-toggle[aria-pressed="true"] { color: #2a7f73; background: rgba(42, 157, 143, 0.12); }
 .wave-state-toggle.velocity { border-color: rgba(42, 157, 143, 0.55); }
 .wave-state-toggle.acceleration { border-color: rgba(230, 57, 70, 0.55); }
-.wave-state-telemetry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem 0.8rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
-.wave-state-telemetry p { display: flex; justify-content: space-between; gap: 0.65rem; margin: 0; font-size: 0.78rem; }
+.wave-state-telemetry { display: grid; width: min(680px, max(320px, calc(100vw - 760px))); box-sizing: border-box; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem 0.8rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
+.wave-state-telemetry p { display: flex; min-width: 0; justify-content: space-between; gap: 0.65rem; margin: 0; font-size: 0.78rem; }
 .wave-state-telemetry span { color: #7a6e62; }
-.wave-state-telemetry strong { color: #2e2218; font-family: 'SF Mono', Menlo, monospace; text-align: right; }
+.wave-state-telemetry strong { min-width: 0; color: #2e2218; font-family: 'SF Mono', Menlo, monospace; text-align: right; overflow-wrap: anywhere; }
 .wave-state-telemetry .wave-state-conclusion { grid-column: 1 / -1; display: grid; gap: 0.18rem; }
 .wave-state-telemetry .wave-state-conclusion strong { text-align: left; font-family: inherit; line-height: 1.42; }
 .wave-state-velocity-value { color: #2a9d8f !important; }
 .wave-state-acceleration-value { color: #e63946 !important; }
-.wave-state-chart-shell { display: grid; gap: 0.58rem; min-width: 320px; }
+.wave-state-chart-shell { display: grid; width: 300px; max-width: 100%; min-width: 0; gap: 0.58rem; }
 .wave-state-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
 .wave-state-chart-heading h3 { margin: 0; font-size: 1.06rem; }
 .wave-state-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
@@ -23,13 +23,16 @@
 .wave-state-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
 .wave-state-chart text { fill: #8a7e72; font-size: 10px; }
 .wave-state-probe-curve { fill: none; stroke: #457b9d; stroke-width: 2.5; }
+.wave-state-arrival { stroke: #e76f51; stroke-width: 1.2; stroke-dasharray: 4 3; }
+.wave-state-arrival-label { fill: #e76f51 !important; }
 .wave-state-tracker { stroke: rgba(42, 157, 143, 0.8); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .wave-state-probe-point { fill: #ffd166; stroke: #fff4c6; stroke-width: 1.2; }
 .wave-state-current-label { fill: #2a9d8f !important; }
-.wave-state-chart-legend { display: flex; gap: 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
+.wave-state-chart-legend { display: flex; flex-wrap: wrap; gap: 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
 .wave-state-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
 .wave-state-legend-dot.probe { background: #457b9d; }
 .wave-state-legend-dot.tracker { background: #2a9d8f; }
+.wave-state-legend-dot.arrival { background: #e76f51; }
 .app-shell.theme-night .wave-state-telemetry { border-color: rgba(100, 110, 130, 0.5); background: rgba(24, 30, 44, 0.84); color: #e0d8cc; }
 .app-shell.theme-night .wave-state-telemetry span { color: #a0988c; }
 .app-shell.theme-night .wave-state-telemetry strong { color: #f0e8dc; }
@@ -37,4 +40,6 @@
 .app-shell.theme-night .wave-state-chart text { fill: #b8b0a4; }
 .app-shell.theme-night .wave-state-grid line { stroke: rgba(184, 196, 216, 0.11); }
 .app-shell.theme-night .wave-state-axis { stroke: rgba(184, 196, 216, 0.25); }
+@media (max-width: 1120px) { .wave-state-telemetry { grid-template-columns: minmax(0, 1fr); } .wave-state-telemetry .wave-state-conclusion { grid-column: auto; } }
+@media (max-width: 767px) { .wave-state-telemetry { width: 100%; max-width: 100%; } }
 @media (max-width: 900px) { .wave-state-chart-heading { flex-direction: column; align-items: flex-start; } }

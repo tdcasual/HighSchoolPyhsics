@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   MAX_CHART_POINTS,
+  MAX_METER_NEEDLE_RAD,
+  METER_FULL_SCALE_A,
   createAlternatorState,
   deriveAlternatorReadings,
   stepAlternatorState,
@@ -25,7 +27,7 @@ describe('alternator model', () => {
       angleRad: Math.PI / 2,
     })
 
-    expect(zeroCrossing.fluxWb).toBeCloseTo(1)
+    expect(zeroCrossing.fluxWb).toBeCloseTo(0.1)
     expect(zeroCrossing.instantaneousVoltageV).toBeCloseTo(0)
     expect(quarterTurn.peakVoltageV).toBeCloseTo(Math.PI * 2)
     expect(quarterTurn.instantaneousVoltageV).toBeCloseTo(quarterTurn.peakVoltageV)
@@ -56,6 +58,21 @@ describe('alternator model', () => {
     expect(negative.currentDirectionLabel).toBe('B → A')
     expect(positive.meterNeedleAngleRad).toBeGreaterThan(0)
     expect(negative.meterNeedleAngleRad).toBeLessThan(0)
+  })
+
+  it('limits the physical meter needle to its declared ±2 A scale', () => {
+    const overloaded = deriveAlternatorReadings({
+      magneticFieldT: 1.8,
+      angularSpeedRad: 12,
+      turnCount: 32,
+      coilAreaM2: 0.36,
+      loadResistanceOhm: 8,
+      angleRad: Math.PI / 2,
+    })
+
+    expect(METER_FULL_SCALE_A).toBe(2)
+    expect(Math.abs(overloaded.instantaneousCurrentA)).toBeGreaterThan(METER_FULL_SCALE_A)
+    expect(overloaded.meterNeedleAngleRad).toBe(MAX_METER_NEEDLE_RAD)
   })
 
   it('samples and trims waveform history while running', () => {

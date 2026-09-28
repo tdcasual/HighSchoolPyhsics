@@ -11,6 +11,8 @@ import {
   setMicGap,
   stepMotion,
   toggleLock,
+  setLesson,
+  shouldShowSpecimen,
 } from './state'
 
 describe('measuring-tools animation audit', () => {
@@ -59,6 +61,13 @@ describe('measuring-tools animation audit', () => {
     expect(pose.thimbleRotationX).toBeCloseTo((2 * Math.PI * 2) / MICROMETER_PITCH_MM, 6)
   })
 
+  it('only shows a specimen after issuing a read-practice question', () => {
+    const readMode = setLesson(createMeasuringState(), 'read')
+    expect(shouldShowSpecimen(readMode)).toBe(false)
+    expect(shouldShowSpecimen(newQuestion(readMode, () => 0))).toBe(true)
+    expect(shouldShowSpecimen(newQuestion(setLesson(createMeasuringState(), 'adjust'), () => 0))).toBe(false)
+  })
+
   it('draws a read-practice question without animating the previous reading away', () => {
     const asked = newQuestion(
       { ...createMeasuringState(), lesson: 'read', caliperX: 10 },
@@ -66,6 +75,21 @@ describe('measuring-tools animation audit', () => {
     )
     expect(asked.caliperAnim).toBeNull()
     expect(asked.caliperX).not.toBe(10)
+    expect(asked.workSize).toBe(asked.caliperX)
     expect(asked.notice).toContain('新工件')
+  })
+
+  it('keeps the measured specimen fixed while either instrument is adjusted', () => {
+    const caliperQuestion = newQuestion({ ...createMeasuringState(), lesson: 'read' }, () => 0)
+    const movedCaliper = setCaliperX(caliperQuestion, caliperQuestion.caliperX + 5)
+    expect(movedCaliper.workSize).toBe(caliperQuestion.workSize)
+
+    const micrometerQuestion = newQuestion(
+      { ...createMeasuringState(), tool: 'micrometer', lesson: 'read' },
+      () => 0,
+    )
+    const movedMicrometer = setMicGap(micrometerQuestion, micrometerQuestion.micGap + 0.1)
+    expect(micrometerQuestion.workSize).toBe(micrometerQuestion.micGap)
+    expect(movedMicrometer.workSize).toBe(micrometerQuestion.workSize)
   })
 })

@@ -1,4 +1,5 @@
 import { useId, useMemo } from 'react'
+import { CHART_SAMPLE_INTERVAL, MAX_CHART_POINTS } from './model'
 
 type ElectromagneticDriveChartProps = {
   magnetSpeeds: number[]
@@ -18,7 +19,7 @@ const PADDING: ChartPadding = {
   top: 16,
   right: 14,
   bottom: 22,
-  left: 18,
+  left: 34,
 }
 
 function resolveMaxValue(magnetSpeeds: number[], frameSpeeds: number[]): number {
@@ -83,19 +84,20 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
   )
 
   return (
-    <div className="electromagnetic-drive-chart-shell" aria-label="实时转速对比图">
+    <div className="electromagnetic-drive-chart-shell" role="group" aria-label="实时角速度对比图">
       <div className="electromagnetic-drive-chart-title-row">
-        <p className="electromagnetic-drive-chart-title">实时转速对比</p>
+        <p className="electromagnetic-drive-chart-title">实时角速度对比</p>
         <div className="electromagnetic-drive-chart-legend">
           <span className="magnet">磁铁转速</span>
           <span className="frame">铝框转速</span>
         </div>
       </div>
+      <p className="electromagnetic-drive-chart-caption">纵轴：角速度（rad/s）；横轴：采样先后（每 {CHART_SAMPLE_INTERVAL} 步采样，最多 {MAX_CHART_POINTS} 点，右端最新）</p>
       <svg
         className="electromagnetic-drive-chart"
         viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
         role="img"
-        aria-label="磁铁与铝框转速折线图"
+        aria-label="角速度对比图，纵轴单位 rad/s，横轴从较早采样到最新采样"
       >
         <defs>
           <linearGradient id={magnetGradientId} x1="0" y1="0" x2="0" y2="1">
@@ -132,6 +134,24 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
           strokeWidth="1.2"
         />
 
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const y = PADDING.top + (VIEWBOX_HEIGHT - PADDING.top - PADDING.bottom) * ratio
+          const tick = maxValue * (1 - ratio)
+          return (
+            <text
+              key={'tick-' + ratio}
+              className="electromagnetic-drive-chart-tick"
+              x={PADDING.left - 5}
+              y={y + 4}
+              textAnchor="end"
+              fill={ratio === 1 ? 'var(--electromagnetic-drive-chart-axis-subtext)' : 'var(--electromagnetic-drive-chart-axis-text)'}
+              fontSize="10"
+            >
+              {tick === 0 ? '0' : tick.toFixed(1)}
+            </text>
+          )
+        })}
+
         {magnetAreaPath ? <path d={magnetAreaPath} fill={`url(#${magnetGradientId})`} /> : null}
         {frameAreaPath ? <path d={frameAreaPath} fill={`url(#${frameGradientId})`} /> : null}
         {magnetLinePath ? (
@@ -141,12 +161,6 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: Electro
           <path d={frameLinePath} fill="none" stroke="var(--electromagnetic-drive-chart-frame-line)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
         ) : null}
 
-        <text x={PADDING.left} y={PADDING.top - 2} fill="var(--electromagnetic-drive-chart-axis-text)" fontSize="11">
-          {maxValue.toFixed(1)} rad/s
-        </text>
-        <text x={PADDING.left} y={VIEWBOX_HEIGHT - 4} fill="var(--electromagnetic-drive-chart-axis-subtext)" fontSize="11">
-          0
-        </text>
       </svg>
     </div>
   )

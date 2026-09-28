@@ -43,6 +43,8 @@ export type MeasuringState = {
   hints: boolean
   showLabels: boolean
   caliperX: number
+  /** Fixed specimen size, independent of the instrument opening while measuring. */
+  workSize: number
   caliperExplode: number
   caliperExplodeTarget: number
   caliperLocked: boolean
@@ -55,6 +57,8 @@ export type MeasuringState = {
   micAnim: InstrumentAnim
   micClick: number
   target: number | null
+  /** True after a practice question is issued and until settings/question are reset. */
+  challengeActive: boolean
   lastCheckAt: number | null
   answer: string
   feedback: string
@@ -73,6 +77,7 @@ export function createMeasuringState(): MeasuringState {
     hints: true,
     showLabels: true,
     caliperX: 23.45,
+    workSize: 23.45,
     caliperExplode: 0,
     caliperExplodeTarget: 0,
     caliperLocked: false,
@@ -85,11 +90,12 @@ export function createMeasuringState(): MeasuringState {
     micAnim: null,
     micClick: 0,
     target: null,
+    challengeActive: false,
     lastCheckAt: null,
     answer: '',
     feedback: '',
     feedbackOk: null,
-    notice: '拖动读数观察尺框或微分筒。输入目标读数后，仪器会按原页的缓动转到该示数。',
+    notice: '直接拖动尺框或微分筒，也可用滑块精确调节。输入目标读数后仪器会平滑移动。',
     history: [],
   }
 }
@@ -106,6 +112,10 @@ export function goToDuration(tool: InstrumentTool, distance: number): number {
 
 export function positionOf(state: MeasuringState): number {
   return state.tool === 'caliper' ? state.caliperX : state.micGap
+}
+
+export function shouldShowSpecimen(state: MeasuringState): boolean {
+  return state.lesson === 'read' && state.challengeActive
 }
 
 export function indicatedOf(state: MeasuringState): number {
@@ -130,19 +140,37 @@ function clearedPractice(state: MeasuringState): MeasuringState {
 }
 
 export function setTool(state: MeasuringState, tool: InstrumentTool): MeasuringState {
-  return clearedPractice({ ...state, tool, view: 'home', notice: tool === 'caliper' ? '已切换到游标卡尺。' : '已切换到螺旋测微器。' })
+  const workSize = state.lesson === 'read' ? (tool === 'caliper' ? state.caliperX : state.micGap) : state.workSize
+  return clearedPractice({
+    ...state,
+    tool,
+    workSize,
+    challengeActive: false,
+    target: null,
+    answer: '',
+    caliperAnim: null,
+    micAnim: null,
+    view: 'home',
+    notice: tool === 'caliper' ? '已切换到游标卡尺。' : '已切换到螺旋测微器。',
+  })
 }
 
 export function setLesson(state: MeasuringState, lesson: LessonMode): MeasuringState {
   return clearedPractice({
     ...state,
     lesson,
-    target: lesson === 'adjust' ? state.target : null,
+    workSize: lesson === 'read' ? positionOf(state) : state.workSize,
+    challengeActive: false,
+    target: null,
+    answer: '',
+    caliperAnim: null,
+    micAnim: null,
     notice: lesson === 'free' ? '自由调节：刻度分解始终可打开。' : lesson === 'read' ? '读数练习：判定前不显示读数分解。' : '调节练习：把仪器调到目标示数。',
   })
 }
 
 export function setDivisions(state: MeasuringState, divisions: VernierDivisions): MeasuringState {
+  if (state.challengeActive) return { ...state, notice: '本题设置已锁定；结束本题后才能更改分度。' }
   return clearedPractice({
     ...state,
     divisions,
@@ -153,6 +181,7 @@ export function setDivisions(state: MeasuringState, divisions: VernierDivisions)
 }
 
 export function setMeasure(state: MeasuringState, measure: CaliperMeasure): MeasuringState {
+  if (state.challengeActive) return { ...state, notice: '本题设置已锁定；结束本题后才能更改测量部位。' }
   const label = measure === 'outer' ? '外测量爪：测外径、厚度。' : measure === 'inner' ? '内测量爪：测内径、槽宽。' : '深度尺：测孔或槽的深度。'
   return clearedPractice({ ...state, measure, view: 'home', notice: `${label}三种测量共用同一套刻度。` })
 }
@@ -170,10 +199,13 @@ export function setShowLabels(state: MeasuringState, showLabels: boolean): Measu
 }
 
 export function setAnswer(state: MeasuringState, answer: string): MeasuringState {
+  if (state.challengeActive && state.lastCheckAt !== null) return state
   return { ...state, answer }
 }
 
 export function setCaliperX(state: MeasuringState, value: number): MeasuringState {
+  if (state.lesson === 'read') return { ...state, notice: '读数练习中仪器已固定；判定后或结束本题再调整。' }
+  if (state.challengeActive && state.lastCheckAt !== null) return { ...state, notice: '本题已判定；出新题或结束本题后再调整。' }
   if (state.caliperLocked) {
     return { ...state, notice: '紧固螺钉已拧紧：先松开，才能移动尺框。' }
   }
@@ -186,6 +218,8 @@ export function setCaliperX(state: MeasuringState, value: number): MeasuringStat
 }
 
 export function setMicGap(state: MeasuringState, value: number, source: GapSource = 'slider'): MeasuringState {
+  if (state.lesson === 'read') return { ...state, notice: '读数练习中仪器已固定；判定后或结束本题再调整。' }
+  if (state.challengeActive && state.lastCheckAt !== null) return { ...state, notice: '本题已判定；出新题或结束本题后再调整。' }
   if (state.micLocked) {
     return { ...state, notice: '锁紧装置已锁定：先松开，才能转动旋钮。' }
   }
@@ -201,6 +235,7 @@ export function setMicGap(state: MeasuringState, value: number, source: GapSourc
 }
 
 export function setMicZero(state: MeasuringState, zero: number): MeasuringState {
+  if (state.lesson !== 'free') return { ...state, notice: '零点误差只在自由调节模式中设置；练习题会固定零点。' }
   return clearedPractice({
     ...state,
     micZero: quantizeMm(clamp(zero, -0.05, 0.05)),
@@ -209,6 +244,7 @@ export function setMicZero(state: MeasuringState, zero: number): MeasuringState 
 }
 
 export function toggleLock(state: MeasuringState): MeasuringState {
+  if (state.lesson === 'read' && state.challengeActive) return { ...state, notice: '读数题的仪器和工件已固定。' }
   if (state.tool === 'caliper') {
     const caliperLocked = !state.caliperLocked
     return { ...state, caliperLocked, notice: caliperLocked ? '紧固螺钉已拧紧。' : '紧固螺钉已松开。' }
@@ -218,6 +254,7 @@ export function toggleLock(state: MeasuringState): MeasuringState {
 }
 
 export function toggleExplode(state: MeasuringState): MeasuringState {
+  if (state.lesson === 'read' && state.challengeActive) return { ...state, notice: '读数题的视图已固定，请按当前刻度判读。' }
   if (state.tool === 'caliper') {
     const caliperExplodeTarget = state.caliperExplodeTarget > 0.5 ? 0 : 1
     return { ...state, caliperExplodeTarget, notice: caliperExplodeTarget ? '正在拆开游标卡尺。' : '正在合拢游标卡尺。' }
@@ -227,6 +264,7 @@ export function toggleExplode(state: MeasuringState): MeasuringState {
 }
 
 export function goToReading(state: MeasuringState, raw: number): MeasuringState {
+  if (state.lesson !== 'free') return { ...state, notice: '直接调到指定示数只在自由调节模式中可用。' }
   if (state.tool === 'caliper') {
     if (!(raw >= 0 && raw <= CALIPER_RANGE_MM)) {
       return { ...state, notice: '游标卡尺量程 0～150 mm。' }
@@ -293,6 +331,8 @@ function pushHistory(state: MeasuringState, row: PracticeRecord): PracticeRecord
 
 export function submitAnswer(state: MeasuringState): MeasuringState {
   if (state.lesson === 'free') return { ...state, notice: '自由调节不用判定。' }
+  if (!state.challengeActive) return { ...state, notice: '请先出题，再提交答案或检查调节。' }
+  if (state.lastCheckAt !== null) return { ...state, notice: '本题已判定；请出新题继续练习。' }
   if (state.lesson === 'read') {
     if (state.tool === 'caliper') {
       const result = checkCaliper(state.answer, state.caliperX, state.divisions)
@@ -378,6 +418,12 @@ export function randomMicrometerReading(rng: () => number): number {
   return Math.round((0.3 + rng() * 20) * 1000) / 1000
 }
 
+function reachableMicrometerReading(zero: number, rng: () => number): number {
+  // Keep a visible, positive specimen and ensure the target can be reached with this zero error.
+  const minimum = Math.max(0.25, zero + 0.25)
+  return quantizeMm(Math.max(randomMicrometerReading(rng), minimum))
+}
+
 export function newQuestion(state: MeasuringState, rng: () => number = Math.random): MeasuringState {
   if (state.lesson === 'free') return { ...state, notice: '先切换到读数练习或调节练习。' }
   if (state.lesson === 'read') {
@@ -386,6 +432,8 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
       return clearedPractice({
         ...state,
         caliperX,
+        workSize: caliperX,
+        challengeActive: true,
         caliperAnim: null,
         caliperLocked: false,
         answer: '',
@@ -393,10 +441,13 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
         notice: '新工件已夹好：读出游标卡尺的读数，输入后点“判定”。',
       })
     }
-    const reading = randomMicrometerReading(rng)
+    const reading = reachableMicrometerReading(state.micZero, rng)
+    const micGap = quantizeMm(Math.max(0, reading - state.micZero))
     return clearedPractice({
       ...state,
-      micGap: quantizeMm(Math.max(0, reading - state.micZero)),
+      micGap,
+      workSize: micGap,
+      challengeActive: true,
       micAnim: null,
       micLocked: false,
       answer: '',
@@ -406,11 +457,14 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
   }
   const target = state.tool === 'caliper'
     ? randomCaliperReading(state.measure, state.divisions, state.caliperX, rng)
-    : randomMicrometerReading(rng)
+    : reachableMicrometerReading(state.micZero, rng)
   const digits = state.tool === 'caliper' ? (state.divisions === 10 ? 1 : 2) : 3
   return clearedPractice({
     ...state,
     target,
+    challengeActive: true,
+    caliperAnim: null,
+    micAnim: null,
     caliperLocked: false,
     micLocked: false,
     answer: '',

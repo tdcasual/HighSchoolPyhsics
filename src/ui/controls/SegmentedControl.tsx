@@ -8,12 +8,14 @@ type SegmentedControlProps = {
   value: string
   onChange: (key: string) => void
   columns?: 2 | 3
+  disabled?: boolean
 }
 
-export function SegmentedControl({ options, value, onChange, columns }: SegmentedControlProps) {
+export function SegmentedControl({ options, value, onChange, columns, disabled = false }: SegmentedControlProps) {
   const cols = columns ?? (options.length <= 2 ? 2 : 3)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return
     const idx = options.findIndex((o) => o.key === value)
     if (idx < 0) return
     let nextIdx = -1
@@ -43,9 +45,10 @@ export function SegmentedControl({ options, value, onChange, columns }: Segmente
             key={option.key}
             role="radio"
             aria-checked={active}
-            tabIndex={active ? 0 : -1}
+            tabIndex={!disabled && active ? 0 : -1}
+            disabled={disabled}
             className={[
-              'min-h-[44px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px]',
+              'min-h-[44px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px] disabled:cursor-not-allowed disabled:opacity-45',
               active
                 ? 'active shadow-sm'
                 : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',

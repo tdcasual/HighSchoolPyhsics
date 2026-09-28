@@ -68,6 +68,7 @@ describe('playwright dev server shared runtime', () => {
         cwd: '/tmp/demo',
         env: { NODE_ENV: 'test' },
         stdio: ['ignore', 'pipe', 'pipe'],
+        detached: process.platform !== 'win32',
       },
     )
     expect(server.child).toBe(child)

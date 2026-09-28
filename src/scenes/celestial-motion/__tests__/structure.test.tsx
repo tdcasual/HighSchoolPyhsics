@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const canvasProps: { current: Record<string, unknown> | null } = { current: null }
@@ -17,38 +17,60 @@ vi.mock('../CelestialRig3D', () => ({
 
 import { CelestialScene } from '../CelestialScene'
 
+function expandPanel(name: string) {
+  const panel = screen.getByRole('region', { name })
+  fireEvent.click(within(panel).getByRole('button', { name: '展开' }))
+  return panel
+}
+
 function readout() {
-  return screen.getByText('天体').closest('p')?.parentElement
+  return screen.getByText('中心天体 / M').closest('p')?.parentElement
 }
 
 describe('celestial structure', () => {
-  it('opens on a circular Earth orbit with the wide camera budget', () => {
+  it('opens on a fitted circular Earth orbit with unobstructed panels', () => {
     render(<CelestialScene />)
     expect(screen.getByRole('heading', { name: '天体运动控制' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '圆轨道' })).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '轨道平面图' })).toBeInTheDocument()
+    const data = expandPanel('数据')
+    expect(data).toHaveTextContent('地球')
+    expect(data).toHaveTextContent('1.10 R')
+    expect(data).toHaveTextContent('v₁ 7.910 km/s')
+    const playback = screen.getByRole('region', { name: '播放控制' })
+    expect(within(playback).getByRole('button', { name: '展开' })).toBeInTheDocument()
+    expect(expandPanel('图表')).toContainElement(screen.getByRole('img', { name: '轨道平面图' }))
     expect(screen.getByTestId('celestial-rig')).toBeInTheDocument()
-    expect(readout()).toHaveTextContent('地球')
-    expect(readout()).toHaveTextContent('1.10 R')
-    expect(readout()).toHaveTextContent('v₁ 7.910 km/s')
-    const camera = canvasProps.current?.camera as { fov: number }
-    const controls = canvasProps.current?.controls as { minDistance: number; maxDistance: number; target: number[] }
+
+    const camera = canvasProps.current?.camera as { fov: number; position: number[] }
+    const controls = canvasProps.current?.controls as {
+      minDistance: number
+      maxDistance: number
+      target: number[]
+      minPolarAngle: number
+      maxPolarAngle: number
+    }
     expect(camera.fov).toBe(32)
     expect(controls.minDistance).toBe(6)
-    expect(controls.maxDistance).toBe(26)
-    expect(controls.target).toEqual([0, 0, 0])
+    expect(controls.maxDistance).toBeGreaterThan(26)
+    expect(controls.target).not.toEqual([0, 0, 0])
+    expect(controls.minPolarAngle).toBeCloseTo((16 * Math.PI) / 180)
+    expect(controls.maxPolarAngle).toBeCloseTo((74 * Math.PI) / 180)
     expect(canvasProps.current?.adaptiveFraming).toBe(false)
   })
 
-  it('switches to a stationary satellite and steps a transfer', () => {
+  it('switches to a stationary satellite and advances a Hohmann transfer', () => {
     render(<CelestialScene />)
+    expandPanel('数据')
     fireEvent.click(screen.getByRole('radio', { name: '静止' }))
     expect(readout()).toHaveTextContent('6.62 R')
     expect(readout()).toHaveTextContent('静止卫星')
-    expect(screen.getByRole('img', { name: '星下点轨迹' })).toBeInTheDocument()
+    expect(expandPanel('图表')).toContainElement(screen.getByRole('img', { name: '星下点轨迹' }))
+
     fireEvent.click(screen.getByRole('radio', { name: '变轨' }))
-    expect(readout()).toHaveTextContent('进度 0%')
-    fireEvent.click(screen.getByRole('button', { name: '单步' }))
-    expect(readout()).toHaveTextContent('进度 3%')
+    expect(readout()).toHaveTextContent(/转移进度\s*0%/)
+    const playback = screen.getByRole('region', { name: '播放控制' })
+    fireEvent.click(within(playback).getByRole('button', { name: '展开' }))
+    fireEvent.click(within(playback).getByRole('button', { name: '单步' }))
+    expect(readout()).toHaveTextContent(/转移进度\s*3%/)
   })
 })

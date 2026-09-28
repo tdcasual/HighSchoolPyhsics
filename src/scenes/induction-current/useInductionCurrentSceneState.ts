@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   createExperimentRecord,
+  deriveRelativeInducedCurrent,
   type ExperimentRecord,
   type InductionOutcome,
   type MotionDirection,
@@ -9,8 +10,7 @@ import {
 
 const FAR_POSITION_Y = 15
 const NEAR_POSITION_Y = 0
-const MOTION_DURATION_MS = 420
-const MOVEMENT_SPEED = 0.15
+const MOTION_DURATION_MS = 1400
 
 type MagnetPosition = 'far' | 'near'
 
@@ -22,6 +22,18 @@ function easeInOut(value: number): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+function easeInOutDerivative(value: number): number {
+  const progress = clamp(value, 0, 1)
+  return progress < 0.5 ? 12 * progress * progress : 12 * (1 - progress) ** 2
+}
+
+function resolveMagnetVelocity(direction: MotionDirection, progress: number): number {
+  const travel = direction === 'approach'
+    ? NEAR_POSITION_Y - FAR_POSITION_Y
+    : FAR_POSITION_Y - NEAR_POSITION_Y
+  return travel * easeInOutDerivative(progress) / (MOTION_DURATION_MS / 1000)
 }
 
 function resolveMagnetY(
@@ -91,13 +103,15 @@ export function useInductionCurrentSceneState(): InductionCurrentSceneState {
       setMotionProgress(nextProgress)
 
       const nextY = resolveMagnetY(magnetPosition, motionDirection, nextProgress)
-      const velocity = motionDirection === 'approach' ? -MOVEMENT_SPEED : MOVEMENT_SPEED
-      const intensity = 15 / (nextY * nextY + 10)
-      let current = -velocity * intensity * 5
-      if (poleSetting === 's-bottom-n-up') {
-        current = -current
-      }
-      setCoilCurrent(current)
+      const velocity = resolveMagnetVelocity(motionDirection, nextProgress)
+      setCoilCurrent(
+        deriveRelativeInducedCurrent({
+          poleSetting,
+          motion: motionDirection,
+          magnetOffset: nextY,
+          magnetVelocity: velocity,
+        }),
+      )
 
       if (nextProgress >= 1) {
         const completedRecord = pendingRecordRef.current

@@ -11,6 +11,7 @@ type Props = Pick<
   | 'wavelength2' | 'setWavelength2'
   | 'amplitude2' | 'setAmplitude2'
   | 'phaseDiff' | 'setPhaseDiff'
+  | 'waveSpeed'
   | 'playSpeed' | 'setPlaySpeed'
   | 'isPlaying' | 'togglePlay'
   | 'showChart' | 'toggleChart'
@@ -34,6 +35,7 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           value={state.wavelength1}
           onChange={state.setWavelength1}
         />
+        <p className="text-xs opacity-75">f₁ = c / λ₁ = {(state.waveSpeed / state.wavelength1).toFixed(2)} Hz</p>
         <RangeField
           id="wi-amp1"
           label="振幅 A₁"
@@ -56,6 +58,7 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           value={state.wavelength2}
           onChange={state.setWavelength2}
         />
+        <p className="text-xs opacity-75">f₂ = c / λ₂ = {(state.waveSpeed / state.wavelength2).toFixed(2)} Hz</p>
         <RangeField
           id="wi-amp2"
           label="振幅 A₂"
@@ -88,6 +91,7 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           value={state.playSpeed}
           onChange={state.setPlaySpeed}
         />
+        <p className="text-xs leading-relaxed opacity-75">播放速度只改变动画时间倍率；波速 c 固定为 {state.waveSpeed.toFixed(1)} m/s，频率由 f = c / λ 决定。</p>
       </ControlSection>
       <SceneActions
         actions={[
@@ -96,6 +100,22 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           { key: 'reset', label: '重置', onClick: state.reset },
         ]}
       />
+      <ControlSection title="干涉线">
+        <SceneActions
+          actions={[
+            { key: 'constructive', label: state.showConstructive ? '隐藏相长线' : '显示相长线', onClick: state.toggleConstructive },
+            { key: 'destructive', label: state.showDestructive ? '隐藏相消线' : '显示相消线', onClick: state.toggleDestructive },
+          ]}
+        />
+        {Math.abs(state.wavelength1 - state.wavelength2) >= 1e-6 && (
+          <p className="text-xs leading-relaxed opacity-80">λ₁ 与 λ₂ 不同会使频率不同，固定相长线和相消线会隐藏。</p>
+        )}
+      </ControlSection>
+      <ControlSection title="操作与图例">
+        <p className="text-xs leading-relaxed opacity-80">拖动红色 S₁、蓝色 S₂ 改变波源位置；拖动紫色 O 改变观察点。也可按住 Shift 并单击波面放置 O。</p>
+        <p className="text-xs leading-relaxed opacity-80">波面橙色表示正位移（凸起），青色表示负位移（凹陷）；绿色线为相长位置，紫色线为相消位置的平面投影。</p>
+        <p className="text-xs leading-relaxed opacity-80">模型采用理想稳态点波源；只有等振幅时，相消线才是波节。</p>
+      </ControlSection>
     </div>
   )
 }

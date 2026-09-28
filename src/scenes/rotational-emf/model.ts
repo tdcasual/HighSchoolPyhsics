@@ -30,7 +30,7 @@ export function deriveRotatingRodEmfMagnitude(inputs: RotationalEmfInputs): numb
 
 export function deriveRotatingFrameEmfMagnitude(inputs: RotationalEmfInputs): number {
   return Math.abs(
-    inputs.magneticFieldT * inputs.angularSpeed * inputs.effectiveLengthM * inputs.effectiveLengthM * Math.sin(inputs.angleRad),
+    inputs.magneticFieldT * inputs.angularSpeed * inputs.effectiveLengthM * inputs.effectiveLengthM * Math.cos(inputs.angleRad),
   )
 }
 
