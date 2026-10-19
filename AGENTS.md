@@ -10,8 +10,10 @@ The layout uses a five-zone system where 3D animation fills the full screen and 
 - **Animation zone** (z-0): Full-screen Three.js canvas via `InteractiveCanvas`
 - **Parameters zone** (z-30): `SidebarPanel` on the left, collapsible to 44px
 - **Data zone** (z-10): `FloatingPanel` with real-time readings
-- **Chart zone** (z-10): `FloatingPanel` with waveforms, closable
-- **Playback zone** (z-20): `FloatingPanel` with play/pause/reset controls
+- **Chart zone** (z-10): `FloatingPanel` with waveforms, closable (restorable from the bottom dock)
+- **Playback zone** (z-20): `FloatingPanel` with play/pause/reset controls, expanded by default
+
+Data, chart and playback always stack in one column right of the sidebar. `InteractiveCanvas` samples that column once when the scene opens and maps the composition into the free area to its right (projection only); later panel changes just cover the view. Classroom large text (L), lecture mode (P) and Space for play/pause are shell features every scene gets.
 
 Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 
@@ -25,10 +27,14 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 ## Required Implementation Rules
 
 1. Every new scene must provide `controls`, `dataOverlay`, `chart` (if applicable), and `playbackActions` to `SceneLayout`.
-2. `dataOverlay` should contain 3-5 lines of key readings visible in the floating data panel.
-3. Keep the layered structure: `useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene`.
-4. Use `FloatingPanel` for data/chart/playback zones — do not create custom overlay systems.
-5. Use `SidebarPanel` for parameter controls — do not use custom side panels.
+2. `dataOverlay` should contain 3-5 lines of key readings (results, not echoes of sidebar parameters).
+3. Model caveats, formulas and sign conventions go in `notes` (or `<ModelNote>` inside controls), which render in the sidebar's collapsed 教师备注; the sidebar body keeps controls, how-to hints and legends.
+4. Play/step/reset belong in `playbackActions`; give the main play action the key `play` or `toggle-running` so Space triggers it.
+5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that.
+6. Open in a state that can be taught immediately (no mandatory "step 1" click).
+7. Keep the layered structure: `useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene`.
+8. Use `FloatingPanel` for data/chart/playback zones — do not create custom overlay systems.
+9. Use `SidebarPanel` for parameter controls — do not use custom side panels.
 
 ## 1080P Readability Baseline
 
@@ -57,10 +63,11 @@ export function NewDemoScene() {
           <p>核心量: {state.intensity.toFixed(1)}</p>
         </div>
       }
+      notes={<p>模型假设与公式写在这里，默认折叠在侧栏末尾。</p>}
       chart={state.showChart ? <NewDemoChart data={state.chartData} /> : undefined}
       chartVisible={state.showChart}
       playbackActions={[
-        { key: 'play', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
+        { key: 'toggle-running', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
         { key: 'reset', label: '重置', onClick: state.reset },
       ]}
       viewport={
