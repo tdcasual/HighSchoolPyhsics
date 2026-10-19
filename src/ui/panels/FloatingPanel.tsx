@@ -11,6 +11,8 @@ type FloatingPanelProps = {
   onClose?: () => void
   zIndex?: 'z-10' | 'z-20'
   resizable?: boolean
+  /** Which layout zone this panel is; styles (e.g. classroom large text) key off it. */
+  zone?: 'data' | 'chart' | 'playback'
   children: ReactNode
 }
 
@@ -32,6 +34,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
     onClose,
     zIndex = 'z-10',
     resizable = false,
+    zone,
     children,
   },
   forwardedRef,
@@ -142,6 +145,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       role="region"
       aria-label={title}
       data-collapsed={collapsed ? 'true' : undefined}
+      data-panel={zone}
       className={`floating-panel absolute ${zIndex} flex flex-col rounded-2xl select-none`}
       style={panelStyle}
     >

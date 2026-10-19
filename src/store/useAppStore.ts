@@ -15,13 +15,16 @@ type AppState = {
   activeScenePath: string
   mobilePlaybackActions: MobilePlaybackAction[]
   sidebarCollapsed: boolean
+  /** Classroom projection text scale for readouts, charts and 3D labels. */
+  largeText: boolean
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
   setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
   setSidebarCollapsed: (collapsed: boolean) => void
+  setLargeText: (largeText: boolean) => void
 }
 
-type PersistedAppState = Pick<AppState, 'theme'>
+type PersistedAppState = Pick<AppState, 'theme' | 'largeText'>
 
 type BasicStorage = {
   getItem: (name: string) => string | null
@@ -51,12 +54,15 @@ function sanitizeThemeMode(value: unknown, fallback: ThemeMode): ThemeMode {
 }
 
 function pickPersistedAppState(state: AppState): PersistedAppState {
-  return { theme: sanitizeThemeMode(state.theme, 'day') }
+  return { theme: sanitizeThemeMode(state.theme, 'day'), largeText: state.largeText !== false }
 }
 
 function sanitizePersistedAppState(value: unknown, fallback: PersistedAppState): PersistedAppState {
   if (!isRecord(value)) return fallback
-  return { theme: sanitizeThemeMode(value.theme, fallback.theme) }
+  return {
+    theme: sanitizeThemeMode(value.theme, fallback.theme),
+    largeText: typeof value.largeText === 'boolean' ? value.largeText : fallback.largeText,
+  }
 }
 
 const resolveStorage = (): BasicStorage => {
@@ -80,15 +86,17 @@ export const useAppStore = create<AppState>()(
       activeScenePath: '/',
       mobilePlaybackActions: [],
       sidebarCollapsed: false,
+      largeText: true,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
       setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+      setLargeText: (largeText) => set({ largeText }),
     }),
     {
       name: 'electromagnetics-lab-ui',
       storage: createJSONStorage(resolveStorage),
-      partialize: (state) => ({ theme: state.theme }),
+      partialize: (state) => ({ theme: state.theme, largeText: state.largeText }),
       merge: (persistedState, currentState) => ({
         ...currentState,
         ...sanitizePersistedAppState(persistedState, pickPersistedAppState(currentState)),

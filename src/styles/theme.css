@@ -97,6 +97,7 @@
 .app-shell.theme-night .scene-actions-btn,
 .app-shell.theme-night .theme-switch button,
 .app-shell.theme-night .overview-link,
+.app-shell.theme-night .large-text-toggle,
 .app-shell.theme-night .overview-card button {
   border-color: var(--night-border-medium);
   background: var(--night-action-bg);
@@ -109,7 +110,8 @@
 .app-shell.theme-night .scene-actions button:hover,
 .app-shell.theme-night .scene-actions-btn:hover,
 .app-shell.theme-night .theme-switch button:hover,
-.app-shell.theme-night .overview-link:hover {
+.app-shell.theme-night .overview-link:hover,
+.app-shell.theme-night .large-text-toggle:hover {
   border-color: var(--night-action-hover-border);
   box-shadow:
     inset 0 1px 0 0 var(--night-glass-highlight),
@@ -119,7 +121,8 @@
 
 .app-shell.theme-night .scene-actions button.active,
 .app-shell.theme-night .scene-actions-btn.active,
-.app-shell.theme-night .theme-switch button.active {
+.app-shell.theme-night .theme-switch button.active,
+.app-shell.theme-night .large-text-toggle.active {
   background: var(--action-active-bg);
   border-color: var(--action-active-border);
   color: var(--action-active-ink);

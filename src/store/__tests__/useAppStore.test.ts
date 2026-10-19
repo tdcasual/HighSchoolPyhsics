@@ -48,6 +48,15 @@ describe('app store persisted state sanitization', () => {
     useAppStore.setState(DEFAULT_STATE)
   })
 
+  it('restores the large-text preference and ignores non-boolean values', async () => {
+    await rehydrateFromPersistedState({ theme: 'night', largeText: false })
+    expect(useAppStore.getState()).toMatchObject({ theme: 'night', largeText: false })
+
+    useAppStore.setState({ largeText: true })
+    await rehydrateFromPersistedState({ theme: 'day', largeText: 'yes' })
+    expect(useAppStore.getState().largeText).toBe(true)
+  })
+
   it('drops invalid persisted theme values during rehydration', async () => {
     await rehydrateFromPersistedState({
       theme: 'sunset',

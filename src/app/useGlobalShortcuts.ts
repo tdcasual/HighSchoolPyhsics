@@ -9,6 +9,7 @@ type UseGlobalShortcutsOptions = {
   setTheme: (theme: ThemeMode) => void
   navigateTo: (path: string) => void
   onToggleHelp?: () => void
+  onToggleLargeText?: () => void
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -23,6 +24,7 @@ export function useGlobalShortcuts({
   setTheme,
   navigateTo,
   onToggleHelp,
+  onToggleLargeText,
 }: UseGlobalShortcutsOptions): void {
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -34,6 +36,7 @@ export function useGlobalShortcuts({
       if (key === 'd') { event.preventDefault(); setTheme('day'); return }
       if (key === 'n') { event.preventDefault(); setTheme('night'); return }
       if (key === '?') { event.preventDefault(); onToggleHelp?.(); return }
+      if (key === 'l') { event.preventDefault(); onToggleLargeText?.(); return }
 
       if (pathname === '/' && /^[1-9]$/.test(key)) {
         const nextRoute = routes[Number(key) - 1]
@@ -43,5 +46,5 @@ export function useGlobalShortcuts({
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [navigateTo, onToggleHelp, pathname, routes, setTheme])
+  }, [navigateTo, onToggleHelp, onToggleLargeText, pathname, routes, setTheme])
 }

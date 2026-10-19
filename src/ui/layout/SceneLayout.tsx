@@ -211,6 +211,7 @@ export function SceneLayout({
         <FloatingPanel
           key={dataInitiallyCollapsed ? 'data-collapsed' : 'data-expanded'}
           title="数据"
+          zone="data"
           ref={stableRef0}
           defaultCollapsed={dataInitiallyCollapsed}
           defaultPosition={{ x: panelBaseX, y: stackedYs[0] ?? 0 }}
@@ -225,6 +226,7 @@ export function SceneLayout({
         <FloatingPanel
           key={chartInitiallyCollapsed ? 'chart-collapsed' : 'chart-expanded'}
           title="图表"
+          zone="chart"
           ref={stableRef1}
           defaultCollapsed={chartInitiallyCollapsed}
           defaultPosition={{ x: auxiliaryPanelBaseX, y: chartPanelY }}
@@ -242,6 +244,7 @@ export function SceneLayout({
         <FloatingPanel
           key={playbackInitiallyCollapsed ? 'playback-collapsed' : 'playback-expanded'}
           title="播放控制"
+          zone="playback"
           ref={stableRef2}
           defaultCollapsed={playbackInitiallyCollapsed}
           defaultPosition={{ x: auxiliaryPanelBaseX, y: playbackPanelY }}

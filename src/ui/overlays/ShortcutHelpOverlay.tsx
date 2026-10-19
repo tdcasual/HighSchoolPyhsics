@@ -6,6 +6,7 @@ const SHORTCUT_GROUPS = [
     items: [
       { keys: ['D'], desc: '切换到白天模式' },
       { keys: ['N'], desc: '切换到夜间模式' },
+      { keys: ['L'], desc: '切换课堂大字（读数、图表、3D 标签放大）' },
       { keys: ['?'], desc: '显示/隐藏快捷键帮助' },
     ],
   },

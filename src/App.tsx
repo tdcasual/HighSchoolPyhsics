@@ -31,6 +31,8 @@ function resolveRouteButtonPath(path: unknown): string {
 function App() {
   const theme = useAppStore((state) => state.theme)
   const setTheme = useAppStore((state) => state.setTheme)
+  const largeText = useAppStore((state) => state.largeText)
+  const setLargeText = useAppStore((state) => state.setLargeText)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
   const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
@@ -96,6 +98,7 @@ function App() {
     setTheme,
     navigateTo,
     onToggleHelp: () => setHelpVisible((v) => !v),
+    onToggleLargeText: () => setLargeText(!largeText),
   })
 
   const isOverviewPage = pathname === '/'
@@ -107,7 +110,7 @@ function App() {
     () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
     [activeTouchProfile],
   )
-  const shellClassName = `app-shell theme-${theme}`
+  const shellClassName = `app-shell theme-${theme}${largeText ? ' text-large' : ''}`
 
   if (!runtimeCapabilities.supported) {
     return (
@@ -215,6 +218,16 @@ function App() {
                   夜间模式
                 </button>
               </div>
+              <button
+                type="button"
+                className={`touch-target large-text-toggle ${largeText ? 'active' : ''}`.trim()}
+                aria-pressed={largeText}
+                aria-keyshortcuts="L"
+                title="课堂大字：放大读数、图表与 3D 标签（快捷键 L）"
+                onClick={() => setLargeText(!largeText)}
+              >
+                大字
+              </button>
               <button
                 type="button"
                 className="touch-target shortcut-help-btn"

@@ -11,6 +11,7 @@ describe('App shell', () => {
     useAppStore.setState({
       theme: 'day',
       activeScenePath: '/',
+      largeText: true,
     })
     window.history.replaceState(null, '', '/')
   })
@@ -59,6 +60,23 @@ describe('App shell', () => {
     expect(shell).toHaveClass('theme-day')
     expect(dayButton).toHaveAttribute('aria-pressed', 'true')
     expect(nightButton).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('toggles classroom large text from the header and the L shortcut', () => {
+    const { container } = render(<App />)
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    const toggle = within(shell).getByRole('button', { name: '大字' })
+
+    // Classroom projection is the default.
+    expect(shell).toHaveClass('text-large')
+    expect(toggle).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(toggle)
+    expect(shell).not.toHaveClass('text-large')
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+    fireEvent.keyDown(window, { key: 'l' })
+    expect(shell).toHaveClass('text-large')
   })
 
   it('keeps root path on overview navigation page', async () => {

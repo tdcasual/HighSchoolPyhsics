@@ -145,6 +145,7 @@ body {
 .scene-actions button,
 .theme-switch button,
 .overview-link,
+.large-text-toggle,
 .overview-card button {
   border: 1px solid var(--action-border);
   background: var(--action-bg);
@@ -173,7 +174,8 @@ body {
 
 .scene-actions button:hover,
 .theme-switch button:hover,
-.overview-link:hover {
+.overview-link:hover,
+.large-text-toggle:hover {
   transform: translateY(-2px);
   border-color: var(--action-hover-border);
   box-shadow: var(--action-hover-shadow);
@@ -181,13 +183,15 @@ body {
 
 .scene-actions button:active,
 .theme-switch button:active,
-.overview-link:active {
+.overview-link:active,
+.large-text-toggle:active {
   transform: translateY(0) scale(0.97);
   box-shadow: var(--action-pressed-shadow);
 }
 
 .scene-actions button.active,
-.theme-switch button.active {
+.theme-switch button.active,
+.large-text-toggle.active {
   background: var(--action-active-bg);
   border-color: var(--action-active-border);
   color: var(--action-active-ink);
@@ -285,6 +289,25 @@ body {
    unreadable at classroom distance. Scenes can still widen this via chartContentClassName. */
 .scene-chart-content {
   min-width: min(440px, 30vw);
+}
+
+/* ── Classroom large text ── */
+/* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
+   scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.
+   Small desktops keep the normal scale so panels still fit. */
+@media (min-width: 1280px) and (min-height: 760px) {
+  .app-shell.text-large .floating-panel[data-panel='data'] .panel-body > * {
+    zoom: 1.5;
+  }
+
+  .app-shell.text-large .floating-panel[data-panel='chart'] .panel-body > * {
+    zoom: 1.25;
+  }
+
+  /* drei <Html> labels are mounted next to the WebGL canvas. */
+  .app-shell.text-large div:has(> canvas) > div > div {
+    zoom: 1.4;
+  }
 }
 
 /* ── Scene Core Summary ── */
