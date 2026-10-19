@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NavigationPage } from '../NavigationPage'
 import type { DemoRoute } from '../../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../../app/routeWarmupPolicy'
+import sceneCatalog from '../../../config/demo-scenes.json'
+import { PHYSICS_REGIONS } from '../../ui/navigation/regionData'
 
 vi.mock('../../app/routeWarmupPolicy', () => ({
   shouldWarmRouteOnOverview: vi.fn(() => true),
@@ -57,7 +59,7 @@ describe('NavigationPage Linear layout', () => {
     render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
 
     const main = screen.getByRole('main')
-    expect(main.textContent).toContain('波动与振动')
+    expect(main.textContent).toContain('静电学')
     expect(main.textContent).toContain('示波器')
     expect(main.textContent).toContain('波形合成')
   })
@@ -94,6 +96,16 @@ describe('NavigationPage Linear layout', () => {
 
     fireEvent.click(screen.getAllByText('回旋加速器')[0])
     expect(onOpenRoute).toHaveBeenCalledWith('/cyclotron')
+  })
+
+  it('places every catalogued scene in exactly one topic', () => {
+    const counts = new Map<string, number>()
+    for (const region of PHYSICS_REGIONS) {
+      for (const pageId of region.scenePageIds) counts.set(pageId, (counts.get(pageId) ?? 0) + 1)
+    }
+    for (const entry of sceneCatalog) {
+      expect(counts.get(entry.pageId), entry.pageId).toBe(1)
+    }
   })
 
   it('hides regions with no scenes', () => {

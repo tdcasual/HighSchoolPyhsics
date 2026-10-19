@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
@@ -9,25 +9,16 @@ export type NavigationPageProps = {
   onOpenRoute: (path: string) => void
 }
 
-const THEME: Record<string, { dot: string }> = {
-  electrostatics: { dot: '#818cf8' },
-  electromagnetism: { dot: '#fbbf24' },
-  'electromagnetic-induction': { dot: '#facc15' },
-  waves: { dot: '#2dd4bf' },
-  mechanics: { dot: '#a3e635' },
-  thermal: { dot: '#f87171' },
-}
-
 const WARMUP_HOVER_DELAY_MS = 120
 
-function resolveScreenshotUrl(pageId: string): string {
-  return `/screenshots/${pageId}-screenshot.png`
+function resolveThumbnailUrl(pageId: string): string {
+  return `/screenshots/${pageId}.webp`
 }
 
-const MagazineItem = memo(function MagazineItem({
+const SceneCard = memo(function SceneCard({
   route,
   index,
-  isHovered,
+  accent,
   onPointerEnter,
   onPointerLeave,
   onPointerDown,
@@ -37,7 +28,7 @@ const MagazineItem = memo(function MagazineItem({
 }: {
   route: DemoRoute
   index: number
-  isHovered: boolean
+  accent: string
   onPointerEnter: (route: DemoRoute) => void
   onPointerLeave: () => void
   onPointerDown: (route: DemoRoute) => void
@@ -45,10 +36,12 @@ const MagazineItem = memo(function MagazineItem({
   onBlur: () => void
   onClick: (route: DemoRoute) => void
 }) {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const indexStr = String(index).padStart(2, '0')
   return (
     <button
-      className={`magazine-item touch-target${isHovered ? ' active' : ''}`}
+      className="scene-card touch-target"
+      style={{ '--scene-card-accent': accent } as CSSProperties}
       onPointerEnter={() => onPointerEnter(route)}
       onPointerLeave={onPointerLeave}
       onPointerDown={(event) => {
@@ -60,60 +53,32 @@ const MagazineItem = memo(function MagazineItem({
       onBlur={onBlur}
       onClick={() => onClick(route)}
     >
-      <span className="magazine-item-index">{indexStr}</span>
-      <span className="magazine-item-name">{route.label}</span>
-      <span className="magazine-item-tag">{route.meta?.tag}</span>
-      <span className="magazine-item-arrow" aria-hidden="true">→</span>
+      <span className="scene-card-thumb" aria-hidden="true">
+        {thumbnailFailed ? (
+          <span className="scene-card-thumb-fallback">{route.meta?.tag}</span>
+        ) : (
+          <img
+            src={resolveThumbnailUrl(route.pageId)}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={() => setThumbnailFailed(true)}
+          />
+        )}
+        <span className="scene-card-index">{indexStr}</span>
+      </span>
+      <span className="scene-card-body">
+        <span className="scene-card-name">{route.label}</span>
+        <span className="scene-card-summary">{route.meta?.summary}</span>
+        <span className="scene-card-tag">{route.meta?.tag}</span>
+      </span>
     </button>
   )
 })
 
-function PreviewImage({ route }: { route: DemoRoute }) {
-  const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
-
-  return (
-    <>
-      <div className="magazine-preview-img-wrap">
-        {!error ? (
-          <img
-            src={resolveScreenshotUrl(route.pageId)}
-            alt={route.label}
-            className={`magazine-preview-img${loaded ? ' loaded' : ''}`}
-            onLoad={() => setLoaded(true)}
-            onError={() => setError(true)}
-          />
-        ) : null}
-        {(!loaded || error) ? (
-          <div className="magazine-preview-placeholder">
-            <span className="magazine-preview-placeholder-title">
-              {route.label}
-            </span>
-            <span className="magazine-preview-placeholder-hint">
-              {error ? '预览图加载失败' : '加载中…'}
-            </span>
-          </div>
-        ) : null}
-      </div>
-      <div className="magazine-preview-meta">
-        <span className="magazine-preview-name">
-          {route.label}
-        </span>
-        <span className="magazine-preview-tag">
-          {route.meta?.tag}
-        </span>
-      </div>
-    </>
-  )
-}
-
 export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const canWarmRoutes = shouldWarmRouteOnOverview()
   const warmupTimerRef = useRef<number | null>(null)
-  const [hoveredRoute, setHoveredRoute] = useState<DemoRoute | null>(null)
-
-  const previewRoute = hoveredRoute
-
   useEffect(() => {
     return () => {
       if (warmupTimerRef.current !== null) {
@@ -139,7 +104,6 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
 
   const handlePointerEnter = useCallback(
     (route: DemoRoute) => {
-      setHoveredRoute(route)
       if (!canWarmRoutes) return
       cancelWarmRoute()
       warmupTimerRef.current = window.setTimeout(() => {
@@ -163,9 +127,8 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   )
 
   const indexedGroups = PHYSICS_REGIONS.reduce<
-    { region: typeof PHYSICS_REGIONS[number]; theme: { dot: string }; routes: { route: DemoRoute; index: number }[] }[]
+    { region: typeof PHYSICS_REGIONS[number]; routes: { route: DemoRoute; index: number }[] }[]
   >((acc, region) => {
-    const theme = THEME[region.id] ?? THEME.electrostatics
     const regionRoutes = routes.filter((r) =>
       region.scenePageIds.includes(r.pageId),
     )
@@ -174,42 +137,60 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
       const index = acc.reduce((sum, g) => sum + g.routes.length, 0) + regionRoutes.indexOf(route) + 1
       return { route, index }
     })
-    acc.push({ region, theme, routes: indexed })
+    acc.push({ region, routes: indexed })
     return acc
   }, [])
 
   return (
-    <section className="magazine-overview" data-testid="overview-page">
-      {/* Header */}
-      <header className="magazine-header">
-        <span className="magazine-kicker">物理演示</span>
-        <h1 className="magazine-title">高中物理 3D 课堂</h1>
-        <p className="magazine-count">
-          {routes.length} 个交互演示场景
+    <section className="scene-overview" data-testid="overview-page">
+      <header className="scene-overview-header">
+        <span className="scene-overview-kicker">物理演示</span>
+        <h1 className="scene-overview-title">高中物理 3D 课堂</h1>
+        <p className="scene-overview-count">
+          {routes.length} 个交互演示场景 · {indexedGroups.length} 个专题
         </p>
+        {indexedGroups.length > 1 ? (
+          <nav className="scene-overview-jump" aria-label="专题">
+            {indexedGroups.map(({ region, routes: regionRoutes }) => (
+              <a
+                key={region.id}
+                href={`#region-${region.id}`}
+                className="scene-overview-jump-link"
+                style={{ '--scene-card-accent': region.hoverColor } as CSSProperties}
+                onClick={(event) => {
+                  event.preventDefault()
+                  document.getElementById(`region-${region.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
+              >
+                {region.name}
+                <span>{regionRoutes.length}</span>
+              </a>
+            ))}
+          </nav>
+        ) : null}
       </header>
 
-      {/* Scene list */}
-      <main className="magazine-list">
-        {indexedGroups.map(({ region, theme, routes: regionRoutes }) => (
-          <div key={region.id} className="magazine-group">
-            <div className="magazine-group-header">
-              <span
-                className="magazine-group-dot"
-                style={{ backgroundColor: theme.dot }}
-              />
-              <h2 className="magazine-group-name">{region.name}</h2>
-              <span className="magazine-group-desc">
-                {region.description}
-              </span>
+      <main className="scene-overview-groups">
+        {indexedGroups.map(({ region, routes: regionRoutes }) => (
+          <section
+            key={region.id}
+            id={`region-${region.id}`}
+            className="scene-overview-group"
+            aria-labelledby={`region-${region.id}-title`}
+            style={{ '--scene-card-accent': region.hoverColor } as CSSProperties}
+          >
+            <div className="scene-overview-group-header">
+              <span className="scene-overview-group-dot" />
+              <h2 id={`region-${region.id}-title`} className="scene-overview-group-name">{region.name}</h2>
+              <span className="scene-overview-group-desc">{region.description}</span>
             </div>
-            <div className="magazine-items">
+            <div className="scene-overview-grid">
               {regionRoutes.map(({ route, index }) => (
-                <MagazineItem
+                <SceneCard
                   key={route.pageId}
                   route={route}
                   index={index}
-                  isHovered={hoveredRoute?.pageId === route.pageId}
+                  accent={region.hoverColor}
                   onPointerEnter={handlePointerEnter}
                   onPointerLeave={handlePointerLeave}
                   onPointerDown={warmRouteNow}
@@ -219,25 +200,9 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                 />
               ))}
             </div>
-          </div>
+          </section>
         ))}
       </main>
-
-      {/* Screenshot preview — fixed right panel */}
-      <aside className="magazine-preview" aria-hidden="true">
-        <div className={`magazine-preview-frame${previewRoute ? ' show' : ''}`}>
-          {previewRoute ? (
-            <PreviewImage key={previewRoute.pageId} route={previewRoute} />
-          ) : (
-            <div className="magazine-preview-empty">
-              <span className="magazine-preview-empty-hint">悬停列表查看预览</span>
-              <span className="magazine-preview-empty-sub">
-                鼠标移至场景名称上
-              </span>
-            </div>
-          )}
-        </div>
-      </aside>
     </section>
   )
 }
