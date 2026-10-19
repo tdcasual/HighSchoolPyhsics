@@ -8,6 +8,8 @@ export type DemoRouteMeta = {
   summary: string
   highlights: string[]
   tone: DemoTone
+  /** Paired scenes on the same topic: 入门 shows the principle, 进阶 the full apparatus or quantitative model. */
+  level?: '入门' | '进阶'
 }
 
 export type SceneCatalogEntry = {

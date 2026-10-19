@@ -1567,6 +1567,32 @@ input[type="range"]::-moz-range-track {
   color: var(--overview-ink-muted);
 }
 
+.scene-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.scene-card-level {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--scene-card-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.scene-overview-group-volume {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--scene-card-accent);
+  color: var(--scene-card-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .scene-card-tag {
   align-self: flex-start;
   margin-top: 0.15rem;

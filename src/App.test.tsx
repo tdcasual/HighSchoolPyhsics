@@ -30,9 +30,9 @@ describe('App shell', () => {
     expect(screen.getByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
 
-    // Regions with scenes should be visible as topic headings
-    for (const region of ['静电学', '电磁学', '电磁感应', '波动与光学', '力学', '热学']) {
-      expect(screen.getByRole('heading', { level: 2, name: region })).toBeInTheDocument()
+    // Scenes are grouped by textbook chapter
+    for (const chapter of ['第二章 匀变速直线运动的研究', '第十一章 电路及其应用', '第二章 电磁感应', '第四章 光', '第二章 气体、固体和液体']) {
+      expect(screen.getByRole('heading', { level: 2, name: chapter })).toBeInTheDocument()
     }
     // …and every scene is listed exactly once
     expect(screen.getAllByRole('button', { name: /游标卡尺与螺旋测微器/ })).toHaveLength(1)
@@ -145,17 +145,19 @@ describe('App shell', () => {
     fireEvent.keyDown(window, { key: 'n' })
     expect(shell).toHaveClass('theme-night')
 
+    // 1 opens card 01 on the overview: the first scene of the first textbook chapter.
     fireEvent.keyDown(window, { key: '1' })
-    expect(await screen.findByText('X 偏转电压 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
-    expect(window.location.pathname).toBe('/oscilloscope')
+    expect(await screen.findByText('打点计时器控制', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/ticker-timer')
 
     fireEvent.keyDown(window, { key: 'd' })
     expect(shell).toHaveClass('theme-day')
   })
 
   it('ignores malformed shortcut route paths instead of throwing', () => {
-    const originalPath = DEMO_ROUTES[0].path
-    ;(DEMO_ROUTES[0] as { path: unknown }).path = { broken: 'path' }
+    const firstCard = DEMO_ROUTES.find((route) => route.pageId === 'ticker-timer')!
+    const originalPath = firstCard.path
+    ;(firstCard as { path: unknown }).path = { broken: 'path' }
 
     try {
       render(<App />)
@@ -163,7 +165,7 @@ describe('App shell', () => {
       expect(() => fireEvent.keyDown(window, { key: '1' })).not.toThrow()
       expect(window.location.pathname).toBe('/')
     } finally {
-      ;(DEMO_ROUTES[0] as { path: unknown }).path = originalPath
+      ;(firstCard as { path: unknown }).path = originalPath
     }
   })
 

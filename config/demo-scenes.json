@@ -9,7 +9,8 @@
         "函数编辑与预设切换",
         "荧光屏轨迹实时更新"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -112,12 +113,13 @@
     "label": "光的衍射",
     "meta": {
       "tag": "波动光学",
-      "summary": "单缝/圆孔/圆球/光栅四类衍射的夫琅禾费图样对比",
+      "summary": "四类衍射的夫琅禾费图样与光强分布，可定量读条纹宽度",
       "highlights": [
         "四种衍射障碍物一键切换",
         "缝宽/孔径与衍射展宽的实时反比关系"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -139,12 +141,13 @@
     "label": "衍射演示",
     "meta": {
       "tag": "波动光学",
-      "summary": "线光源+障碍物+大屏幕的简洁衍射演示",
+      "summary": "单缝、圆孔、光栅在屏上的衍射现象，快速对比",
       "highlights": [
         "无仪器干扰，聚焦物理本质",
         "3D 大屏幕实时显示衍射图样"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "入门"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -171,7 +174,8 @@
         "U-t / Ek-t 双曲线",
         "可切换加速时间模型"
       ],
-      "tone": "cyclotron"
+      "tone": "cyclotron",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -252,7 +256,8 @@
         "增删电荷并调节 q/x/y/z",
         "正负势面分层对比观察"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -279,7 +284,8 @@
         "单点电荷正负切换",
         "切片到曲面的构建过程"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "入门"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -306,7 +312,8 @@
         "七类课堂预设一键切换",
         "探针读数与选中电荷编辑"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -468,7 +475,8 @@
         "转速可调且 V-t 波形实时同步",
         "电流表指针按半周换向左右偏转"
       ],
-      "tone": "mhd"
+      "tone": "mhd",
+      "level": "进阶"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -495,7 +503,8 @@
         "结构认知与电子束路径点击讲解",
         "触发扫描、VOLTS/DIV、TIME/DIV 与 X-Y 轨迹"
       ],
-      "tone": "scope"
+      "tone": "scope",
+      "level": "入门"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -522,7 +531,8 @@
         "N/S 磁极、线圈、法向量与速度矢量联动",
         "磁通量余弦与电动势正弦图像同步追踪"
       ],
-      "tone": "mhd"
+      "tone": "mhd",
+      "level": "入门"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -549,7 +559,8 @@
         "质子、氘核和 α 粒子注入选择",
         "加速次数、动能、周期与最大动能实时联动"
       ],
-      "tone": "cyclotron"
+      "tone": "cyclotron",
+      "level": "入门"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",

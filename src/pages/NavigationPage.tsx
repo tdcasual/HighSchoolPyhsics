@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } fr
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
-import { PHYSICS_REGIONS } from '../ui/navigation/regionData'
+import { PHYSICS_REGIONS, TEXTBOOK_VOLUMES, findVolumeById } from '../ui/navigation/regionData'
 
 export type NavigationPageProps = {
   routes: DemoRoute[]
@@ -70,7 +70,10 @@ const SceneCard = memo(function SceneCard({
       <span className="scene-card-body">
         <span className="scene-card-name">{route.label}</span>
         <span className="scene-card-summary">{route.meta?.summary}</span>
-        <span className="scene-card-tag">{route.meta?.tag}</span>
+        <span className="scene-card-tags">
+          {route.meta?.level ? <span className="scene-card-level">{route.meta.level}</span> : null}
+          <span className="scene-card-tag">{route.meta?.tag}</span>
+        </span>
       </span>
     </button>
   )
@@ -126,20 +129,24 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     [handlePointerLeave, onOpenRoute],
   )
 
-  const indexedGroups = PHYSICS_REGIONS.reduce<
-    { region: typeof PHYSICS_REGIONS[number]; routes: { route: DemoRoute; index: number }[] }[]
-  >((acc, region) => {
-    const regionRoutes = routes.filter((r) =>
-      region.scenePageIds.includes(r.pageId),
-    )
-    if (regionRoutes.length === 0) return acc
-    const indexed = regionRoutes.map((route) => {
-      const index = acc.reduce((sum, g) => sum + g.routes.length, 0) + regionRoutes.indexOf(route) + 1
-      return { route, index }
-    })
-    acc.push({ region, routes: indexed })
-    return acc
-  }, [])
+  // Chapters in textbook order, scenes in each chapter's teaching order; card numbers run across
+  // the page and match the 1–9 shortcuts (see orderRoutesForOverview).
+  const routesById = new Map(routes.map((route) => [route.pageId, route]))
+  let runningIndex = 0
+  const indexedGroups = PHYSICS_REGIONS.flatMap((region) => {
+    const regionRoutes = region.scenePageIds
+      .map((pageId) => routesById.get(pageId))
+      .filter((route): route is DemoRoute => route !== undefined)
+      .map((route) => ({ route, index: ++runningIndex }))
+    const volume = findVolumeById(region.volumeId)
+    return regionRoutes.length > 0 && volume ? [{ region, volume, routes: regionRoutes }] : []
+  })
+  const volumeChips = TEXTBOOK_VOLUMES.flatMap((volume) => {
+    const groups = indexedGroups.filter((group) => group.volume.id === volume.id)
+    return groups.length > 0
+      ? [{ volume, firstRegionId: groups[0].region.id, count: groups.reduce((sum, group) => sum + group.routes.length, 0) }]
+      : []
+  })
 
   return (
     <section className="scene-overview" data-testid="overview-page">
@@ -147,23 +154,23 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
         <span className="scene-overview-kicker">物理演示</span>
         <h1 className="scene-overview-title">高中物理 3D 课堂</h1>
         <p className="scene-overview-count">
-          {routes.length} 个交互演示场景 · {indexedGroups.length} 个专题
+          {routes.length} 个交互演示场景 · 按人教版教材章节排列
         </p>
-        {indexedGroups.length > 1 ? (
-          <nav className="scene-overview-jump" aria-label="专题">
-            {indexedGroups.map(({ region, routes: regionRoutes }) => (
+        {volumeChips.length > 1 ? (
+          <nav className="scene-overview-jump" aria-label="教材分册">
+            {volumeChips.map(({ volume, firstRegionId, count }) => (
               <a
-                key={region.id}
-                href={`#region-${region.id}`}
+                key={volume.id}
+                href={`#region-${firstRegionId}`}
                 className="scene-overview-jump-link"
-                style={{ '--scene-card-accent': region.hoverColor } as CSSProperties}
+                style={{ '--scene-card-accent': volume.color } as CSSProperties}
                 onClick={(event) => {
                   event.preventDefault()
-                  document.getElementById(`region-${region.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  document.getElementById(`region-${firstRegionId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }}
               >
-                {region.name}
-                <span>{regionRoutes.length}</span>
+                {volume.name}
+                <span>{count}</span>
               </a>
             ))}
           </nav>
@@ -171,16 +178,17 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
       </header>
 
       <main className="scene-overview-groups">
-        {indexedGroups.map(({ region, routes: regionRoutes }) => (
+        {indexedGroups.map(({ region, volume, routes: regionRoutes }) => (
           <section
             key={region.id}
             id={`region-${region.id}`}
             className="scene-overview-group"
             aria-labelledby={`region-${region.id}-title`}
-            style={{ '--scene-card-accent': region.hoverColor } as CSSProperties}
+            style={{ '--scene-card-accent': volume.color } as CSSProperties}
           >
             <div className="scene-overview-group-header">
               <span className="scene-overview-group-dot" />
+              <span className="scene-overview-group-volume">{volume.shortName}</span>
               <h2 id={`region-${region.id}-title`} className="scene-overview-group-name">{region.name}</h2>
               <span className="scene-overview-group-desc">{region.description}</span>
             </div>
@@ -190,7 +198,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                   key={route.pageId}
                   route={route}
                   index={index}
-                  accent={region.hoverColor}
+                  accent={volume.color}
                   onPointerEnter={handlePointerEnter}
                   onPointerLeave={handlePointerLeave}
                   onPointerDown={warmRouteNow}

@@ -1,74 +1,120 @@
-export type PhysicsRegion = {
+/** A textbook volume (人教版 2019) that groups chapters on the overview page. */
+export type TextbookVolume = {
   id: string
   name: string
+  shortName: string
   color: string
-  hoverColor: string
-  position: [number, number, number]
+}
+
+/** One textbook chapter; scenes are listed in teaching order within it. */
+export type PhysicsRegion = {
+  id: string
+  volumeId: string
+  /** Chapter number and title as printed in the textbook, e.g. 第十一章 电路及其应用. */
+  name: string
   description: string
   scenePageIds: string[]
 }
 
+export const TEXTBOOK_VOLUMES: TextbookVolume[] = [
+  { id: 'required-1', name: '必修第一册', shortName: '必修一', color: '#65a30d' },
+  { id: 'required-2', name: '必修第二册', shortName: '必修二', color: '#0891b2' },
+  { id: 'required-3', name: '必修第三册', shortName: '必修三', color: '#6366f1' },
+  { id: 'elective-1', name: '选择性必修第一册', shortName: '选必一', color: '#14b8a6' },
+  { id: 'elective-2', name: '选择性必修第二册', shortName: '选必二', color: '#db2777' },
+  { id: 'elective-3', name: '选择性必修第三册', shortName: '选必三', color: '#dc2626' },
+]
+
 export const PHYSICS_REGIONS: PhysicsRegion[] = [
   {
-    id: 'electrostatics',
-    name: '静电学',
-    color: '#6366f1',
-    hoverColor: '#818cf8',
-    position: [4, 0, 3],
-    description: '电场、电势与带电粒子的偏转',
-    scenePageIds: ['equipotential', 'potential-energy', 'electrostatic-lab', 'equipotential-dipole', 'oscilloscope', 'oscilloscope-3d'],
+    id: 'kinematics',
+    volumeId: 'required-1',
+    name: '第二章 匀变速直线运动的研究',
+    description: '打点计时器与纸带测速，v-t 图像求加速度',
+    scenePageIds: ['ticker-timer', 'cart-velocity'],
   },
   {
-    id: 'electromagnetism',
-    name: '电磁学',
-    color: '#f59e0b',
-    hoverColor: '#fbbf24',
-    position: [-4, 0, 3],
-    description: '磁场、电流与洛伦兹力',
-    scenePageIds: ['oersted', 'cyclotron', 'cyclotron-core', 'orthogonal-em-wave', 'resistivity', 'multimeter'],
+    id: 'gravitation',
+    volumeId: 'required-2',
+    name: '第七章 万有引力与宇宙航行',
+    description: '卫星的速度、周期与变轨',
+    scenePageIds: ['celestial-motion'],
+  },
+  {
+    id: 'electrostatics',
+    volumeId: 'required-3',
+    name: '第九章 静电场及其应用',
+    description: '电场线与场强的矢量叠加',
+    scenePageIds: ['equipotential-dipole'],
+  },
+  {
+    id: 'electric-potential',
+    volumeId: 'required-3',
+    name: '第十章 静电场中的能量',
+    description: '电势、等势面与带电粒子在电场中的偏转',
+    scenePageIds: ['potential-energy', 'equipotential', 'electrostatic-lab', 'oscilloscope-3d', 'oscilloscope'],
+  },
+  {
+    id: 'circuits',
+    volumeId: 'required-3',
+    name: '第十一章 电路及其应用',
+    description: '长度测量、电阻率测量与多用电表',
+    scenePageIds: ['measuring-tools', 'resistivity', 'multimeter'],
+  },
+  {
+    id: 'magnetism-intro',
+    volumeId: 'required-3',
+    name: '第十三章 电磁感应与电磁波初步',
+    description: '电流的磁效应',
+    scenePageIds: ['oersted'],
+  },
+  {
+    id: 'mechanical-waves',
+    volumeId: 'elective-1',
+    name: '第三章 机械波',
+    description: '波的形成与传播、波的干涉',
+    scenePageIds: ['wave-state', 'wave-interference'],
+  },
+  {
+    id: 'light',
+    volumeId: 'elective-1',
+    name: '第四章 光',
+    description: '光的干涉、薄膜干涉与衍射',
+    scenePageIds: ['double-slit', 'wedge-interference', 'diffraction', 'light-diffraction'],
+  },
+  {
+    id: 'lorentz-force',
+    volumeId: 'elective-2',
+    name: '第一章 安培力与洛伦兹力',
+    description: '回旋加速器与磁流体发电机',
+    scenePageIds: ['cyclotron-core', 'cyclotron', 'mhd'],
   },
   {
     id: 'electromagnetic-induction',
-    name: '电磁感应',
-    color: '#db2777',
-    hoverColor: '#f472b6',
-    position: [0, 0, -1],
-    description: '感应电动势与发电机原理',
-    scenePageIds: [
-      'induction-current',
-      'motional-emf',
-      'electromagnetic-drive',
-      'rotational-emf',
-      'alternator',
-      'generator-core',
-      'mhd',
-    ],
+    volumeId: 'elective-2',
+    name: '第二章 电磁感应',
+    description: '楞次定律、动生电动势与电磁驱动',
+    scenePageIds: ['induction-current', 'motional-emf', 'rotational-emf', 'electromagnetic-drive'],
   },
   {
-    id: 'waves',
-    name: '波动与光学',
-    color: '#14b8a6',
-    hoverColor: '#2dd4bf',
-    position: [4, 0, -4],
-    description: '机械波的传播、光的干涉与衍射',
-    scenePageIds: ['wave-state', 'wave-interference', 'double-slit', 'wedge-interference', 'light-diffraction', 'diffraction'],
+    id: 'alternating-current',
+    volumeId: 'elective-2',
+    name: '第三章 交变电流',
+    description: '交变电流的产生',
+    scenePageIds: ['generator-core', 'alternator'],
   },
   {
-    id: 'mechanics',
-    name: '力学',
-    color: '#65a30d',
-    hoverColor: '#84cc16',
-    position: [-4, 0, -4],
-    description: '长度测量、匀变速运动与天体运动',
-    scenePageIds: ['measuring-tools', 'ticker-timer', 'cart-velocity', 'celestial-motion'],
+    id: 'em-waves',
+    volumeId: 'elective-2',
+    name: '第四章 电磁振荡与电磁波',
+    description: '电磁波中 E、B 与传播方向的关系',
+    scenePageIds: ['orthogonal-em-wave'],
   },
   {
-    id: 'thermal',
-    name: '热学',
-    color: '#dc2626',
-    hoverColor: '#ef4444',
-    position: [0, 0, -6],
-    description: '热力学与分子动理论',
+    id: 'gases',
+    volumeId: 'elective-3',
+    name: '第二章 气体、固体和液体',
+    description: '气体的等容变化（查理定律）',
     scenePageIds: ['ideal-gas-isochoric'],
   },
 ]
@@ -77,6 +123,26 @@ export function findRegionById(id: string): PhysicsRegion | undefined {
   return PHYSICS_REGIONS.find((r) => r.id === id)
 }
 
+export function findVolumeById(id: string): TextbookVolume | undefined {
+  return TEXTBOOK_VOLUMES.find((v) => v.id === id)
+}
+
 export function getRegionSceneCount(region: PhysicsRegion): number {
   return region.scenePageIds.length
+}
+
+/**
+ * Routes in overview order: textbook chapter, then the chapter's teaching order. The overview's
+ * card numbers and the 1–9 shortcuts both use this order so they always agree.
+ */
+export function orderRoutesForOverview<T extends { pageId: string }>(routes: T[]): T[] {
+  const byId = new Map(routes.map((route) => [route.pageId, route]))
+  const ordered: T[] = []
+  for (const region of PHYSICS_REGIONS) {
+    for (const pageId of region.scenePageIds) {
+      const route = byId.get(pageId)
+      if (route) ordered.push(route)
+    }
+  }
+  return ordered
 }

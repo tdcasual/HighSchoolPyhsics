@@ -4,7 +4,7 @@ import { NavigationPage } from '../NavigationPage'
 import type { DemoRoute } from '../../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../../app/routeWarmupPolicy'
 import sceneCatalog from '../../../config/demo-scenes.json'
-import { PHYSICS_REGIONS } from '../../ui/navigation/regionData'
+import { PHYSICS_REGIONS, orderRoutesForOverview } from '../../ui/navigation/regionData'
 
 vi.mock('../../app/routeWarmupPolicy', () => ({
   shouldWarmRouteOnOverview: vi.fn(() => true),
@@ -59,7 +59,7 @@ describe('NavigationPage Linear layout', () => {
     render(<NavigationPage routes={[buildRoute()]} onOpenRoute={vi.fn()} />)
 
     const main = screen.getByRole('main')
-    expect(main.textContent).toContain('静电学')
+    expect(main.textContent).toContain('第十章 静电场中的能量')
     expect(main.textContent).toContain('示波器')
     expect(main.textContent).toContain('波形合成')
   })
@@ -98,6 +98,12 @@ describe('NavigationPage Linear layout', () => {
     expect(onOpenRoute).toHaveBeenCalledWith('/cyclotron')
   })
 
+  it('numbers cards in chapter teaching order, matching the 1–9 shortcuts', () => {
+    const ordered = orderRoutesForOverview(sceneCatalog)
+    expect(ordered.map((entry) => entry.pageId).slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'celestial-motion'])
+    expect(ordered).toHaveLength(sceneCatalog.length)
+  })
+
   it('places every catalogued scene in exactly one topic', () => {
     const counts = new Map<string, number>()
     for (const region of PHYSICS_REGIONS) {
@@ -112,8 +118,8 @@ describe('NavigationPage Linear layout', () => {
     render(<NavigationPage routes={[]} onOpenRoute={vi.fn()} />)
 
     const main = screen.getByRole('main')
-    expect(main.textContent).not.toContain('力学')
-    expect(main.textContent).not.toContain('热学')
+    expect(main.textContent).not.toContain('第二章 匀变速直线运动的研究')
+    expect(main.textContent).not.toContain('第二章 气体、固体和液体')
   })
 
   it('preloads scene module on hover dwell', () => {

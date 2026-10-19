@@ -1,3 +1,4 @@
+import { orderRoutesForOverview } from './ui/navigation/regionData'
 import { Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import {
   DEMO_ROUTES,
@@ -27,6 +28,8 @@ function resolveRouteButtonLabel(label: unknown, index: number): string {
 function resolveRouteButtonPath(path: unknown): string {
   return isNonBlankText(path) ? path : '/'
 }
+
+const OVERVIEW_ROUTES = orderRoutesForOverview(DEMO_ROUTES)
 
 function App() {
   const theme = useAppStore((state) => state.theme)
@@ -117,7 +120,8 @@ function App() {
   }, [])
 
   useGlobalShortcuts({
-    routes: DEMO_ROUTES,
+    // 1–9 open the cards numbered 01–09 on the overview.
+    routes: OVERVIEW_ROUTES,
     pathname,
     setTheme,
     navigateTo,
