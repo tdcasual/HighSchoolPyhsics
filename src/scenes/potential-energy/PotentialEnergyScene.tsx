@@ -81,7 +81,7 @@ export function PotentialEnergyScene() {
       notes={
         <>
           <p>
-            横轴 r 是到点电荷的距离，竖轴 φ_rel 是相对电势；模型省略库仑常量 k，使用 φ_rel(r) = sgn(Q)·{POTENTIAL_FIELD_SCALE}/r，仅显示 |φ_rel| ≤ {POTENTIAL_DISPLAY_LIMIT}（r ≥ {POTENTIAL_DISPLAY_MIN_RADIUS.toFixed(2)}）。
+            横轴 r 是到点电荷的距离，竖轴 φ<sub>rel</sub> 是相对电势；模型省略库仑常量 k，使用 φ<sub>rel</sub>(r) = sgn(Q)·{POTENTIAL_FIELD_SCALE}/r，仅显示 |φ<sub>rel</sub>| ≤ {POTENTIAL_DISPLAY_LIMIT}（r ≥ {POTENTIAL_DISPLAY_MIN_RADIUS.toFixed(2)}）。
           </p>
           <p>彩色球标记电荷极性；旋转切片生成轴对称函数图像，不是实际空间等势面。</p>
         </>

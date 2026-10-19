@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import type { Group, InstancedMesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Object3D } from 'three'
 import { deriveMhdLayout, MHD_LAYOUT } from './layout'
@@ -28,7 +28,7 @@ function MhdWorldLabel({
   position: [number, number, number]
   color: string
   fontSize: number
-  children: string
+  children: ReactNode
 }) {
   return (
     <Html position={position} center distanceFactor={8}>
@@ -524,10 +524,10 @@ export function MhdGeneratorRig3D({
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
       <MhdWorldLabel position={[-0.84, 0, -0.22]} color="#ffb066" fontSize={0.1}>
-        q+ · F_B ↓
+        q+ · F<sub>B</sub> ↓
       </MhdWorldLabel>
       <MhdWorldLabel position={[0.5, 0, 0.22]} color="#ffb066" fontSize={0.1}>
-        q− · F_B ↑
+        q− · F<sub>B</sub> ↑
       </MhdWorldLabel>
 
       <FlowMarkers running={running} flowRateScale={flowRateScale} />
@@ -572,7 +572,7 @@ export function MhdGeneratorRig3D({
 
 
       >
-        E_ind ↑
+        E<sub>ind</sub> ↑
       </MhdWorldLabel>
       <Line points={layout.wires.top} color="#2a2a2a" lineWidth={2.2} />
       <Line points={layout.wires.bottom} color="#2a2a2a" lineWidth={2.2} />
@@ -586,10 +586,10 @@ export function MhdGeneratorRig3D({
         <meshBasicMaterial color="#e77b42" />
       </mesh>
       <MhdWorldLabel position={[2.08, 0.3, 0.72]} color="#b95a2a" fontSize={0.1} >
-        I_L ↑
+        I<sub>L</sub> ↑
       </MhdWorldLabel>
       <MhdWorldLabel position={[2.32, 0.12, 0.51]} color="#333333" fontSize={0.1}  >
-        R_L
+        R<sub>L</sub>
       </MhdWorldLabel>
     </group>
   )

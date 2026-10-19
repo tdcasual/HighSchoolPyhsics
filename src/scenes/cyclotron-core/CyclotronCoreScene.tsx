@@ -6,6 +6,7 @@ import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { CyclotronCoreChart } from './CyclotronCoreChart'
 import { CyclotronCoreControls } from './CyclotronCoreControls'
 import { CyclotronCoreRig3D } from './CyclotronCoreRig3D'
+import { REFERENCE_DEVICE_RADIUS_M } from './model'
 import { useCyclotronCoreSceneState } from './useCyclotronCoreSceneState'
 import './cyclotron-core.css'
 
@@ -42,7 +43,7 @@ export function CyclotronCoreScene() {
       }
       dataOverlay={
         <div className="cyclotron-core-telemetry scene-core-summary-stack">
-          <p><span>已知 B · U · R</span><strong>{state.B.toFixed(1)} T · {state.U.toFixed(0)} kV · 2.88 cm</strong></p>
+          <p><span>已知 B · U · R</span><strong>{state.B.toFixed(1)} T · {state.U.toFixed(0)} kV · {(REFERENCE_DEVICE_RADIUS_M * 100).toFixed(2)} cm（示意）</strong></p>
           <p><span>加速次数 n · 动能 Eₖ</span><strong>{readings.accelerationCount} · {readings.energy.toFixed(0)} keV</strong></p>
           <p><span>最大动能 Eₖ,max</span><strong><Answer>{readings.maxEnergy.toFixed(0)} keV</Answer></strong></p>
           <p><span>周期比 T/Tₚ</span><strong><Answer>{readings.periodRatio.toFixed(2)}</Answer></strong></p>
@@ -55,7 +56,13 @@ export function CyclotronCoreScene() {
         </div>
       }
       notes={
-        <p>同步条件：非相对论回旋周期 T = 2πm/(qB)，同一磁场下 T/Tₚ = m/q；电源每半周反向，粒子每次过缝获得 qU。</p>
+        <>
+          <p>
+            D 形盒有效半径取 {(REFERENCE_DEVICE_RADIUS_M * 100).toFixed(2)} cm 的缩小示意值，使动能落在 keV 量级、轨道圈数可数。Eₖ,max = q²B²R²/(2m) 与 U 无关；按教材常见量级 R = 0.5 m，当前粒子与磁场下 Eₖ,max ≈{' '}
+            {((readings.maxEnergy * (0.5 / REFERENCE_DEVICE_RADIUS_M) ** 2) / 1000).toFixed(0)} MeV，加速次数相应增至约 {(readings.maxEnergy * (0.5 / REFERENCE_DEVICE_RADIUS_M) ** 2 / (readings.particle.charge * state.U)).toFixed(0)} 次。
+          </p>
+          <p>同步条件：非相对论回旋周期 T = 2πm/(qB)，同一磁场下 T/Tₚ = m/q；电源每半周反向，粒子每次过缝获得 qU。</p>
+        </>
       }
       chart={<CyclotronCoreChart state={state} />}
       chartVisible

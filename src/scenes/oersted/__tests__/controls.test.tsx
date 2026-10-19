@@ -14,7 +14,7 @@ describe('oersted controls', () => {
 
     expect(await screen.findByText('奥斯特实验控制')).toBeInTheDocument()
     expect(await screen.findByLabelText('电流 I')).toBeInTheDocument()
-    expect(await screen.findByLabelText('导线最低净空 h_min')).toBeInTheDocument()
+    expect(await screen.findByLabelText('导线最低净空 hmin')).toBeInTheDocument()
     const advancedToggle = await screen.findByRole('button', { name: /高级参数/ })
     expect(advancedToggle).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByLabelText('地磁场 B0')).not.toBeInTheDocument()
@@ -71,7 +71,7 @@ describe('oersted controls', () => {
   it('allows adjusting wire orientation and height in 3d controls', async () => {
     render(<OerstedScene />)
 
-    const height = await screen.findByLabelText('导线最低净空 h_min')
+    const height = await screen.findByLabelText('导线最低净空 hmin')
     fireEvent.click(await screen.findByRole('button', { name: /高级参数/ }))
 
     const azimuth = await screen.findByLabelText('导线方位角 ψ')

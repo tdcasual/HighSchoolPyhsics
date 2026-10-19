@@ -7,6 +7,7 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
 import { CyclotronRig3D } from './CyclotronRig3D'
 import { CyclotronTraceChart } from './CyclotronTraceChart'
+import { MAX_ORBIT_RADIUS_M } from './layout'
 import { useCyclotronSceneState } from './useCyclotronSceneState'
 import { CYCLOTRON_CAMERA, CYCLOTRON_CONTROLS } from './view'
 import './cyclotron.css'
@@ -48,10 +49,16 @@ export function CyclotronScene() {
           </p>
           <p><span>缝隙电压 U</span><strong>{formatScientific(state.currentVoltageV)} V · {state.voltageDirectionText}</strong></p>
           <p><span>动能 Ek</span><strong>{formatScientific(state.currentEnergyJ)} J（{formatScientific(state.currentEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
-          <p><span>Ek,max（R=0.675 mm）</span><strong><Answer>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</Answer></strong></p>
+          <p><span>Ek,max（示意 R = {(MAX_ORBIT_RADIUS_M * 1000).toFixed(3)} mm）</span><strong><Answer>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</Answer></strong></p>
           <p><span>回旋周期 T</span><strong><Answer>{formatScientific(state.cyclotronPeriodS)} s</Answer></strong></p>
           {state.simulation.error ? <p>错误: {state.simulation.error}</p> : null}
         </div>
+      }
+      notes={
+        <p>
+          本场景为缩小示意：D 形盒半径仅 {(MAX_ORBIT_RADIUS_M * 1000).toFixed(3)} mm，故动能只有 eV 量级。Eₖ,max = q²B²R²/(2m) 只取决于 B 与 R、与加速电压 U 无关；按教材常见量级 R = 0.5 m、当前 B = {state.magneticFieldT.toFixed(1)} T，质子 Eₖ,max ≈{' '}
+          {((state.maximumKineticEnergyJ * (0.5 / MAX_ORBIT_RADIUS_M) ** 2) / (ELEMENTARY_CHARGE_C * 1e6)).toFixed(1)} MeV。
+        </p>
       }
       chart={
         <>

@@ -11,7 +11,7 @@ describe('mhd controls', () => {
     expect(await screen.findByLabelText('等离子体速度 v')).toBeInTheDocument()
     expect(await screen.findByLabelText('电极间距 d')).toBeInTheDocument()
     expect(await screen.findByLabelText('载流子浓度 n/n₀')).toBeInTheDocument()
-    expect(await screen.findByLabelText('负载电阻 R_L')).toBeInTheDocument()
+    expect(await screen.findByLabelText('负载电阻 RL')).toBeInTheDocument()
     const dataPanel = screen.getByRole('region', { name: '数据' })
     expect(await within(dataPanel).findByTestId('mhd-voltage-display')).toBeInTheDocument()
 

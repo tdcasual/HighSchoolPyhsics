@@ -120,7 +120,7 @@ export function MotionalEmfScene() {
         <div className="scene-core-summary-stack">
           <p><span>运动状态</span><strong>{state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
           <p><span>行程</span><strong>{(state.phase * 100).toFixed(0)}%</strong></p>
-          <p><span>电压 U_AB</span><strong><Answer>{state.signedVoltageV.toFixed(2)} V</Answer></strong></p>
+          <p><span>电压 U<sub>AB</sub></span><strong><Answer>{state.signedVoltageV.toFixed(2)} V</Answer></strong></p>
           <p><span>极性</span><strong><Answer>{state.polarityText}</Answer></strong></p>
           <p><span>∠(B,L) / ∠(L,v) / ∠(B,v)</span><strong>{state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}</strong></p>
         </div>

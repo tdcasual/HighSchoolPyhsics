@@ -64,15 +64,15 @@ export function MhdGeneratorScene() {
             <strong><Answer>{formatQuantity(Math.abs(state.readings.openCircuitVoltageV), 'V')}</Answer></strong>
           </p>
           <p>
-            <span>负载端电压 U_AB</span>
+            <span>负载端电压 U<sub>AB</sub></span>
             <strong data-testid="mhd-voltage-display"><Answer>{formatSignedVoltage(state.readings.outputVoltageV)}</Answer></strong>
           </p>
           <p>
-            <span>负载电流 I_L</span>
+            <span>负载电流 I<sub>L</sub></span>
             <strong><Answer>{formatQuantity(state.readings.outputCurrentA, 'A')}</Answer></strong>
           </p>
           <p>
-            <span>负载功率 P_L</span>
+            <span>负载功率 P<sub>L</sub></span>
             <strong><Answer>{formatQuantity(state.readings.outputPowerW, 'W')}</Answer></strong>
           </p>
         </div>

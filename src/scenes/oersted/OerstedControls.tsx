@@ -79,7 +79,7 @@ export function OerstedControls({
 
         <RangeField
           id="oersted-wire-height"
-          label="导线最低净空 h_min"
+          label={<>导线最低净空 h<sub>min</sub></>}
           unit="m"
           min={0.01}
           max={0.16}
@@ -88,7 +88,7 @@ export function OerstedControls({
           onChange={onWireHeightChange}
         />
         <ModelNote><p className="oersted-control-hint">
-          I &gt; 0 沿导线箭头方向，I &lt; 0 时电源极性和电流方向反转；h_min 是导线最低表面高于磁针平面的净空。
+          I &gt; 0 沿导线箭头方向，I &lt; 0 时电源极性和电流方向反转；h<sub>min</sub> 是导线最低表面高于磁针平面的净空。
         </p></ModelNote>
         <p className="oersted-control-hint">拖动三枚磁针可改变它们与导线的相对位置，再通电观察磁针偏转。</p>
         <p className="oersted-control-hint">模型按有限长直导线与水平地磁场计算；电池引线仅作连接示意，不计入磁场。</p>
