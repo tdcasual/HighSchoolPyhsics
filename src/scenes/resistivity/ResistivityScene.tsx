@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { MeasuringToolsChart } from '../measuring-tools/MeasuringToolsChart'
+import { useViewportSize } from '../measuring-tools/useViewportSize'
 import { cameraLimits, fitCameraDistance, instrumentView, orbitPosition, type OrbitView, type ViewPreset } from '../measuring-tools/pose'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CIRCUIT_CAMERA, circuitPose, circuitView, circuitWires } from './circuitPose'
 import { ElementChart, ResistivityChart } from './ResistivityChart'
+import { formatCurrent, formatElementResistance, formatRho } from './format'
 import { ResistivityControls } from './ResistivityControls'
 import { ResistivityRig3D } from './ResistivityRig3D'
 import { activeWire, analysisOf, indicatedGap, isSeated } from './state'
@@ -14,46 +16,6 @@ import { micrometerReading } from '../measuring-tools/model'
 import { useResistivitySceneState } from './useResistivitySceneState'
 import '../measuring-tools/measuring-tools.css'
 import './resistivity.css'
-
-type ViewportSize = { left: number; width: number; height: number }
-
-function useViewportSize(ref: RefObject<HTMLDivElement | null>): ViewportSize {
-  const [size, setSize] = useState<ViewportSize>({ left: 0, width: 1280, height: 720 })
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    const update = () => {
-      const rect = element.getBoundingClientRect()
-      const width = rect.width || window.innerWidth
-      const height = rect.height || window.innerHeight
-      setSize((previous) =>
-        Math.abs(previous.left - rect.left) < 1 &&
-        Math.abs(previous.width - width) < 1 &&
-        Math.abs(previous.height - height) < 1
-          ? previous
-          : { left: rect.left, width, height },
-      )
-    }
-    update()
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
-    observer?.observe(element)
-    window.addEventListener('resize', update)
-    return () => {
-      observer?.disconnect()
-      window.removeEventListener('resize', update)
-    }
-  }, [ref])
-  return size
-}
-
-function formatRho(value: number | null): string {
-  return value === null || !Number.isFinite(value) ? '—' : `${value.toExponential(2)} Ω·m`
-}
-
-function formatElementResistance(value: number): string {
-  if (!Number.isFinite(value)) return '—'
-  return Math.abs(value) >= 1e6 ? value.toExponential(2) : value.toFixed(2)
-}
 
 export function ResistivityScene() {
   const state = useResistivitySceneState()
@@ -191,7 +153,7 @@ export function ResistivityScene() {
             <>
               <p><span>研究元件</span><strong>{ELEMENTS[state.element].name}</strong></p>
               <p><span>电压 U</span><strong>{state.elementNow.U.toFixed(2)} V</strong></p>
-              <p><span>电流 I</span><strong>{state.elementNow.I.toExponential(2)} A</strong></p>
+              <p><span>电流 I</span><strong>{formatCurrent(state.elementNow.I)}</strong></p>
               <p><span>静态电阻 R = U/I</span><strong>{formatElementResistance(state.elementNow.R)} Ω</strong></p>
               {state.element === 'diode' && state.elementNow.U < 0 ? (
                 <p><span>表盘状态</span><strong>反向漏电远低于 {ammeterSpec.division} A 最小分度</strong></p>

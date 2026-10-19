@@ -70,15 +70,14 @@ export function RotationalEmfScene() {
       }
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>实验类型: {state.scenarioLabel}</p>
-          <p>当前视图: {state.viewLabel}</p>
-          <p>当前转角: {state.angleLabel}</p>
-          <p>B: {state.magneticFieldT.toFixed(1)} T · ω: {state.angularSpeed.toFixed(1)} rad/s · L: {state.effectiveLengthM.toFixed(1)} m</p>
-          <p>感应电动势: {state.emfMagnitudeLabel}</p>
+          <p><span>实验类型</span><strong>{state.scenarioLabel}</strong></p>
+          <p><span>当前视图</span><strong>{state.viewLabel}</strong></p>
+          <p><span>当前转角</span><strong>{state.angleLabel}</strong></p>
+          <p><span>B</span><strong>{state.magneticFieldT.toFixed(1)} T · ω: {state.angularSpeed.toFixed(1)} rad/s · L: {state.effectiveLengthM.toFixed(1)} m</strong></p>
+          <p><span>感应电动势</span><strong>{state.emfMagnitudeLabel}</strong></p>
         </div>
       }
       panelPlacement="after-sidebar"
-      dataInitiallyCollapsed
       playbackInitiallyCollapsed
       playbackActions={[
         {

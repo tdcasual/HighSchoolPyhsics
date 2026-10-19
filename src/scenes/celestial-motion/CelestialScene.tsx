@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
+import { formatScientific } from '../../core/formatNumber'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CelestialChart } from './CelestialChart'
 import { CelestialControls } from './CelestialControls'
@@ -70,6 +71,7 @@ function conclusion(scenario: ReturnType<typeof useCelestialMotionSceneState>['s
 }
 
 export function CelestialScene() {
+  const theme = useAppStore((store) => store.theme)
   const state = useCelestialMotionSceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
   const viewportSize = useViewportSize(viewportRef)
@@ -109,11 +111,11 @@ export function CelestialScene() {
       controls={<CelestialControls state={state} scenario={scenario} />}
       dataOverlay={
         <div className="celestial-telemetry scene-core-summary-stack">
-          <p><span>中心天体 / M</span><strong>{scenario.body.name} · {scenario.body.M.toExponential(3)} kg</strong></p>
+          <p><span>中心天体 / M</span><strong>{scenario.body.name} · {formatScientific(scenario.body.M, 4)} kg</strong></p>
           <p><span>R / 表面 g₀</span><strong>{(scenario.body.R / 1000).toFixed(0)} km / {scenario.surfaceG.toFixed(3)} m/s²</strong></p>
           <p><span>轨道半径 r</span><strong>{(currentRadius / 1000).toFixed(0)} km · {(currentRadius / scenario.body.R).toFixed(2)} R</strong></p>
           <p><span>速度 v</span><strong>{formatSpeed(currentSpeed)}</strong></p>
-          <p><span>角速度 ω</span><strong>{currentOmega.toExponential(3)} rad/s</strong></p>
+          <p><span>角速度 ω</span><strong>{formatScientific(currentOmega, 4)} rad/s</strong></p>
           <p><span>{scenario.mode === 'transfer' ? '转移时间' : '周期'}</span><strong>{formatDuration(currentPeriod)}</strong></p>
           <p><span>向心加速度</span><strong>{currentAcceleration.toFixed(3)} m/s²</strong></p>
           <p><span>结论</span><strong>{conclusion(scenario)}</strong></p>
@@ -137,7 +139,7 @@ export function CelestialScene() {
           ) : null}
           <details className="celestial-equations">
             <summary>计算关系</summary>
-            <p>GM = g₀R² = {scenario.mu.toExponential(3)} m³/s²</p>
+            <p>GM = g₀R² = {formatScientific(scenario.mu, 4)} m³/s²</p>
             <p>v = √(GM/r) · ω = √(GM/r³)</p>
             <p>r³/T² = GM/(4π²)</p>
           </details>
@@ -146,7 +148,6 @@ export function CelestialScene() {
       chart={<CelestialChart scenario={scenario} />}
       chartVisible
       chartInitiallyCollapsed
-      dataInitiallyCollapsed
       playbackInitiallyCollapsed
       auxiliaryPanelPlacement="after-sidebar"
       playbackActions={[
@@ -174,7 +175,7 @@ export function CelestialScene() {
           }}
           frameloop={state.running ? 'always' : 'demand'}
         >
-          <CelestialRig3D pose={pose} />
+          <CelestialRig3D pose={pose} night={theme === 'night'} />
         </InteractiveCanvas>
         </div>
       }

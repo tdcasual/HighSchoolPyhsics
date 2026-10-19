@@ -1,3 +1,4 @@
+import { formatScientific } from '../../core/formatNumber'
 /**
  * Double-slit interference simulation model
  * Pure physics — no React dependencies
@@ -107,7 +108,7 @@ export function computeFringeSpacing(params: DoubleSlitParams): number {
 export function formatFringeSpacing(params: DoubleSlitParams): string {
   const spacingM = computeFringeSpacing(params)
   const spacingMm = spacingM * 1000
-  return spacingMm < 0.01 ? spacingMm.toExponential(2) + ' mm' : spacingMm.toFixed(3) + ' mm'
+  return spacingMm < 0.01 ? formatScientific(spacingMm) + ' mm' : spacingMm.toFixed(3) + ' mm'
 }
 
 export function formatWhiteLightFringeRange(params: DoubleSlitParams, filterColor: FilterColor = 'none'): string {
@@ -118,7 +119,7 @@ export function formatWhiteLightFringeRange(params: DoubleSlitParams, filterColo
   const maxWavelength = profile ? Math.min(700, profile.center + profile.halfWidth) : 700
   const minMm = (L * minWavelength * 1e-9 / d) * 1000
   const maxMm = (L * maxWavelength * 1e-9 / d) * 1000
-  const fmt = (v: number) => v < 0.01 ? v.toExponential(2) : v.toFixed(3)
+  const fmt = (v: number) => v < 0.01 ? formatScientific(v) : v.toFixed(3)
   return fmt(minMm) + '–' + fmt(maxMm) + ' mm'
 }
 

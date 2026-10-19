@@ -8,6 +8,10 @@ function navigateToScene(sceneName: string) {
   fireEvent.click(screen.getByText(sceneName))
 }
 
+function expandPanels() {
+  screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
+}
+
 describe('scene switching', () => {
   beforeEach(() => {
     useAppStore.setState({ theme: 'day' })
@@ -24,7 +28,9 @@ describe('scene switching', () => {
     fireEvent.click(screen.getByText('示波器'))
     expect(window.location.pathname).toBe('/oscilloscope')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
-    expect(await screen.findByText('X 电场 Ux(t)', {}, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('X 偏转电压 Ux(t)', {}, asyncWait)).toBeInTheDocument()
+    // Several scenes open with their playback panel collapsed.
+    expandPanels()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '夜间模式' }))
     expect(container.querySelector('.app-shell')).toHaveClass('theme-night')
@@ -33,6 +39,7 @@ describe('scene switching', () => {
     expect(window.location.pathname).toBe('/cyclotron')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('磁场 B', {}, asyncWait)).toBeInTheDocument()
+    expandPanels()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
     expect(container.querySelector('.app-shell')).toHaveClass('theme-night')
 
@@ -41,6 +48,7 @@ describe('scene switching', () => {
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('磁流体发电机控制', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText('等离子体速度 v', {}, asyncWait)).toBeInTheDocument()
+    expandPanels()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
 
     navigateToScene('奥斯特实验')
@@ -54,7 +62,8 @@ describe('scene switching', () => {
     expect(window.location.pathname).toBe('/electromagnetic-drive')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
     expect(await screen.findByText('电磁驱动控制', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByText('实时转速对比', {}, asyncWait)).toBeInTheDocument()
+    expandPanels()
+    expect(await screen.findByText('实时角速度对比', {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: '开始摇动' }, asyncWait)).toBeInTheDocument()
   })
 

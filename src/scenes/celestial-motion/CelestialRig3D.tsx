@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BufferAttribute, BufferGeometry, CanvasTexture, DoubleSide, Quaternion, SRGBColorSpace, Vector3 } from 'three'
 import type { Vec3 } from '../measuring-tools/pose'
 import { diagramDepth, viewAngles, type CelestialPose, type SatellitePose } from './pose'
+import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 
 const LAND: Array<number[] | 'all'> = [
   [13, 14],
@@ -200,10 +201,11 @@ function AreaWedge({ points, color }: { points: Vec3[]; color: string }) {
   )
 }
 
-export function CelestialRig3D({ pose }: { pose: CelestialPose }) {
+export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; night?: boolean }) {
+  const ink = night ? '#dbe7f0' : '#15282e'
   return (
     <>
-      <color attach="background" args={['#e7eef0']} />
+      <SceneBackdrop day="#e7eef0" night="#0b1020" />
       <hemisphereLight args={['#f4fbff', '#8ea0aa', 2.1]} />
       <directionalLight position={[6, 8, 4]} intensity={2.6} color="#fff8e8" />
       <directionalLight position={[-5, 2, -6]} intensity={0.7} color="#d7e8ff" />
@@ -226,15 +228,15 @@ export function CelestialRig3D({ pose }: { pose: CelestialPose }) {
         </mesh>
         <mesh position={[0, 1.36, 0]} name="north-pole">
           <sphereGeometry args={[0.045, 12, 12]} />
-          <meshBasicMaterial color="#15282e" />
+          <meshBasicMaterial color={ink} />
         </mesh>
-        <Html position={[0.12, 1.5, 0]} style={{ color: '#15282e', fontSize: '12px', fontWeight: 700 }}>N</Html>
-        <Html position={[0, -1.35, 0]} center style={{ color: '#15282e', fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+        <Html position={[0.12, 1.5, 0]} style={{ color: ink, fontSize: '12px', fontWeight: 700 }}>N</Html>
+        <Html position={[0, -1.35, 0]} center style={{ color: ink, fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>
           {pose.bodyId === 'moon' ? '月球' : pose.bodyId === 'sun' ? '太阳' : '地球'}
         </Html>
         <mesh>
           <cylinderGeometry args={[0.008, 0.008, 2.64, 8]} />
-          <meshBasicMaterial color="#15282e" transparent opacity={0.45} />
+          <meshBasicMaterial color={ink} transparent opacity={0.45} />
         </mesh>
         {pose.showPlane ? (
           <group name="equator-plane">
@@ -263,7 +265,7 @@ export function CelestialRig3D({ pose }: { pose: CelestialPose }) {
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#0d5c63" />
             </mesh>
-            <Html position={[0.16, -0.16, 0]} style={{ color: '#15282e', fontSize: '11px', whiteSpace: 'nowrap' }}>① 加速点火</Html>
+            <Html position={[0.16, -0.16, 0]} style={{ color: ink, fontSize: '11px', whiteSpace: 'nowrap' }}>① 加速点火</Html>
           </group>
         ) : null}
         {pose.apoapsis ? (
@@ -272,7 +274,7 @@ export function CelestialRig3D({ pose }: { pose: CelestialPose }) {
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#5dade2" />
             </mesh>
-            <Html position={[0.16, -0.16, 0]} style={{ color: '#15282e', fontSize: '11px', whiteSpace: 'nowrap' }}>② 再加速圆化</Html>
+            <Html position={[0.16, -0.16, 0]} style={{ color: ink, fontSize: '11px', whiteSpace: 'nowrap' }}>② 再加速圆化</Html>
           </group>
         ) : null}
         {pose.subsatellite ? (

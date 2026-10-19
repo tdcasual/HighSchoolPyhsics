@@ -4,8 +4,9 @@ import { OerstedScene } from '../OerstedScene'
 
 describe('oersted controls', () => {
   const expandDataPanel = async () => {
+    // The data panel opens expanded; nothing to click.
     const dataPanel = await screen.findByRole('region', { name: '数据' })
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+    expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
   }
 
   it('exposes classroom core controls and keeps advanced controls collapsed by default', async () => {
@@ -56,13 +57,13 @@ describe('oersted controls', () => {
 
     fireEvent.click(favorablePreset)
     expect(await screen.findByLabelText('电流 I')).toHaveValue('8')
-    expect(await screen.findByText(/可观察性: 高/)).toBeInTheDocument()
+    expect(await screen.findByText(/可观察性：高/)).toBeInTheDocument()
     expect(favorablePreset).toHaveAttribute('aria-checked', 'true')
     expect(adversePreset).toHaveAttribute('aria-checked', 'false')
 
     fireEvent.click(adversePreset)
     expect(await screen.findByLabelText('电流 I')).toHaveValue('4')
-    expect(await screen.findByText(/可观察性: 低/)).toBeInTheDocument()
+    expect(await screen.findByText(/可观察性：低/)).toBeInTheDocument()
     expect(favorablePreset).toHaveAttribute('aria-checked', 'false')
     expect(adversePreset).toHaveAttribute('aria-checked', 'true')
   })

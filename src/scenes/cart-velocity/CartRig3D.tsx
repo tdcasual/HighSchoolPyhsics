@@ -2,6 +2,7 @@ import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, DoubleSide, Quaternion, Vector3 } from 'three'
 import type { CartSkin } from './pose'
 import { HOOK, PULLEY_RADIUS, PULLEY_X, TIMER_STRIKER_X, TIMER_X, type CartPose } from './pose'
+import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 
 function stringSegment(a: [number, number, number], b: [number, number, number], color: string) {
   const direction = new Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
@@ -65,7 +66,7 @@ function wheel(position: [number, number, number], rotation: number) {
   )
 }
 
-export function CartRig3D({ pose, skin }: { pose: CartPose; skin: CartSkin }) {
+export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin: CartSkin; night?: boolean }) {
   const hook: [number, number, number] = [pose.cartX + HOOK.x, 0.14 + HOOK.y, 0]
   const pulleyTop: [number, number, number] = [PULLEY_X, pose.pulleyY + PULLEY_RADIUS, 0]
   const weight: [number, number, number] = [PULLEY_X + PULLEY_RADIUS, pose.weightY, 0]
@@ -80,8 +81,7 @@ export function CartRig3D({ pose, skin }: { pose: CartPose; skin: CartSkin }) {
   const postCenterY = 0.116 + postDelta / 2
   return (
     <>
-      <color attach="background" args={['#edf1ed']} />
-      <fog attach="fog" args={['#edf1ed', 23, 55]} />
+      <SceneBackdrop day="#edf1ed" fog={[23, 55]} />
       <hemisphereLight args={['#ffffff', '#8f9c85', 2.3]} />
       <directionalLight
         position={[-4, 10, 7]}
@@ -101,7 +101,7 @@ export function CartRig3D({ pose, skin }: { pose: CartPose; skin: CartSkin }) {
       <directionalLight position={[6, 5, -5]} intensity={1.3} color="#e9f5ff" />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6, 0]} receiveShadow>
         <planeGeometry args={[80, 80]} />
-        <meshStandardMaterial color="#e9eee8" />
+        <meshStandardMaterial color={night ? '#262d34' : '#e9eee8'} />
       </mesh>
       {box({ size: [10.55, 0.08, 4.5], position: [-0.375, -0.345, 0.24], color: '#f3f2e8' })}
       {[[-3.95, -0.45], [-3.95, 0.45], [3.95, -0.45], [3.95, 0.45]].map(([x, z]) => (

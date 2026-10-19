@@ -36,10 +36,10 @@ export function AlternatorScene() {
         </InteractiveCanvas>
       }
       dataOverlay={
-        <div className="alternator-telemetry">
+        <div className="alternator-telemetry scene-core-summary-stack">
           <p><span>ω / f</span><strong>{state.speedLabel} / {state.frequencyLabel}</strong></p>
           <p><span>N / S</span><strong>{state.turnsLabel} / {state.areaLabel}</strong></p>
-          <p><span>单匝 Φ / e</span><strong>{state.fluxLabel} / {state.voltageLabel}</strong></p>
+          <p><span>Φ（单匝）/ e</span><strong>{state.fluxLabel} / {state.voltageLabel}</strong></p>
           <p><span>I / 方向</span><strong>{state.currentLabel} / {state.currentDirectionLabel}</strong></p>
           <p><span>表针 / 量程</span><strong>{state.needleAngleLabel} / ±2 A{Math.abs(state.instantaneousCurrentA) > METER_FULL_SCALE_A ? ' 超量程' : ''}</strong></p>
         </div>

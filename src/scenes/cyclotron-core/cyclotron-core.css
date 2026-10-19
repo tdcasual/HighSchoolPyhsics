@@ -1,12 +1,6 @@
 .cyclotron-core-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
 .cyclotron-core-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
 .cyclotron-core-help { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.cyclotron-core-telemetry { display: grid; width: min(300px, calc(100vw - 48px)); box-sizing: border-box; grid-template-columns: 1fr; gap: 0.42rem; padding: 0.78rem 0.9rem; border: 1px solid rgba(180, 170, 156, 0.7); border-radius: 14px; background: rgba(252, 248, 242, 0.92); color: #3b2e24; }
-.cyclotron-core-telemetry p { display: flex; justify-content: space-between; gap: 0.65rem; margin: 0; font-size: 0.78rem; }
-.cyclotron-core-telemetry span { color: #7a6e62; }
-.cyclotron-core-telemetry strong { color: #2e2218; font-family: 'SF Mono', Menlo, monospace; text-align: right; }
-.cyclotron-core-telemetry .cyclotron-core-conclusion { display: grid; gap: 0.18rem; }
-.cyclotron-core-telemetry .cyclotron-core-conclusion strong { text-align: left; font-family: inherit; line-height: 1.42; }
 .cyclotron-core-status.dee { color: #2a7f9e; }
 .cyclotron-core-status.gap { color: #b76a00; }
 .cyclotron-core-status.extracted { color: #cf3041; }
@@ -27,9 +21,6 @@
 .cyclotron-core-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
 .cyclotron-core-legend-dot.energy { background: #e63946; }
 .cyclotron-core-legend-dot.max { background: #2a9d8f; }
-.app-shell.theme-night .cyclotron-core-telemetry { border-color: rgba(100, 110, 130, 0.5); background: rgba(24, 30, 44, 0.84); color: #e0d8cc; }
-.app-shell.theme-night .cyclotron-core-telemetry span { color: #a0988c; }
-.app-shell.theme-night .cyclotron-core-telemetry strong { color: #f0e8dc; }
 .app-shell.theme-night .cyclotron-core-chart { background: rgba(18, 24, 36, 0.65); }
 .app-shell.theme-night .cyclotron-core-chart text { fill: #b8b0a4; }
 .app-shell.theme-night .cyclotron-core-grid line { stroke: rgba(184, 196, 216, 0.11); }

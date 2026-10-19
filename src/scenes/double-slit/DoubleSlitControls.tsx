@@ -49,8 +49,6 @@ type DoubleSlitControlsProps = {
   >
 }
 
-const buttonClass = 'rounded-md border border-slate-300/70 bg-white/80 px-2 py-2 text-xs font-medium text-slate-800 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10'
-
 export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
   const canCalculate = state.firstReadingMm !== null
     && state.secondReadingMm !== null
@@ -155,12 +153,15 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           value={state.wheelReadoutMm}
           onChange={state.setWheelReadoutMm}
         />
-        <div className="grid grid-cols-2 gap-2">
-          <button type="button" className={buttonClass} onClick={() => state.stepWheel(-0.25)}>◀ 半圈</button>
-          <button type="button" className={buttonClass} onClick={() => state.stepWheel(-0.01)}>◀ 一格</button>
-          <button type="button" className={buttonClass} onClick={() => state.stepWheel(0.01)}>一格 ▶</button>
-          <button type="button" className={buttonClass} onClick={() => state.stepWheel(0.25)}>半圈 ▶</button>
-        </div>
+        <SceneActions
+          layout="grid-2"
+          actions={[
+            { key: 'back-half', label: '◀ 半圈', onClick: () => state.stepWheel(-0.25) },
+            { key: 'back-step', label: '◀ 一格', onClick: () => state.stepWheel(-0.01) },
+            { key: 'forward-step', label: '一格 ▶', onClick: () => state.stepWheel(0.01) },
+            { key: 'forward-half', label: '半圈 ▶', onClick: () => state.stepWheel(0.25) },
+          ]}
+        />
         <RangeField
           id="double-slit-fringe-count"
           label="两次读数间亮纹条数 n"
@@ -171,12 +172,15 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           onChange={state.setFringeCount}
         />
         <p className="text-xs text-slate-500 dark:text-slate-400">a₁：{state.firstReadingMm === null ? '未记录' : state.firstReadingMm.toFixed(3) + ' mm'}；a₂：{state.secondReadingMm === null ? '未记录' : state.secondReadingMm.toFixed(3) + ' mm'}</p>
-        <div className="grid grid-cols-2 gap-2">
-          <button type="button" className={buttonClass} onClick={state.recordFirstReading}>记为 a₁</button>
-          <button type="button" className={buttonClass} onClick={state.recordSecondReading}>记为 a₂</button>
-          <button type="button" className={buttonClass} disabled={!canCalculate} onClick={state.calculateMeasuredWavelength}>计算 Δx 与 λ</button>
-          <button type="button" className={buttonClass} onClick={state.clearMeasurements}>清空读数</button>
-        </div>
+        <SceneActions
+          layout="grid-2"
+          actions={[
+            { key: 'record-a1', label: '记为 a₁', onClick: state.recordFirstReading },
+            { key: 'record-a2', label: '记为 a₂', onClick: state.recordSecondReading },
+            { key: 'calculate', label: '计算 Δx 与 λ', onClick: state.calculateMeasuredWavelength, disabled: !canCalculate },
+            { key: 'clear', label: '清空读数', onClick: state.clearMeasurements },
+          ]}
+        />
       </ControlSection>
       <SceneActions
         actions={[

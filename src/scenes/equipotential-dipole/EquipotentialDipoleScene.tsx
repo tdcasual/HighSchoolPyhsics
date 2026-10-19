@@ -29,7 +29,7 @@ export function EquipotentialDipoleScene() {
   return <SceneLayout
     controls={<EquipotentialDipoleControls state={state} />}
     viewport={<InteractiveCanvas camera={{ position: [0, 0, 14], fov: 40 }} controls={{ target: [0, 0, 0], minDistance: 7, maxDistance: 18, maxPolarAngle: Math.PI * 0.92 }} frameloop={state.running ? 'always' : 'demand'}><EquipotentialDipoleRig3D elapsed={state.elapsed} flow={state.flow} showEquipotential={state.showEquipotential} showVectors={state.showVectors} separation={state.separation} charge={state.charge} probeX={state.probeX} probeY={state.probeY} readings={r} theme={theme} /></InteractiveCanvas>}
-    dataOverlay={<div className="equipotential-dipole-telemetry">
+    dataOverlay={<div className="equipotential-dipole-telemetry scene-core-summary-stack">
       <p><span>坐标位置 (x, y)</span><strong>({state.probeX.toFixed(1)}, {state.probeY.toFixed(1)}) cm</strong></p>
       <p><span>正电荷场强 E₁</span><strong>{formatFieldStrength(r.positiveMagnitude)} N/C</strong></p>
       <p><span>负电荷场强 E₂</span><strong>{formatFieldStrength(r.negativeMagnitude)} N/C</strong></p>

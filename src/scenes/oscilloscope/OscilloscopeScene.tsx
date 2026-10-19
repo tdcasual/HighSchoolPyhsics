@@ -40,16 +40,14 @@ export function OscilloscopeScene() {
     radialClipped ? '圆屏合成偏转' : null,
   ].filter((reason): reason is string => reason !== null)
 
-  const trace = useMemo(
-    () => buildDisplayTracePoints({
-      timeCursor,
-      fullScaleV: DISPLAY_FULL_SCALE_V,
-      evaluateX: compiledX.evaluate,
-      evaluateY: compiledY.evaluate,
-    }),
-    [compiledX, compiledY, timeCursor],
-  )
-  const traceSegments = useMemo(() => buildDisplayTraceSegments(trace), [trace])
+  // timeCursor advances every animation frame, so memoizing on it never hit; build directly.
+  const trace = buildDisplayTracePoints({
+    timeCursor,
+    fullScaleV: DISPLAY_FULL_SCALE_V,
+    evaluateX: compiledX.evaluate,
+    evaluateY: compiledY.evaluate,
+  })
+  const traceSegments = buildDisplayTraceSegments(trace)
   const xPreset = useMemo(() => derivePresetValue(xExpression), [xExpression])
   const yPreset = useMemo(() => derivePresetValue(yExpression), [yExpression])
   const applyPreset = (axis: 'x' | 'y', value: string) => {
@@ -143,14 +141,8 @@ export function OscilloscopeScene() {
         <div className="scene-core-summary-stack scope-telemetry">
           <p><span>状态</span><strong>{simulation.running ? '运行中' : '已暂停'}</strong></p>
           <p><span>时刻</span><strong>t = {timeCursor.toFixed(3)} s</strong></p>
-          <p className="scope-voltage-readout">
-            <span>Ux(t)</span><strong>{ux.toFixed(2)} V</strong>
-            <code className="scope-equation">= {xExpression}</code>
-          </p>
-          <p className="scope-voltage-readout">
-            <span>Uy(t)</span><strong>{uy.toFixed(2)} V</strong>
-            <code className="scope-equation">= {yExpression}</code>
-          </p>
+          <p><span>Ux(t)</span><strong>{ux.toFixed(2)} V</strong></p>
+          <p><span>Uy(t)</span><strong>{uy.toFixed(2)} V</strong></p>
           <p><span>屏幕坐标（±1）</span><strong>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</strong></p>
           <p className={clippingReasons.length ? 'scope-overrange' : undefined}>
             <span>满偏 ±10 V</span>
@@ -179,7 +171,6 @@ export function OscilloscopeScene() {
         },
       ]}
       chartVisible={true}
-      dataInitiallyCollapsed
       chartInitiallyCollapsed
       playbackInitiallyCollapsed
       viewport={

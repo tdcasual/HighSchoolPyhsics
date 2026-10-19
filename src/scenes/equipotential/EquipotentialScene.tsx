@@ -157,21 +157,23 @@ export function EquipotentialScene() {
           negativeIsoValues={cloudResult.negativeSurfaces.map((surface) => surface.isoValue)}
         />
       }
-      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            电荷数: {charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / -
-            {cloudResult.stats.negativeChargeCount}）
+            <span>电荷数</span>
+            <strong>{charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / −{cloudResult.stats.negativeChargeCount}）</strong>
           </p>
           <p>
-            网格相对电势范围: {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
+            <span>网格相对电势范围</span>
+            <strong>{cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}</strong>
           </p>
           <p>
-            正势层值: {cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无'}
+            <span>正势层值</span>
+            <strong>{cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无'}</strong>
           </p>
           <p>
-            负势层值: {cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无'}
+            <span>负势层值</span>
+            <strong>{cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无'}</strong>
           </p>
         </div>
       }

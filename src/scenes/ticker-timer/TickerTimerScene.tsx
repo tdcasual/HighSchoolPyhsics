@@ -20,7 +20,6 @@ export function TickerTimerScene() {
       controls={<TickerTimerControls state={state} />}
       panelPlacement="default"
       auxiliaryPanelPlacement="after-sidebar"
-      dataInitiallyCollapsed
       chartInitiallyCollapsed
       playbackInitiallyCollapsed
       dataOverlay={

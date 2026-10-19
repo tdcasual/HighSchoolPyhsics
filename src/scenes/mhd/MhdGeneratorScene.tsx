@@ -54,7 +54,7 @@ export function MhdGeneratorScene() {
       }
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>状态: {state.running ? '运行中' : '已暂停'}</p>
+          <p><span>状态</span><strong>{state.running ? '运行中' : '已暂停'}</strong></p>
           <p>
             <span>开路电动势 |ε|</span>
             <strong>{formatQuantity(Math.abs(state.readings.openCircuitVoltageV), 'V')}</strong>
@@ -75,18 +75,6 @@ export function MhdGeneratorScene() {
             <span>内阻 R_i</span>
             <strong>{state.readings.internalResistanceOhm.toFixed(2)} Ω</strong>
           </p>
-          <p>
-            <span>B / v</span>
-            <strong>{state.magneticFieldT.toFixed(1)} T / {state.plasmaVelocityMps.toFixed(0)} m/s</strong>
-          </p>
-          <p>
-            <span>间距 d / 负载 R_L</span>
-            <strong>{state.electrodeGapM.toFixed(2)} m / {state.loadResistanceOhm.toFixed(1)} Ω</strong>
-          </p>
-          <small>ε = Bvd；A = 0.08 m²；R_i = d/(σ_eff A)，σ_eff = σ₀·n/n₀</small>
-          <small>I_L = |ε|/(R_i + R_L)；U_AB = −I_LR_L；P_L = I_L²R_L</small>
-          <small>E_ind = −v×B 向上，故上电极 A 为负，U_AB 带负号。</small>
-          <small>载流子偏转和结构尺寸为示意；流体动画速度随 v 滑杆联动。</small>
         </div>
       }
       playbackActions={[
@@ -102,7 +90,6 @@ export function MhdGeneratorScene() {
         },
       ]}
       auxiliaryPanelPlacement="after-sidebar"
-      dataInitiallyCollapsed
       playbackInitiallyCollapsed
     />
   )

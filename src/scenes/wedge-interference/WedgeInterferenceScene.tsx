@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { WedgeInterferenceChart } from './WedgeInterferenceChart'
 import { WedgeInterferenceControls } from './WedgeInterferenceControls'
@@ -8,14 +9,18 @@ import { useWedgeInterferenceSceneState } from './useWedgeInterferenceSceneState
 import './wedge-interference.css'
 
 const CAMERA = { position: [0, 18, 30] as const, fov: 45 }
+// Desktop aims left of the plates so the lamp sits right of the floating data panel.
+const DESKTOP_CAMERA = { position: [-6, 17, 30] as const, fov: 45 }
 const CAMERA_CONTROLS = {
   target: [0, 3, 0] as const,
   minDistance: 10,
   maxDistance: 60,
   maxPolarAngle: Math.PI / 2 + 0.1,
 }
+const DESKTOP_CAMERA_CONTROLS = { ...CAMERA_CONTROLS, target: [-6, 2, 0] as const }
 
 export function WedgeInterferenceScene() {
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const state = useWedgeInterferenceSceneState()
 
   const chartParams = useMemo(
@@ -64,17 +69,16 @@ export function WedgeInterferenceScene() {
             <span>下表面</span>
             <strong>{state.mode === 'flat' ? '平整' : '凸起'}</strong>
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
+          <p className="summary-note">板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
         </div>
       }
       chart={state.showChart ? <WedgeInterferenceChart params={chartParams} isLightOn={state.isLightOn} /> : undefined}
       chartVisible={state.showChart}
       chartInitiallyCollapsed
-      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
-          camera={CAMERA}
-          controls={CAMERA_CONTROLS}
+          camera={isMobile ? CAMERA : DESKTOP_CAMERA}
+          controls={isMobile ? CAMERA_CONTROLS : DESKTOP_CAMERA_CONTROLS}
           frameloop={state.isScanning ? 'always' : 'demand'}
           adaptiveFraming={false}
         >

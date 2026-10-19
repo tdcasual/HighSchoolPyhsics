@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -45,10 +45,10 @@ describe('wedge-interference structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 
-  it('keeps the data overlay collapsed by default and exposes key values when opened', () => {
+  it('shows the data overlay by default and exposes key values when opened', () => {
     render(<WedgeInterferenceScene />)
     const dataPanel = screen.getByRole('region', { name: '数据' })
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+    expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
 
     expect(screen.getByText(/波长 λ/)).toBeInTheDocument()
     expect(screen.getByText(/劈尖角 θ/)).toBeInTheDocument()

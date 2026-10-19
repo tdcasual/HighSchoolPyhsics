@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { FILTER_HEX, FILTER_LABEL, GRATING_ILLUMINATED_WIDTH_MM, MODE_LABEL, formatScreenDistance, formatWhiteLightFeatureValue, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing } from './model'
 import { LightDiffractionChart } from './LightDiffractionChart'
@@ -8,20 +9,25 @@ import { LightDiffractionRig3D } from './LightDiffractionRig3D'
 import { useLightDiffractionSceneState } from './useLightDiffractionSceneState'
 import './light-diffraction.css'
 
-function createCamera(screenDistance: number) {
+function createCamera(screenDistance: number, desktop: boolean) {
   const tubeLength = 10 * screenDistance
   const railStartX = -14
   const railEndX = -2 + tubeLength + 3
   const centerX = (railStartX + railEndX) / 2
   const targetY = 0.8
   const distance = Math.max(29, (railEndX - railStartX) * 1.4)
+  // Desktop: slide the view along the camera's screen-right axis (≈ (0.36, 0, −0.93)) so the
+  // source end of the bench clears the floating data panel at the top-left.
+  const shift = desktop ? distance * 0.16 : 0
+  const offsetX = -0.36 * shift
+  const offsetZ = 0.93 * shift
   return {
     camera: {
-      position: [centerX + distance * 0.9, targetY + distance * 0.25, distance * 0.35] as const,
+      position: [centerX + offsetX + distance * 0.9, targetY + distance * 0.25, offsetZ + distance * 0.35] as const,
       fov: 32,
     },
     controls: {
-      target: [centerX, targetY, 0] as const,
+      target: [centerX + offsetX, targetY, offsetZ] as const,
       minDistance: 10,
       maxDistance: 90,
       maxPolarAngle: Math.PI / 2 + 0.1,
@@ -31,7 +37,8 @@ function createCamera(screenDistance: number) {
 
 export function LightDiffractionScene() {
   const state = useLightDiffractionSceneState()
-  const { camera, controls } = createCamera(state.screenDistance)
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
+  const { camera, controls } = createCamera(state.screenDistance, !isMobile)
 
   const beamColorHex = useMemo(() => {
     if (!state.isWhiteLight) return state.lightColorHex
@@ -53,7 +60,7 @@ export function LightDiffractionScene() {
     <SceneLayout
       controls={<LightDiffractionControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
+        <div className="scene-core-summary-stack w-[260px] max-w-full min-w-0">
           <p>
             <span>模式</span>
             <strong>{MODE_LABEL[state.mode]}</strong>
@@ -100,11 +107,11 @@ export function LightDiffractionScene() {
             <strong>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</strong>
           </p>
           {state.mode === 'circular-obstacle' && (
-            <p className="diffraction-readout-note">
+            <p className="summary-note">
               近轴菲涅耳 / 巴比涅模型显示轴上亮斑；外圈采用理想圆盘近似。
             </p>
           )}
-          <p className="diffraction-readout-note">
+          <p className="summary-note">
             3D 开口、光路与屏幕尺寸为示意；屏上颜色/亮度经过增强，定量以分析图表坐标为准。
           </p>
         </div>
@@ -123,7 +130,6 @@ export function LightDiffractionScene() {
       }
       chartVisible={state.showChart}
       chartInitiallyCollapsed={false}
-      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={camera}

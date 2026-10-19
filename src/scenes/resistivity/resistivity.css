@@ -16,28 +16,6 @@
   opacity: 0.82;
 }
 
-.resistivity-telemetry {
-  display: grid;
-  gap: 0.32rem;
-}
-
-.resistivity-telemetry p {
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  font-size: 0.85rem;
-}
-
-.resistivity-telemetry span {
-  opacity: 0.78;
-}
-
-.resistivity-telemetry strong {
-  font-family: "SF Mono", Menlo, monospace;
-  text-align: right;
-}
-
 .resistivity-chart {
   display: block;
   width: 100%;

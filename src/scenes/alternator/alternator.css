@@ -1,41 +1,3 @@
-.alternator-telemetry {
-  --alternator-telemetry-border: rgba(180, 170, 156, 0.7);
-  --alternator-telemetry-bg: rgba(252, 248, 242, 0.92);
-  --alternator-telemetry-text: #3b2e24;
-  --alternator-telemetry-shadow: rgba(140, 128, 110, 0.1);
-  --alternator-telemetry-secondary: #7a6e62;
-  --alternator-telemetry-strong: #2e2218;
-
-  border: 1px solid var(--alternator-telemetry-border);
-  background: var(--alternator-telemetry-bg);
-  color: var(--alternator-telemetry-text);
-  box-shadow: 0 10px 24px var(--alternator-telemetry-shadow);
-  padding: 0.82rem 0.9rem;
-  border-radius: 14px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.38rem;
-}
-
-.alternator-telemetry p {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  margin: 0;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
-.alternator-telemetry span {
-  color: var(--alternator-telemetry-secondary);
-}
-
-.alternator-telemetry strong {
-  color: var(--alternator-telemetry-strong);
-  font-family: 'SF Mono', Menlo, monospace;
-}
-
 .alternator-chart-shell {
   display: grid;
   gap: 0.75rem;
@@ -75,14 +37,6 @@
   display: block;
   border-radius: 12px;
   background: var(--alternator-chart-surface);
-}
-
-.app-shell.theme-night .alternator-telemetry {
-  --alternator-telemetry-border: rgba(100, 110, 130, 0.5);
-  --alternator-telemetry-bg: rgba(24, 30, 44, 0.82);
-  --alternator-telemetry-text: #e0d8cc;
-  --alternator-telemetry-secondary: #a0988c;
-  --alternator-telemetry-strong: #f0e8dc;
 }
 
 .app-shell.theme-night .alternator-chart-shell {

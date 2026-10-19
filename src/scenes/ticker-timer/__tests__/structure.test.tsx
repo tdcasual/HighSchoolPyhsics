@@ -37,7 +37,7 @@ describe("ticker-timer structure", () => {
     const dataPanel = screen.getByRole("region", { name: "数据" });
     const chartPanel = screen.getByRole("region", { name: "图表" });
     const playbackPanel = screen.getByRole("region", { name: "播放控制" });
-    expect(within(dataPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
+    expect(within(dataPanel).getByRole("button", { name: "折叠" })).toBeInTheDocument();
     expect(within(chartPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
     expect(within(playbackPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
 
@@ -58,8 +58,7 @@ describe("ticker-timer structure", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: "电火花" }));
     const dataPanel = screen.getByRole("region", { name: "数据" });
-    fireEvent.click(within(dataPanel).getByRole("button", { name: "展开" }));
-    expect(screen.getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
+    expect(within(dataPanel).getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
     const playbackPanel = screen.getByRole("region", { name: "播放控制" });
     fireEvent.click(within(playbackPanel).getByRole("button", { name: "展开" }));
 

@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { InductionCurrentControls } from './InductionCurrentControls'
 import { InductionCurrentRig3D } from './InductionCurrentRig3D'
@@ -12,8 +13,13 @@ import './induction-current.css'
 
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
+  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
+  // Desktop: aim left of the apparatus so the coil, magnet travel (y 0…21) and meter sit to
+  // the right of the floating data panel instead of underneath it.
+  const cameraTarget: [number, number, number] = isMobile ? [7.5, 1, 0] : [-6, 3, 0]
+  const cameraPosition: [number, number, number] = isMobile ? [12.5, 10, 65] : [-1, 12, 64]
   const presentationFocus = state.motionDirection || state.lastOutcome
-    ? { mode: 'focus' as const, primary: [7.5, -4, 0] as [number, number, number] }
+    ? { mode: 'focus' as const, primary: cameraTarget }
     : { mode: 'overview' as const }
   const instantaneousCurrentText = !state.isMoving
     ? '0（磁铁静止）'
@@ -37,22 +43,21 @@ export function InductionCurrentScene() {
   return (
     <SceneLayout
       controls={<InductionCurrentControls state={state} />}
-      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>磁极朝向: {formatPoleSetting(state.poleSetting)}</p>
-          <p>磁铁状态: {motionStatusText}</p>
-          <p>最近一次感应电流方向: {currentDirectionText}</p>
-          <p>瞬时感应电流方向: {instantaneousCurrentText}</p>
-          <p>仪表偏角（示意）: {(-state.needleAngleRad * (180 / Math.PI)).toFixed(1)}°</p>
-          <p>感应磁场轴向: {latestInducedFieldDirection}</p>
-          <p>实验记录: {state.records.length} 条</p>
+          <p><span>磁极朝向</span><strong>{formatPoleSetting(state.poleSetting)}</strong></p>
+          <p><span>磁铁状态</span><strong>{motionStatusText}</strong></p>
+          <p><span>最近一次感应电流方向</span><strong>{currentDirectionText}</strong></p>
+          <p><span>瞬时感应电流方向</span><strong>{instantaneousCurrentText}</strong></p>
+          <p><span>仪表偏角（示意）</span><strong>{(-state.needleAngleRad * (180 / Math.PI)).toFixed(1)}°</strong></p>
+          <p><span>感应磁场轴向</span><strong>{latestInducedFieldDirection}</strong></p>
+          <p><span>实验记录</span><strong>{state.records.length} 条</strong></p>
         </div>
       }
       viewport={
         <InteractiveCanvas
-          camera={{ position: [12.5, 5, 65], fov: 40 }}
-          controls={{ target: [7.5, -4, 0], minDistance: 24, maxDistance: 120 }}
+          camera={{ position: cameraPosition, fov: 40 }}
+          controls={{ target: cameraTarget, minDistance: 24, maxDistance: 120 }}
           presentationFocus={presentationFocus}
           adaptiveFraming={false}
           frameloop={state.motionDirection ? 'always' : 'demand'}

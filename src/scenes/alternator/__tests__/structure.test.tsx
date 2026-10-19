@@ -20,14 +20,15 @@ import { AlternatorScene } from '../AlternatorScene'
 describe('alternator structure', () => {
   it('renders controls, data overlay, chart, and playback in five-zone layout', () => {
     render(<AlternatorScene />)
+    screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
 
     // Sidebar controls
     expect(screen.getByRole('heading', { name: '交流发电机控制' })).toBeInTheDocument()
     expect(screen.getByLabelText('转速 ω')).toBeInTheDocument()
 
     // Data overlay (floating panel)
-    expect(screen.getByText('瞬时感应电压')).toBeInTheDocument()
-    expect(screen.getAllByText('转速 ω').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText('Φ（单匝）/ e')).toBeInTheDocument()
+    expect(screen.getByText('ω / f')).toBeInTheDocument()
 
     // Chart (floating panel)
     expect(screen.getByText('U-t 图')).toBeInTheDocument()
@@ -43,10 +44,11 @@ describe('alternator structure', () => {
   it('updates the speed readout and frameloop when playback pauses', () => {
     vi.useFakeTimers()
     render(<AlternatorScene />)
+    screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
 
     fireEvent.change(screen.getByLabelText('转速 ω'), { target: { value: '9' } })
     act(() => { vi.advanceTimersByTime(16) })
-    expect(screen.getByTestId('alternator-speed')).toHaveTextContent('9.00 rad/s')
+    expect(screen.getByText('ω / f').nextElementSibling).toHaveTextContent('9.00 rad/s / 1.43 Hz')
 
     fireEvent.click(screen.getByRole('button', { name: '暂停' }))
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')

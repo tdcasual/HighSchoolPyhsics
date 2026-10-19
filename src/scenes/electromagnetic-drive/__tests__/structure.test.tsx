@@ -39,7 +39,7 @@ describe('electromagnetic-drive structure', () => {
 
     const dataPanel = screen.getByRole('region', { name: '数据' })
     const chartPanel = screen.getByRole('region', { name: '图表' })
-    expect(within(dataPanel).getByRole('button', { name: '展开' })).toBeInTheDocument()
+    expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(within(chartPanel).getByRole('button', { name: '展开' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '开始摇动' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '停止摇动' })).toBeInTheDocument()

@@ -95,6 +95,12 @@ export function MhdControls({
           onChange={onLoadResistanceChange}
         />
       </ControlSection>
+      <ControlSection title="模型与公式">
+        <p>ε = Bvd；A = 0.08 m²；R_i = d/(σ_eff A)，σ_eff = σ₀·n/n₀</p>
+        <p>I_L = |ε|/(R_i + R_L)；U_AB = −I_L R_L；P_L = I_L²R_L</p>
+        <p>E_ind = −v×B 向上，故上电极 A 为负，U_AB 带负号。</p>
+        <p>载流子偏转和结构尺寸为示意；流体动画速度随 v 滑杆联动。</p>
+      </ControlSection>
     </div>
   )
 }

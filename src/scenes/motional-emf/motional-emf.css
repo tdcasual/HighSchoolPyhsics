@@ -63,3 +63,20 @@
   --motional-emf-button-active-border: #6e95bf;
   --motional-emf-button-active-text: #eef6ff;
 }
+
+.motional-emf-end-label {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 90%);
+  border: 1px solid #101010;
+  color: #101010;
+  font: 700 13px/1.4 system-ui, sans-serif;
+  text-align: center;
+}
+
+.motional-emf-end-label.motional-emf-end-a {
+  border-color: #df4036;
+  color: #df4036;
+}

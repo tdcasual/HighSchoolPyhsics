@@ -4,6 +4,7 @@ import { CanvasTexture, CatmullRomCurve3, Euler, SRGBColorSpace, Vector3 } from 
 import { ohmFraction } from './model'
 import { NEEDLE_LENGTH, NEEDLE_PIVOT_Y, NEEDLE_SPAN, type MeterPose } from './pose'
 import type { MeterStage } from './state'
+import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 
 type Point3 = [number, number, number]
 
@@ -407,7 +408,7 @@ export function MeterAssembly({
 }) {
   return (
     <>
-      <color attach="background" args={['#e7eef0']} />
+      <SceneBackdrop day="#e7eef0" />
       <hemisphereLight args={['#ffffff', '#8b9a98', 0.85]} />
       <directionalLight position={[-30, 90, 60]} intensity={2.2} color="#fff6e8" castShadow />
       <directionalLight position={[30, 54, -60]} intensity={0.65} color="#e6f1ff" />

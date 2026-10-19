@@ -30,7 +30,6 @@ export function CyclotronCoreScene() {
       controls={<CyclotronCoreControls state={state} />}
       panelPlacement="after-sidebar"
       auxiliaryPanelPlacement="default"
-      dataInitiallyCollapsed
       chartInitiallyCollapsed
       playbackInitiallyCollapsed
       viewport={
@@ -43,7 +42,7 @@ export function CyclotronCoreScene() {
         </InteractiveCanvas>
       }
       dataOverlay={
-        <div className="cyclotron-core-telemetry">
+        <div className="cyclotron-core-telemetry scene-core-summary-stack">
           <p><span>注入粒子</span><strong>{readings.particle.label} {readings.particle.symbol}</strong></p>
           <p><span>加速次数 n</span><strong>{readings.accelerationCount}</strong></p>
           <p><span>当前动能 Eₖ</span><strong>{readings.energy.toFixed(0)} keV</strong></p>

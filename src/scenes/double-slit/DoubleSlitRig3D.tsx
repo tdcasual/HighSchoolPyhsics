@@ -8,6 +8,11 @@ import { FILTER_HEX, drawInterferencePattern, drawWhiteLightPattern, PHYSICAL_VI
 import { INITIAL_MEASUREMENT_READOUT_MM, micrometerWheelRotationRadians } from './measurement'
 import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 
+/** Canvas textures are imperative three.js objects; flag a re-upload after redrawing the canvas. */
+function markTextureDirty(texture: CanvasTexture) {
+  texture.needsUpdate = true
+}
+
 function readSceneBackgroundColor(): string {
   if (typeof window === 'undefined') return '#222222'
   const shell = document.querySelector('.app-shell')
@@ -155,7 +160,7 @@ function ScreenPattern({
     } else {
       drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
     }
-    display.patternTexture.needsUpdate = true
+    markTextureDirty(display.patternTexture)
     invalidate()
   }, [display, invalidate, params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle])
 
@@ -230,7 +235,7 @@ function ScreenPattern({
         }
       }
     }
-    display.reticleTexture.needsUpdate = true
+    markTextureDirty(display.reticleTexture)
     invalidate()
   }, [display, invalidate, params, isLightOn, isWhiteLight, filterColor, eyepieceAngle, wheelReadoutMm, showFringeOrders])
 

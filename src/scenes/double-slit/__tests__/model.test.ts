@@ -94,7 +94,7 @@ describe('formatFringeSpacing', () => {
       screenDistance: 0.005,
       slitWidth: 0.05,
     }
-    expect(formatFringeSpacing(tiny)).toMatch(/\d\.\d+e[+-]\d+ mm/)
+    expect(formatFringeSpacing(tiny)).toMatch(/^\d\.\d+×10⁻[⁰¹²³⁴⁵⁶⁷⁸⁹]+ mm$/)
   })
 })
 

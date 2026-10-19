@@ -1,3 +1,4 @@
+import { formatScientific } from '../../core/formatNumber'
 /**
  * Light diffraction simulation model
  * Pure physics — no React dependencies
@@ -395,10 +396,10 @@ export function gratingFirstOrderDisplacement(params: DiffractionParams): number
 export function formatCentralWidth(params: DiffractionParams, mode: DiffractionMode): string {
   if (mode === 'single-slit' || mode === 'diffraction-grating') {
     const w = singleSlitCentralWidth(params) * 1000 // m -> mm
-    return w < 0.01 ? w.toExponential(2) + ' mm' : w.toFixed(3) + ' mm'
+    return w < 0.01 ? formatScientific(w) + ' mm' : w.toFixed(3) + ' mm'
   }
   const r = (mode === 'circular-obstacle' ? poissonSpotFirstDarkRadius(params) : airyDiskRadius(params)) * 1000
-  return r < 0.01 ? r.toExponential(2) + ' mm' : r.toFixed(3) + ' mm'
+  return r < 0.01 ? formatScientific(r) + ' mm' : r.toFixed(3) + ' mm'
 }
 
 export function formatFeatureLabel(mode: DiffractionMode): string {

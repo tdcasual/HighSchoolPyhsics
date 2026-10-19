@@ -36,6 +36,12 @@
   --wave-destructive-color: #a21caf;
 }
 
+/* The chart sits on --control-bg, which turns dark at night. */
+.app-shell.theme-night {
+  --wave-composite-color: #e5e7eb;
+  --wave-destructive-color: #e879f9;
+}
+
 .wave-chart-legend {
   display: flex;
   justify-content: space-between;

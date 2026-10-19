@@ -63,21 +63,21 @@ export function DiffractionScene() {
       controls={<DiffractionControls state={state} />}
       dataOverlay={
         <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
-          <p>光源: {state.isLightOn ? (state.isWhiteLight ? '白光' : '单色') : '关闭'}</p>
-          {!state.isWhiteLight && <p>波长: {state.params.wavelength} nm</p>}
+          <p><span>光源</span><strong>{state.isLightOn ? (state.isWhiteLight ? '白光' : '单色') : '关闭'}</strong></p>
+          {!state.isWhiteLight && <p><span>波长</span><strong>{state.params.wavelength} nm</strong></p>}
           {state.isWhiteLight && state.filterColor !== 'none' && (
-            <p>滤光片: {state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}</p>
+            <p><span>滤光片</span><strong>{state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}</strong></p>
           )}
           <p>{featureLabel}: {featureValue}</p>
           {state.mode === 'diffraction-grating' && (
             <>
-              <p>光栅常数 d: {(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm</p>
-              <p>狭缝宽 a: {(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm</p>
-              <p>有效照明狭缝数 N: {gratingIlluminatedSlitCount(state.params.gratingLines)}</p><p>有效照明宽度: {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm</p>
-              <p>线密度: {state.params.gratingLines} 条/mm</p>
+              <p><span>光栅常数 d</span><strong>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm</strong></p>
+              <p><span>狭缝宽 a</span><strong>{(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm</strong></p>
+              <p><span>有效照明狭缝数 N</span><strong>{gratingIlluminatedSlitCount(state.params.gratingLines)}</strong></p><p><span>有效照明宽度</span><strong>{GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm</strong></p>
+              <p><span>线密度</span><strong>{state.params.gratingLines} 条/mm</strong></p>
             </>
           )}
-          <p>屏距: {formatScreenDistance(state.params.screenDistance)}</p>
+          <p><span>屏距</span><strong>{formatScreenDistance(state.params.screenDistance)}</strong></p>
         </div>
       }
       chart={state.showProfile ? (

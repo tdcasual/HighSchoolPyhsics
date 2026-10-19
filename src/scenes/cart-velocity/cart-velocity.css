@@ -16,28 +16,6 @@
   opacity: 0.82;
 }
 
-.cart-telemetry {
-  display: grid;
-  gap: 0.32rem;
-}
-
-.cart-telemetry p {
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  font-size: 0.85rem;
-}
-
-.cart-telemetry span {
-  opacity: 0.78;
-}
-
-.cart-telemetry strong {
-  font-family: "SF Mono", Menlo, monospace;
-  text-align: right;
-}
-
 .cart-measurement-readout {
   display: grid;
   gap: 0.3rem;
@@ -126,7 +104,6 @@
   border-radius: 12px;
 }
 
-
 .cart-rig-label {
   display: inline-block;
   padding: 0.14rem 0.28rem;
@@ -153,7 +130,7 @@
   padding: 0.56rem 0.65rem;
   border: 1px solid rgba(64, 99, 105, 0.18);
   border-radius: 0.55rem;
-  background: rgba(255, 255, 255, 0.62);
+  background: var(--control-bg);
   color: var(--control-ink);
   text-align: left;
   cursor: pointer;
@@ -180,7 +157,7 @@
   padding: 0.65rem 0.72rem;
   border: 1px solid rgba(64, 99, 105, 0.18);
   border-radius: 0.55rem;
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--control-section-bg);
   color: var(--control-ink);
   font-size: 0.76rem;
   line-height: 1.45;
@@ -243,7 +220,7 @@
   flex-wrap: wrap;
   gap: 0.3rem 0.7rem;
   padding: 0 0.2rem;
-  color: #48626a;
+  color: var(--control-ink-soft);
   font-size: 0.7rem;
 }
 
@@ -300,4 +277,14 @@
     min-width: 21rem;
     grid-template-columns: 0.65fr 0.65fr 1fr 1fr;
   }
+}
+
+.app-shell.theme-night .cart-measurement-header,
+.app-shell.theme-night .cart-comparison-header {
+  background: #1d2a2e;
+  color: #b6cdd2;
+}
+
+.app-shell.theme-night .cart-model-notes {
+  border-color: var(--night-border);
 }

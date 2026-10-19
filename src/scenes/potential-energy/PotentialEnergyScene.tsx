@@ -91,14 +91,13 @@ export function PotentialEnergyScene() {
           </ControlSection>
         </div>
       }
-      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>当前电荷: {chargeTypeLabel}</p>
-          <p>相对电势显示范围: {sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</p>
-          <p>旋转: {surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始'}</p>
-          <p>模型: φ_rel(r)=±{POTENTIAL_FIELD_SCALE}/r；显示域 |φ_rel|≤{POTENTIAL_DISPLAY_LIMIT}</p>
-          <p>切片: {sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</p>
+          <p><span>当前电荷</span><strong>{chargeTypeLabel}</strong></p>
+          <p><span>相对电势显示范围</span><strong>{sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</strong></p>
+          <p><span>旋转</span><strong>{surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始'}</strong></p>
+          <p><span>切片</span><strong>{sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</strong></p>
+          <p className="summary-note">模型 φ_rel(r) = ±{POTENTIAL_FIELD_SCALE}/r，显示域 |φ_rel| ≤ {POTENTIAL_DISPLAY_LIMIT}</p>
         </div>
       }
       viewport={

@@ -26,7 +26,7 @@ export function IdealGasIsochoricScene() {
       </InteractiveCanvas>
     }
     dataOverlay={
-      <div className="ideal-gas-isochoric-telemetry">
+      <div className="ideal-gas-isochoric-telemetry scene-core-summary-stack">
         <p><span>压强 p</span><strong>{readings.pressureAtm.toFixed(2)} atm</strong></p>
         <p><span>热力学温度 T / 摄氏温度 t</span><strong>{state.temperatureK.toFixed(0)} K / {readings.celsius.toFixed(0)} °C</strong></p>
         <p><span>固定体积 V · 定量气体 n</span><strong>{state.volumeL.toFixed(1)} L · {readings.gasAmountMol.toFixed(3)} mol</strong></p>

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
+import { formatScientific } from '../../core/formatNumber'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
 import { CyclotronRig3D } from './CyclotronRig3D'
@@ -8,6 +9,8 @@ import { CyclotronTraceChart } from './CyclotronTraceChart'
 import { useCyclotronSceneState } from './useCyclotronSceneState'
 import { CYCLOTRON_CAMERA, CYCLOTRON_CONTROLS } from './view'
 import './cyclotron.css'
+
+const ELEMENTARY_CHARGE_C = 1.6e-19
 
 export function CyclotronScene() {
   const state = useCyclotronSceneState()
@@ -23,6 +26,7 @@ export function CyclotronScene() {
 
   return (
     <SceneLayout
+      chartInitiallyCollapsed
       controls={
         <CyclotronControls
           magneticFieldT={state.magneticFieldT}
@@ -38,14 +42,13 @@ export function CyclotronScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            状态: {state.particleReachedRim ? '粒子已到达 D 形盒边缘' : state.simulation.running ? '运行中' : '已暂停'}
+            <span>状态</span>
+            <strong>{state.particleReachedRim ? '已到达 D 形盒边缘' : state.simulation.running ? '运行中' : '已暂停'}</strong>
           </p>
-          <p>电压方向: {state.voltageDirectionText}</p>
-          <p>U: {state.currentVoltageV.toExponential(2)} V</p>
-          <p>Ek（粒子实时值）: {state.currentEnergyJ.toExponential(2)} J</p>
-          <p>理想圆轨道 Ek,max（R=0.675 mm）: {state.maximumKineticEnergyJ.toExponential(2)} J</p>
-          <p>自适应周期 T: {state.cyclotronPeriodS.toExponential(2)} s</p>
-          <p>自适应出发 y0: {state.launchPositionY.toExponential(2)} m</p>
+          <p><span>缝隙电压 U</span><strong>{formatScientific(state.currentVoltageV)} V · {state.voltageDirectionText}</strong></p>
+          <p><span>动能 Ek</span><strong>{formatScientific(state.currentEnergyJ)} J（{formatScientific(state.currentEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
+          <p><span>Ek,max（R=0.675 mm）</span><strong>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
+          <p><span>回旋周期 T</span><strong>{formatScientific(state.cyclotronPeriodS)} s</strong></p>
           {state.simulation.error ? <p>错误: {state.simulation.error}</p> : null}
         </div>
       }

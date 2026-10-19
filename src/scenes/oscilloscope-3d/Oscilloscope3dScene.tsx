@@ -86,7 +86,7 @@ export function Oscilloscope3dScene() {
         </InteractiveCanvas>
       )}
       dataOverlay={(
-        <div className="osc3d-telemetry">
+        <div className="osc3d-telemetry scene-core-summary-stack">
           <p><span>工作模式</span><strong>{MODE_LABELS[state.mode]}</strong></p>
           <p><span>选中部件</span><strong>{selectedLabel}</strong></p>
           {state.mode === 'xy' ? (

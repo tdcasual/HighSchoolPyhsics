@@ -15,19 +15,6 @@
 }
 
 .diffraction-parameter-note,
-.diffraction-readout-note {
-  margin: 0;
-  color: var(--control-ink-soft, #9ca3af);
-  font-size: 0.75rem;
-  line-height: 1.45;
-}
-
-.diffraction-readout-note {
-  display: block !important;
-  text-align: right;
-  max-width: 15rem;
-}
-
 .diffraction-chart-stack {
   display: flex;
   flex-direction: column;
@@ -75,39 +62,10 @@
   background: #0a0a0a;
 }
 
-.scene-core-summary-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.scene-core-summary-stack p {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
-}
-
-.scene-core-summary-stack p span {
-  color: var(--control-ink-soft);
-  font-weight: 500;
-}
-
-.scene-core-summary-stack p strong {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--readout-value);
-  font-weight: 700;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
 .diffraction-chart-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--magazine-ink, #e5e7eb);
+  color: var(--control-ink);
   margin: 0;
   text-align: center;
 }

@@ -47,7 +47,7 @@ describe('light-diffraction structure', () => {
 
   it('shows key data overlay values when the data panel is expanded', () => {
     render(<LightDiffractionScene />)
-    fireEvent.click(screen.getByRole('button', { name: '展开' }))
+    screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
 
     expect(screen.getByText(/模式/)).toBeInTheDocument()
     expect(screen.getByText(/波长 λ/)).toBeInTheDocument()

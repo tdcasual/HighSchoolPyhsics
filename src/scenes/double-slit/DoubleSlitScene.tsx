@@ -63,7 +63,7 @@ export function DoubleSlitScene() {
           {state.measurementResult && state.isBlindMode && measurementError !== null && (
             <p><span>相对误差</span><strong>{measurementError.toFixed(2)}%</strong></p>
           )}
-          <p className="text-xs text-slate-500 dark:text-slate-400">Δx = |a₂−a₁|/(n−1)，λ = dΔx/L</p>
+          <p className="summary-note">Δx = |a₂−a₁|/(n−1)，λ = dΔx/L</p>
         </div>
       }
       chart={state.showChart ? (
@@ -81,7 +81,6 @@ export function DoubleSlitScene() {
       ) : undefined}
       chartVisible={state.showChart}
       chartInitiallyCollapsed
-      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={CAMERA}

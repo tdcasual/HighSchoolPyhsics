@@ -1,3 +1,4 @@
+import { formatScientific } from '../../core/formatNumber'
 import { differential, element, ELEMENTS, type ElementKind } from './model'
 
 type Point = [number, number]
@@ -86,7 +87,7 @@ export function ElementChart({ kind, voltage, showSecant = true, showTangent = f
     <svg className="resistivity-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="伏安特性曲线">
       <rect width={width} height={height} rx="12" fill="#f7fbfb" />
       <text x="16" y="20" fontSize="14" fontWeight="700" fill="#24525c">{info.name}</text>
-      <text x={width - 16} y="20" textAnchor="end" fontSize="11" fill="#50666c">U = {now.U.toFixed(2)} V · I = {now.I.toExponential(2)} A</text>
+      <text x={width - 16} y="20" textAnchor="end" fontSize="11" fill="#50666c">U = {now.U.toFixed(2)} V · I = {formatScientific(now.I)} A</text>
       {Array.from({ length: 5 }, (_, tick) => {
         const fraction = tick / 4
         const x = info.min + xSpan * fraction

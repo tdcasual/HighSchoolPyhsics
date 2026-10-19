@@ -19,7 +19,8 @@ import { CelestialScene } from '../CelestialScene'
 
 function expandPanel(name: string) {
   const panel = screen.getByRole('region', { name })
-  fireEvent.click(within(panel).getByRole('button', { name: '展开' }))
+  const button = within(panel).queryByRole('button', { name: '展开' })
+  if (button) fireEvent.click(button)
   return panel
 }
 

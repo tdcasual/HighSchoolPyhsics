@@ -14,7 +14,7 @@ describe('orthogonal-em-wave structure', () => {
     expect(screen.getByRole('radio', { name: '3D 空间立体' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'XY 侧视（看 E）' })).toBeInTheDocument()
     const dataPanel = screen.getByRole('region', { name: '数据' })
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
+    expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(screen.getByText('空间关系')).toBeInTheDocument()
     const chartPanel = screen.getByRole('region', { name: '图表' })
     fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))

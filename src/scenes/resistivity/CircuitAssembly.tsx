@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { meterIntervals, terminalPosition, type CircuitPose, type WireLink } from './circuitPose'
 import type { ElementKind } from './model'
+import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 
 const WIRE_COLOR = { red: '#bb3f33', black: '#2c3336', orange: '#d68a2c', blue: '#2e6592' }
 
@@ -276,7 +277,7 @@ export function CircuitAssembly({
 }) {
   return (
     <>
-      <color attach="background" args={['#e7eef0']} />
+      <SceneBackdrop day="#e7eef0" />
       <hemisphereLight args={['#ffffff', '#8b9a98', 0.85]} />
       <directionalLight position={[-40, 120, 70]} intensity={2.2} color="#fff6e8" castShadow />
       <directionalLight position={[48, 70, -60]} intensity={0.7} color="#e6f1ff" />

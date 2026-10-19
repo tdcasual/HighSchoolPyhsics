@@ -32,11 +32,11 @@ export function ElectromagneticDriveScene() {
       }
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>实验状态: {experimentStatus}</p>
-          <p>磁铁转速: {magnetSpeedText}</p>
-          <p>铝框转速: {frameSpeedText}</p>
-          <p>转差 Δω: {formatAngularSpeed(state.magnetSpeed - state.frameSpeed)}</p>
-          <p>跟随比: {lagRatioText}</p>
+          <p><span>实验状态</span><strong>{experimentStatus}</strong></p>
+          <p><span>磁铁转速</span><strong>{magnetSpeedText}</strong></p>
+          <p><span>铝框转速</span><strong>{frameSpeedText}</strong></p>
+          <p><span>转差 Δω</span><strong>{formatAngularSpeed(state.magnetSpeed - state.frameSpeed)}</strong></p>
+          <p><span>跟随比</span><strong>{lagRatioText}</strong></p>
         </div>
       }
       chart={
@@ -48,7 +48,6 @@ export function ElectromagneticDriveScene() {
       chartVisible={true}
       panelPlacement="after-sidebar"
       auxiliaryPanelPlacement="after-sidebar"
-      dataInitiallyCollapsed
       chartInitiallyCollapsed
       chartOffsetY={230}
       viewport={

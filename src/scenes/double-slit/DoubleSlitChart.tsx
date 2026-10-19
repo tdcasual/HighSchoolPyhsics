@@ -125,7 +125,9 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
       if (nextScale !== currentScale) {
         adaptiveScaleRef.current = nextScale
         times.length = 0
-        setRenderRevision((revision) => revision + 1)
+        // Redraw at the new resolution on the next frame rather than cascading synchronously.
+        const frame = requestAnimationFrame(() => setRenderRevision((revision) => revision + 1))
+        return () => cancelAnimationFrame(frame)
       }
     }
   }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, canvasSize, perf, dpr, renderRevision])
@@ -219,7 +221,7 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
         ctx.fillText(String(order), x, cy - radius * 0.12)
       }
     }
-  }, [eyepieceAngle, wheelReadoutMm, showFringeOrders, isLightOn, isWhiteLight, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf, renderRevision])
+  }, [eyepieceAngle, wheelReadoutMm, showFringeOrders, isLightOn, isWhiteLight, filterColor, params.screenDistance, params.wavelength, params.slitDistance, canvasSize, dpr, perf, renderRevision])
 
   const spectrumLabel = filterColor === 'none' ? '白光' : filterColor === 'red' ? '红色滤光片' : filterColor === 'green' ? '绿色滤光片' : '蓝色滤光片'
 

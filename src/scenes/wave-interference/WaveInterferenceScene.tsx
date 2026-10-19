@@ -103,7 +103,6 @@ export function WaveInterferenceScene() {
       ) : undefined}
       chartVisible={state.showChart}
       chartInitiallyCollapsed
-      dataInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={CAMERA}

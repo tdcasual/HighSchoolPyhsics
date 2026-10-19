@@ -15,27 +15,6 @@
   line-height: 1.45;
 }
 
-.ticker-telemetry {
-  display: grid;
-  gap: 0.32rem;
-}
-
-.ticker-telemetry p {
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  font-size: 0.85rem;
-}
-
-.ticker-telemetry span {
-  opacity: 0.78;
-}
-
-.ticker-telemetry strong {
-  font-family: "SF Mono", Menlo, monospace;
-}
-
 .ticker-chart-shell {
   display: grid;
   gap: 0.7rem;
@@ -80,17 +59,18 @@
   min-width: 0.9rem;
   padding: 0.02rem 0.2rem;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   color: #fff;
 }
 
+/* Darker fills so the white N/S letters stay legible (≥ 4.5:1). */
 .ticker-pole-n {
-  background: #fb7185;
+  background: #e11d48;
 }
 
 .ticker-pole-s {
-  background: #38bdf8;
+  background: #0369a1;
 }
 
 .ticker-spark-nameplate {

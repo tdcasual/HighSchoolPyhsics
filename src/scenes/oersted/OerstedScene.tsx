@@ -18,7 +18,7 @@ export function OerstedScene() {
 
   return (
     <SceneLayout
-      dataInitiallyCollapsed
+      auxiliaryPanelPlacement="after-sidebar"
       controls={
         <OerstedControls
           presetButtons={OERSTED_PRESETS.map((preset) => ({
@@ -43,33 +43,37 @@ export function OerstedScene() {
         />
       }
       dataOverlay={
-        <div className="oersted-card">
-          {state.previewNeedleStates.map((needleState, index) => {
-            const actualSwingDeg = shortestSignedAngleDeg(
-              state.initialHeadingDeg,
-              state.visualNeedles[index]?.headingDeg ?? state.initialHeadingDeg,
-            )
-            return (
-              <p key={'needle-reading-' + index} data-testid={'oersted-swing-' + (index + 1)}>
-                磁针{index + 1}: 当前偏转{' '}
-                <strong data-testid={'oersted-actual-swing-' + (index + 1)}>
-                  {actualSwingDeg.toFixed(1)}°
-                </strong>
-                {' '}· 通电后目标{' '}
-                <strong data-testid={'oersted-target-swing-' + (index + 1)}>
-                  {needleState.observedSwingDeg.toFixed(1)}°
-                </strong>
-                {' '}· 通电后 B_wire,h{' '}
-                <strong>{needleState.wireFieldMicroT.toFixed(1)} μT</strong>
-              </p>
-            )
-          })}
-          <p>
-            通电后最大目标摆角: <strong>{state.maxSwing.toFixed(1)}°</strong>
-          </p>
-          <p>可观察性: {state.discoveryText}（通电后预测）</p>
-          <p>状态: {state.running ? '通电演示中' : '待机观察'}</p>
-          <p>电流 I: {state.currentA.toFixed(1)} A</p>
+        <div className="scene-core-summary-stack">
+          <p><span>状态</span><strong>{state.running ? '通电演示中' : '待机观察'}</strong></p>
+          <p><span>电流 I</span><strong>{state.currentA.toFixed(1)} A</strong></p>
+          <table className="oersted-needle-table">
+            <thead>
+              <tr>
+                <th scope="col">磁针</th>
+                <th scope="col">当前偏转</th>
+                <th scope="col">通电后目标</th>
+                <th scope="col">导线 B（水平）</th>
+              </tr>
+            </thead>
+            <tbody>
+              {state.previewNeedleStates.map((needleState, index) => {
+                const actualSwingDeg = shortestSignedAngleDeg(
+                  state.initialHeadingDeg,
+                  state.visualNeedles[index]?.headingDeg ?? state.initialHeadingDeg,
+                )
+                return (
+                  <tr key={'needle-reading-' + index} data-testid={'oersted-swing-' + (index + 1)}>
+                    <th scope="row">{index + 1}</th>
+                    <td data-testid={'oersted-actual-swing-' + (index + 1)}>{actualSwingDeg.toFixed(1)}°</td>
+                    <td data-testid={'oersted-target-swing-' + (index + 1)}>{needleState.observedSwingDeg.toFixed(1)}°</td>
+                    <td>{needleState.wireFieldMicroT.toFixed(1)} μT</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <p><span>通电后最大目标摆角</span><strong>{state.maxSwing.toFixed(1)}°</strong></p>
+          <p className="summary-note">可观察性：{state.discoveryText}（通电后预测）</p>
         </div>
       }
       playbackActions={[
@@ -91,8 +95,8 @@ export function OerstedScene() {
       ]}
       viewport={
         <InteractiveCanvas
-          camera={{ position: isMobile ? [3.4, 2, 5.2] : [3.8, 2.3, 5.6], fov: 36 }}
-          controls={{ target: isMobile ? [-0.25, 0, 0] : [0, 0, 0] }}
+          camera={{ position: isMobile ? [3.4, 2, 5.2] : [2.9, 2.9, 6.6], fov: 36 }}
+          controls={{ target: isMobile ? [-0.25, 0, 0] : [-0.9, 0.35, 0.65] }}
           presentationFocus={presentationFocus}
           frameloop={state.running || state.draggingNeedleIndex !== null ? 'always' : 'demand'}
           controlsEnabled={state.draggingNeedleIndex === null}

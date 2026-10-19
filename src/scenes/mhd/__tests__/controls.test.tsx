@@ -13,7 +13,6 @@ describe('mhd controls', () => {
     expect(await screen.findByLabelText('载流子浓度 n/n₀')).toBeInTheDocument()
     expect(await screen.findByLabelText('负载电阻 R_L')).toBeInTheDocument()
     const dataPanel = screen.getByRole('region', { name: '数据' })
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
     expect(await within(dataPanel).findByTestId('mhd-voltage-display')).toBeInTheDocument()
 
     const playbackPanel = screen.getByRole('region', { name: '播放控制' })
@@ -25,7 +24,6 @@ describe('mhd controls', () => {
     render(<MhdGeneratorScene />)
 
     const dataPanel = screen.getByRole('region', { name: '数据' })
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
     const display = await within(dataPanel).findByTestId('mhd-voltage-display')
     const parseVoltageMagnitude = (text: string) => {
       const match = text.match(/([0-9.]+)\s*(M|k)?V/)

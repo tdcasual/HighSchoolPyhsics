@@ -1,3 +1,4 @@
+import { formatScientific } from '../../core/formatNumber'
 import { useMemo } from 'react'
 import type { TimeSample } from './trace'
 
@@ -105,10 +106,10 @@ export function CyclotronTraceChart({
         </svg>
       </div>
       <p className="cyclotron-plot-status">
-        {running ? '运行中' : '已暂停'} · {valueLabel}: {latest ? latest.value.toExponential(2) : '0.00e+0'} {unit}
+        {running ? '运行中' : '已暂停'} · {valueLabel}: {formatScientific(latest ? latest.value : 0)} {unit}
       </p>
       <p className="cyclotron-plot-status">
-        t窗口: {plot.startTimeS.toExponential(2)} ~ {plot.endTimeS.toExponential(2)} s
+        t 窗口: {formatScientific(plot.startTimeS)} ~ {formatScientific(plot.endTimeS)} s
       </p>
     </div>
   )

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -45,12 +45,8 @@ describe('wave-interference structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
   })
 
-  it('starts with the data overlay collapsed and shows values when expanded', () => {
+  it('shows the data overlay values by default', () => {
     render(<WaveInterferenceScene />)
-
-    const dataPanel = within(screen.getByRole('region', { name: '数据' }))
-    expect(dataPanel.queryByText(/波程差/)).not.toBeInTheDocument()
-    fireEvent.click(dataPanel.getByRole('button', { name: '展开' }))
 
     expect(screen.getByText(/波程差/)).toBeInTheDocument()
     expect(screen.getByText(/相位差/)).toBeInTheDocument()

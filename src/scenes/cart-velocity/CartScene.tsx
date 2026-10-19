@@ -9,6 +9,7 @@ import { DURATION, fit, hookAcceleration, stringAngle } from './model'
 import { CART_CAMERA, cartPose, cartView, motionOf } from './pose'
 import { useCartVelocitySceneState } from './useCartVelocitySceneState'
 import './cart-velocity.css'
+import { useAppStore } from '../../store/useAppStore'
 
 function conditionLine(hooks: number, dh: number, x: number, v0: number): string {
   if (hooks <= 0) return '不挂钩码'
@@ -18,6 +19,7 @@ function conditionLine(hooks: number, dh: number, x: number, v0: number): string
 }
 
 export function CartScene() {
+  const theme = useAppStore((store) => store.theme)
   const state = useCartVelocitySceneState()
   const [compactViewport, setCompactViewport] = useState(
     () => typeof window !== 'undefined' && window.innerWidth <= 767,
@@ -95,7 +97,7 @@ export function CartScene() {
           }}
           frameloop={state.running ? 'always' : 'demand'}
         >
-          <CartRig3D pose={pose} skin={state.skin} />
+          <CartRig3D pose={pose} skin={state.skin} night={theme === 'night'} />
         </InteractiveCanvas>
       }
     />

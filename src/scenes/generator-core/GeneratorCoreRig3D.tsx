@@ -61,7 +61,7 @@ export function GeneratorCoreRig3D({ angleRad, running, theme }: Props) {
     <Arrow start={velocityStart} end={velocityEnd} color="#f4c542" width={2.5} />
     <Label text="法向量 n" position={[readings.normalVector[0] * 2.4, 0.25, readings.normalVector[2] * 2.4]} color="#9c27b0" />
     <Label text="速度 v" position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]} color="#c08500" />
-    <Label text={readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`} position={[0, -2.28, 0]} color={currentColor} />
+    <Label text={readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`} position={[0, -2.95, 0]} color={currentColor} />
     <Label text="旋转轴 O" position={[0, -2.42, 0]} color={textColor} />
     <Label text="B" position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} />
   </group>

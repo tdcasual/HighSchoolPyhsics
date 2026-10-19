@@ -114,16 +114,15 @@ export function MotionalEmfScene() {
           </section>
         </>
       }
-      dataInitiallyCollapsed
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p>运动状态: {state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</p>
-          <p>行程: {(state.phase * 100).toFixed(0)}%</p>
-          <p>电压 U_AB: {state.signedVoltageV.toFixed(2)} V</p>
-          <p>极性: {state.polarityText}</p>
-          <p>∠(B,L): {state.angleBetweenBLLabel}</p>
-          <p>∠(L,v): {state.angleBetweenLVLabel}</p>
-          <p>∠(B,v): {state.angleBetweenBVLabel}</p>
+          <p><span>运动状态</span><strong>{state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
+          <p><span>行程</span><strong>{(state.phase * 100).toFixed(0)}%</strong></p>
+          <p><span>电压 U_AB</span><strong>{state.signedVoltageV.toFixed(2)} V</strong></p>
+          <p><span>极性</span><strong>{state.polarityText}</strong></p>
+          <p><span>∠(B,L)</span><strong>{state.angleBetweenBLLabel}</strong></p>
+          <p><span>∠(L,v)</span><strong>{state.angleBetweenLVLabel}</strong></p>
+          <p><span>∠(B,v)</span><strong>{state.angleBetweenBVLabel}</strong></p>
         </div>
       }
       viewport={

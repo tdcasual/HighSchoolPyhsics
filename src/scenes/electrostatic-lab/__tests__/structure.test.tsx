@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '../../../store/useAppStore'
 
@@ -135,11 +135,9 @@ describe('electrostatic-lab structure', () => {
     render(<ElectrostaticLabScene />)
 
     const dataPanel = screen.getByRole('region', { name: '数据' })
-    expect(within(dataPanel).queryByText(/电荷方案: 双极子基线/)).not.toBeInTheDocument()
-    fireEvent.click(within(dataPanel).getByRole('button', { name: '展开' }))
-    expect(within(dataPanel).getByText(/电荷方案: 双极子基线/)).toBeInTheDocument()
-    expect(screen.getByText(/相对电势范围: -3.10 ~ 2.60/)).toBeInTheDocument()
-    expect(screen.getByText(/当前模式: 电场线/)).toBeInTheDocument()
-    expect(screen.getByText(/探针读数（相对）: φ=1.23, \|E\|=2.35/)).toBeInTheDocument()
+    expect(within(dataPanel).getByText(/^双极子基线/)).toBeInTheDocument()
+    expect(screen.getByText('-3.10 ~ 2.60')).toBeInTheDocument()
+    expect(within(dataPanel).getByText('电场线')).toBeInTheDocument()
+    expect(screen.getByText('φ = 1.23，|E| = 2.35')).toBeInTheDocument()
   })
 })
