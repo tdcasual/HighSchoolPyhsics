@@ -32,9 +32,13 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 4. Play/step/reset belong in `playbackActions`; give the main play action the key `play` or `toggle-running` so Space triggers it.
 5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that.
 6. Open in a state that can be taught immediately (no mandatory "step 1" click).
-7. Keep the layered structure: `useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene`.
-8. Use `FloatingPanel` for data/chart/playback zones — do not create custom overlay systems.
-9. Use `SidebarPanel` for parameter controls — do not use custom side panels.
+7. Wrap conclusion readings in `<Answer>` (prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate.
+8. For fast processes pass `timeControl` and multiply the loop's frame delta by `getPlaybackRate()`; import `Line` from `scene3d/ClassroomLine`.
+9. Use textbook notation on screen (`U<sub>AB</sub>`, not `U_AB`; no "a.u."); label reduced model scales 示意 and convert to textbook magnitude in notes.
+10. Register the scene under its textbook chapter in `ui/navigation/regionData.ts` and run `npm run thumbnails -- <pageId>`.
+11. Keep the layered structure: `useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene`.
+12. Use `FloatingPanel` for data/chart/playback zones — do not create custom overlay systems.
+13. Use `SidebarPanel` for parameter controls — do not use custom side panels.
 
 ## 1080P Readability Baseline
 
