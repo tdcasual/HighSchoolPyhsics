@@ -58,7 +58,8 @@ export function resolveTouchProfile(profile: unknown, fallback: TouchProfile = E
   }
 }
 
-export function buildTouchProfileHint(profile: TouchProfile): string {
+/** `pointer: 'touch'` drops the mouse-only gestures for touch-only devices. */
+export function buildTouchProfileHint(profile: TouchProfile, { pointer = 'any' }: { pointer?: 'any' | 'touch' } = {}): string {
   const touchFragments: string[] = []
 
   if (profile.gestureMatrix.singleFingerRotate) {
@@ -76,6 +77,9 @@ export function buildTouchProfileHint(profile: TouchProfile): string {
     }
   }
 
+  if (pointer === 'touch' && touchFragments.length > 0) {
+    return touchFragments.join(' · ')
+  }
   return ['拖拽旋转', '滚轮缩放', '右键平移', ...touchFragments].join(' · ')
 }
 

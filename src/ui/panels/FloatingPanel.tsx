@@ -14,7 +14,7 @@ type FloatingPanelProps = {
   children: ReactNode
 }
 
-const HEADER_HEIGHT = 40
+const HEADER_HEIGHT = 46
 const VIEWPORT_MARGIN = 12
 const MIN_MAX_HEIGHT = 160
 
@@ -141,43 +141,49 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       ref={setRefs}
       role="region"
       aria-label={title}
+      data-collapsed={collapsed ? 'true' : undefined}
       className={`floating-panel absolute ${zIndex} flex flex-col rounded-2xl select-none`}
       style={panelStyle}
     >
       <div
-        className="panel-header flex items-center gap-2 px-3.5 py-2.5 cursor-grab active:cursor-grabbing shrink-0"
+        className="panel-header flex items-center gap-1 pl-3.5 pr-1 cursor-grab active:cursor-grabbing shrink-0"
         {...handlers}
       >
         {icon}
-        <span className="text-sm font-semibold tracking-tight">{title}</span>
+        <span className="panel-title">{title}</span>
         <button
-          className="ml-auto min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
+          className="panel-icon-button ml-auto"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? '展开' : '折叠'}
+          aria-expanded={!collapsed}
         >
-          {collapsed ? '▼' : '▲'}
+          <svg className="panel-chevron" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         {closable && onClose && (
           <button
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-sm text-[var(--control-ink-muted)] hover:text-[var(--control-accent)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
+            className="panel-icon-button panel-close-button"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onClose}
             aria-label="关闭"
           >
-            ✕
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
           </button>
         )}
       </div>
       {!collapsed && (
         <div
-          className={`px-3.5 pb-3 overflow-y-auto ${resizable ? 'flex-1 min-h-0' : ''}`}
+          className={`panel-body overflow-y-auto ${resizable ? 'flex-1 min-h-0' : ''}`}
           style={{ maxHeight: maxContentHeight }}
         >
           {children}
         </div>
       )}
-      {resizable && (
+      {resizable && !collapsed && (
         <div
           className="panel-resize-handle"
           onPointerDown={handleResizeStart}

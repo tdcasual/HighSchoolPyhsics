@@ -69,7 +69,7 @@ export function RangeField({
           {label}
         </label>
         <span
-          className="text-[0.75rem] md:text-[0.85rem] font-mono font-bold tabular-nums"
+          className="range-field-value text-[0.75rem] md:text-[0.85rem] font-bold tabular-nums"
           style={{ color: 'var(--readout-value)' }}
         >
           {valueText}
@@ -86,7 +86,7 @@ export function RangeField({
         onPointerUp={handlePointerUp}
         className="w-full"
         style={{
-          background: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, var(--range-track-unfilled) ${progress}%)`,
+          backgroundImage: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, var(--range-track-unfilled) ${progress}%)`,
         }}
       />
       {showMinMax && (

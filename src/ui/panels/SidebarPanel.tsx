@@ -9,7 +9,7 @@ type SidebarPanelProps = {
 }
 
 const SIDEBAR_COLLAPSED_WIDTH = 44
-const HEADER_BAR_HEIGHT = 52
+const HEADER_BAR_HEIGHT = 47
 const VIEWPORT_MARGIN = 8
 const MIN_MAX_HEIGHT = 120
 
@@ -53,31 +53,27 @@ export function SidebarPanel({
     >
       {collapsed ? (
         <button
-          className="flex flex-col items-center justify-center w-full gap-1 min-h-[44px] rounded-xl mx-1 mt-2 text-[var(--control-ink-muted)] hover:text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
+          className="sidebar-rail-button"
           onClick={() => onCollapsedChange?.(false)}
           aria-label="展开参数面板"
         >
-          <span className="text-sm">→</span>
-          {title && (
-            <span className="text-xs font-semibold tracking-wide [writing-mode:vertical-rl]">
-              {title}
-            </span>
-          )}
+          <SidebarChevron direction="right" />
+          {title && <span className="sidebar-rail-title">{title}</span>}
         </button>
       ) : (
         <div className="flex flex-col w-full overflow-hidden">
-          <div className="panel-header flex items-center justify-between px-4 py-3 border-b shrink-0">
-            {title && <span className="text-sm font-semibold tracking-tight">{title}</span>}
+          <div className="panel-header flex items-center justify-between pl-4 pr-1 border-b shrink-0">
+            {title && <span className="panel-title">{title}</span>}
             <button
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-[var(--control-ink-muted)] hover:text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)] transition-all duration-150"
+              className="panel-icon-button"
               onClick={() => onCollapsedChange?.(true)}
               aria-label="折叠参数面板"
             >
-              ←
+              <SidebarChevron direction="left" />
             </button>
           </div>
           <div
-            className="flex-1 overflow-y-auto p-4"
+            className="sidebar-body flex-1 overflow-y-auto px-4 pt-3 pb-5"
             style={{ maxHeight: maxContentHeight }}
           >
             {children}
@@ -85,5 +81,20 @@ export function SidebarPanel({
         </div>
       )}
     </div>
+  )
+}
+
+function SidebarChevron({ direction }: { direction: 'left' | 'right' }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path
+        d={direction === 'left' ? 'M10 4l-4 4 4 4' : 'M6 4l4 4-4 4'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

@@ -189,7 +189,7 @@ export function SceneLayout({
             />
           </div>
           {playbackControls && <div className="px-2 pt-2 shrink-0">{playbackControls}</div>}
-          <div className="flex-1 overflow-y-auto px-2 pb-2">
+          <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
             {effectiveMobileTab === 'controls' && controls}
             {effectiveMobileTab === 'data' && dataOverlay}
             {effectiveMobileTab === 'chart' && chart}

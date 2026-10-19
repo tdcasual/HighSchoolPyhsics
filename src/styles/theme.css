@@ -10,7 +10,7 @@
   --shell-ink-soft-night: #9ca3af;
   --shell-ink-muted-night: #d1d5db;
   --shell-bg-night: #0f1115;
-  --night-panel-bg: rgba(20, 22, 28, 0.75);
+  --night-panel-bg: rgba(20, 22, 28, 0.82);
   --night-panel-bg-soft: rgba(20, 22, 28, 0.65);
   --night-panel-bg-muted: rgba(20, 22, 28, 0.55);
   --night-border: rgba(255, 255, 255, 0.08);
@@ -33,6 +33,22 @@
   --night-border-lighter: rgba(255, 255, 255, 0.15);
   --night-border-lighter-strong: rgba(255, 255, 255, 0.2);
   --night-tooltip-bg: rgba(15, 17, 21, 0.92);
+  /* Control text tokens default to dark day-mode ink; without night values slider labels,
+     hints and checkbox captions rendered dark-on-dark in every scene. */
+  --control-ink: #e5e7eb;
+  --control-ink-soft: #cbd5e1;
+  --control-ink-muted: #94a3b8;
+  --control-bg: rgba(30, 32, 40, 0.72);
+  --control-border: rgba(255, 255, 255, 0.12);
+  --control-hover-bg: rgba(255, 255, 255, 0.06);
+  --control-section-bg: rgba(20, 22, 28, 0.45);
+  --control-section-border: rgba(255, 255, 255, 0.08);
+  --readout-bg: rgba(30, 32, 40, 0.6);
+  --readout-border: rgba(255, 255, 255, 0.1);
+  --readout-ink: #e5e7eb;
+  --readout-ink-soft: #cbd5e1;
+  --readout-value: #60a5fa;
+  --readout-divider: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Night Glass Panels ── */
@@ -59,6 +75,10 @@
   border-color: var(--night-border-soft);
 }
 
+.app-shell.theme-night .floating-panel[data-collapsed] .panel-header {
+  border-color: transparent;
+}
+
 .app-shell.theme-night .app-header {
   background: var(--night-panel-bg);
   border-color: var(--night-border);
@@ -69,32 +89,6 @@
 }
 
 .app-shell.theme-night .app-header h1 {
-  color: var(--shell-ink-night);
-}
-
-.app-shell.theme-night .map-overlay-title-content,
-.app-shell.theme-night .map-overlay-legend {
-  background: var(--night-panel-bg);
-  border-color: var(--night-border);
-}
-
-.app-shell.theme-night .region-scene-panel {
-  background: var(--night-panel-bg);
-  border-color: var(--night-border);
-}
-
-.app-shell.theme-night .region-scene-panel-header {
-  border-color: var(--night-border-soft);
-}
-
-.app-shell.theme-night .region-scene-panel-close {
-  border-color: var(--night-border);
-  background: var(--night-border);
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .region-scene-panel-close:hover {
-  background: var(--night-border-strong);
   color: var(--shell-ink-night);
 }
 
@@ -189,6 +183,12 @@
   border-color: var(--night-border-strong);
 }
 
+.app-shell.theme-night .theme-toggle-icon {
+  border-color: var(--night-border-medium);
+  background: var(--night-action-bg);
+  color: #fcd34d;
+}
+
 .app-shell.theme-night .shortcut-help-btn {
   border-color: var(--night-border-medium);
   background: var(--night-border-soft);
@@ -224,7 +224,7 @@
 .app-shell.theme-night .segmented-control button.active {
   background: var(--control-accent);
   border-color: var(--control-accent-30);
-  color: var(--control-bg);
+  color: #fff; /* text on the accent fill; --control-bg turns dark at night */
 }
 
 .app-shell.theme-night .segmented-control button:not(.active) {
@@ -251,7 +251,10 @@
 }
 
 .app-shell.theme-night .formula-input,
-.app-shell.theme-night .preset-select {
+.app-shell.theme-night .preset-select,
+.app-shell.theme-night .sidebar-body select:not([class]),
+.app-shell.theme-night .sidebar-body input[type='text']:not([class]),
+.app-shell.theme-night .sidebar-body input[type='number']:not([class]) {
   background: var(--night-panel-bg-soft);
   border-color: var(--night-border-medium);
   color: var(--shell-ink-night);
@@ -262,112 +265,10 @@
   background: var(--night-panel-bg-muted);
 }
 
-/* ── Night Overview ── */
-.app-shell.theme-night .overview-page {
-  --overview-ink: #f3f4f6;
-  --overview-soft-ink: #9ca3af;
-  --overview-card-bg-start: rgba(20, 22, 28, 0.72);
-  --overview-card-bg-end: rgba(20, 22, 28, 0.58);
-  --overview-card-border: var(--night-border);
-  --overview-shell-border: var(--night-border);
-  --overview-shell-bg:
-    linear-gradient(165deg, rgba(20, 22, 28, 0.72) 0%, rgba(18, 20, 26, 0.65) 50%, rgba(22, 24, 30, 0.62) 100%);
-  --overview-shadow:
-    0 1px 2px var(--night-shadow-soft),
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    0 24px 64px rgba(0, 0, 0, 0.35);
-  --overview-card-accent: var(--control-accent-soft);
-  --overview-card-glow: rgba(37, 99, 235, 0.08);
-  --overview-kicker: #9ca3af;
-  --overview-note-bg: var(--night-panel-bg-muted);
-  --overview-note-border: var(--night-border);
-  --overview-note-ink: #d1d5db;
-}
-
-.app-shell.theme-night .overview-page::before {
-  opacity: 0.4;
-  filter: blur(14px);
-}
-
-.app-shell.theme-night .overview-hero {
-  background:
-    linear-gradient(145deg, rgba(20, 22, 28, 0.92) 0%, rgba(18, 20, 26, 0.9) 45%, rgba(22, 24, 30, 0.88) 100%);
-  border-color: var(--night-border);
-}
-
-.app-shell.theme-night .overview-kicker {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-hero-note {
-  border-color: var(--night-border-medium);
-  background: var(--night-panel-bg-50);
-}
-
-.app-shell.theme-night .overview-note-title {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-note-text {
-  color: var(--shell-ink-muted-night);
-}
-
-.app-shell.theme-night .overview-shortcut-tip {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-card {
-  border-color: var(--night-border);
-}
-
-.app-shell.theme-night .overview-card-index {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-card::before {
-  background: linear-gradient(90deg, var(--overview-card-accent) 0%, rgba(59, 130, 246, 0) 88%);
-  opacity: 0.4;
-}
-
-.app-shell.theme-night .overview-card-summary {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-card-tag {
-  color: var(--shell-ink-soft-night);
-  background: rgba(37, 99, 235, 0.1);
-  border-color: rgba(37, 99, 235, 0.2);
-}
-
-.app-shell.theme-night .overview-points {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .overview-card:hover {
-  border-color: var(--night-border-lighter);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    0 8px 24px rgba(0, 0, 0, 0.1),
-    0 24px 64px var(--night-shadow);
-}
-
-.app-shell.theme-night .overview-enter {
-  background: rgba(20, 22, 28, 0.7);
-  border-color: var(--night-border-strong);
-  color: var(--shell-ink-muted-night);
-}
-
-.app-shell.theme-night .overview-enter:hover {
-  border-color: var(--night-border-lighter-strong);
-  box-shadow:
-    0 4px 12px var(--night-shadow-soft),
-    0 0 0 1px var(--night-border-soft);
-}
-
 .app-shell.theme-night .interaction-hint {
   color: var(--shell-ink-soft-night);
   background: var(--night-tooltip-bg);
-  border-top-color: var(--night-border);
+  border-color: var(--night-border);
 }
 
 .app-shell.theme-night .canvas-fallback {
@@ -394,35 +295,31 @@
   color: var(--shell-ink-muted-night);
 }
 
-/* ── Night Magazine ── */
-.app-shell.theme-night .magazine-overview {
-  --magazine-bg: #080808;
-  --magazine-ink: #e8e8e8;
-  --magazine-ink-soft: #c8c8c8;
-  --magazine-ink-muted: #888888;
-  --magazine-border: var(--night-border-soft);
-  --magazine-item-hover-bg: rgba(255, 255, 255, 0.035);
-  --magazine-item-index: #9ca3af;
-  --magazine-item-index-hover: #d1d5db;
-  --magazine-item-name: #c8c8c8;
-  --magazine-item-name-hover: #f0f0f0;
-  --magazine-item-tag-bg: rgba(255, 255, 255, 0.04);
-  --magazine-item-tag: #888888;
-  --magazine-item-tag-hover-bg: rgba(255, 255, 255, 0.07);
-  --magazine-item-tag-hover: #aaaaaa;
-  --magazine-item-arrow: #555555;
-  --magazine-item-arrow-hover: #888888;
-  --magazine-preview-bg: #0e0e0e;
-  --magazine-preview-border: var(--night-border-soft);
-  --magazine-preview-meta-bg: #0a0a0a;
-  --magazine-preview-placeholder: #888888;
-  --magazine-preview-placeholder-title: #888888;
-  --magazine-preview-empty-bg: #0c0c0c;
-  --magazine-preview-empty-border: rgba(255, 255, 255, 0.04);
-  --magazine-preview-empty-hint: #888888;
-  --magazine-preview-empty-sub: #555555;
-  --magazine-group-name: #888888;
-  --magazine-group-desc: #888888;
-  --magazine-kicker: #888888;
-  --magazine-scrollbar: var(--night-border);
+/* ── Night Overview ── */
+.app-shell.theme-night .scene-overview {
+  --overview-bg: #0b0d12;
+  --overview-ink: #f1f5f9;
+  --overview-ink-soft: #cbd5e1;
+  --overview-ink-muted: #94a3b8;
+  --overview-border: rgba(255, 255, 255, 0.08);
+  --overview-card-bg: #141821;
+  --overview-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --overview-card-shadow-hover: 0 16px 36px rgba(0, 0, 0, 0.5);
+  --overview-thumb-bg: #1b202b;
+  --overview-chip-bg: rgba(15, 17, 21, 0.75);
+}
+
+.app-shell.theme-night .theme-switch {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--night-border);
+}
+
+.app-shell.theme-night .theme-switch button:not(.active) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-shell.theme-night .theme-switch button:not(.active):hover {
+  background: var(--control-hover-bg);
 }

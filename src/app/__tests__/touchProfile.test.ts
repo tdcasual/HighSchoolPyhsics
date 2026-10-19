@@ -7,6 +7,10 @@ describe('touchProfile helpers', () => {
     expect(buildTouchProfileHint(ENHANCED_TOUCH_PROFILE)).toBe('拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移')
   })
 
+  it('omits mouse gestures on touch-only devices', () => {
+    expect(buildTouchProfileHint(ENHANCED_TOUCH_PROFILE, { pointer: 'touch' })).toBe('单指旋转 · 双指缩放/平移')
+  })
+
 
   it('resolves scene touch profiles from lightweight metadata by path', () => {
     expect(findTouchProfileByPath('/oscilloscope')).toStrictEqual(ENHANCED_TOUCH_PROFILE)

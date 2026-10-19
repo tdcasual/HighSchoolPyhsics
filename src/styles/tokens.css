@@ -12,6 +12,7 @@
 
   /* ── Glass Panels (Day) ── */
   --glass-bg-day: rgba(255, 255, 255, 0.62);
+  --panel-glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border-day: rgba(255, 255, 255, 0.72);
   --glass-border-outer-day: rgba(148, 163, 184, 0.25);
   --glass-highlight-day: inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
@@ -66,57 +67,6 @@
   --readout-value: #2563eb;
   --readout-divider: rgba(203, 213, 225, 0.4);
 
-  /* ── Overview / Navigation (Day) ── */
-  --overview-ink: #0f172a;
-  --overview-soft-ink: #334155;
-  --overview-card-bg-start: rgba(255, 255, 255, 0.72);
-  --overview-card-bg-end: rgba(255, 255, 255, 0.58);
-  --overview-card-border: rgba(203, 213, 225, 0.45);
-  --overview-shell-border: rgba(203, 213, 225, 0.45);
-  --overview-shell-bg:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.68) 0%, rgba(248, 250, 252, 0.62) 50%, rgba(250, 250, 252, 0.6) 100%);
-  --overview-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.03),
-    0 8px 24px rgba(0, 0, 0, 0.04),
-    0 24px 64px rgba(0, 0, 0, 0.05);
-  --overview-card-accent: #2563eb;
-  --overview-card-glow: rgba(37, 99, 235, 0.1);
-  --overview-kicker: #64748b;
-  --overview-note-bg: rgba(241, 245, 249, 0.55);
-  --overview-note-border: rgba(203, 213, 225, 0.5);
-  --overview-note-ink: #1e293b;
-
-  /* ── Magazine Navigation (Day) ── */
-  --magazine-bg: #f8fafc;
-  --magazine-ink: #0f172a;
-  --magazine-ink-soft: #334155;
-  --magazine-ink-muted: #64748b;
-  --magazine-border: rgba(0, 0, 0, 0.06);
-  --magazine-item-hover-bg: rgba(37, 99, 235, 0.04);
-  --magazine-item-index: #94a3b8;
-  --magazine-item-index-hover: #64748b;
-  --magazine-item-name: #334155;
-  --magazine-item-name-hover: #0f172a;
-  --magazine-item-tag-bg: rgba(37, 99, 235, 0.06);
-  --magazine-item-tag: #1e40af;
-  --magazine-item-tag-hover-bg: rgba(37, 99, 235, 0.1);
-  --magazine-item-tag-hover: #1e3a8a;
-  --magazine-item-arrow: #cbd5e1;
-  --magazine-item-arrow-hover: #64748b;
-  --magazine-preview-bg: #ffffff;
-  --magazine-preview-border: rgba(203, 213, 225, 0.35);
-  --magazine-preview-meta-bg: #f8fafc;
-  --magazine-preview-placeholder: #94a3b8;
-  --magazine-preview-placeholder-title: #64748b;
-  --magazine-preview-empty-bg: #f1f5f9;
-  --magazine-preview-empty-border: rgba(203, 213, 225, 0.25);
-  --magazine-preview-empty-hint: #64748b;
-  --magazine-preview-empty-sub: #94a3b8;
-  --magazine-group-name: #64748b;
-  --magazine-group-desc: #94a3b8;
-  --magazine-kicker: #94a3b8;
-  --magazine-scrollbar: rgba(0, 0, 0, 0.1);
-
   /* ── Accessibility ── */
   --skip-link-bg-night: #0c1826;
 
@@ -142,9 +92,9 @@
   --scene-missing-border: rgba(203, 213, 225, 0.5);
   --scene-missing-bg: rgba(255, 255, 255, 0.55);
   --scene-optical-bg: #222222;
-  --interaction-hint-bg: rgba(241, 245, 249, 0.85);
+  --interaction-hint-bg: rgba(255, 255, 255, 0.78);
   --interaction-hint-border: rgba(203, 213, 225, 0.55);
-  --interaction-hint-ink: #1e293b;
+  --interaction-hint-ink: #475569;
   --formula-input-bg: rgba(255, 255, 255, 0.82);
   --formula-input-border: rgba(203, 213, 225, 0.6);
   --formula-input-focus: #2563eb;

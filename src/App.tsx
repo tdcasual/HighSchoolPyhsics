@@ -151,16 +151,18 @@ function App() {
       >
         跳转到主要内容
       </a>
-      <header className="app-header">
-        <h1>{APP_BRAND_NAME}</h1>
+      <header className="app-header" data-page={isOverviewPage ? 'overview' : 'scene'}>
+        <div className="app-header-title">
+          <h1>{APP_BRAND_NAME}</h1>
+          {!isOverviewPage && activeRoute ? <span className="app-header-scene">{activeRoute.label}</span> : null}
+        </div>
         <div className="app-controls">
-          {!isOverviewPage && isMobile ? (
+          {!isOverviewPage ? (
             <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
-              返回
-            </button>
-          ) : !isOverviewPage ? (
-            <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
-              返回导航
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {isMobile ? '返回' : '返回导航'}
             </button>
           ) : null}
           {!isOverviewPage && isMobile && mobilePlaybackActions.map((action) => (
@@ -173,35 +175,57 @@ function App() {
               {action.label}
             </button>
           ))}
-          <div className="theme-switch">
+          {isMobile ? (
             <button
-              className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
-              aria-pressed={theme === 'day'}
-              aria-keyshortcuts="D"
-              title="快捷键 D"
-              onClick={() => setTheme('day')}
+              type="button"
+              className="touch-target theme-toggle-icon"
+              aria-label={theme === 'day' ? '切换到夜间模式' : '切换到白天模式'}
+              onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
             >
-              {isMobile ? '白天' : '白天模式'}
+              {theme === 'day' ? (
+                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+                  <path d="M15.5 12.6A6.5 6.5 0 0 1 7.4 4.5a6.5 6.5 0 1 0 8.1 8.1z" fill="currentColor" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+                  <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+                  <path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              )}
             </button>
-            <button
-              className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
-              aria-pressed={theme === 'night'}
-              aria-keyshortcuts="N"
-              title="快捷键 N"
-              onClick={() => setTheme('night')}
-            >
-              {isMobile ? '夜间' : '夜间模式'}
-            </button>
-          </div>
-          <button
-            type="button"
-            className="touch-target shortcut-help-btn"
-            title="快捷键帮助 (?)"
-            aria-label="快捷键帮助"
-            onClick={() => setHelpVisible(true)}
-          >
-            ?
-          </button>
+          ) : (
+            <>
+              <div className="theme-switch">
+                <button
+                  className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
+                  aria-pressed={theme === 'day'}
+                  aria-keyshortcuts="D"
+                  title="快捷键 D"
+                  onClick={() => setTheme('day')}
+                >
+                  白天模式
+                </button>
+                <button
+                  className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
+                  aria-pressed={theme === 'night'}
+                  aria-keyshortcuts="N"
+                  title="快捷键 N"
+                  onClick={() => setTheme('night')}
+                >
+                  夜间模式
+                </button>
+              </div>
+              <button
+                type="button"
+                className="touch-target shortcut-help-btn"
+                title="快捷键帮助 (?)"
+                aria-label="快捷键帮助"
+                onClick={() => setHelpVisible(true)}
+              >
+                ?
+              </button>
+            </>
+          )}
         </div>
       </header>
       <section className="scene-container" id="scene-content">

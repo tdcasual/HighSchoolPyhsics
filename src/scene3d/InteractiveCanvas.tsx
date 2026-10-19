@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, type Componen
 import type { Camera, PerspectiveCamera } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
+import { useMediaQuery } from '../ui/hooks/useMediaQuery'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
 import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
 import { DEFAULT_ADAPTIVE_FRAMING, resolveAdaptiveFramingTarget, type AdaptiveFramingOptions } from './adaptiveFraming'
@@ -333,7 +334,11 @@ export function InteractiveCanvas({
     [adaptiveFramingOptions, controlsOnChange, resolvedPresentationFocus],
   )
 
-  const hint = useMemo(() => buildTouchProfileHint(touchProfile), [touchProfile])
+  const touchOnly = useMediaQuery('(hover: none) and (pointer: coarse)')
+  const hint = useMemo(
+    () => buildTouchProfileHint(touchProfile, { pointer: touchOnly ? 'touch' : 'any' }),
+    [touchProfile, touchOnly],
+  )
 
   if (isTestRuntime()) {
     return (

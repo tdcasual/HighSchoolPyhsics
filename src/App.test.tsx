@@ -28,13 +28,12 @@ describe('App shell', () => {
     expect(screen.getByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
 
-    // Regions with scenes should be visible
-    expect(screen.getByText('静电学')).toBeInTheDocument()
-    expect(screen.getByText('电磁学')).toBeInTheDocument()
-    expect(screen.getAllByText('电磁感应')[0]).toBeInTheDocument()
-    expect(screen.getByText('波动与振动')).toBeInTheDocument()
-    expect(screen.getByText('力学')).toBeInTheDocument()
-    expect(screen.getByText('热学')).toBeInTheDocument()
+    // Regions with scenes should be visible as topic headings
+    for (const region of ['静电学', '电磁学', '电磁感应', '波动与光学', '力学', '热学']) {
+      expect(screen.getByRole('heading', { level: 2, name: region })).toBeInTheDocument()
+    }
+    // …and every scene is listed exactly once
+    expect(screen.getAllByRole('button', { name: /游标卡尺与螺旋测微器/ })).toHaveLength(1)
   })
 
   it('supports day/night mode across the app shell', () => {
@@ -76,9 +75,10 @@ describe('App shell', () => {
 
     const { container } = render(<App />)
 
-    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(await screen.findByText('X 偏转电压 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
 
     expect(container.querySelector('.scene-nav')).not.toBeInTheDocument()
+    screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
     expect(container.querySelector('.scene-actions')).toBeInTheDocument()
     expect(container.querySelector('.scene-switch')).not.toBeInTheDocument()
   })
@@ -102,7 +102,7 @@ describe('App shell', () => {
     expect(shell).toHaveClass('theme-night')
 
     fireEvent.keyDown(window, { key: '1' })
-    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(await screen.findByText('X 偏转电压 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
     expect(window.location.pathname).toBe('/oscilloscope')
 
     fireEvent.keyDown(window, { key: 'd' })
@@ -139,7 +139,7 @@ describe('App shell', () => {
 
     const { container } = render(<App />)
 
-    expect(await screen.findByText('X 电场 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(await screen.findByText('X 偏转电压 Ux(t)', {}, { timeout: 3000 })).toBeInTheDocument()
 
     const shell = container.querySelector('.app-shell') as HTMLElement
     expect(shell).toHaveAttribute('data-page-scroll', 'vertical-outside-canvas')

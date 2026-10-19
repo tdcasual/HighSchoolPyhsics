@@ -31,7 +31,7 @@ export function DataReadout({ items, separatorAfter }: DataReadoutProps) {
               <span className="readout-item-label text-[0.72rem] md:text-[0.82rem] font-medium">
                 {item.label}
               </span>
-              <span className="readout-item-value text-[0.75rem] md:text-[0.85rem] font-mono font-bold tabular-nums text-right">
+              <span className="readout-item-value text-[0.75rem] md:text-[0.85rem] font-bold tabular-nums text-right">
                 {item.value}
               </span>
             </div>

@@ -12,7 +12,8 @@ type SegmentedControlProps = {
 }
 
 export function SegmentedControl({ options, value, onChange, columns, disabled = false }: SegmentedControlProps) {
-  const cols = columns ?? (options.length <= 2 ? 2 : 3)
+  // Four options read better as a 2×2 grid than as 3 + 1 orphan.
+  const cols = columns ?? (options.length <= 2 || options.length === 4 ? 2 : 3)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (disabled) return
