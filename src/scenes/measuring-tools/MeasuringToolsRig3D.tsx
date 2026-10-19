@@ -2,8 +2,11 @@ import { CaliperAssembly, CaliperDepthWork } from './CaliperAssembly'
 import { MicrometerAssembly } from './MicrometerAssembly'
 import type { VernierDivisions } from './model'
 import { caliperPose, micrometerPose, type CaliperMeasure, type InstrumentTool, type ViewPreset } from './pose'
+import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
+import { StudioEnvironment } from '../../scene3d/StudioEnvironment'
 
 export type MeasuringToolsRigProps = {
+  night?: boolean
   tool: InstrumentTool
   divisions: VernierDivisions
   measure: CaliperMeasure
@@ -29,10 +32,11 @@ function StageLights({ tool }: { tool: InstrumentTool }) {
   const shadow = tool === 'caliper' ? 190 : 90
   return (
     <>
-      <hemisphereLight args={['#ffffff', '#8b9a98', 0.75]} />
+      <StudioEnvironment intensity={0.45} />
+      <hemisphereLight args={['#ffffff', '#8b9a98', 0.45]} />
       <directionalLight
         position={sun as [number, number, number]}
-        intensity={2.1}
+        intensity={1.7}
         color="#fff6e8"
         castShadow={false} // Avoid the oversized hard silhouette shadow on the long caliper.
         shadow-mapSize-width={1024}
@@ -55,8 +59,7 @@ export function MeasuringToolsRig3D(props: MeasuringToolsRigProps) {
   const workSize = props.objectSize ?? Math.max(1, props.tool === 'caliper' ? props.caliperX : props.micGap)
   return (
     <group>
-      <color attach="background" args={['#e7eef0']} />
-      <fog attach="fog" args={props.tool === 'caliper' ? ['#e2e9eb', 950, 2600] : ['#e2e9eb', 420, 1300]} />
+      <SceneBackdrop day="#e3e9ec" fog={props.tool === 'caliper' ? [950, 2600] : [420, 1300]} />
       <StageLights tool={props.tool} />
       {props.tool === 'caliper' ? (
         <CaliperStage {...props} workSize={workSize} />
@@ -68,6 +71,7 @@ export function MeasuringToolsRig3D(props: MeasuringToolsRigProps) {
 }
 
 export function CaliperStage(props: MeasuringToolsRigProps & { workSize: number }) {
+  const night = props.night ?? false
   const pose = caliperPose({
     x: props.caliperX,
     exploded: props.caliperExplode,
@@ -89,15 +93,18 @@ export function CaliperStage(props: MeasuringToolsRigProps & { workSize: number 
         onInstrumentDragChange={props.onInstrumentDragChange}
       />
       <CaliperDepthWork pose={pose} size={props.workSize} showWork={props.showWork} />
-      <mesh name="caliper-ground" rotation={[-Math.PI / 2, 0, 0]} position={[95, pose.groundY, 0]} receiveShadow>
+      {/* Unlit and not tone-mapped, like the clear colour, so the fog fades it into the
+          backdrop without a horizon line when the camera looks up at the instrument. */}
+      <mesh name="caliper-ground" rotation={[-Math.PI / 2, 0, 0]} position={[95, pose.groundY, 0]}>
         <planeGeometry args={[7000, 7000]} />
-        <meshStandardMaterial color="#d9e3e1" roughness={0.95} metalness={0} />
+        <meshBasicMaterial color={night ? '#1f262e' : '#d6dfe2'} toneMapped={false} />
       </mesh>
     </>
   )
 }
 
 function MicrometerStage(props: MeasuringToolsRigProps & { workSize: number }) {
+  const night = props.night ?? false
   const pose = micrometerPose({
     gap: props.micGap,
     zero: props.micZero,
@@ -119,7 +126,7 @@ function MicrometerStage(props: MeasuringToolsRigProps & { workSize: number }) {
       />
       <mesh name="micrometer-ground" rotation={[-Math.PI / 2, 0, 0]} position={[30, -34, 0]}>
         <planeGeometry args={[4000, 4000]} />
-        <meshBasicMaterial color="#e7eef0" fog={false} />
+        <meshBasicMaterial color={night ? '#1b2129' : '#dbe3e6'} toneMapped={false} />
       </mesh>
     </>
   )

@@ -105,43 +105,31 @@ export function MicrometerAssembly({
         onLockedAttempt: () => onMicGapChange(gap),
       })
     : {}
-  const labelPositions: Array<{ label: string; position: [number, number, number] }> = viewPreset === 'top'
+  const labelPositions: Array<{ label: string; position: [number, number, number] }> = viewPreset === 'focus'
     ? [
-        { label: '测砧', position: [pose.anvilTipX - 12, 0, 18] },
-        { label: '测微螺杆', position: [pose.spindleX - 18, 0, 31] },
-        { label: '锁紧装置', position: [pose.lock[0] - 10, 0, -29] },
-        { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 46, 0, 18] },
-        { label: '微分筒', position: [pose.thimbleX + 12, 0, -18] },
-        { label: '棘轮', position: [pose.thimbleX + 34, 0, 31] },
-        { label: '可动刻度', position: [pose.thimbleX + 4, 0, -31] },
+        { label: '固定刻度 / 基准线', position: [pose.thimbleX - 8, 8.5, 6] },
+        { label: '可动刻度', position: [pose.thimbleX + 7, -8.6, 6] },
       ]
-    : viewPreset === 'focus'
-      ? [
-          { label: '测微螺杆', position: [pose.spindleX - 16, 12, 8] },
-          { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 45, 11, 8] },
-          { label: '微分筒', position: [pose.thimbleX + 12, 11, -8] },
-          { label: '可动刻度', position: [pose.thimbleX + 2, -10, 8] },
-        ]
-      : [
+    : [
         { label: '测砧', position: [pose.anvilTipX - 12, 8, 8] },
-        { label: '测微螺杆', position: [pose.spindleX - 14, 12, 8] },
-        { label: '锁紧装置', position: [pose.lock[0] - 6, 17, -8] },
-        { label: '固定刻度 / 基准线', position: [pose.sleeveScaleX + 52, 18, 8] },
-        { label: '微分筒', position: [pose.thimbleX + 29, 18, -8] },
-        { label: '棘轮', position: [pose.thimbleX + 39, 6, 8] },
-        { label: '可动刻度', position: [pose.thimbleX + 4, -22, 8] },
+        { label: '测微螺杆', position: [pose.spindleX - 14, 10, 8] },
+        { label: '锁紧装置', position: [pose.lock[0] - 6, 15, -8] },
+        { label: '固定刻度', position: [pose.thimbleX - 7, 12, 6] },
+        { label: '微分筒', position: [pose.thimbleX + 19, 13, 0] },
+        { label: '棘轮', position: [pose.thimbleX + 34, 9, 0] },
+        { label: '可动刻度', position: [pose.thimbleX + 3, -12, 6] },
       ]
 
   return (
     <group name="micrometer-root">
       <mesh geometry={MICROMETER_BOW} castShadow receiveShadow>
-        <meshStandardMaterial color="#415865" metalness={0.25} roughness={0.5} />
+        <meshStandardMaterial color="#415865" metalness={0.15} roughness={0.42} />
       </mesh>
       <mesh geometry={MICROMETER_INSULATOR} castShadow receiveShadow>
-        <meshStandardMaterial color="#b8543e" metalness={0} roughness={0.7} />
+        <meshStandardMaterial color="#9e3b28" metalness={0} roughness={0.78} />
       </mesh>
-      {CylX({ radius: 6.2, length: 14, centerX: pose.bossLX, color: '#415865', metalness: 0.25, roughness: 0.5 })}
-      {CylX({ radius: 6.4, length: 12, centerX: 32, color: '#415865', metalness: 0.25, roughness: 0.5 })}
+      {CylX({ radius: 6.2, length: 14, centerX: pose.bossLX, color: '#415865', metalness: 0.15, roughness: 0.42 })}
+      {CylX({ radius: 6.4, length: 12, centerX: 32, color: '#415865', metalness: 0.15, roughness: 0.42 })}
       {CylX({ name: 'micrometer-anvil', radius: 3.2, length: 9, centerX: pose.anvilX, color: '#d3dadd' })}
       {CylX({ radius: 3.22, length: 0.8, centerX: pose.anvilTipX, color: '#5c666b', metalness: 0.7, roughness: 0.35 })}
       {CylX({ name: 'micrometer-sleeve', radius: 4.6, length: 39, centerX: pose.sleeveX, color: '#cfd6d8', metalness: 0.78, roughness: 0.3 })}

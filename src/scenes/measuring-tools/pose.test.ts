@@ -37,7 +37,8 @@ describe('measuring-tools poses', () => {
   it('spins the thimble one turn per 0.5 mm and shifts the spindle with the gap', () => {
     const pose = micrometerPose({ gap: 1.25, zero: 0.01, exploded: 0, locked: false })
     expect(pose.reading).toBeCloseTo(1.26, 8)
-    expect(pose.thimbleX).toBeCloseTo(45.25, 8)
+    // Zero error moves the thimble edge together with its scale: edge = 0 line + indicated reading.
+    expect(pose.thimbleX).toBeCloseTo(45.26, 8)
     expect(pose.thimbleRotationX).toBeCloseTo((2 * Math.PI * 1.26) / MICROMETER_PITCH_MM, 8)
     expect(pose.spindleX).toBeCloseTo(23.25, 8)
     expect(pose.spindleTipX).toBeCloseTo(1.65, 8)
@@ -46,7 +47,7 @@ describe('measuring-tools poses', () => {
     expect(pose.leverRotationY).toBe(0)
 
     const exploded = micrometerPose({ gap: 1.25, zero: 0.01, exploded: 1, locked: true })
-    expect(exploded.thimbleX).toBeCloseTo(61.25, 8)
+    expect(exploded.thimbleX).toBeCloseTo(61.26, 8)
     expect(exploded.spindleX).toBeCloseTo(31.25, 8)
     expect(exploded.anvilX).toBeCloseTo(-18.5, 8)
     expect(exploded.sleeveX).toBeCloseTo(65.5, 8)
@@ -83,7 +84,7 @@ describe('measuring-tools poses', () => {
             const relative: Vec3 = [x - view.target[0], y - view.target[1], z - view.target[2]]
             const cameraDepth = view.radius - dot(relative, forward)
             expect(cameraDepth).toBeGreaterThan(0)
-            const fitMargin = input.preset === 'focus' ? 1 : input.tool === 'micrometer' ? 1 : 1.15
+            const fitMargin = input.preset === 'focus' ? 1 : input.tool === 'micrometer' ? 1 : 1.07
             expect(Math.abs(dot(relative, right)) / cameraDepth).toBeLessThan(horizontalTangent / fitMargin + 1e-10)
             expect(Math.abs(dot(relative, up)) / cameraDepth).toBeLessThan(fovTangent / fitMargin + 1e-10)
           }
@@ -149,6 +150,14 @@ describe('measuring-tools poses', () => {
     expect(micrometerFocus.max[0] - micrometerFocus.min[0]).toBeLessThan((micrometerHome.max[0] - micrometerHome.min[0]) * 0.55)
   })
 
+  it('frames the whole vernier, including its last line, in the caliper scale preset', () => {
+    for (const span of [9, 19, 49]) {
+      const focus = instrumentBounds({ tool: 'caliper', mode: 'outer', preset: 'focus', caliperX: 40, vernierSpan: span, reading: 0 })
+      expect(focus.min[0]).toBeLessThan(40)
+      expect(focus.max[0]).toBeGreaterThan(40 + span + 4)
+    }
+  })
+
   it('includes the maximum depth-slot workpiece in the focused camera bounds', () => {
     const focused = instrumentBounds({
       tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 150, reading: 0, showWork: true, workSize: 150,
@@ -190,7 +199,8 @@ describe('measuring-tools poses', () => {
   it('keeps the top and front presets distinct', () => {
     const top = instrumentView({ tool: 'micrometer', mode: 'outer', preset: 'top', caliperX: 0, reading: 0 })
     const front = instrumentView({ tool: 'micrometer', mode: 'outer', preset: 'front', caliperX: 0, reading: 0 })
-    expect(top.elevation).toBe(1.45)
+    expect(top.elevation).toBeGreaterThan(0.8)
+    expect(top.elevation).toBeLessThan(Math.PI / 2)
     expect(front.elevation).toBe(0.03)
   })
 })

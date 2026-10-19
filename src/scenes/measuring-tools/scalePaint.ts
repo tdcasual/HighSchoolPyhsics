@@ -1,14 +1,14 @@
-import { vernier, type VernierDivisions } from './model'
+import { MAIN_SCALE_END_MM, vernier, type VernierDivisions } from './model'
 import type { ScalePaint } from './usePaintedTexture'
 
 const MAIN_PX = 24.5
 const MAIN_M0 = -6
-const MAIN_M1 = 161
+const MAIN_M1 = MAIN_SCALE_END_MM + 11
 
 export function paintMainScale(context: CanvasRenderingContext2D, _width: number, height: number) {
   context.fillStyle = '#172125'
   context.strokeStyle = '#172125'
-  for (let mark = 0; mark <= 150; mark += 1) {
+  for (let mark = 0; mark <= MAIN_SCALE_END_MM; mark += 1) {
     const x = (mark - MAIN_M0) * MAIN_PX
     const length = mark % 10 === 0 ? 5.2 : mark % 5 === 0 ? 3.7 : 2.5
     context.lineWidth = mark % 10 === 0 ? 5.2 : 3.8
@@ -24,32 +24,43 @@ export function paintMainScale(context: CanvasRenderingContext2D, _width: number
   }
   context.font = `600 ${Math.round(2.4 * MAIN_PX)}px Arial`
   context.textAlign = 'left'
-  context.fillText('cm', (152.5 - MAIN_M0) * MAIN_PX, height - 6.6 * MAIN_PX)
+  context.fillText('cm', (MAIN_SCALE_END_MM + 2.5 - MAIN_M0) * MAIN_PX, height - 6.6 * MAIN_PX)
+}
+
+export type VernierTickKind = 'major' | 'mid' | 'minor'
+
+/** Tick hierarchy used by exam figures: 10 → 0/5/10, 20 → 0/10/20 (5,15 mid), 50 → every 5th. */
+export function vernierTickKind(divisions: VernierDivisions, mark: number): VernierTickKind {
+  if (divisions === 20) return mark % 10 === 0 ? 'major' : mark % 5 === 0 ? 'mid' : 'minor'
+  return mark % 5 === 0 ? 'major' : 'minor'
+}
+
+/** Printed vernier numbers: "0 5 10", "0 10 20" and "0 1 2 … 9 0" for 10/20/50 divisions. */
+export function vernierLabel(divisions: VernierDivisions, mark: number): string | null {
+  if (vernierTickKind(divisions, mark) !== 'major') return null
+  if (divisions === 50) return String((mark / 5) % 10)
+  return String(mark)
 }
 
 export function paintVernier(divisions: VernierDivisions): ScalePaint {
   const spec = vernier(divisions)
   const px = 40
   const origin = -3
-  const every = divisions === 20 ? 4 : 5
   return (context, _width, height) => {
     context.clearRect(0, 0, context.canvas.width, height)
     context.strokeStyle = '#152025'
     context.fillStyle = '#152025'
     for (let mark = 0; mark <= divisions; mark += 1) {
       const x = (mark * spec.spacing - origin) * px
-      const labeled = mark % every === 0
-      context.strokeStyle = mark === 0 ? '#9a4f2e' : '#152025'
-      context.fillStyle = mark === 0 ? '#9a4f2e' : '#152025'
-      context.lineWidth = mark === 0 ? 6 : labeled ? 5 : 4
+      const kind = vernierTickKind(divisions, mark)
+      context.lineWidth = kind === 'minor' ? 4 : 5
       context.beginPath()
       context.moveTo(x, 0)
-      context.lineTo(x, (labeled ? 3.4 : 2.2) * px)
+      context.lineTo(x, (kind === 'major' ? 3.4 : kind === 'mid' ? 2.8 : 2.2) * px)
       context.stroke()
-      if (labeled) {
-        const tenth = (mark / divisions) * 10
-        const label = tenth === Math.round(tenth) ? String(tenth) : String(mark)
-        context.font = `600 ${Math.round(2.2 * px)}px Arial`
+      const label = vernierLabel(divisions, mark)
+      if (label !== null) {
+        context.font = `600 ${Math.round((divisions === 50 ? 1.9 : 2.2) * px)}px Arial`
         context.textAlign = 'center'
         context.fillText(label, x, 5.9 * px)
       }
@@ -58,14 +69,6 @@ export function paintVernier(divisions: VernierDivisions): ScalePaint {
     context.textAlign = 'left'
     context.fillText(`${spec.precision.toFixed(2).replace(/0$/, '')} mm`, (spec.span + 3.2 - origin) * px, 4.4 * px)
   }
-}
-
-export function paintBrand(context: CanvasRenderingContext2D, width: number, height: number) {
-  context.fillStyle = '#34464d'
-  context.font = '600 58px Arial'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
-  context.fillText('0–150 mm   STAINLESS', width / 2, height / 2)
 }
 
 export const MAIN_SCALE_SIZE = {

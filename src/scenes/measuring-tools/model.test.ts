@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { caliperReading, checkCaliper, checkMicrometer, micrometerReading } from './model'
+import { CALIPER_RANGE_MM, MAIN_SCALE_END_MM, caliperReading, checkCaliper, checkMicrometer, micrometerReading } from './model'
 
 describe('measuring-tools readings', () => {
   it('reads a 20-division caliper without estimating an extra digit', () => {
@@ -61,5 +61,14 @@ describe('measuring-tools readings', () => {
     const result = checkMicrometer('5.237', 5.737)
     expect(result.ok).toBe(false)
     expect(result.notes.join('')).toContain('半毫米')
+  })
+
+  it('graduates the main scale far enough for every aligned vernier line in range', () => {
+    for (const n of [10, 20, 50] as const) {
+      for (let step = 0; step <= CALIPER_RANGE_MM * n; step += 1) {
+        const reading = caliperReading(step / n, n)
+        expect(reading.main + reading.line).toBeLessThanOrEqual(MAIN_SCALE_END_MM)
+      }
+    }
   })
 })

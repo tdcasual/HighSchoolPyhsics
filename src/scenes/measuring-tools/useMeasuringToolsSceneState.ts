@@ -71,7 +71,7 @@ export function useMeasuringToolsSceneState(): MeasuringToolsSceneState {
     let frame = 0
     let last = 0
     const loop = (now: number) => {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0
+      const dt = last ? Math.min(0.1, (now - last) / 1000) : 0
       last = now
       const next = stepMotion(simulationRef.current, dt)
       simulationRef.current = next

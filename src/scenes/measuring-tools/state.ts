@@ -211,7 +211,8 @@ export function setCaliperX(state: MeasuringState, value: number): MeasuringStat
   }
   return clearedPractice({
     ...state,
-    caliperX: quantizeMm(clamp(value, 0, CALIPER_RANGE_MM)),
+    // A vernier only resolves 1/n mm; snapping keeps exactly one vernier line aligned.
+    caliperX: snapCaliper(value, state.divisions),
     caliperAnim: null,
     notice: '尺框已移动。',
   })
@@ -223,7 +224,8 @@ export function setMicGap(state: MeasuringState, value: number, source: GapSourc
   if (state.micLocked) {
     return { ...state, notice: '锁紧装置已锁定：先松开，才能转动旋钮。' }
   }
-  const gap = quantizeMm(clamp(value, 0, MICROMETER_RANGE_MM))
+  // The estimated digit is 0.001 mm, so finer positions would only produce unreadable states.
+  const gap = quantizeMm(Math.round(clamp(value, 0, MICROMETER_RANGE_MM) * 1000) / 1000)
   const clicked = gap <= 1e-9 && source === 'fine'
   return clearedPractice({
     ...state,

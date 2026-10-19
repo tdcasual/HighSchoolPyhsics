@@ -1,5 +1,4 @@
-import type { VernierDivisions } from './model'
-import { MICROMETER_PITCH_MM } from './model'
+import { CALIPER_RANGE_MM, MICROMETER_PITCH_MM } from './model'
 
 /** Millimetre poses from resistivity-3d.js `buildCaliper` / `buildMicrometer` update(). */
 
@@ -105,7 +104,9 @@ export function micrometerPose(input: {
     reading,
     spindleX: input.gap + 22 + shift * 0.5,
     spindleTipX: input.gap + 0.4 + shift * 0.5,
-    thimbleX: MICROMETER_ZERO_X + input.gap + 16 * exploded,
+    // The thimble edge and its scale are one rigid part: a zero error shifts both, so the
+    // edge always sits at the indicated reading on the sleeve, not at the physical gap.
+    thimbleX: MICROMETER_ZERO_X + reading + 16 * exploded,
     thimbleY: 0,
     thimbleRotationX: (2 * Math.PI * reading) / MICROMETER_PITCH_MM,
     anvilX: -4.5 - 14 * exploded,
@@ -135,6 +136,8 @@ export type InstrumentViewInput = {
   mode: CaliperMeasure
   preset: ViewPreset
   caliperX: number
+  /** Vernier length in mm (9, 19 or 49); the focus view frames the whole vernier. */
+  vernierSpan?: number
   reading: number
   caliperExplode?: number
   micrometerExplode?: number
@@ -144,6 +147,10 @@ export type InstrumentViewInput = {
   aspect?: number
   /** Horizontal shift from the canvas center to the unobstructed instrument area, in CSS pixels. */
   centerOffsetPixels?: number
+  /** Downward shift from the canvas center to the unobstructed instrument area, in CSS pixels. */
+  centerOffsetYPixels?: number
+  /** Height of the unobstructed area as a fraction of the canvas height (default 1). */
+  heightFraction?: number
   viewportHeight?: number
 }
 
@@ -195,8 +202,9 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
     if (input.tool === 'micrometer') {
       const explode = Math.max(0, Math.min(1, input.micrometerExplode ?? 0))
       const reading = Math.max(0, Math.min(25, input.reading))
-      const centerX = MICROMETER_ZERO_X + reading + 12 * explode
-      const scale = bounds([centerX - 36, -27, -14], [centerX + 36, 27, 14])
+      // The reading zone: sleeve graduations left of the thimble edge plus the thimble numbers.
+      const edge = MICROMETER_ZERO_X + reading + 16 * explode
+      const scale = bounds([edge - 15, -9, -8], [edge + 13, 10, 8])
       if (!input.showWork) return scale
       const size = Math.max(0, Math.min(25, input.workSize ?? reading))
       const workZ = -30 * explode
@@ -205,7 +213,8 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
 
     const explode = Math.max(0, Math.min(1, input.caliperExplode ?? 0))
     const read = Math.max(0, Math.min(150, input.caliperX))
-    let focused = bounds([read - 18, -18, -5 - 49 * explode], [read + 18, 33, 5 + 30 * explode])
+    const span = input.vernierSpan ?? 19
+    let focused = bounds([read - 10, -18, -5 - 49 * explode], [read + span + 14, 33, 5 + 30 * explode])
     if (input.showWork && input.mode === 'inner') {
       const size = Math.max(0, Math.min(150, input.workSize ?? read))
       const outerRadius = size / 2 + 2.2
@@ -231,13 +240,13 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
 
   if (input.tool === 'micrometer') {
     const explode = Math.max(0, Math.min(1, input.micrometerExplode ?? 0))
-    const read = Math.max(0, Math.min(25, input.reading))
+    // Frame the whole travel so turning the thimble never re-fits (and resets) the camera.
     const full = bounds(
       [-36 - 14 * explode, -31 - 10 * explode, -15],
-      [MICROMETER_ZERO_X + read + 40 + 16 * explode, 31 + 12 * explode, 15],
+      [MICROMETER_ZERO_X + 25 + 40 + 16 * explode, 31 + 12 * explode, 15],
     )
     if (!input.showWork) return full
-    const size = Math.max(0, Math.min(25, input.workSize ?? read))
+    const size = Math.max(0, Math.min(25, input.workSize ?? input.reading))
     return mergeBounds(full, bounds([0, -size / 2 - 2, -30 * explode - 14], [size, size / 2 + 2, -30 * explode + 14]))
   }
 
@@ -245,7 +254,9 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
   const read = Math.max(0, Math.min(150, input.caliperX))
   const zMin = -5 - 49 * explode
   const zMax = 5 + 30 * explode
-  const main = bounds([-30, -44 - 12 * explode, zMin], [Math.max(220, read + 74), 40 + 12 * explode, zMax])
+  // The depth rod leaves the beam end (x = 215) by exactly the reading.
+  const rodTip = 215 + read + 2
+  const main = bounds([-30, -44 - 12 * explode, zMin], [Math.max(CALIPER_RANGE_MM + 74, rodTip), 40 + 12 * explode, zMax])
   if (input.mode === 'depth') {
     let result = transformCaliperDepthBounds(main)
     if (input.showWork) {
@@ -286,11 +297,14 @@ export function fitCameraDistance(input: {
   elevation: number
   fov: number
   aspect: number
+  /** Fraction of the canvas height the bounds may occupy (default 1). */
+  heightFraction?: number
   margin?: number
   minDistance?: number
 }): number {
-  const verticalTangent = Math.tan((input.fov * Math.PI) / 360)
-  const horizontalTangent = verticalTangent * Math.max(0.03, input.aspect)
+  const fullTangent = Math.tan((input.fov * Math.PI) / 360)
+  const horizontalTangent = fullTangent * Math.max(0.03, input.aspect)
+  const verticalTangent = fullTangent * Math.min(1, Math.max(0.05, input.heightFraction ?? 1))
   const sine = Math.sin(input.elevation)
   const cosine = Math.cos(input.elevation)
   const forward: Vec3 = [cosine * Math.sin(input.azimuth), sine, cosine * Math.cos(input.azimuth)]
@@ -330,7 +344,9 @@ export function instrumentView(input: InstrumentViewInput): OrbitView {
   const elevation = focus
     ? (input.tool === 'micrometer' ? 0.34 : depth ? 0.2 : 0.16)
     : input.preset === 'top'
-      ? 1.45
+      // Both instruments stand on edge facing +z: a straight-down view only shows a 3.5 mm
+      // edge, so 俯视 looks down at ~55° to show thickness, the slider and the lock.
+      ? 0.95
       : input.preset === 'front'
         ? 0.03
         : input.tool === 'micrometer' ? 0.34 : depth ? 0.2 : 0.3
@@ -344,24 +360,25 @@ export function instrumentView(input: InstrumentViewInput): OrbitView {
     elevation,
     fov: limits.fov,
     aspect: input.aspect ?? 16 / 9,
+    heightFraction: input.heightFraction,
     minDistance: limits.minDistance,
-    margin: focus ? 1.02 : input.tool === 'micrometer' ? 1 : 1.16,
+    margin: focus ? 1.02 : input.tool === 'micrometer' ? 1 : 1.08,
   })
   const viewportHeight = Math.max(1, input.viewportHeight ?? 720)
-  const shift = (input.centerOffsetPixels ?? 0) * (2 * radius * Math.tan((limits.fov * Math.PI) / 360)) / viewportHeight
+  const worldPerPixel = (2 * radius * Math.tan((limits.fov * Math.PI) / 360)) / viewportHeight
+  const shift = (input.centerOffsetPixels ?? 0) * worldPerPixel
+  const lift = (input.centerOffsetYPixels ?? 0) * worldPerPixel
   const screenRight: Vec3 = [Math.cos(azimuth), 0, -Math.sin(azimuth)]
+  const screenUp: Vec3 = [-Math.sin(elevation) * Math.sin(azimuth), Math.cos(elevation), -Math.sin(elevation) * Math.cos(azimuth)]
+  // Moving the target opposite to the free area's offset slides the instrument into it.
   const target: Vec3 = [
-    center[0] - screenRight[0] * shift,
-    center[1],
-    center[2] - screenRight[2] * shift,
+    center[0] - screenRight[0] * shift + screenUp[0] * lift,
+    center[1] + screenUp[1] * lift,
+    center[2] - screenRight[2] * shift + screenUp[2] * lift,
   ]
   return { target, azimuth, elevation, radius }
 }
 
 export function cameraLimits(tool: InstrumentTool) {
   return tool === 'caliper' ? CALIPER_CAMERA : MICROMETER_CAMERA
-}
-
-export function vernierLabelEvery(n: VernierDivisions): number {
-  return n === 20 ? 4 : 5
 }

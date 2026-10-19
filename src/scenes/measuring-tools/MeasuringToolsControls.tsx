@@ -4,7 +4,7 @@ import { RangeField } from '../../ui/controls/RangeField'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { TextField } from '../../ui/controls/TextField'
-import { parseReading, type VernierDivisions } from './model'
+import { caliperReading, parseReading, type VernierDivisions } from './model'
 import type { CaliperMeasure, ViewPreset } from './pose'
 import type { MeasuringToolsSceneState } from './useMeasuringToolsSceneState'
 import './measuring-tools.css'
@@ -35,12 +35,20 @@ const VIEWS = [
   { key: 'focus', label: '刻度' },
 ]
 
+const DEFAULT_TARGETS = { caliper: '36.40', micrometer: '6.125' }
+
 function fixedZero(value: number) {
   return `${value >= 0 ? '+' : ''}${value.toFixed(3)} mm`
 }
 
+function signed(delta: number, digits: number) {
+  return `${delta > 0 ? '+' : '−'}${Math.abs(delta).toFixed(digits)}`
+}
+
 export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneState }) {
-  const [targetText, setTargetText] = useState('36.40')
+  const [targets, setTargets] = useState(DEFAULT_TARGETS)
+  const targetText = targets[state.tool]
+  const setTargetText = (text: string) => setTargets((previous) => ({ ...previous, [state.tool]: text }))
   const locked = state.tool === 'caliper' ? state.caliperLocked : state.micLocked
   const checked = state.lastCheckAt !== null
   const precision = 1 / state.divisions
@@ -58,6 +66,32 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
   const endChallenge = () => state.setLesson('free')
   const stepCaliper = (delta: number) => state.setCaliperX(state.caliperX + delta)
   const stepMicrometer = (delta: number) => state.setMicGap(state.micGap + delta, 'fine')
+  const precisionDigits = state.divisions === 10 ? 1 : 2
+  // Coarse → fine, mirrored: the vernier precision is one click, a full thimble turn is 0.5 mm.
+  const caliperSteps = [-10, -1, -precision, precision, 1, 10].map((delta) => ({
+    key: `caliper-step-${delta}`,
+    label: `${signed(delta, Math.abs(delta) >= 1 ? 0 : precisionDigits)} mm`,
+    onClick: () => stepCaliper(delta),
+    disabled: locked,
+  }))
+  const micrometerSteps = [-0.5, -0.01, -0.001, 0.001, 0.01, 0.5].map((delta) => ({
+    key: `mic-step-${delta}`,
+    label: `${signed(delta, Math.abs(delta) >= 0.5 ? 1 : Math.abs(delta) >= 0.01 ? 2 : 3)}`,
+    onClick: () => stepMicrometer(delta),
+    disabled: locked,
+  }))
+  const stepButtons = (
+    <>
+      <p className="measure-hint">
+        {state.tool === 'caliper'
+          ? `步进（mm）：±10、±1、±${precisionText}（一个精度）`
+          : '步进（mm）：±0.5 = 微分筒转一圈，±0.01 = 一格，±0.001 = 估读位'}
+      </p>
+      <div className="measure-steps">
+        <SceneActions actions={state.tool === 'caliper' ? caliperSteps : micrometerSteps} />
+      </div>
+    </>
+  )
 
   return (
     <div className="measure-controls">
@@ -97,12 +131,13 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
                 label="尺框位置"
                 min={0}
                 max={150}
-                step={0.01}
+                step={precision}
                 value={state.caliperX}
-                displayValue={`${state.caliperX.toFixed(2)} mm`}
+                displayValue={`${caliperReading(state.caliperX, state.divisions).text} mm`}
                 unit="mm"
                 onChange={state.setCaliperX}
               />
+              {stepButtons}
             </ControlSection>
           ) : null}
         </>
@@ -122,6 +157,7 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
               unit="mm"
               onChange={(value) => state.setMicGap(value, 'slider')}
             />
+            {stepButtons}
             <RangeField
               id="mic-zero"
               label="零点误差"
@@ -158,7 +194,13 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
       {state.lesson === 'free' ? (
         <>
           <ControlSection title="调到指定读数">
-            <TextField id="measure-target" label="目标示数" value={targetText} onChange={setTargetText} placeholder="例如 36.40" />
+            <TextField
+              id="measure-target"
+              label={state.tool === 'caliper' ? '目标示数（0～150 mm）' : '目标示数（0～25 mm）'}
+              value={targetText}
+              onChange={setTargetText}
+              placeholder={`例如 ${DEFAULT_TARGETS[state.tool]}`}
+            />
             <SceneActions actions={[{ key: 'goto', label: '调到该读数', onClick: applyTarget, disabled: locked }]} />
           </ControlSection>
           <ControlSection title="提示">
@@ -188,25 +230,9 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
             <>
               <p className="measure-hint">
                 目标示数：{state.target.toFixed(state.tool === 'caliper' ? (state.divisions === 10 ? 1 : 2) : 3)} mm
-                {checked ? ' · 本题已判定' : ' · 拖动仪器或用下方步进按钮调节'}
+                {checked ? ' · 本题已判定' : ' · 拖动仪器或用下方步进按钮调节，读数看图表'}
               </p>
-              {state.challengeActive && !checked ? (
-                <SceneActions
-                  actions={state.tool === 'caliper'
-                    ? [
-                        { key: 'caliper-coarse-down', label: '−1 mm', onClick: () => stepCaliper(-1), disabled: locked },
-                        { key: 'caliper-fine-down', label: `−${precisionText} mm`, onClick: () => stepCaliper(-precision), disabled: locked },
-                        { key: 'caliper-fine-up', label: `+${precisionText} mm`, onClick: () => stepCaliper(precision), disabled: locked },
-                        { key: 'caliper-coarse-up', label: '+1 mm', onClick: () => stepCaliper(1), disabled: locked },
-                      ]
-                    : [
-                        { key: 'mic-coarse-down', label: '−0.1 mm', onClick: () => stepMicrometer(-0.1), disabled: locked },
-                        { key: 'mic-fine-down', label: '−0.001 mm', onClick: () => stepMicrometer(-0.001), disabled: locked },
-                        { key: 'mic-fine-up', label: '+0.001 mm', onClick: () => stepMicrometer(0.001), disabled: locked },
-                        { key: 'mic-coarse-up', label: '+0.1 mm', onClick: () => stepMicrometer(0.1), disabled: locked },
-                      ]}
-                />
-              ) : null}
+              {state.challengeActive && !checked ? stepButtons : null}
             </>
           )}
           <SceneActions

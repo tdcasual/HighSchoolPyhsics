@@ -10,6 +10,8 @@ export const MICROMETER_DIVISIONS = 50
 export const MICROMETER_LEAST_MM = 0.01
 export const MICROMETER_RANGE_MM = 25
 export const CALIPER_RANGE_MM = 150
+/** The main scale runs past the 150 mm range so the last vernier line (49 mm on a 50-division vernier) still meets a graduation. */
+export const MAIN_SCALE_END_MM = 200
 
 export type ParsedReading = { value: number; decimals: number; text: string }
 

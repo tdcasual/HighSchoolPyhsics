@@ -5,10 +5,10 @@ import { createAxisDragHandlers } from './axisDrag'
 import { FIXED_INNER_JAW, FIXED_OUTER_JAW, MOVING_INNER_JAW, MOVING_OUTER_JAW } from './instrumentGeometry'
 import { CALIPER_INNER_CONTACT_Y, type CaliperMeasure, type CaliperPose, type ViewPreset } from './pose'
 import { ScaleDecal } from './ScaleDecal'
-import { MAIN_SCALE_SIZE, VERNIER_SCALE_SIZE, paintBrand, paintMainScale, paintVernier } from './scalePaint'
+import { MAIN_SCALE_SIZE, VERNIER_SCALE_SIZE, paintMainScale, paintVernier } from './scalePaint'
 
-const STEEL = '#d3dadd'
-const PLATE = '#c4ccd0'
+const STEEL = '#c3cbcf'
+const PLATE = '#b8c1c6'
 const BRASS = '#c8a15a'
 
 type CaliperAssemblyProps = {
@@ -54,7 +54,7 @@ function Box({
 function Jaw({ geometry }: { geometry: typeof FIXED_OUTER_JAW }) {
   return (
     <mesh geometry={geometry} castShadow receiveShadow>
-      <Metal color={STEEL} metalness={0.18} roughness={0.62} />
+      <Metal color={STEEL} metalness={0.6} roughness={0.36} />
     </mesh>
   )
 }
@@ -125,7 +125,7 @@ export function CaliperAssembly({
     <group name="caliper-root" rotation={[0, 0, pose.rootRotationZ]} position={pose.rootPosition}>
       <mesh name="caliper-beam" position={[96.5, 8, 0]} castShadow receiveShadow>
         <boxGeometry args={[237, 16, 3.5]} />
-        <Metal color={STEEL} metalness={0.08} roughness={0.72} />
+        <Metal color={STEEL} metalness={0.55} roughness={0.42} />
         <ScaleDecal
           width={MAIN_SCALE_SIZE.width}
           height={MAIN_SCALE_SIZE.height}
@@ -133,15 +133,14 @@ export function CaliperAssembly({
           position={MAIN_SCALE_SIZE.position}
           paint={paintMainScale}
         />
-        <ScaleDecal width={1024} height={96} plane={[44, 4.1]} position={[83.5, 4, 1.76]} paint={paintBrand} />
       </mesh>
       <Jaw geometry={FIXED_OUTER_JAW} />
       <Jaw geometry={FIXED_INNER_JAW} />
-      <Box size={[8, 4, 1.75]} position={[-3, 18, 0.875]} color={STEEL} />
+      <Box size={[8, 4, 1.6]} position={[-3, 18, 0.875]} color={STEEL} metalness={0.6} roughness={0.36} />
       <group name="caliper-frame" position={pose.frame} {...dragHandlers}>
-        <Box size={[62, 10, 1.25]} position={[27, 0, 2.375]} color={PLATE} metalness={0.18} roughness={0.64} />
+        <Box size={[62, 10, 1.25]} position={[27, 0, 2.375]} color={PLATE} metalness={0.5} roughness={0.44} />
         <Box size={[50, 4, 5.6]} position={[34, 18, 0.2]} color={PLATE} metalness={0.72} roughness={0.36} />
-        <Box size={[62, 25, 1.25]} position={[27, 7.5, -2.375]} color={PLATE} metalness={0.18} roughness={0.64} />
+        <Box size={[62, 25, 1.25]} position={[27, 7.5, -2.375]} color={PLATE} metalness={0.5} roughness={0.44} />
         <Box size={[58, 5, 3.5]} position={[29, -2.5, 0]} color={PLATE} metalness={0.72} roughness={0.36} />
         <Jaw geometry={MOVING_OUTER_JAW} />
         <Jaw geometry={MOVING_INNER_JAW} />

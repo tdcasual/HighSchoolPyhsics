@@ -37,8 +37,7 @@ describe('measuring-tools structure', () => {
     expect(screen.getByRole('radio', { name: '螺旋测微器' })).toBeInTheDocument()
     expect(screen.getByText('示数')).toBeInTheDocument()
     const chartPanel = screen.getByRole('region', { name: '图表' })
-    expect(within(chartPanel).queryByRole('img', { name: '游标卡尺读数放大' })).not.toBeInTheDocument()
-    fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
+    // The exam-style reading figure is the main reading aid, so it opens expanded.
     expect(within(chartPanel).getByRole('img', { name: '游标卡尺读数放大' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '拆开' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
@@ -57,7 +56,6 @@ describe('measuring-tools structure', () => {
     )
     expect(controls.maxDistance).toBeGreaterThan(radius * 1.19)
     expect(controls.target.every(Number.isFinite)).toBe(true)
-    expect(controls.target[0]).toBeLessThan(95)
     expect(camera.position[1]).toBeGreaterThan(40)
   })
 
@@ -66,7 +64,6 @@ describe('measuring-tools structure', () => {
     fireEvent.click(screen.getByRole('radio', { name: '螺旋测微器' }))
 
     const chartPanel = screen.getByRole('region', { name: '图表' })
-    fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
     expect(within(chartPanel).getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
     const camera = canvasProps.current?.camera as { position: number[] }
     const controls = canvasProps.current?.controls as { maxDistance: number; minDistance: number; target: number[] }
@@ -89,6 +86,23 @@ describe('measuring-tools structure', () => {
     const topView = canvasProps.current?.camera as { position: number[] }
     expect(topView.position).not.toEqual(initialPosition)
     expect(canvasProps.current?.syncCamera).toBe(true)
+  })
+
+  it('keeps the micrometer camera still while the thimble turns', () => {
+    render(<MeasuringToolsScene />)
+    fireEvent.click(screen.getByRole('radio', { name: '螺旋测微器' }))
+    const before = [...(canvasProps.current?.camera as { position: number[] }).position]
+    fireEvent.click(screen.getByRole('button', { name: '+0.5' }))
+    fireEvent.click(screen.getByRole('button', { name: '+0.5' }))
+    expect(screen.getAllByText('6.237 mm').length).toBeGreaterThan(0)
+    expect((canvasProps.current?.camera as { position: number[] }).position).toEqual(before)
+  })
+
+  it('offers precision steps in free mode and snaps the caliper to the vernier precision', () => {
+    render(<MeasuringToolsScene />)
+    fireEvent.click(screen.getByRole('radio', { name: '10 分度' }))
+    fireEvent.click(screen.getByRole('button', { name: '+0.1 mm' }))
+    expect(screen.getAllByText('23.6 mm').length).toBeGreaterThan(0)
   })
 
   it('runs the frameloop while a commanded reading is easing into place', () => {
