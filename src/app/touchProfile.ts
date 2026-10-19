@@ -1,3 +1,4 @@
+import { ENHANCED_TOUCH_PROFILE as DEFAULT_TOUCH_PROFILE } from './defaultTouchProfile'
 import { findSceneCatalogEntryByPath } from './sceneCatalog'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -18,14 +19,8 @@ export type TouchProfile = {
 }
 
 export const ENHANCED_TOUCH_PROFILE: TouchProfile = {
-  pageScroll: 'vertical-outside-canvas',
-  canvasGestureScope: 'interactive-canvas',
-  minTouchTargetPx: 44,
-  gestureMatrix: {
-    singleFingerRotate: true,
-    twoFingerZoom: true,
-    twoFingerPan: true,
-  },
+  ...DEFAULT_TOUCH_PROFILE,
+  gestureMatrix: { ...DEFAULT_TOUCH_PROFILE.gestureMatrix },
 }
 
 export function resolveTouchProfile(profile: unknown, fallback: TouchProfile = ENHANCED_TOUCH_PROFILE): TouchProfile {

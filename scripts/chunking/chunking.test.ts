@@ -27,6 +27,10 @@ describe('resolveManualChunk', () => {
     expect(resolveManualChunk(id)).toBe('vendor-state')
   })
 
+  it('keeps rollup virtual helpers out of the 3D vendor chunks', () => {
+    expect(resolveManualChunk('\0vite/preload-helper.js')).toBe('vendor-react')
+  })
+
   it('keeps app modules in default chunking pipeline', () => {
     expect(resolveManualChunk('/repo/src/App.tsx')).toBeUndefined()
   })

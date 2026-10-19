@@ -2,10 +2,12 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { resolveManualChunk } from './scripts/chunking/chunking'
+import { slimSceneCatalog } from './scripts/build/slimSceneCatalog'
+import { ENHANCED_TOUCH_PROFILE } from './src/app/defaultTouchProfile'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react()],
+  plugins: [tailwindcss(), react(), slimSceneCatalog(ENHANCED_TOUCH_PROFILE)],
   resolve: {
     dedupe: ['three'],
     alias: {
