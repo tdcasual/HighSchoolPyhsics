@@ -71,10 +71,6 @@ export function MhdGeneratorScene() {
             <span>负载功率 P_L</span>
             <strong>{formatQuantity(state.readings.outputPowerW, 'W')}</strong>
           </p>
-          <p>
-            <span>内阻 R_i</span>
-            <strong>{state.readings.internalResistanceOhm.toFixed(2)} Ω</strong>
-          </p>
         </div>
       }
       playbackActions={[

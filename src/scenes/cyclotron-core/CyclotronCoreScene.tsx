@@ -41,7 +41,6 @@ export function CyclotronCoreScene() {
       }
       dataOverlay={
         <div className="cyclotron-core-telemetry scene-core-summary-stack">
-          <p><span>注入粒子</span><strong>{readings.particle.label} {readings.particle.symbol}</strong></p>
           <p><span>加速次数 n</span><strong>{readings.accelerationCount}</strong></p>
           <p><span>当前动能 Eₖ</span><strong>{readings.energy.toFixed(0)} keV</strong></p>
           <p><span>最大动能 Eₖ,max</span><strong>{readings.maxEnergy.toFixed(0)} keV</strong></p>
@@ -52,11 +51,10 @@ export function CyclotronCoreScene() {
               {statusLabel}
             </strong>
           </p>
-          <p className="cyclotron-core-conclusion">
-            <span>同步结论</span>
-            <strong>非相对论回旋周期 T=2πm/(qB)，同一磁场下 T/Tₚ=m/q；电源每半周反向，粒子每次过缝获得 qU。</strong>
-          </p>
         </div>
+      }
+      notes={
+        <p>同步条件：非相对论回旋周期 T = 2πm/(qB)，同一磁场下 T/Tₚ = m/q；电源每半周反向，粒子每次过缝获得 qU。</p>
       }
       chart={<CyclotronCoreChart state={state} />}
       chartVisible

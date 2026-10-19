@@ -52,19 +52,25 @@ export function DoubleSlitScene() {
                 : state.isBlindMode ? '未知单色光（已隐藏）' : state.wavelength + ' nm'}
             </strong>
           </p>
-          <p><span>单缝宽度 a</span><strong>{state.slitWidth.toFixed(3)} mm</strong></p>
-          <p><span>双缝间距 d</span><strong>{state.slitDistance.toFixed(2)} mm</strong></p>
-          <p><span>缝屏距 L</span><strong>{state.screenDistance.toFixed(2)} m</strong></p>
           <p><span>理论条纹间距 Δx</span><strong>{state.fringeSpacingLabel}</strong></p>
           <p><span>测量头读数 a</span><strong>{state.wheelReadoutMm.toFixed(3)} mm</strong></p>
           <p><span>记录 a₁ / a₂</span><strong>{state.firstReadingMm === null ? '—' : state.firstReadingMm.toFixed(3)} / {state.secondReadingMm === null ? '—' : state.secondReadingMm.toFixed(3)} mm</strong></p>
-          <p><span>测量条纹间距</span><strong>{state.measurementResult ? state.measurementResult.fringeSpacingMm.toFixed(3) + ' mm' : '等待两次读数'}</strong></p>
-          <p><span>反算波长 λ</span><strong>{state.measurementResult ? state.measurementResult.wavelengthNm.toFixed(1) + ' nm' : '—'}</strong></p>
-          {state.measurementResult && state.isBlindMode && measurementError !== null && (
-            <p><span>相对误差</span><strong>{measurementError.toFixed(2)}%</strong></p>
-          )}
-          <p className="summary-note">Δx = |a₂−a₁|/(n−1)，λ = dΔx/L</p>
+          <p>
+            <span>测得 Δx → λ</span>
+            <strong>
+              {state.measurementResult
+                ? `${state.measurementResult.fringeSpacingMm.toFixed(3)} mm → ${state.measurementResult.wavelengthNm.toFixed(1)} nm` +
+                  (state.isBlindMode && measurementError !== null ? `（误差 ${measurementError.toFixed(2)}%）` : '')
+                : '等待两次读数'}
+            </strong>
+          </p>
         </div>
+      }
+      notes={
+        <>
+          <p>测量：Δx = |a₂ − a₁| / (n − 1)，λ = dΔx / L。</p>
+          <p>当前装置：单缝宽度 a = {state.slitWidth.toFixed(3)} mm，双缝间距 d = {state.slitDistance.toFixed(2)} mm，缝屏距 L = {state.screenDistance.toFixed(2)} m。</p>
+        </>
       }
       chart={state.showChart ? (
         <DoubleSlitChart

@@ -53,12 +53,8 @@ export function WaveInterferenceScene() {
     return (
       <div className="scene-core-summary-stack">
         <p>
-          <span>S₁ ({state.source1.x.toFixed(1)}, {state.source1.z.toFixed(1)})</span>
-          <strong>r₁ = {r1.toFixed(3)} m</strong>
-        </p>
-        <p>
-          <span>S₂ ({state.source2.x.toFixed(1)}, {state.source2.z.toFixed(1)})</span>
-          <strong>r₂ = {r2.toFixed(3)} m</strong>
+          <span>到 S₁ / S₂ 距离</span>
+          <strong>{r1.toFixed(3)} m / {r2.toFixed(3)} m</strong>
         </p>
         <p>
           <span>波程差 Δr</span>
@@ -74,15 +70,8 @@ export function WaveInterferenceScene() {
         </p>
         <p>
           <span>{sameFrequency ? '干涉关系' : '当前相位关系'}</span>
-          <strong>{phaseLabel}</strong>
+          <strong>{phaseLabel}{sameFrequency ? '' : '（频率不同，无固定干涉线）'}</strong>
         </p>
-        <p>
-          <span>时间 t</span>
-          <strong>{state.observer.time.toFixed(2)} s</strong>
-        </p>
-        {Math.abs(state.wavelength1 - state.wavelength2) >= 1e-6 && (
-          <p><span>干涉线</span><strong>频率不同，没有固定位置</strong></p>
-        )}
       </div>
     )
   }, [state.observer, state.source1, state.source2, state.wavelength1, state.wavelength2,

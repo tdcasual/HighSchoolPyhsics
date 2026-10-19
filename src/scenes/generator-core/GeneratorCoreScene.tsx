@@ -19,7 +19,8 @@ export function GeneratorCoreScene() {
   return <SceneLayout
     controls={<GeneratorCoreControls state={state} />}
     viewport={<InteractiveCanvas camera={{ position: cameraPosition, fov: isMobile ? 48 : 56 }} controls={{ target: cameraTarget, minDistance: 8, maxDistance: 35, maxPolarAngle: Math.PI * 0.82 }} frameloop={state.running ? 'always' : 'demand'}><GeneratorCoreRig3D angleRad={state.angleRad} running={state.running} theme={theme} /></InteractiveCanvas>}
-    dataOverlay={<div className="generator-core-telemetry scene-core-summary-stack"><p><span>相位 θ · 位置</span><strong>{angleLabel} · {state.readings.positionLabel}</strong></p><p><span>磁通量</span><strong>{state.readings.fluxNormalized.toFixed(2)} Φₘ</strong></p><p><span>感应电动势</span><strong>{state.readings.emfNormalized.toFixed(2)} Eₘ</strong></p><p><span>切割比例 v⊥/v</span><strong>{Math.abs(state.readings.emfNormalized).toFixed(2)}</strong></p><p><span>电流方向</span><strong>{state.readings.currentDirection}</strong></p><p className="generator-core-conclusion"><span>相位解释</span><strong>{state.description}</strong></p></div>}
+    dataOverlay={<div className="generator-core-telemetry scene-core-summary-stack"><p><span>相位 θ · 位置</span><strong>{angleLabel} · {state.readings.positionLabel}</strong></p><p><span>磁通量</span><strong>{state.readings.fluxNormalized.toFixed(2)} Φₘ</strong></p><p><span>感应电动势</span><strong>{state.readings.emfNormalized.toFixed(2)} Eₘ</strong></p><p><span>电流方向</span><strong>{state.readings.currentDirection}</strong></p></div>}
+    notes={<><p>{state.description}</p><p>切割比例 v⊥/v = |sinθ| = {Math.abs(state.readings.emfNormalized).toFixed(2)}，与 e/Eₘ 相等。</p></>}
     chart={<GeneratorCoreChart angleRad={state.angleRad} running={state.running} />}
     playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停旋转' : '继续旋转', onClick: state.toggleRunning }, { key: 'reset', label: '重置相位', onClick: state.reset }]}
     chartVisible={true}

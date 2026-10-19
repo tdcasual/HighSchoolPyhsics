@@ -120,9 +120,7 @@ export function MotionalEmfScene() {
           <p><span>行程</span><strong>{(state.phase * 100).toFixed(0)}%</strong></p>
           <p><span>电压 U_AB</span><strong>{state.signedVoltageV.toFixed(2)} V</strong></p>
           <p><span>极性</span><strong>{state.polarityText}</strong></p>
-          <p><span>∠(B,L)</span><strong>{state.angleBetweenBLLabel}</strong></p>
-          <p><span>∠(L,v)</span><strong>{state.angleBetweenLVLabel}</strong></p>
-          <p><span>∠(B,v)</span><strong>{state.angleBetweenBVLabel}</strong></p>
+          <p><span>∠(B,L) / ∠(L,v) / ∠(B,v)</span><strong>{state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}</strong></p>
         </div>
       }
       viewport={

@@ -25,7 +25,7 @@ function expandPanel(name: string) {
 }
 
 function readout() {
-  return screen.getByText('中心天体 / M').closest('p')?.parentElement
+  return screen.getByRole('region', { name: '数据' })
 }
 
 describe('celestial structure', () => {
@@ -34,9 +34,11 @@ describe('celestial structure', () => {
     expect(screen.getByRole('heading', { name: '天体运动控制' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '圆轨道' })).toBeInTheDocument()
     const data = expandPanel('数据')
-    expect(data).toHaveTextContent('地球')
     expect(data).toHaveTextContent('1.10 R')
-    expect(data).toHaveTextContent('v₁ 7.910 km/s')
+    expect(data).toHaveTextContent('7.910 km/s / 11.186 km/s')
+    // Body constants and formulas live in the sidebar notes, not the 3–5 line readout.
+    expect(data).not.toHaveTextContent('地球')
+    expect(screen.getByText(/中心天体：地球/)).toBeInTheDocument()
     const playback = screen.getByRole('region', { name: '播放控制' })
     // Playback opens expanded so play is one click away.
     expect(within(playback).getByRole('button', { name: '折叠' })).toBeInTheDocument()
@@ -69,9 +71,9 @@ describe('celestial structure', () => {
     expect(expandPanel('图表')).toContainElement(screen.getByRole('img', { name: '星下点轨迹' }))
 
     fireEvent.click(screen.getByRole('radio', { name: '变轨' }))
-    expect(readout()).toHaveTextContent(/转移进度\s*0%/)
+    expect(readout()).toHaveTextContent(/点火 Δv\s*0%/)
     const playback = screen.getByRole('region', { name: '播放控制' })
     fireEvent.click(within(playback).getByRole('button', { name: '单步' }))
-    expect(readout()).toHaveTextContent(/转移进度\s*3%/)
+    expect(readout()).toHaveTextContent(/点火 Δv\s*3%/)
   })
 })

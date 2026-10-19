@@ -35,14 +35,6 @@ export function WedgeInterferenceScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            <span>波长 λ</span>
-            <strong>{Math.round(state.wavelength)} nm</strong>
-          </p>
-          <p>
-            <span>劈尖角 θ</span>
-            <strong>{state.wedgeAngle.toFixed(4)}°（{(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad）</strong>
-          </p>
-          <p>
             <span>条纹间距 l</span>
             <strong>{state.fringeSpacingLabel}</strong>
           </p>
@@ -60,12 +52,13 @@ export function WedgeInterferenceScene() {
             <span>可见条纹数</span>
             <strong>~{state.fringeCount}</strong>
           </p>
-          <p>
-            <span>下表面</span>
-            <strong>{state.mode === 'flat' ? '平整' : '凸起'}</strong>
-          </p>
-          <p className="summary-note">板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
         </div>
+      }
+      notes={
+        <>
+          <p>λ = {Math.round(state.wavelength)} nm，劈尖角 θ = {state.wedgeAngle.toFixed(4)}°（{(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad），下表面{state.mode === 'flat' ? '平整' : '凸起'}；条纹间距 l = λ/(2θ)。</p>
+          <p>板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
+        </>
       }
       chart={state.showChart ? <WedgeInterferenceChart params={chartParams} isLightOn={state.isLightOn} /> : undefined}
       chartVisible={state.showChart}

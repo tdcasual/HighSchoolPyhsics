@@ -141,8 +141,7 @@ export function OscilloscopeScene() {
         <div className="scene-core-summary-stack scope-telemetry">
           <p><span>状态</span><strong>{simulation.running ? '运行中' : '已暂停'}</strong></p>
           <p><span>时刻</span><strong>t = {timeCursor.toFixed(3)} s</strong></p>
-          <p><span>Ux(t)</span><strong>{ux.toFixed(2)} V</strong></p>
-          <p><span>Uy(t)</span><strong>{uy.toFixed(2)} V</strong></p>
+          <p><span>Ux / Uy</span><strong>{ux.toFixed(2)} V / {uy.toFixed(2)} V</strong></p>
           <p><span>屏幕坐标（±1）</span><strong>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</strong></p>
           <p className={clippingReasons.length ? 'scope-overrange' : undefined}>
             <span>满偏 ±10 V</span>

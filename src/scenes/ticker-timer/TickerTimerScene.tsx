@@ -22,23 +22,7 @@ export function TickerTimerScene() {
       dataOverlay={
         <div className="ticker-telemetry scene-core-summary-stack">
           <p>
-            <span>计时器</span>
-            <strong>{state.kindLabel}</strong>
-          </p>
-          <p>
-            <span>电源</span>
-            <strong>
-              {state.powered ? "已通电" : "未通电"} · {state.voltageLabel}
-            </strong>
-          </p>
-          <p>
-            <span>打点周期 T</span>
-            <strong>
-              {state.periodLabel}（{state.frequencyLabel}）
-            </strong>
-          </p>
-          <p>
-            <span>实验状态</span>
+            <span>状态</span>
             <strong>
               {state.finished
                 ? "记录已结束 · 请重置"
@@ -67,11 +51,12 @@ export function TickerTimerScene() {
             <span>逐差法加速度</span>
             <strong>{state.measuredAccelerationLabel}</strong>
           </p>
-          <p>
-            <span>纸带阻力</span>
-            <strong>{state.frictionLabel}</strong>
-          </p>
         </div>
+      }
+      notes={
+        <p>
+          {state.kindLabel}：{state.powered ? '已通电' : '未通电'} · {state.voltageLabel}，打点周期 T = {state.periodLabel}（{state.frequencyLabel}）；纸带阻力 {state.frictionLabel}。
+        </p>
       }
       chart={
         <TickerTimerChart

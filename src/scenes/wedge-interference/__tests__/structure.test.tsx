@@ -50,10 +50,10 @@ describe('wedge-interference structure', () => {
     const dataPanel = screen.getByRole('region', { name: '数据' })
     expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
 
-    expect(screen.getByText(/波长 λ/)).toBeInTheDocument()
-    expect(screen.getByText(/劈尖角 θ/)).toBeInTheDocument()
-    expect(screen.getByText(/条纹间距 l/)).toBeInTheDocument()
-    expect(screen.getByText(/可见条纹数/)).toBeInTheDocument()
-    expect(screen.getByText(/下表面/)).toBeInTheDocument()
+    expect(within(dataPanel).getByText(/条纹间距 l/)).toBeInTheDocument()
+    expect(within(dataPanel).getByText(/视场最大间隙/)).toBeInTheDocument()
+    expect(within(dataPanel).getByText(/可见条纹数/)).toBeInTheDocument()
+    // λ and θ are the sidebar's own sliders; the notes restate them with l = λ/(2θ).
+    expect(screen.getByText(/条纹间距 l = λ\/\(2θ\)/)).toBeInTheDocument()
   })
 })

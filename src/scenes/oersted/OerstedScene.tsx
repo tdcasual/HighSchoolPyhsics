@@ -44,7 +44,6 @@ export function OerstedScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p><span>状态</span><strong>{state.running ? '通电演示中' : '待机观察'}</strong></p>
-          <p><span>电流 I</span><strong>{state.currentA.toFixed(1)} A</strong></p>
           <table className="oersted-needle-table">
             <thead>
               <tr>
@@ -71,9 +70,12 @@ export function OerstedScene() {
               })}
             </tbody>
           </table>
-          <p><span>通电后最大目标摆角</span><strong>{state.maxSwing.toFixed(1)}°</strong></p>
-          <p className="summary-note">可观察性：{state.discoveryText}（通电后预测）</p>
         </div>
+      }
+      notes={
+        <p>
+          电流 I = {state.currentA.toFixed(1)} A，通电后最大目标摆角 {state.maxSwing.toFixed(1)}°；可观察性：{state.discoveryText}（通电后预测）。
+        </p>
       }
       playbackActions={[
         {

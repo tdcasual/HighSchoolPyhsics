@@ -5,7 +5,6 @@ import { InductionCurrentControls } from './InductionCurrentControls'
 import { InductionCurrentRig3D } from './InductionCurrentRig3D'
 import {
   formatCurrentDirection,
-  formatPoleSetting,
   formatVerticalDirection,
 } from './model'
 import { useInductionCurrentSceneState } from './useInductionCurrentSceneState'
@@ -44,11 +43,9 @@ export function InductionCurrentScene() {
       controls={<InductionCurrentControls state={state} />}
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p><span>磁极朝向</span><strong>{formatPoleSetting(state.poleSetting)}</strong></p>
           <p><span>磁铁状态</span><strong>{motionStatusText}</strong></p>
           <p><span>最近一次感应电流方向</span><strong>{currentDirectionText}</strong></p>
           <p><span>瞬时感应电流方向</span><strong>{instantaneousCurrentText}</strong></p>
-          <p><span>仪表偏角（示意）</span><strong>{(-state.needleAngleRad * (180 / Math.PI)).toFixed(1)}°</strong></p>
           <p><span>感应磁场轴向</span><strong>{latestInducedFieldDirection}</strong></p>
           <p><span>实验记录</span><strong>{state.records.length} 条</strong></p>
         </div>

@@ -301,6 +301,49 @@ body {
   backdrop-filter: blur(12px);
 }
 
+/* Teacher notes: explanations kept out of the data panel and the control list. */
+.scene-notes {
+  margin-top: 1rem;
+  border-top: 1px solid var(--readout-divider);
+}
+
+.scene-notes > summary {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--control-ink-muted);
+}
+
+.scene-notes > summary::-webkit-details-marker {
+  display: none;
+}
+
+.scene-notes > summary::before {
+  content: '▸';
+  margin-right: 0.45rem;
+  transition: transform 160ms ease;
+}
+
+.scene-notes[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.scene-notes-body {
+  display: grid;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--control-ink-soft);
+}
+
+.scene-notes-body p {
+  margin: 0;
+}
+
 /* ── Lecture mode: only the 3D view, edge to edge ── */
 .app-shell.presenting {
   grid-template-rows: minmax(0, 1fr);

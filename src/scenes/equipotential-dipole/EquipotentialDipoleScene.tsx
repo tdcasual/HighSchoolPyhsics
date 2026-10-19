@@ -35,8 +35,8 @@ export function EquipotentialDipoleScene() {
       <p><span>负电荷场强 E₂</span><strong>{formatFieldStrength(r.negativeMagnitude)} N/C</strong></p>
       <p><span>合场强 |E|</span><strong>{formatFieldStrength(r.totalMagnitude)} N/C</strong></p>
       <p><span>该点电势 V</span><strong>{(r.potential / 1000).toFixed(2)} kV</strong></p>
-      <p className="equipotential-dipole-conclusion"><span>物理结论</span><strong>{motion}</strong></p>
     </div>}
+    notes={<p>{motion}</p>}
     playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停流动' : '继续流动', onClick: state.toggleRunning }, { key: 'reset', label: '重置探针', onClick: state.reset }]}
   />
 }

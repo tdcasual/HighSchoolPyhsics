@@ -106,39 +106,31 @@ export function CelestialScene() {
       controls={<CelestialControls state={state} scenario={scenario} />}
       dataOverlay={
         <div className="celestial-telemetry scene-core-summary-stack">
-          <p><span>中心天体 / M</span><strong>{scenario.body.name} · {formatScientific(scenario.body.M, 4)} kg</strong></p>
-          <p><span>R / 表面 g₀</span><strong>{(scenario.body.R / 1000).toFixed(0)} km / {scenario.surfaceG.toFixed(3)} m/s²</strong></p>
           <p><span>轨道半径 r</span><strong>{(currentRadius / 1000).toFixed(0)} km · {(currentRadius / scenario.body.R).toFixed(2)} R</strong></p>
           <p><span>速度 v</span><strong>{formatSpeed(currentSpeed)}</strong></p>
-          <p><span>角速度 ω</span><strong>{formatScientific(currentOmega, 4)} rad/s</strong></p>
           <p><span>{scenario.mode === 'transfer' ? '转移时间' : '周期'}</span><strong>{formatDuration(currentPeriod)}</strong></p>
-          <p><span>向心加速度</span><strong>{currentAcceleration.toFixed(3)} m/s²</strong></p>
-          <p><span>结论</span><strong>{conclusion(scenario)}</strong></p>
           {scenario.mode === 'rendezvous' ? (
-            <>
-              <p><span>外轨 v₂ / T₂</span><strong>{formatSpeed(scenario.o2.v)} / {formatDuration(scenario.o2.T)}</strong></p>
-              <p><span>会合周期</span><strong>{formatDuration(scenario.synodic)}</strong></p>
-            </>
-          ) : null}
-          {scenario.mode === 'transfer' ? (
-            <>
-              <p><span>转移进度</span><strong>{transferProgress.toFixed(0)}%</strong></p>
-              <p><span>两次点火 Δv</span><strong>{scenario.dv1.toFixed(0)} / {scenario.dv2.toFixed(0)} m/s</strong></p>
-            </>
-          ) : null}
-          {ground ? (
-            <p><span>星下点经 / 纬</span><strong>{(ground.longitude * 180 / Math.PI).toFixed(1)}° / {(ground.latitude * 180 / Math.PI).toFixed(1)}°</strong></p>
-          ) : null}
+            <p><span>会合周期</span><strong>{formatDuration(scenario.synodic)}</strong></p>
+          ) : (
+            <p><span>向心加速度</span><strong>{currentAcceleration.toFixed(3)} m/s²</strong></p>
+          )}
           {scenario.mode === 'circular' ? (
             <p><span>表面 v₁ / 逃逸 v₂</span><strong>{formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v1)} / {formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v2)}</strong></p>
-          ) : null}
-          <details className="celestial-equations">
-            <summary>计算关系</summary>
-            <p>GM = g₀R² = {formatScientific(scenario.mu, 4)} m³/s²</p>
-            <p>v = √(GM/r) · ω = √(GM/r³)</p>
-            <p>r³/T² = GM/(4π²)</p>
-          </details>
+          ) : scenario.mode === 'transfer' ? (
+            <p><span>进度 · 点火 Δv</span><strong>{transferProgress.toFixed(0)}% · {scenario.dv1.toFixed(0)} / {scenario.dv2.toFixed(0)} m/s</strong></p>
+          ) : scenario.mode === 'synchronous' && ground ? (
+            <p><span>星下点经 / 纬</span><strong>{(ground.longitude * 180 / Math.PI).toFixed(1)}° / {(ground.latitude * 180 / Math.PI).toFixed(1)}°{isStationary(scenario) ? ' · 静止卫星' : ''}</strong></p>
+          ) : (
+            <p><span>结论</span><strong>{conclusion(scenario)}</strong></p>
+          )}
         </div>
+      }
+      notes={
+        <>
+          <p>中心天体：{scenario.body.name}，M = {formatScientific(scenario.body.M, 4)} kg，R = {(scenario.body.R / 1000).toFixed(0)} km，表面 g₀ = {scenario.surfaceG.toFixed(3)} m/s²。</p>
+          <p>当前角速度 ω = {formatScientific(currentOmega, 4)} rad/s{scenario.mode === 'rendezvous' ? `；外轨 v₂ = ${formatSpeed(scenario.o2.v)}，T₂ = ${formatDuration(scenario.o2.T)}` : ''}。</p>
+          <p>GM = g₀R² = {formatScientific(scenario.mu, 4)} m³/s²；v = √(GM/r)，ω = √(GM/r³)；r³/T² = GM/(4π²)。</p>
+        </>
       }
       chart={<CelestialChart scenario={scenario} />}
       chartVisible

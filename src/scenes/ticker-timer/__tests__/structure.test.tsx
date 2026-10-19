@@ -56,8 +56,7 @@ describe("ticker-timer structure", () => {
     render(<TickerTimerScene />);
 
     fireEvent.click(screen.getByRole("radio", { name: "电火花" }));
-    const dataPanel = screen.getByRole("region", { name: "数据" });
-    expect(within(dataPanel).getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
 
     fireEvent.click(screen.getByRole("button", { name: "通电" }));
     expect(screen.getByTestId("interactive-canvas")).toHaveAttribute(

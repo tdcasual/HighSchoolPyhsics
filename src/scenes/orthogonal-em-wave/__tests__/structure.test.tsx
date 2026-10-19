@@ -15,7 +15,7 @@ describe('orthogonal-em-wave structure', () => {
     expect(screen.getByRole('radio', { name: 'XY 侧视（看 E）' })).toBeInTheDocument()
     const dataPanel = screen.getByRole('region', { name: '数据' })
     expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
-    expect(screen.getByText('空间关系')).toBeInTheDocument()
+    expect(screen.getByText(/E ⟂ B，且 E×B 指向传播方向/)).toBeInTheDocument()
     const chartPanel = screen.getByRole('region', { name: '图表' })
     fireEvent.click(within(chartPanel).getByRole('button', { name: '展开' }))
     expect(screen.getByRole('img', { name: '电磁波电场与磁场空间分布图' })).toBeInTheDocument()

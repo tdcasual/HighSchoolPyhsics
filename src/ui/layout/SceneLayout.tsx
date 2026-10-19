@@ -10,6 +10,11 @@ type SceneLayoutProps = {
   viewport: ReactNode
   controls: ReactNode
   dataOverlay?: ReactNode
+  /**
+   * Model caveats, formulas and teaching explanations. Shown collapsed at the end of the
+   * sidebar so the data panel can stay at 3–5 readings and the sidebar at its controls.
+   */
+  notes?: ReactNode
   chart?: ReactNode
   playbackActions?: MobilePlaybackAction[]
   playbackControls?: ReactNode
@@ -40,6 +45,7 @@ export function SceneLayout({
   viewport,
   controls,
   dataOverlay,
+  notes,
   chart,
   playbackActions,
   playbackControls,
@@ -194,6 +200,13 @@ export function SceneLayout({
     return mobileTabOptions[0]?.key ?? 'controls'
   }, [mobileTabOptions, activeMobileTab])
 
+  const notesBlock = notes ? (
+    <details className="scene-notes">
+      <summary className="touch-target">教师备注 · 模型与公式</summary>
+      <div className="scene-notes-body">{notes}</div>
+    </details>
+  ) : null
+
   if (isMobile) {
     return (
       <div className="flex flex-col w-full h-full">
@@ -214,6 +227,7 @@ export function SceneLayout({
           {playbackControls && <div className="px-2 pt-2 shrink-0">{playbackControls}</div>}
           <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
             {effectiveMobileTab === 'controls' && controls}
+            {effectiveMobileTab === 'controls' && notesBlock}
             {effectiveMobileTab === 'data' && dataOverlay}
             {effectiveMobileTab === 'chart' && chart}
           </div>
@@ -228,6 +242,7 @@ export function SceneLayout({
 
       <SidebarPanel title="参数控制" collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed}>
         {controls}
+        {notesBlock}
       </SidebarPanel>
 
       {dataOverlay && (

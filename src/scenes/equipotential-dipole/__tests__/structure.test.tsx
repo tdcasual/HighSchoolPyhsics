@@ -14,7 +14,7 @@ describe('equipotential-dipole structure', () => {
     expect(screen.getByRole('slider', { name: '间距 d' })).toBeInTheDocument()
     expect(screen.getByRole('slider', { name: '横坐标 x' })).toBeInTheDocument()
     expect(screen.getByText('合场强 |E|')).toBeInTheDocument()
-    expect(screen.getByText('物理结论')).toBeInTheDocument()
+    expect(screen.getByText('教师备注 · 模型与公式')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '暂停流动' })).toBeInTheDocument()
     expect(screen.getByTestId('equipotential-dipole-rig')).toBeInTheDocument()
   })

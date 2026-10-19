@@ -70,19 +70,7 @@ export function LightDiffractionScene() {
             <>
               <p>
                 <span>光栅常数 d</span>
-                <strong>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm</strong>
-              </p>
-              <p>
-                <span>狭缝宽 a（模型）</span>
-                <strong>{(gratingSlitWidth(state.gratingLines) * 1e6).toFixed(2)} μm</strong>
-              </p>
-              <p>
-                <span>线密度</span>
-                <strong>{state.gratingLines.toFixed(0)} 线/mm</strong>
-              </p>
-              <p>
-                <span>有效照明宽度</span>
-                <strong>{GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm（N = {gratingIlluminatedSlitCount(state.gratingLines)}）</strong>
+                <strong>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm（{state.gratingLines.toFixed(0)} 线/mm）</strong>
               </p>
             </>
           ) : (
@@ -99,15 +87,18 @@ export function LightDiffractionScene() {
             <span>{state.featureLabel}</span>
             <strong>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</strong>
           </p>
-          {state.mode === 'circular-obstacle' && (
-            <p className="summary-note">
-              近轴菲涅耳 / 巴比涅模型显示轴上亮斑；外圈采用理想圆盘近似。
+        </div>
+      }
+      notes={
+        <>
+          {state.mode === 'diffraction-grating' && (
+            <p>
+              光栅模型：狭缝宽 a = {(gratingSlitWidth(state.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm（N = {gratingIlluminatedSlitCount(state.gratingLines)}）。
             </p>
           )}
-          <p className="summary-note">
-            3D 开口、光路与屏幕尺寸为示意；屏上颜色/亮度经过增强，定量以分析图表坐标为准。
-          </p>
-        </div>
+          {state.mode === 'circular-obstacle' && <p>近轴菲涅耳 / 巴比涅模型显示轴上亮斑；外圈采用理想圆盘近似。</p>}
+          <p>3D 开口、光路与屏幕尺寸为示意；屏上颜色/亮度经过增强，定量以分析图表坐标为准。</p>
+        </>
       }
       chart={
         state.showChart ? (
