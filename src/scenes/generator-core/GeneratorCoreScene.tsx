@@ -24,7 +24,6 @@ export function GeneratorCoreScene() {
     playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停旋转' : '继续旋转', onClick: state.toggleRunning }, { key: 'reset', label: '重置相位', onClick: state.reset }]}
     chartVisible={true}
     chartInitiallyCollapsed
-    playbackInitiallyCollapsed
   />
 }
 

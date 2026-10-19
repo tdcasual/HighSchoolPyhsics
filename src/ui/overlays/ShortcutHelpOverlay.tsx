@@ -19,6 +19,7 @@ const SHORTCUT_GROUPS = [
   {
     title: '通用',
     items: [
+      { keys: ['空格'], desc: '演示页：播放 / 暂停' },
       { keys: ['Esc'], desc: '关闭弹窗/返回导航页' },
     ],
   },

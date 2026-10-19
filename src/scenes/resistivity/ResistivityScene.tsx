@@ -173,7 +173,6 @@ export function ResistivityScene() {
       chartVisible={diameterView || state.stage === 'analysis' || ivMode}
       chartInitiallyCollapsed={diameterView}
       chartOffsetY={diameterView ? 200 : 0}
-      playbackInitiallyCollapsed={diameterView}
       panelPlacement="after-sidebar"
       playbackActions={diameterView ? undefined : state.stage === 'circuit' || state.stage === 'analysis' ? [
         { key: 'power', label: state.closed ? '断开' : '闭合', onClick: state.toggleClosed },

@@ -291,6 +291,16 @@ body {
   min-width: min(440px, 30vw);
 }
 
+/* Buttons that bring back a closed chart / playback panel. */
+.panel-restore-dock {
+  bottom: 16px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--panel-glass-bg, rgba(255, 255, 255, 0.8));
+  border: 1px solid var(--action-border);
+  backdrop-filter: blur(12px);
+}
+
 /* ── Classroom large text ── */
 /* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
    scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.

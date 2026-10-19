@@ -172,7 +172,6 @@ export function OscilloscopeScene() {
       ]}
       chartVisible={true}
       chartInitiallyCollapsed
-      playbackInitiallyCollapsed
       viewport={
         <OscilloscopeCrt3D
           beamX={beamX}

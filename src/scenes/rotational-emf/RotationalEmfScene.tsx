@@ -78,7 +78,6 @@ export function RotationalEmfScene() {
         </div>
       }
       panelPlacement="after-sidebar"
-      playbackInitiallyCollapsed
       playbackActions={[
         {
           key: 'toggle-running',

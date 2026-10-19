@@ -43,7 +43,6 @@ export function IdealGasIsochoricScene() {
     ]}
     chartVisible
     chartInitiallyCollapsed
-    playbackInitiallyCollapsed
   />
 }
 

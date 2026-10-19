@@ -38,7 +38,8 @@ describe('celestial structure', () => {
     expect(data).toHaveTextContent('1.10 R')
     expect(data).toHaveTextContent('v₁ 7.910 km/s')
     const playback = screen.getByRole('region', { name: '播放控制' })
-    expect(within(playback).getByRole('button', { name: '展开' })).toBeInTheDocument()
+    // Playback opens expanded so play is one click away.
+    expect(within(playback).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(expandPanel('图表')).toContainElement(screen.getByRole('img', { name: '轨道平面图' }))
     expect(screen.getByTestId('celestial-rig')).toBeInTheDocument()
 
@@ -70,7 +71,6 @@ describe('celestial structure', () => {
     fireEvent.click(screen.getByRole('radio', { name: '变轨' }))
     expect(readout()).toHaveTextContent(/转移进度\s*0%/)
     const playback = screen.getByRole('region', { name: '播放控制' })
-    fireEvent.click(within(playback).getByRole('button', { name: '展开' }))
     fireEvent.click(within(playback).getByRole('button', { name: '单步' }))
     expect(readout()).toHaveTextContent(/转移进度\s*3%/)
   })

@@ -16,7 +16,7 @@ describe('mhd controls', () => {
     expect(await within(dataPanel).findByTestId('mhd-voltage-display')).toBeInTheDocument()
 
     const playbackPanel = screen.getByRole('region', { name: '播放控制' })
-    fireEvent.click(within(playbackPanel).getByRole('button', { name: '展开' }))
+    expect(within(playbackPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(await within(playbackPanel).findByRole('button', { name: '播放' })).toBeInTheDocument()
   })
 

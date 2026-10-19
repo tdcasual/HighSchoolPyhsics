@@ -23,11 +23,9 @@ describe('oscilloscope-3d structure', () => {
     expect(screen.getByRole('radio', { name: '波形测量' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'X-Y 合成' })).toBeInTheDocument()
     expect(screen.queryByText('荧光屏波形')).not.toBeInTheDocument()
-    const expandButtons = screen.getAllByRole('button', { name: '展开' })
-    expect(expandButtons).toHaveLength(2)
-    fireEvent.click(expandButtons[0])
-    expect(screen.getByText('荧光屏波形')).toBeInTheDocument()
+    // Only the chart starts collapsed; playback is open so play is one click away.
     fireEvent.click(screen.getByRole('button', { name: '展开' }))
+    expect(screen.getByText('荧光屏波形')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '暂停扫描' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
     expect(screen.getByTestId('oscilloscope-3d-rig')).toBeInTheDocument()

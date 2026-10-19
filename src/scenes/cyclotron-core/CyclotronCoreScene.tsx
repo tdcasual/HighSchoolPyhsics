@@ -31,7 +31,6 @@ export function CyclotronCoreScene() {
       panelPlacement="after-sidebar"
       auxiliaryPanelPlacement="default"
       chartInitiallyCollapsed
-      playbackInitiallyCollapsed
       viewport={
         <InteractiveCanvas
           camera={{ position: cameraPosition, fov: 42 }}

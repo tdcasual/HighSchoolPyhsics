@@ -21,7 +21,6 @@ export function TickerTimerScene() {
       panelPlacement="default"
       auxiliaryPanelPlacement="after-sidebar"
       chartInitiallyCollapsed
-      playbackInitiallyCollapsed
       dataOverlay={
         <div className="ticker-telemetry scene-core-summary-stack">
           <p>

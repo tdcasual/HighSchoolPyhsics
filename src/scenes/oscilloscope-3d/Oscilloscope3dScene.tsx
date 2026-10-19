@@ -114,7 +114,6 @@ export function Oscilloscope3dScene() {
       chart={<Oscilloscope3dChart trace={trace} beam={beam} running={state.running} mode={state.mode === 'xy' ? 'X-Y 轨迹' : 'Y(t)'} />}
       chartVisible
       chartInitiallyCollapsed
-      playbackInitiallyCollapsed
       playbackActions={[
         { key: 'toggle-running', label: state.running ? '暂停扫描' : '继续扫描', onClick: state.toggleRunning },
         { key: 'reset', label: '重置', onClick: state.reset },

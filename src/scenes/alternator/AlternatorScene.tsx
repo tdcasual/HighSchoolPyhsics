@@ -66,7 +66,6 @@ export function AlternatorScene() {
       ]}
       chartVisible={true}
       chartInitiallyCollapsed
-      playbackInitiallyCollapsed
     />
   )
 }

@@ -20,12 +20,20 @@ type SceneLayoutProps = {
   auxiliaryPanelPlacement?: 'default' | 'after-sidebar'
   chartInitiallyCollapsed?: boolean
   dataInitiallyCollapsed?: boolean
-  playbackInitiallyCollapsed?: boolean
   chartOffsetY?: number
   overlayZIndex?: 'z-10' | 'z-20'
 }
 
 type MobileTabKey = 'controls' | 'data' | 'chart'
+
+/** Playback action keys that Space toggles (play/pause), so the teacher never hunts for the button. */
+const PRIMARY_PLAYBACK_KEYS = new Set(['play', 'toggle-running'])
+
+function isTextEntry(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  if (target.isContentEditable || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return true
+  return target instanceof HTMLInputElement && !['range', 'checkbox', 'radio', 'button', 'submit'].includes(target.type)
+}
 
 const SIDEBAR_WIDTH = 320
 const SIDEBAR_COLLAPSED_WIDTH = 44
@@ -45,7 +53,6 @@ export function SceneLayout({
   auxiliaryPanelPlacement = 'default',
   chartInitiallyCollapsed = false,
   dataInitiallyCollapsed = false,
-  playbackInitiallyCollapsed = false,
   chartOffsetY = 0,
   overlayZIndex = 'z-10',
 }: SceneLayoutProps) {
@@ -80,7 +87,49 @@ export function SceneLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- playbackActionsKey is a stable serialization of playbackActions
   }, [isMobile, playbackActionsKey])
 
+  const primaryPlayback = playbackActions?.find((action) => PRIMARY_PLAYBACK_KEYS.has(action.key))
+  const primaryPlaybackRef = useRef(primaryPlayback)
+  useLayoutEffect(() => {
+    primaryPlaybackRef.current = primaryPlayback
+  })
+
+  // Space = play/pause. A button the teacher just clicked keeps focus and would otherwise
+  // re-trigger on Space (e.g. 重置), so pointer-focused controls hand Space to playback too;
+  // controls reached with Tab keep their native Space activation.
+  useEffect(() => {
+    let pointerFocused: Element | null = null
+    let lastPointerDown = 0
+    const onPointerDown = () => {
+      lastPointerDown = performance.now()
+    }
+    const onFocusIn = (event: FocusEvent) => {
+      pointerFocused = performance.now() - lastPointerDown < 600 ? (event.target as Element) : null
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== ' ' || event.repeat || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      const target = event.target
+      if (isTextEntry(target)) return
+      if (target instanceof HTMLElement && target !== document.body && target !== pointerFocused) return
+      const action = primaryPlaybackRef.current
+      if (!action || action.disabled) return
+      event.preventDefault()
+      if (target instanceof HTMLElement) target.blur()
+      action.onClick()
+    }
+    window.addEventListener('pointerdown', onPointerDown, true)
+    window.addEventListener('focusin', onFocusIn)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown, true)
+      window.removeEventListener('focusin', onFocusIn)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
   const showChart = chartVisible && chartDismissVersion === 0
+  const chartDismissed = Boolean(chart) && chartVisible && chartDismissVersion !== 0
+  const hasPlayback = Boolean(playbackActions || playbackControls)
+  const playbackDismissed = hasPlayback && playbackDismissVersion !== 0
   const panelX = useMemo(
     () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
     [sidebarCollapsed],
@@ -240,13 +289,11 @@ export function SceneLayout({
         </FloatingPanel>
       )}
 
-      {Boolean((playbackActions || playbackControls) && playbackDismissVersion === 0) && (
+      {hasPlayback && !playbackDismissed && (
         <FloatingPanel
-          key={playbackInitiallyCollapsed ? 'playback-collapsed' : 'playback-expanded'}
           title="播放控制"
           zone="playback"
           ref={stableRef2}
-          defaultCollapsed={playbackInitiallyCollapsed}
           defaultPosition={{ x: auxiliaryPanelBaseX, y: playbackPanelY }}
           offsetX={auxiliaryPanelOffsetX}
           zIndex="z-20"
@@ -262,6 +309,21 @@ export function SceneLayout({
             )}
           </div>
         </FloatingPanel>
+      )}
+
+      {(chartDismissed || playbackDismissed) && (
+        <div className="panel-restore-dock scene-actions absolute z-20" style={{ left: panelX }} role="toolbar" aria-label="已关闭的面板">
+          {chartDismissed && (
+            <button type="button" className="touch-target" onClick={() => setChartDismissVersion(0)}>
+              显示图表
+            </button>
+          )}
+          {playbackDismissed && (
+            <button type="button" className="touch-target" onClick={() => setPlaybackDismissVersion(0)}>
+              显示播放控制
+            </button>
+          )}
+        </div>
       )}
     </div>
   )

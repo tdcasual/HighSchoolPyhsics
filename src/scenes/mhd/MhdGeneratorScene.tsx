@@ -90,7 +90,6 @@ export function MhdGeneratorScene() {
         },
       ]}
       auxiliaryPanelPlacement="after-sidebar"
-      playbackInitiallyCollapsed
     />
   )
 }

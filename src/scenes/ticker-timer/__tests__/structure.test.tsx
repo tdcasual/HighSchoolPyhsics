@@ -39,11 +39,10 @@ describe("ticker-timer structure", () => {
     const playbackPanel = screen.getByRole("region", { name: "播放控制" });
     expect(within(dataPanel).getByRole("button", { name: "折叠" })).toBeInTheDocument();
     expect(within(chartPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
-    expect(within(playbackPanel).getByRole("button", { name: "展开" })).toBeInTheDocument();
+    expect(within(playbackPanel).getByRole("button", { name: "折叠" })).toBeInTheDocument();
 
     fireEvent.click(within(chartPanel).getByRole("button", { name: "展开" }));
     expect(screen.getByText("纸带点迹")).toBeInTheDocument();
-    fireEvent.click(within(playbackPanel).getByRole("button", { name: "展开" }));
     expect(screen.getByRole("button", { name: "通电" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "释放纸带" })).toBeInTheDocument();
     expect(screen.getByTestId("interactive-canvas")).toHaveAttribute(
@@ -59,8 +58,6 @@ describe("ticker-timer structure", () => {
     fireEvent.click(screen.getByRole("radio", { name: "电火花" }));
     const dataPanel = screen.getByRole("region", { name: "数据" });
     expect(within(dataPanel).getAllByText(/电火花打点计时器/).length).toBeGreaterThanOrEqual(1);
-    const playbackPanel = screen.getByRole("region", { name: "播放控制" });
-    fireEvent.click(within(playbackPanel).getByRole("button", { name: "展开" }));
 
     fireEvent.click(screen.getByRole("button", { name: "通电" }));
     expect(screen.getByTestId("interactive-canvas")).toHaveAttribute(
