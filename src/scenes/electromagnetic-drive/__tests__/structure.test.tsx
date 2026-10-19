@@ -41,10 +41,6 @@ describe('electromagnetic-drive structure', () => {
     const chartPanel = screen.getByRole('region', { name: '图表' })
     expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(within(chartPanel).getByRole('button', { name: '展开' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '开始摇动' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '停止摇动' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '重置实验' })).toBeInTheDocument()
-
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
     expect(screen.getByTestId('electromagnetic-drive-rig')).toBeInTheDocument()
     expect(mockRig).toHaveBeenCalledWith(
@@ -53,6 +49,12 @@ describe('electromagnetic-drive structure', () => {
         frameAngle: 0,
       }),
     )
+
+    // Start/stop is one toggle in the playback panel, like every other scene.
+    const playback = screen.getByRole('region', { name: '播放控制' })
+    fireEvent.click(within(playback).getByRole('button', { name: '开始摇动' }))
+    expect(within(playback).getByRole('button', { name: '停止摇动' })).toBeInTheDocument()
+    expect(within(playback).getByRole('button', { name: '重置实验' })).toBeInTheDocument()
   })
 
   it('allows note section to collapse', () => {

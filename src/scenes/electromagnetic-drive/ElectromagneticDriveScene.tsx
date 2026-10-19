@@ -22,14 +22,11 @@ export function ElectromagneticDriveScene() {
 
   return (
     <SceneLayout
-      controls={
-        <ElectromagneticDriveControls
-          isRunning={state.isRunning}
-          start={state.start}
-          pause={state.pause}
-          reset={state.reset}
-        />
-      }
+      controls={<ElectromagneticDriveControls />}
+      playbackActions={[
+        { key: 'toggle-running', label: state.isRunning ? '停止摇动' : '开始摇动', onClick: state.isRunning ? state.pause : state.start },
+        { key: 'reset', label: '重置实验', onClick: state.reset },
+      ]}
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p><span>实验状态</span><strong>{experimentStatus}</strong></p>

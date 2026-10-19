@@ -1,7 +1,6 @@
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import {
   DISCUSSION_MODE_LABELS,
   MAGNETIC_FIELD_DIRECTION_LABELS,
@@ -36,9 +35,6 @@ type MotionalEmfControlsProps = {
   onRodVelocityAngleChange: (value: RodVelocityAnglePreset) => void
   motionDirection: MotionDirectionPreset
   onMotionDirectionChange: (value: MotionDirectionPreset) => void
-  isRunning: boolean
-  onToggleRunning: () => void
-  onReset: () => void
 }
 
 const MAGNETIC_FIELD_DIRECTIONS: MagneticFieldDirection[] = ['up', 'down']
@@ -64,9 +60,6 @@ export function MotionalEmfControls({
   onRodVelocityAngleChange,
   motionDirection,
   onMotionDirectionChange,
-  isRunning,
-  onToggleRunning,
-  onReset,
 }: MotionalEmfControlsProps) {
   return (
     <div className="grid gap-[0.8rem]">
@@ -88,16 +81,6 @@ export function MotionalEmfControls({
       <p className="m-0 text-[var(--control-ink-muted)] text-[0.82rem] leading-[1.35]">
         符号约定 U_AB = V_A−V_B，U_AB = (B×v)·L；测量导线为理想示意，只计算导体棒上的动生电动势。静止或暂停时 U_AB 为 0。
       </p>
-
-      <ControlSection title="运动控制">
-        <SceneActions
-          layout="grid-2"
-          actions={[
-            { key: 'toggle-running', label: isRunning ? '暂停' : '播放', onClick: onToggleRunning },
-            { key: 'reset', label: '重置', onClick: onReset },
-          ]}
-        />
-      </ControlSection>
 
       <ControlSection title="讨论模式">
         <SegmentedControl

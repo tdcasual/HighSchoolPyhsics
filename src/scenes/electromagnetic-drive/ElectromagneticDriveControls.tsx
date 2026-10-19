@@ -1,26 +1,8 @@
 import { ControlSection } from '../../ui/controls/ControlSection'
-import { SceneActions } from '../../ui/controls/SceneActions'
-
-type ElectromagneticDriveControlsProps = {
-  isRunning: boolean
-  start: () => void
-  pause: () => void
-  reset: () => void
-}
-
-export function ElectromagneticDriveControls({ isRunning, start, pause, reset }: ElectromagneticDriveControlsProps) {
+export function ElectromagneticDriveControls() {
   return (
     <div className="grid gap-[0.8rem] content-start">
       <h2>电磁驱动控制</h2>
-
-      <SceneActions
-        layout="grid-2"
-        actions={[
-          { key: 'start', label: '开始摇动', onClick: start, disabled: isRunning },
-          { key: 'pause', label: '停止摇动', onClick: pause, disabled: !isRunning },
-          { key: 'reset', label: '重置实验', onClick: reset },
-        ]}
-      />
 
       <div className="scene-legend" aria-label="颜色图例">
         <span className="scene-legend-item">

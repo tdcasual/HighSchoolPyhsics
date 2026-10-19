@@ -1,7 +1,6 @@
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { DataReadout } from '../../ui/controls/DataReadout'
-import { SceneActions } from '../../ui/controls/SceneActions'
 import type { InductionCurrentSceneState } from './useInductionCurrentSceneState'
 import {
   formatCurrentDirection,
@@ -37,33 +36,6 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
           onChange={(key) => state.setPoleSetting(key as 's-top-n-down' | 's-bottom-n-up')}
         />
       </ControlSection>
-
-      <p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
-        磁铁移近时 |Φ| 增加，移远时 |Φ| 减少；表针和线圈箭头表示感应电流的方向与相对变化快慢。
-        顺时针/逆时针以从线圈上方沿线圈轴线俯视为准，强弱为定性示意，不是校准电流读数。
-      </p>
-
-      <SceneActions
-        actions={[
-          {
-            key: 'approach',
-            label: '↓ 接近',
-            onClick: state.moveTowardsCoil,
-            disabled: !state.canMoveTowardsCoil,
-          },
-          {
-            key: 'recede',
-            label: '↑ 远离',
-            onClick: state.moveAwayFromCoil,
-            disabled: !state.canMoveAwayFromCoil,
-          },
-          {
-            key: 'reset',
-            label: '↺ 重置',
-            onClick: state.resetExperiment,
-          },
-        ]}
-      />
 
       <div className="scene-legend" aria-label="颜色图例">
         <span className="scene-legend-item">

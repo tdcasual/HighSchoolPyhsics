@@ -41,6 +41,16 @@ export function InductionCurrentScene() {
   return (
     <SceneLayout
       controls={<InductionCurrentControls state={state} />}
+      notes={
+        <p>
+          磁铁移近时 |Φ| 增加，移远时 |Φ| 减少；表针和线圈箭头表示感应电流的方向与相对变化快慢。顺时针/逆时针以从线圈上方沿线圈轴线俯视为准，强弱为定性示意，不是校准电流读数。
+        </p>
+      }
+      playbackActions={[
+        { key: 'approach', label: '↓ 接近', onClick: state.moveTowardsCoil, disabled: !state.canMoveTowardsCoil },
+        { key: 'recede', label: '↑ 远离', onClick: state.moveAwayFromCoil, disabled: !state.canMoveAwayFromCoil },
+        { key: 'reset', label: '↺ 重置', onClick: state.resetExperiment },
+      ]}
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p><span>磁铁状态</span><strong>{motionStatusText}</strong></p>

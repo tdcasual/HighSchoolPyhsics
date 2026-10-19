@@ -81,9 +81,6 @@ export function MotionalEmfScene() {
             onRodVelocityAngleChange={state.setRodVelocityAngleDeg}
             motionDirection={state.motionDirection}
             onMotionDirectionChange={state.setMotionDirection}
-            isRunning={state.running}
-            onToggleRunning={state.toggleRunning}
-            onReset={state.reset}
           />
 
           <section className="motional-emf-view-card" aria-label="视角切换">
@@ -114,6 +111,10 @@ export function MotionalEmfScene() {
           </section>
         </>
       }
+      playbackActions={[
+        { key: 'toggle-running', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
+        { key: 'reset', label: '重置', onClick: state.reset },
+      ]}
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p><span>运动状态</span><strong>{state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
