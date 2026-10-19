@@ -35,7 +35,7 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 7. Wrap conclusion readings in `<Answer>` (prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate.
 8. For fast processes pass `timeControl` and multiply the loop's frame delta by `getPlaybackRate()`; import `Line` from `scene3d/ClassroomLine`.
 9. Use textbook notation on screen (`U<sub>AB</sub>`, not `U_AB`; no "a.u."); label reduced model scales 示意 and convert to textbook magnitude in notes.
-10. Register the scene under its textbook chapter in `ui/navigation/regionData.ts` and run `npm run thumbnails -- <pageId>`.
+10. Register the scene in every overview view — its textbook chapter in `ui/navigation/regionData.ts`, its topic and lesson type in `ui/navigation/navigationViews.ts` — and run `npm run thumbnails -- <pageId>`. Keep the homepage free of three.js imports (`check:homepage-preload`).
 11. Keep the layered structure: `useXxxSceneState` + `XxxControls` + `XxxRig3D` + `XxxScene`.
 12. Use `FloatingPanel` for data/chart/playback zones — do not create custom overlay systems.
 13. Use `SidebarPanel` for parameter controls — do not use custom side panels.
