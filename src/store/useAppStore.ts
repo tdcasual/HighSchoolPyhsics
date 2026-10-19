@@ -25,6 +25,8 @@ type AppState = {
   playbackRate: number
   /** Overview arrangement: by textbook chapter, physics topic or lesson type. Persisted. */
   navView: NavViewId
+  /** Bumped by 恢复默认参数 so the active scene remounts from defaults. */
+  sceneEpoch: number
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
   setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
@@ -34,6 +36,7 @@ type AppState = {
   setPredicting: (predicting: boolean) => void
   setPlaybackRate: (playbackRate: number) => void
   setNavView: (navView: NavViewId) => void
+  bumpSceneEpoch: () => void
 }
 
 export type NavViewId = 'textbook' | 'topic' | 'lesson'
@@ -110,6 +113,7 @@ export const useAppStore = create<AppState>()(
       predicting: false,
       playbackRate: 1,
       navView: 'textbook',
+      sceneEpoch: 0,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
       setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
@@ -119,6 +123,7 @@ export const useAppStore = create<AppState>()(
       setPredicting: (predicting) => set({ predicting }),
       setPlaybackRate: (playbackRate) => set({ playbackRate }),
       setNavView: (navView) => set({ navView }),
+      bumpSceneEpoch: () => set((state) => ({ sceneEpoch: state.sceneEpoch + 1 })),
     }),
     {
       name: 'electromagnetics-lab-ui',

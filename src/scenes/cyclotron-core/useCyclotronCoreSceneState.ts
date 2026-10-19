@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveCyclotronReadings, type ParticleType } from './model'
@@ -19,8 +20,12 @@ export type CyclotronCoreSceneState = {
 type Simulation = Omit<CyclotronCoreSceneState, 'readings' | 'setParticleType' | 'setB' | 'setU' | 'toggleRunning' | 'reset'>
 const INITIAL_SIMULATION: Simulation = { particleType: 'proton', B: 3, U: 30, elapsed: 0, running: false }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['particleType', 'B', 'U'] as const
+
 export function useCyclotronCoreSceneState(): CyclotronCoreSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('cyclotron-core', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('cyclotron-core', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

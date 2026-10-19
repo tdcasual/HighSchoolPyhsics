@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveGeneratorReadings, positionDescription, wrapAngle, type GeneratorMode } from './model'
@@ -25,8 +26,12 @@ const INITIAL_SIMULATION: Simulation = {
   running: true,
 }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['mode', 'angularSpeedRad'] as const
+
 export function useGeneratorCoreSceneState(): GeneratorCoreSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('generator-core', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('generator-core', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

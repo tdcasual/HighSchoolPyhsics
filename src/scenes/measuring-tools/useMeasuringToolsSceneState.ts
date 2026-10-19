@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { caliperReading, micrometerReading } from './model'
 import {
@@ -57,8 +58,12 @@ export type MeasuringToolsSceneState = MeasuringState & {
   reset: () => void
 }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['tool', 'lesson', 'divisions', 'measure', 'hints', 'showLabels', 'caliperX', 'workSize', 'micGap', 'micZero'] as const
+
 export function useMeasuringToolsSceneState(): MeasuringToolsSceneState {
-  const [simulation, setSimulation] = useState(createMeasuringState)
+  const [simulation, setSimulation] = useState(() => rememberFields('measuring-tools', createMeasuringState(), REMEMBERED_FIELDS))
+  useRememberFields('measuring-tools', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const animating = isAnimating(simulation)
 

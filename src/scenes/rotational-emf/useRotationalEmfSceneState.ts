@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -41,11 +42,12 @@ export type RotationalEmfSceneState = {
 }
 
 export function useRotationalEmfSceneState(): RotationalEmfSceneState {
-  const [scenario, setScenario] = useState<RotationalEmfScenario>(DEFAULT_SCENARIO)
-  const [viewMode, setViewMode] = useState<RotationalEmfViewMode>(DEFAULT_VIEW_MODE)
-  const [magneticFieldT, setMagneticFieldT] = useState(DEFAULT_MAGNETIC_FIELD_T)
-  const [angularSpeed, setAngularSpeed] = useState(DEFAULT_ANGULAR_SPEED)
-  const [effectiveLengthM, setEffectiveLengthM] = useState(DEFAULT_EFFECTIVE_LENGTH_M)
+  const [scenario, setScenario] = useState<RotationalEmfScenario>(() => recall('rotational-emf.scenario', DEFAULT_SCENARIO))
+  const [viewMode, setViewMode] = useState<RotationalEmfViewMode>(() => recall('rotational-emf.viewMode', DEFAULT_VIEW_MODE))
+  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('rotational-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T))
+  const [angularSpeed, setAngularSpeed] = useState(() => recall('rotational-emf.angularSpeed', DEFAULT_ANGULAR_SPEED))
+  const [effectiveLengthM, setEffectiveLengthM] = useState(() => recall('rotational-emf.effectiveLengthM', DEFAULT_EFFECTIVE_LENGTH_M))
+  useRemember('rotational-emf', { scenario, viewMode, magneticFieldT, angularSpeed, effectiveLengthM })
   const [angleRad, setAngleRad] = useState(DEFAULT_ANGLE_RAD)
   const [running, setRunning] = useState(false)
   const frameRef = useRef<number | null>(null)

@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
@@ -18,7 +19,8 @@ function resolveChargeLabel(chargeSign: 1 | -1): string {
 }
 
 export function PotentialEnergyScene() {
-  const [chargeSign, setChargeSign] = useState<1 | -1>(1)
+  const [chargeSign, setChargeSign] = useState<1 | -1>(() => recall('potential-energy.chargeSign', 1))
+  useRemember('potential-energy', { chargeSign })
   const [surfaceVisible, setSurfaceVisible] = useState(false)
   const [rotationInProgress, setRotationInProgress] = useState(false)
   const [sweepAngle, setSweepAngle] = useState(0.01)

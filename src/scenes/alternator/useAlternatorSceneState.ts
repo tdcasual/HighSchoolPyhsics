@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -54,8 +55,12 @@ function buildReadoutState(simulation: AlternatorState) {
   }
 }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['magneticFieldT', 'angularSpeedRad', 'turnCount', 'coilAreaM2'] as const
+
 export function useAlternatorSceneState(): AlternatorSceneState {
-  const [simulation, setSimulation] = useState(() => createAlternatorState())
+  const [simulation, setSimulation] = useState(() => rememberFields('alternator', createAlternatorState(), REMEMBERED_FIELDS))
+  useRememberFields('alternator', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   deriveGapWidthScene,
@@ -53,10 +54,11 @@ export type CyclotronSceneState = {
 }
 
 export function useCyclotronSceneState(): CyclotronSceneState {
-  const [magneticFieldT, setMagneticFieldT] = useState(2.0)
-  const [electricFieldVPerM, setElectricFieldVPerM] = useState(9e4)
-  const [gapHalfWidthMm, setGapHalfWidthMm] = useState(0.02)
-  const [energyMode, setEnergyMode] = useState<CyclotronEnergyMode>('include-acceleration-time')
+  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('cyclotron.magneticFieldT', 2.0))
+  const [electricFieldVPerM, setElectricFieldVPerM] = useState(() => recall('cyclotron.electricFieldVPerM', 9e4))
+  const [gapHalfWidthMm, setGapHalfWidthMm] = useState(() => recall('cyclotron.gapHalfWidthMm', 0.02))
+  const [energyMode, setEnergyMode] = useState<CyclotronEnergyMode>(() => recall('cyclotron.energyMode', 'include-acceleration-time'))
+  useRemember('cyclotron', { magneticFieldT, electricFieldVPerM, gapHalfWidthMm, energyMode })
   const [trailPoints, setTrailPoints] = useState<Point3[]>([[0, TRAJECTORY_Y, 0]])
 
   const config = useMemo(

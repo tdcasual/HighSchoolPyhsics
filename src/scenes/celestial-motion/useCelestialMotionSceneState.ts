@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useRef, useState } from 'react'
 import { playbackScale, scenarioOf, type BodyId, type OrbitMode } from './model'
 import {
@@ -16,8 +17,12 @@ import {
   type CelestialView,
 } from './state'
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['mode', 'body', 'r1', 'r2', 'phaseDeg', 'inclinationDeg', 'timeScale', 'showVectors', 'showArea', 'showPlane', 'corotate', 'azimuthDeg', 'elevationDeg'] as const
+
 export function useCelestialMotionSceneState() {
-  const [simulation, setSimulation] = useState(createCelestialState)
+  const [simulation, setSimulation] = useState(() => rememberFields('celestial-motion', createCelestialState(), REMEMBERED_FIELDS))
+  useRememberFields('celestial-motion', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
 
   useEffect(() => {

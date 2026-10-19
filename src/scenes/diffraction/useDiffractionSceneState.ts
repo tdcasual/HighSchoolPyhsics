@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useState, useCallback, useMemo } from 'react'
 import {
   type DiffractionMode,
@@ -62,13 +63,14 @@ export type DiffractionSceneState = {
 }
 
 export function useDiffractionSceneState(): DiffractionSceneState {
-  const [mode, setModeRaw] = useState<DiffractionMode>(DEFAULT_MODE)
-  const [params, setParams] = useState<DiffractionParams>({ ...DEFAULT_PARAMS, screenDistance: 0.5 })
+  const [mode, setModeRaw] = useState<DiffractionMode>(() => recall('diffraction.mode', DEFAULT_MODE))
+  const [params, setParams] = useState<DiffractionParams>(() => recall('diffraction.params', { ...DEFAULT_PARAMS, screenDistance: 0.5 }))
   const [isLightOn, setIsLightOn] = useState(true)
-  const [isWhiteLight, setIsWhiteLight] = useState(false)
-  const [filterColor, setFilterColor] = useState<FilterColor>('none')
-  const [showPattern, setShowPattern] = useState(true)
-  const [showProfile, setShowProfile] = useState(false)
+  const [isWhiteLight, setIsWhiteLight] = useState(() => recall('diffraction.isWhiteLight', false))
+  const [filterColor, setFilterColor] = useState<FilterColor>(() => recall('diffraction.filterColor', 'none'))
+  const [showPattern, setShowPattern] = useState(() => recall('diffraction.showPattern', true))
+  const [showProfile, setShowProfile] = useState(() => recall('diffraction.showProfile', false))
+  useRemember('diffraction', { mode, params, isWhiteLight, filterColor, showPattern, showProfile })
   const minScreenDistance = useMemo(
     () => resolveMinimumScreenDistance(mode, params, isWhiteLight),
     [mode, params, isWhiteLight],

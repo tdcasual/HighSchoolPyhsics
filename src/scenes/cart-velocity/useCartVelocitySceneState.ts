@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useRef, useState } from 'react'
 import { DURATION } from './model'
 import type { ViewPreset } from '../measuring-tools/pose'
@@ -17,8 +18,12 @@ import {
 } from './state'
 import type { CartPart, CartSkin, CartStage } from './pose'
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['stage', 'speed', 'hooks', 'v0', 'dh', 'group', 'skin', 'showFit', 'showSlopeTriangle'] as const
+
 export function useCartVelocitySceneState() {
-  const [simulation, setSimulation] = useState(createCartState)
+  const [simulation, setSimulation] = useState(() => rememberFields('cart-velocity', createCartState(), REMEMBERED_FIELDS))
+  useRememberFields('cart-velocity', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const animating = isAnimating(simulation)
 

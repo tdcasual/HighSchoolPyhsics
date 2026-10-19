@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MOTIONAL_EMF_LAYOUT } from './layout'
@@ -84,15 +85,16 @@ export type MotionalEmfSceneState = {
 }
 
 export function useMotionalEmfSceneState(): MotionalEmfSceneState {
-  const [magneticFieldT, setMagneticFieldT] = useState(DEFAULT_MAGNETIC_FIELD_T)
-  const [magneticFieldDirection, setMagneticFieldDirection] = useState<MagneticFieldDirection>(DEFAULT_MAGNETIC_FIELD_DIRECTION)
-  const [rodLengthM, setRodLengthM] = useState(DEFAULT_ROD_LENGTH_M)
-  const [speedMps, setSpeedMps] = useState(DEFAULT_SPEED_MPS)
-  const [rodAngleDeg, setRodAngleDeg] = useState(DEFAULT_ROD_ANGLE_DEG)
-  const [discussionMode, setDiscussionMode] = useState<DiscussionMode>(DEFAULT_DISCUSSION_MODE)
-  const [velocityPreset, setVelocityPreset] = useState<VelocityPreset>(DEFAULT_VELOCITY_PRESET)
-  const [rodVelocityAngleDeg, setRodVelocityAngleDeg] = useState<RodVelocityAnglePreset>(DEFAULT_ROD_VELOCITY_ANGLE_DEG)
-  const [motionDirection, setMotionDirection] = useState<MotionDirectionPreset>(DEFAULT_MOTION_DIRECTION)
+  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('motional-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T))
+  const [magneticFieldDirection, setMagneticFieldDirection] = useState<MagneticFieldDirection>(() => recall('motional-emf.magneticFieldDirection', DEFAULT_MAGNETIC_FIELD_DIRECTION))
+  const [rodLengthM, setRodLengthM] = useState(() => recall('motional-emf.rodLengthM', DEFAULT_ROD_LENGTH_M))
+  const [speedMps, setSpeedMps] = useState(() => recall('motional-emf.speedMps', DEFAULT_SPEED_MPS))
+  const [rodAngleDeg, setRodAngleDeg] = useState(() => recall('motional-emf.rodAngleDeg', DEFAULT_ROD_ANGLE_DEG))
+  const [discussionMode, setDiscussionMode] = useState<DiscussionMode>(() => recall('motional-emf.discussionMode', DEFAULT_DISCUSSION_MODE))
+  const [velocityPreset, setVelocityPreset] = useState<VelocityPreset>(() => recall('motional-emf.velocityPreset', DEFAULT_VELOCITY_PRESET))
+  const [rodVelocityAngleDeg, setRodVelocityAngleDeg] = useState<RodVelocityAnglePreset>(() => recall('motional-emf.rodVelocityAngleDeg', DEFAULT_ROD_VELOCITY_ANGLE_DEG))
+  const [motionDirection, setMotionDirection] = useState<MotionDirectionPreset>(() => recall('motional-emf.motionDirection', DEFAULT_MOTION_DIRECTION))
+  useRemember('motional-emf', { magneticFieldT, magneticFieldDirection, rodLengthM, speedMps, rodAngleDeg, discussionMode, velocityPreset, rodVelocityAngleDeg, motionDirection })
   const [running, setRunning] = useState(false)
   const [phase, setPhase] = useState(0)
   const [motionOffset, setMotionOffset] = useState<MotionOffset>(createRestOffset)

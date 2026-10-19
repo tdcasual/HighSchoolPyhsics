@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useMemo, useState } from 'react'
 import {
   DEFAULT_PARAMS,
@@ -56,21 +57,22 @@ export type DoubleSlitSceneState = DoubleSlitParams & {
 }
 
 export function useDoubleSlitSceneState(): DoubleSlitSceneState {
-  const [params, setParams] = useState<DoubleSlitParams>(DEFAULT_PARAMS)
-  const [showChart, setShowChart] = useState(true)
+  const [params, setParams] = useState<DoubleSlitParams>(() => recall('double-slit.params', DEFAULT_PARAMS))
+  const [showChart, setShowChart] = useState(() => recall('double-slit.showChart', true))
   const [isLightOn, setIsLightOn] = useState(true)
-  const [isWhiteLight, setIsWhiteLight] = useState(false)
-  const [filterColor, setFilterColorState] = useState<FilterColor>('none')
-  const [singleSlitAngle, setSingleSlitAngle] = useState(0)
-  const [doubleSlitAngle, setDoubleSlitAngle] = useState(0)
-  const [eyepieceAngle, setEyepieceAngle] = useState(0)
-  const [isBlindMode, setIsBlindModeState] = useState(false)
+  const [isWhiteLight, setIsWhiteLight] = useState(() => recall('double-slit.isWhiteLight', false))
+  const [filterColor, setFilterColorState] = useState<FilterColor>(() => recall('double-slit.filterColor', 'none'))
+  const [singleSlitAngle, setSingleSlitAngle] = useState(() => recall('double-slit.singleSlitAngle', 0))
+  const [doubleSlitAngle, setDoubleSlitAngle] = useState(() => recall('double-slit.doubleSlitAngle', 0))
+  const [eyepieceAngle, setEyepieceAngle] = useState(() => recall('double-slit.eyepieceAngle', 0))
+  const [isBlindMode, setIsBlindModeState] = useState(() => recall('double-slit.isBlindMode', false))
   const [wheelReadoutMm, setWheelReadoutMmState] = useState(INITIAL_MEASUREMENT_READOUT_MM)
-  const [fringeCount, setFringeCountState] = useState(DEFAULT_FRINGE_COUNT)
+  const [fringeCount, setFringeCountState] = useState(() => recall('double-slit.fringeCount', DEFAULT_FRINGE_COUNT))
   const [firstReadingMm, setFirstReadingMm] = useState<number | null>(null)
   const [secondReadingMm, setSecondReadingMm] = useState<number | null>(null)
   const [measurementResult, setMeasurementResult] = useState<WavelengthMeasurement | null>(null)
-  const [showFringeOrders, setShowFringeOrders] = useState(true)
+  const [showFringeOrders, setShowFringeOrders] = useState(() => recall('double-slit.showFringeOrders', true))
+  useRemember('double-slit', { params, showChart, isWhiteLight, filterColor, singleSlitAngle, doubleSlitAngle, eyepieceAngle, isBlindMode, fringeCount, showFringeOrders })
 
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const fringeSpacingLabel = useMemo(

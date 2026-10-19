@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   deriveOerstedNeedleState,
@@ -73,21 +74,22 @@ type UseOerstedSceneStateResult = {
 }
 
 export function useOerstedSceneState(): UseOerstedSceneStateResult {
-  const [currentA, setCurrentA] = useState(4)
-  const [earthFieldMicroT, setEarthFieldMicroT] = useState(45)
-  const [wireAzimuthDeg, setWireAzimuthDeg] = useState(0)
-  const [wirePitchDeg, setWirePitchDeg] = useState(0)
-  const [wireHeightM, setWireHeightM] = useState(0.03)
-  const [initialHeadingDeg, setInitialHeadingDeg] = useState(EARTH_NORTH_HEADING_DEG)
-  const [needlePlacements, setNeedlePlacements] = useState<NeedlePlacement[]>(DEFAULT_NEEDLE_PLACEMENTS)
+  const [currentA, setCurrentA] = useState(() => recall('oersted.currentA', 4))
+  const [earthFieldMicroT, setEarthFieldMicroT] = useState(() => recall('oersted.earthFieldMicroT', 45))
+  const [wireAzimuthDeg, setWireAzimuthDeg] = useState(() => recall('oersted.wireAzimuthDeg', 0))
+  const [wirePitchDeg, setWirePitchDeg] = useState(() => recall('oersted.wirePitchDeg', 0))
+  const [wireHeightM, setWireHeightM] = useState(() => recall('oersted.wireHeightM', 0.03))
+  const [initialHeadingDeg, setInitialHeadingDeg] = useState(() => recall('oersted.initialHeadingDeg', EARTH_NORTH_HEADING_DEG))
+  const [needlePlacements, setNeedlePlacements] = useState<NeedlePlacement[]>(() => recall('oersted.needlePlacements', DEFAULT_NEEDLE_PLACEMENTS))
   const [needleHeadingsDeg, setNeedleHeadingsDeg] = useState<number[]>(
     DEFAULT_NEEDLE_PLACEMENTS.map(() => EARTH_NORTH_HEADING_DEG),
   )
   const [running, setRunning] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
   const [phase, setPhase] = useState(0)
-  const [showFieldLines, setShowFieldLines] = useState(true)
-  const [activePresetId, setActivePresetId] = useState<OerstedPresetId | 'custom'>('custom')
+  const [showFieldLines, setShowFieldLines] = useState(() => recall('oersted.showFieldLines', true))
+  const [activePresetId, setActivePresetId] = useState<OerstedPresetId | 'custom'>(() => recall('oersted.activePresetId', 'custom'))
+  useRemember('oersted', { currentA, earthFieldMicroT, wireAzimuthDeg, wirePitchDeg, wireHeightM, initialHeadingDeg, needlePlacements, showFieldLines, activePresetId })
   const [draggingNeedleIndex, setDraggingNeedleIndex] = useState<number | null>(null)
 
   const wireDirection = useMemo(

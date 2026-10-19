@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveIdealGasReadings, type IdealGasParams, type VolumePreset, VOLUME_PRESETS } from './model'
 
@@ -14,8 +15,12 @@ export type IdealGasIsochoricSceneState = IdealGasParams & {
 type Simulation = Omit<IdealGasIsochoricSceneState, 'readings' | 'setTemperatureK' | 'setVolumePreset' | 'toggleRunning' | 'reset'>
 const INITIAL_SIMULATION: Simulation = { temperatureK: 220, volumeL: 6, volumePreset: 'large', elapsed: 0, running: true }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['temperatureK', 'volumeL', 'volumePreset'] as const
+
 export function useIdealGasIsochoricSceneState(): IdealGasIsochoricSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('ideal-gas-isochoric', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('ideal-gas-isochoric', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

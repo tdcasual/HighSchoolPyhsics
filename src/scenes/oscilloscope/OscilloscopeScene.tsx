@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { Answer } from '../../ui/notes/Answer'
 import { useMemo, useState } from 'react'
 import { deriveDeflectionFromVoltage, deriveTimeCursor } from './runtime'
@@ -18,9 +19,10 @@ import './oscilloscope.css'
 const DISPLAY_FULL_SCALE_V = 10
 
 export function OscilloscopeScene() {
-  const [timeRate, setTimeRate] = useState(1)
-  const [xExpression, setXExpression] = useState('8*sawtooth(2*pi*2*t-pi)')
-  const [yExpression, setYExpression] = useState('6*sin(2*pi*2*t)')
+  const [timeRate, setTimeRate] = useState(() => recall('oscilloscope.timeRate', 1))
+  const [xExpression, setXExpression] = useState(() => recall('oscilloscope.xExpression', '8*sawtooth(2*pi*2*t-pi)'))
+  const [yExpression, setYExpression] = useState(() => recall('oscilloscope.yExpression', '6*sin(2*pi*2*t)'))
+  useRemember('oscilloscope', { timeRate, xExpression, yExpression })
 
   const simulation = useOscilloscopeSimulation(1 / 240, timeRate)
   const timeCursor = deriveTimeCursor(simulation.state)

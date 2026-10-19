@@ -1,3 +1,5 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FIXED_STEP_S,
@@ -59,10 +61,15 @@ export type TickerTimerSceneState = TickerTimerState &
     reset: () => void;
   };
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['kind', 'motionMode', 'frequencyHz', 'voltageV', 'initialSpeedMps', 'driveAccelerationMps2', 'massKg'] as const
+
 export function useTickerTimerSceneState(): TickerTimerSceneState {
-  const [simulation, setSimulation] = useState(() => createTickerTimerState());
-  const [playbackRate, setPlaybackRateState] = useState(DEFAULT_PLAYBACK_RATE);
-  const [showLabels, setShowLabels] = useState(true);
+  const [simulation, setSimulation] = useState(() => rememberFields('ticker-timer', createTickerTimerState(), REMEMBERED_FIELDS));
+  useRememberFields('ticker-timer', simulation, REMEMBERED_FIELDS)
+  const [playbackRate, setPlaybackRateState] = useState(() => recall('ticker-timer.playbackRate', DEFAULT_PLAYBACK_RATE));
+  const [showLabels, setShowLabels] = useState(() => recall('ticker-timer.showLabels', true));
+  useRemember('ticker-timer', { playbackRate, showLabels })
   const simulationRef = useRef(simulation);
   const frameRef = useRef<number | null>(null);
   const lastTimestampRef = useRef<number | null>(null);

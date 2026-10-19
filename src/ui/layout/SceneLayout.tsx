@@ -7,6 +7,7 @@ import { useMediaQuery, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
 import { useAppStore, type MobilePlaybackAction } from '../../store/useAppStore'
 import { ModelNoteTargetContext } from '../notes/modelNoteTarget'
 import { PLAYBACK_RATE_OPTIONS } from '../../scene3d/playbackRate'
+import { clearSceneMemory } from '../../app/sceneMemory/sceneMemory'
 import { PredictionContext, type PredictionState } from '../notes/predictionContext'
 
 type SceneLayoutProps = {
@@ -268,6 +269,21 @@ export function SceneLayout({
   }, [mobileTabOptions, activeMobileTab])
 
   // Always mounted so <ModelNote>s inside the controls can portal into it; hidden by CSS when empty.
+  const activeScenePath = useAppStore((s) => s.activeScenePath)
+  const bumpSceneEpoch = useAppStore((s) => s.bumpSceneEpoch)
+  // Parameters are remembered across scene switches; this is the way back to the defaults.
+  const resetParamsButton = (
+    <button
+      type="button"
+      className="panel-text-button scene-reset-params"
+      onClick={() => {
+        clearSceneMemory(activeScenePath.replace(/^\//, ''))
+        bumpSceneEpoch()
+      }}
+    >
+      恢复默认参数
+    </button>
+  )
   const notesBlock = (
     <details className="scene-notes">
       <summary className="touch-target">教师备注 · 模型与公式</summary>
@@ -300,6 +316,7 @@ export function SceneLayout({
           {(playbackControls || rateControl) && <div className="px-2 pt-2 shrink-0">{playbackControls}{rateControl}</div>}
           <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
             {effectiveMobileTab === 'controls' && controls}
+            {effectiveMobileTab === 'controls' && resetParamsButton}
             {effectiveMobileTab === 'controls' && notesBlock}
             {effectiveMobileTab === 'data' && dataOverlay}
             {effectiveMobileTab === 'chart' && chartBody}
@@ -319,6 +336,7 @@ export function SceneLayout({
 
       <SidebarPanel title="参数控制" collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed}>
         {controls}
+        {resetParamsButton}
         {notesBlock}
       </SidebarPanel>
 

@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useMemo, useState } from 'react'
 import {
   DEFAULT_MODE,
@@ -59,13 +60,14 @@ function constrainScreenDistance(
 }
 
 export function useLightDiffractionSceneState(): LightDiffractionSceneState {
-  const [params, setParams] = useState<DiffractionParams>(DEFAULT_PARAMS)
-  const [mode, setModeState] = useState<DiffractionMode>(DEFAULT_MODE)
-  const [showChart, setShowChart] = useState(false)
+  const [params, setParams] = useState<DiffractionParams>(() => recall('light-diffraction.params', DEFAULT_PARAMS))
+  const [mode, setModeState] = useState<DiffractionMode>(() => recall('light-diffraction.mode', DEFAULT_MODE))
+  const [showChart, setShowChart] = useState(() => recall('light-diffraction.showChart', false))
   const [isLightOn, setIsLightOn] = useState(true)
-  const [isWhiteLight, setIsWhiteLight] = useState(false)
-  const [filterColor, setFilterColorState] = useState<FilterColor>('none')
-  const [eyepieceAngle, setEyepieceAngle] = useState(0)
+  const [isWhiteLight, setIsWhiteLight] = useState(() => recall('light-diffraction.isWhiteLight', false))
+  const [filterColor, setFilterColorState] = useState<FilterColor>(() => recall('light-diffraction.filterColor', 'none'))
+  const [eyepieceAngle, setEyepieceAngle] = useState(() => recall('light-diffraction.eyepieceAngle', 0))
+  useRemember('light-diffraction', { params, mode, showChart, isWhiteLight, filterColor, eyepieceAngle })
 
   const minScreenDistance = useMemo(
     () => resolveMinimumScreenDistance(mode, params, isWhiteLight),

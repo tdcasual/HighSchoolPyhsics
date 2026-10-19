@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -44,11 +45,12 @@ function nextChargeId(charges: ReadonlyArray<EquipotentialCharge>): string {
 
 export function EquipotentialScene() {
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
-  const [charges, setCharges] = useState<EquipotentialCharge[]>(() => createDipolePreset())
+  const [charges, setCharges] = useState<EquipotentialCharge[]>(() => recall('equipotential.charges', () => createDipolePreset()))
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
-  const [shellCount, setShellCount] = useState(4)
-  const [sampleResolution, setSampleResolution] = useState(20)
-  const [activePreset, setActivePreset] = useState<'dipole' | 'quadrupole' | 'custom'>('dipole')
+  const [shellCount, setShellCount] = useState(() => recall('equipotential.shellCount', 4))
+  const [sampleResolution, setSampleResolution] = useState(() => recall('equipotential.sampleResolution', 20))
+  const [activePreset, setActivePreset] = useState<'dipole' | 'quadrupole' | 'custom'>(() => recall('equipotential.activePreset', 'dipole'))
+  useRemember('equipotential', { charges, shellCount, sampleResolution, activePreset })
   const maxCharges = 12
 
   const selectedCharge = useMemo(

@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useMemo, useState } from 'react'
 import {
   DEFAULT_PARAMS,
@@ -29,8 +30,9 @@ export type WedgeInterferenceSceneState = WedgeParams & {
 }
 
 export function useWedgeInterferenceSceneState(): WedgeInterferenceSceneState {
-  const [params, setParams] = useState<WedgeParams>(DEFAULT_PARAMS)
-  const [showChart, setShowChart] = useState(true)
+  const [params, setParams] = useState<WedgeParams>(() => recall('wedge-interference.params', DEFAULT_PARAMS))
+  const [showChart, setShowChart] = useState(() => recall('wedge-interference.showChart', true))
+  useRemember('wedge-interference', { params, showChart })
   const [isLightOn, setIsLightOn] = useState(true)
   const [isScanning, setIsScanning] = useState(false)
 

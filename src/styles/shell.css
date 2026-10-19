@@ -301,6 +301,11 @@ body {
   backdrop-filter: blur(12px);
 }
 
+.scene-reset-params {
+  margin-top: 1rem;
+  border-color: var(--action-border);
+}
+
 /* Teacher notes: explanations kept out of the data panel and the control list. */
 .scene-notes {
   margin-top: 1rem;

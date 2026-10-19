@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -80,7 +81,8 @@ export type InductionCurrentSceneState = {
 export function useInductionCurrentSceneState(): InductionCurrentSceneState {
   const recordIdRef = useRef(1)
   const pendingRecordRef = useRef<ExperimentRecord | null>(null)
-  const [poleSetting, setPoleSettingState] = useState<PoleSetting>('s-top-n-down')
+  const [poleSetting, setPoleSettingState] = useState<PoleSetting>(() => recall('induction-current.poleSetting', 's-top-n-down'))
+  useRemember('induction-current', { poleSetting })
   const [magnetPosition, setMagnetPosition] = useState<MagnetPosition>('far')
   const [motionDirection, setMotionDirection] = useState<MotionDirection | null>(null)
   const [lastMotionDirection, setLastMotionDirection] = useState<MotionDirection | null>(null)

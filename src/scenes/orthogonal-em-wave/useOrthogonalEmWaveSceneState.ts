@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveEmWaveReadings, type EmViewMode, type EmWaveDirection, type EmWaveParams } from './model'
 
@@ -32,8 +33,12 @@ const INITIAL_SIMULATION: Simulation = {
   showProjectionMarks: true,
 }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'speed', 'direction', 'viewMode', 'showOrthogonality', 'showProjectionMarks'] as const
+
 export function useOrthogonalEmWaveSceneState(): OrthogonalEmWaveSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('orthogonal-em-wave', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('orthogonal-em-wave', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

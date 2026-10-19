@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useState } from 'react'
 import { deriveChargeSeparation, deriveMhdReadings, derivePolarizationTarget } from './model'
 import type { MhdReadings } from './model'
@@ -33,12 +34,13 @@ export type MhdSceneState = {
 }
 
 export function useMhdSceneState(): MhdSceneState {
-  const [magneticFieldT, setMagneticFieldT] = useState(INITIAL_PARAMETERS.magneticFieldT)
-  const [plasmaVelocityMps, setPlasmaVelocityMps] = useState(INITIAL_PARAMETERS.plasmaVelocityMps)
-  const [plasmaDensityRatio, setPlasmaDensityRatio] = useState(INITIAL_PARAMETERS.plasmaDensityRatio)
-  const [electrodeGapM, setElectrodeGapM] = useState(INITIAL_PARAMETERS.electrodeGapM)
-  const [conductivitySPerM, setConductivitySPerM] = useState(INITIAL_PARAMETERS.conductivitySPerM)
-  const [loadResistanceOhm, setLoadResistanceOhm] = useState(INITIAL_PARAMETERS.loadResistanceOhm)
+  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('mhd.magneticFieldT', INITIAL_PARAMETERS.magneticFieldT))
+  const [plasmaVelocityMps, setPlasmaVelocityMps] = useState(() => recall('mhd.plasmaVelocityMps', INITIAL_PARAMETERS.plasmaVelocityMps))
+  const [plasmaDensityRatio, setPlasmaDensityRatio] = useState(() => recall('mhd.plasmaDensityRatio', INITIAL_PARAMETERS.plasmaDensityRatio))
+  const [electrodeGapM, setElectrodeGapM] = useState(() => recall('mhd.electrodeGapM', INITIAL_PARAMETERS.electrodeGapM))
+  const [conductivitySPerM, setConductivitySPerM] = useState(() => recall('mhd.conductivitySPerM', INITIAL_PARAMETERS.conductivitySPerM))
+  const [loadResistanceOhm, setLoadResistanceOhm] = useState(() => recall('mhd.loadResistanceOhm', INITIAL_PARAMETERS.loadResistanceOhm))
+  useRemember('mhd', { magneticFieldT, plasmaVelocityMps, plasmaDensityRatio, electrodeGapM, conductivitySPerM, loadResistanceOhm })
   const [running, setRunning] = useState(false)
   const [chargeSeparation, setChargeSeparation] = useState(0)
 

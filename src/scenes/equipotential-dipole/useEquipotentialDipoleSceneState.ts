@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveDipoleReadings, type DipoleParams } from './model'
@@ -20,8 +21,12 @@ export type EquipotentialDipoleSceneState = DipoleParams & {
 type Simulation = Omit<EquipotentialDipoleSceneState, 'readings' | 'setSeparation' | 'setCharge' | 'setProbeX' | 'setProbeY' | 'setFlow' | 'setShowEquipotential' | 'setShowVectors' | 'toggleRunning' | 'reset'>
 const INITIAL_SIMULATION: Simulation = { separation: 4, charge: 3, probeX: 0.6, probeY: 1.7, flow: true, showEquipotential: true, showVectors: true, elapsed: 0, running: true }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['separation', 'charge', 'probeX', 'probeY', 'flow', 'showEquipotential', 'showVectors'] as const
+
 export function useEquipotentialDipoleSceneState(): EquipotentialDipoleSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('equipotential-dipole', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('equipotential-dipole', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

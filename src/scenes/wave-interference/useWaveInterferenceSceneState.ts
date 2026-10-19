@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DEFAULT_PARAMS,
@@ -40,10 +41,10 @@ export type WaveInterferenceSceneState = WaveParams & {
 const SYNC_INTERVAL = 6
 
 export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
-  const [params, setParams] = useState<WaveParams>(DEFAULT_PARAMS)
-  const [showChart, setShowChart] = useState(true)
+  const [params, setParams] = useState<WaveParams>(() => recall('wave-interference.params', DEFAULT_PARAMS))
+  const [showChart, setShowChart] = useState(() => recall('wave-interference.showChart', true))
   const [isPlaying, setIsPlaying] = useState(true)
-  const [playSpeed, setPlaySpeedState] = useState(0.5)
+  const [playSpeed, setPlaySpeedState] = useState(() => recall('wave-interference.playSpeed', 0.5))
   const [observer, setObserver] = useState<Observer | null>({
     ...OBSERVER_DEFAULT,
     history: [],
@@ -52,8 +53,9 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
     historyTimes: [],
     time: 0,
   })
-  const [showConstructive, setShowConstructive] = useState(true)
-  const [showDestructive, setShowDestructive] = useState(true)
+  const [showConstructive, setShowConstructive] = useState(() => recall('wave-interference.showConstructive', true))
+  const [showDestructive, setShowDestructive] = useState(() => recall('wave-interference.showDestructive', true))
+  useRemember('wave-interference', { params, showChart, playSpeed, showConstructive, showDestructive })
   const [resetVersion, setResetVersion] = useState(0)
 
   // Mutable ring buffer — animation loop writes here, no React state churn

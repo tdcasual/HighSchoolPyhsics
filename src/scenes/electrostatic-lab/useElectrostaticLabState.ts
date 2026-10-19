@@ -1,3 +1,4 @@
+import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useMemo, useRef, useState } from 'react'
 import {
   buildFieldLines,
@@ -87,17 +88,18 @@ export type ElectrostaticLabState = {
 }
 
 export function useElectrostaticLabState(): ElectrostaticLabState {
-  const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>('dipole')
-  const [charges, setCharges] = useState<ElectrostaticCharge[]>(() => clonePresetCharges('dipole'))
+  const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>(() => recall('electrostatic-lab.presetKey', 'dipole'))
+  const [charges, setCharges] = useState<ElectrostaticCharge[]>(() => recall('electrostatic-lab.charges', () => clonePresetCharges('dipole')))
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('potential')
-  const [overlayFieldLines, setOverlayFieldLines] = useState(true)
-  const [showContourLines, setShowContourLines] = useState(true)
-  const [invertHeight, setInvertHeight] = useState(false)
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(() => recall('electrostatic-lab.displayMode', 'potential'))
+  const [overlayFieldLines, setOverlayFieldLines] = useState(() => recall('electrostatic-lab.overlayFieldLines', true))
+  const [showContourLines, setShowContourLines] = useState(() => recall('electrostatic-lab.showContourLines', true))
+  const [invertHeight, setInvertHeight] = useState(() => recall('electrostatic-lab.invertHeight', false))
   const perf = resolvePerformanceProfile()
-  const [resolution, setResolution] = useState(() =>
+  const [resolution, setResolution] = useState(() => recall('electrostatic-lab.resolution', () =>
     Math.min(30, perf.electrostaticTerrainResolution),
-  )
+  ))
+  useRemember('electrostatic-lab', { presetKey, charges, displayMode, overlayFieldLines, showContourLines, invertHeight, resolution })
   const [probeMode, setProbeMode] = useState(false)
   const [probePoint, setProbePoint] = useState<ProbePoint | null>(null)
   const [advancedInteractionsEnabled, setAdvancedInteractionsEnabled] = useState(false)

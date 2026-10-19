@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_XY_SETTINGS, deriveMeasurement, deriveXYConclusion, type BasicWaveform, type MeasurementReadout, type OscilloscopeMode, type XYSettings, xyPresetSettings } from './model'
 
@@ -38,8 +39,12 @@ const INITIAL_SIMULATION: Simulation = {
   voltsDiv: 1, timeDiv: 1, trigger: true, beamSpeed: 1, xy: DEFAULT_XY_SETTINGS, elapsed: 0, running: true,
 }
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['mode', 'wave', 'amplitudeV', 'frequencyHz', 'voltsDiv', 'timeDiv', 'trigger', 'beamSpeed', 'xy'] as const
+
 export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('oscilloscope-3d', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  useRememberFields('oscilloscope-3d', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

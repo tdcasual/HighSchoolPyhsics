@@ -41,6 +41,7 @@ function App() {
   const setPresenting = useAppStore((state) => state.setPresenting)
   const predicting = useAppStore((state) => state.predicting)
   const setPredicting = useAppStore((state) => state.setPredicting)
+  const sceneEpoch = useAppStore((state) => state.sceneEpoch)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
   const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
@@ -304,7 +305,7 @@ function App() {
               onBackToOverview={() => navigateTo('/')}
               onRetryScene={() => activeRoute?.preload()}
             >
-              <ActiveScene />
+              <ActiveScene key={`${pathname}:${sceneEpoch}`} />
             </SceneRuntimeBoundary>
           ) : (
             <div className="scene-missing">

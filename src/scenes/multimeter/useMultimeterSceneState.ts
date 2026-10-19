@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useState } from 'react'
 import type { ViewPreset } from '../measuring-tools/pose'
 import { RANGE, rheostat, trialContact, type RangeKey } from './model'
@@ -23,8 +24,12 @@ import {
   type UseTask,
 } from './state'
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['stage', 'convKind', 'convRange', 'convTest', 'lgRx', 'ammeterResistance', 'voltmeterResistance', 'contactMethod', 'slider', 'rheostatMode', 'loadResistance', 'rheostatResistance', 'range', 'task'] as const
+
 export function useMultimeterSceneState() {
-  const [simulation, setSimulation] = useState(createMultimeterState)
+  const [simulation, setSimulation] = useState(() => rememberFields('multimeter', createMultimeterState(), REMEMBERED_FIELDS))
+  useRememberFields('multimeter', simulation, REMEMBERED_FIELDS)
   const commit = (updater: (state: MultimeterState) => MultimeterState) => {
     setSimulation((previous) => updater(previous))
   }

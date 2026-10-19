@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useRef, useState } from 'react'
 import { ELEMENTS, type ElementKind, type MaterialKey } from './model'
 import { meterReading } from './model'
@@ -22,8 +23,12 @@ import {
 import type { CircuitControl, CircuitMethod } from './model'
 import type { ViewPreset } from '../measuring-tools/pose'
 
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['stage', 'material', 'mystery', 'nominal', 'method', 'control', 'ammeter', 'voltmeter', 'lengthCm', 'graph', 'fit', 'element'] as const
+
 export function useResistivitySceneState() {
-  const [simulation, setSimulation] = useState(createResistivityState)
+  const [simulation, setSimulation] = useState(() => rememberFields('resistivity', createResistivityState(), REMEMBERED_FIELDS))
+  useRememberFields('resistivity', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const animating = isAnimating(simulation)
 

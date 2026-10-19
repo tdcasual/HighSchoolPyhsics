@@ -1,3 +1,4 @@
+import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_PROBE_X, deriveWaveReadings, type WaveDirection, type WaveParams, type WavePreset, type WaveStartDirection } from './model'
 type WaveStateParams = Omit<WaveParams, 'startDirection'> & { startDirection: WaveStartDirection }
@@ -35,8 +36,12 @@ const INITIAL_SIMULATION: Simulation = {
  * sees a waveform and can predict P's start-up direction straight away. 重置 replays from t = 0.
  */
 export const OPENING_ELAPSED = 1.5
+/** Teacher-set parameters restored when the scene is opened again (run state is not). */
+const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'period', 'direction', 'startDirection', 'probeX', 'timeScale', 'showGhost', 'showVelocity', 'showAcceleration'] as const
+
 export function useWaveStateSceneState(): WaveStateSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(() => ({ ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }))
+  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('wave-state', ({ ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }), REMEMBERED_FIELDS))
+  useRememberFields('wave-state', simulation, REMEMBERED_FIELDS)
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)
