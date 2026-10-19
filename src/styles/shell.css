@@ -409,8 +409,9 @@ body {
     zoom: 1.25;
   }
 
-  /* drei <Html> labels are mounted next to the WebGL canvas. */
-  .app-shell.text-large div:has(> canvas) > div > div {
+  /* drei <Html> labels: the R3F root holds the canvas wrapper plus one positioned div per label;
+     zoom the label's content box, not the positioned wrapper. */
+  .app-shell.text-large .interactive-canvas-surface > div > div:not(:has(canvas)) > div {
     zoom: 1.4;
   }
 }
