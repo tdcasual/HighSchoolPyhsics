@@ -21,7 +21,7 @@ export function MeasuringToolsScene() {
   const [instrumentDragging, setInstrumentDragging] = useState(false)
   const [dragView, setDragView] = useState<OrbitView | null>(null)
   const currentView = useRef<OrbitView | null>(null)
-  const obstacles = useOverlayObstacles(viewportRef)
+  const obstacles = useOverlayObstacles(viewportRef, `${state.tool}-${state.measure}-${state.view}`)
   const limits = cameraLimits(state.tool)
   const showWork = shouldShowSpecimen(state)
   const viewInput = {
@@ -110,6 +110,7 @@ export function MeasuringToolsScene() {
             camera={{ position, fov: limits.fov, near: limits.near, far: cameraFar }}
             adaptiveFraming={false}
             syncCamera
+            screenOffset={view.screenOffset}
             controlsEnabled={!instrumentDragging}
             controls={{
               target: view.target,

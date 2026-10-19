@@ -49,11 +49,13 @@ function sameRects(a: ScreenRect[], b: ScreenRect[]): boolean {
 }
 
 /**
- * Tracks where the sidebar, floating panels and gesture hint sit over the canvas, so the
- * camera can frame the instrument in the largest uncovered area. Re-measures when a panel
- * opens, closes, collapses or resizes, and after a panel drag ends (pointerup).
+ * Snapshots where the sidebar, floating panels and gesture hint sit over the canvas, so the
+ * camera can frame the instrument in the largest uncovered area. Measured only when the scene
+ * opens, when `refitKey` changes (tool, part or view preset) and when the window resizes:
+ * opening, collapsing or dragging a panel afterwards just covers the 3D view, like every other
+ * scene, instead of moving the camera and discarding the teacher's zoom.
  */
-export function useOverlayObstacles(ref: RefObject<HTMLDivElement | null>): ScreenRect[] {
+export function useOverlayObstacles(ref: RefObject<HTMLDivElement | null>, refitKey: string): ScreenRect[] {
   const [obstacles, setObstacles] = useState<ScreenRect[]>([])
 
   useEffect(() => {
@@ -65,37 +67,30 @@ export function useOverlayObstacles(ref: RefObject<HTMLDivElement | null>): Scre
     const layoutRoot = root
 
     let timer: ReturnType<typeof setTimeout> | undefined
-    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => schedule()) : null
     const measure = () => {
       const base = element.getBoundingClientRect()
       const next: ScreenRect[] = []
       layoutRoot.querySelectorAll<HTMLElement>(OVERLAY_SELECTOR).forEach((overlay) => {
-        resizeObserver?.observe(overlay)
         const rect = overlay.getBoundingClientRect()
         if (rect.width < 1 || rect.height < 1) return
         next.push({ left: rect.left - base.left, top: rect.top - base.top, right: rect.right - base.left, bottom: rect.bottom - base.top })
       })
       setObstacles((previous) => (sameRects(previous, next) ? previous : next))
     }
-    // Debounced: the sidebar animates its width and panels report many intermediate sizes.
+    // Panels finish their first layout a moment after mount, so measure again once it settles.
     function schedule() {
       clearTimeout(timer)
-      timer = setTimeout(measure, 160)
+      timer = setTimeout(measure, 200)
     }
 
     measure()
-    const mutationObserver = typeof MutationObserver !== 'undefined' ? new MutationObserver(schedule) : null
-    mutationObserver?.observe(layoutRoot, { childList: true })
-    window.addEventListener('pointerup', schedule)
+    schedule()
     window.addEventListener('resize', schedule)
     return () => {
       clearTimeout(timer)
-      resizeObserver?.disconnect()
-      mutationObserver?.disconnect()
-      window.removeEventListener('pointerup', schedule)
       window.removeEventListener('resize', schedule)
     }
-  }, [ref])
+  }, [ref, refitKey])
 
   return obstacles
 }

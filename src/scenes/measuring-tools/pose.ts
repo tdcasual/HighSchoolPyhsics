@@ -13,6 +13,12 @@ export type OrbitView = {
   azimuth: number
   elevation: number
   radius: number
+  /**
+   * Screen shift (CSS px, right/down) applied through the projection so the target appears at
+   * the center of the free area. Keeping the target on the instrument means zooming converges
+   * on it instead of pushing it out toward the canvas edge.
+   */
+  screenOffset?: [number, number]
 }
 
 export type CaliperPose = {
@@ -364,19 +370,29 @@ export function instrumentView(input: InstrumentViewInput): OrbitView {
     minDistance: limits.minDistance,
     margin: focus ? 1.02 : input.tool === 'micrometer' ? 1 : 1.08,
   })
-  const viewportHeight = Math.max(1, input.viewportHeight ?? 720)
-  const worldPerPixel = (2 * radius * Math.tan((limits.fov * Math.PI) / 360)) / viewportHeight
-  const shift = (input.centerOffsetPixels ?? 0) * worldPerPixel
-  const lift = (input.centerOffsetYPixels ?? 0) * worldPerPixel
+  // Orbit around the reading zone so zooming closes in on the scale instead of pushing it toward
+  // the canvas edge, then shift the image back so the instrument stays centered in the free area.
+  // Overview presets use a fixed anchor (mid-travel micrometer scale, the 0–50 mm vernier zone)
+  // so turning the thimble or sliding the frame never re-fits and resets the user's zoom.
+  const anchor = focus ? input : { ...input, reading: 12.5, caliperX: 25 }
+  const reading = boundsCenter(instrumentBounds({ ...anchor, preset: 'focus', showWork: false }))
+  const relative: Vec3 = [reading[0] - center[0], reading[1] - center[1], reading[2] - center[2]]
+  const cosine = Math.cos(elevation)
+  const forward: Vec3 = [cosine * Math.sin(azimuth), Math.sin(elevation), cosine * Math.cos(azimuth)]
   const screenRight: Vec3 = [Math.cos(azimuth), 0, -Math.sin(azimuth)]
-  const screenUp: Vec3 = [-Math.sin(elevation) * Math.sin(azimuth), Math.cos(elevation), -Math.sin(elevation) * Math.cos(azimuth)]
-  // Moving the target opposite to the free area's offset slides the instrument into it.
-  const target: Vec3 = [
-    center[0] - screenRight[0] * shift + screenUp[0] * lift,
-    center[1] + screenUp[1] * lift,
-    center[2] - screenRight[2] * shift + screenUp[2] * lift,
-  ]
-  return { target, azimuth, elevation, radius }
+  const screenUp: Vec3 = [-Math.sin(elevation) * Math.sin(azimuth), cosine, -Math.sin(elevation) * Math.cos(azimuth)]
+  const viewportHeight = Math.max(1, input.viewportHeight ?? 720)
+  const pixelsPerWorld = viewportHeight / 2 / Math.tan((limits.fov * Math.PI) / 360) / Math.max(1e-6, radius + dot(relative, forward))
+  return {
+    target: reading,
+    azimuth,
+    elevation,
+    radius,
+    screenOffset: [
+      (input.centerOffsetPixels ?? 0) + dot(relative, screenRight) * pixelsPerWorld,
+      (input.centerOffsetYPixels ?? 0) - dot(relative, screenUp) * pixelsPerWorld,
+    ],
+  }
 }
 
 export function cameraLimits(tool: InstrumentTool) {

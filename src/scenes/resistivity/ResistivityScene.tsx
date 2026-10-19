@@ -65,14 +65,7 @@ export function ResistivityScene() {
           aspect: safeAspect,
           margin: 1.12,
         })
-        const fittedRadius = Math.max(base.radius, radius)
-        const shift = centerOffsetPixels * (2 * fittedRadius * Math.tan((limits.fov * Math.PI) / 360)) / Math.max(1, viewportSize.height)
-        const right: [number, number, number] = [Math.cos(base.azimuth), 0, -Math.sin(base.azimuth)]
-        return {
-          ...base,
-          radius: fittedRadius,
-          target: [base.target[0] - right[0] * shift, base.target[1], base.target[2] - right[2] * shift] as [number, number, number],
-        }
+        return { ...base, radius: Math.max(base.radius, radius), screenOffset: [centerOffsetPixels, 0] as [number, number] }
       })()
   useLayoutEffect(() => {
     currentView.current = fittedView
@@ -193,6 +186,7 @@ export function ResistivityScene() {
           camera={{ position, fov: limits.fov, near: limits.near, far: cameraFar }}
           adaptiveFraming={false}
           syncCamera
+          screenOffset={view.screenOffset}
           controlsEnabled={!instrumentDragging}
           controls={{
             target: view.target,

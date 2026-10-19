@@ -40,8 +40,8 @@ describe('resistivity structure', () => {
     fireEvent.click(screen.getByRole('radio', { name: '接电路' }))
     const controls = canvasProps.current?.controls as { maxDistance: number; target: number[] }
     expect(controls.maxDistance).toBeGreaterThanOrEqual(260)
-    expect(controls.target[0]).toBeLessThan(0)
-    expect(controls.target[1]).toBe(3)
-    expect(controls.target[2]).toBeLessThan(-1)
+    // The target stays on the circuit; the image is shifted right past the panels instead.
+    expect(controls.target).toEqual([0, 3, -1])
+    expect((canvasProps.current?.screenOffset as number[])[0]).toBeGreaterThan(0)
   })
 })

@@ -8,6 +8,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { useMediaQuery } from '../ui/hooks/useMediaQuery'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
+import { ProjectionOffset } from './ProjectionOffset'
 import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
 import { DEFAULT_ADAPTIVE_FRAMING, resolveAdaptiveFramingTarget, type AdaptiveFramingOptions } from './adaptiveFraming'
 import {
@@ -123,6 +124,8 @@ type InteractiveCanvasProps = PropsWithChildren<{
   controlsEnabled?: boolean
   /** Apply changing camera fit/preset inputs to the live Three.js camera. */
   syncCamera?: boolean
+  /** Shift the rendered image by [x, y] CSS px so the orbit target shows off-center. */
+  screenOffset?: [number, number]
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
   adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
   presentationFocus?: PresentationFocus
@@ -135,6 +138,7 @@ export function InteractiveCanvas({
   frameloop = 'always',
   controlsEnabled = true,
   syncCamera = false,
+  screenOffset,
   controls,
   adaptiveFraming = true,
   presentationFocus,
@@ -375,6 +379,7 @@ export function InteractiveCanvas({
           shadows={shadowsEnabled ? 'percentage' : false}
         >
           {children}
+          {screenOffset ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
           {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
           <OrbitControls
             ref={controlsRef}

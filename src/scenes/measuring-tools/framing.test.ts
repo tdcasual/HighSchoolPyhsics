@@ -25,7 +25,6 @@ function best(tool: 'caliper' | 'micrometer') {
       preset: 'home',
       caliperX: 23.45,
       reading: 6.125,
-      viewportHeight: desktop.height,
       aspect: (area.right - area.left) / desktop.height,
       heightFraction: (area.bottom - area.top) / desktop.height,
     })

@@ -3,10 +3,10 @@ import { MICROMETER_PITCH_MM } from './model'
 import {
   cameraLimits,
   caliperPose,
-
   instrumentBounds,
   instrumentView,
   micrometerPose,
+  MICROMETER_ZERO_X,
   orbitPosition,
   type InstrumentViewInput,
   type Vec3,
@@ -70,6 +70,8 @@ describe('measuring-tools poses', () => {
     for (const input of cases) {
       const view = instrumentView(input)
       const box = instrumentBounds(input)
+      // The fit is solved around the bounds center; the orbit target itself sits on the scale.
+      const center: Vec3 = [(box.min[0] + box.max[0]) / 2, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2]
       const fovTangent = Math.tan((cameraLimits(input.tool).fov * Math.PI) / 360)
       const horizontalTangent = fovTangent * (input.aspect ?? 16 / 9)
       const cosine = Math.cos(view.elevation)
@@ -81,7 +83,7 @@ describe('measuring-tools poses', () => {
       for (const x of [box.min[0], box.max[0]]) {
         for (const y of [box.min[1], box.max[1]]) {
           for (const z of [box.min[2], box.max[2]]) {
-            const relative: Vec3 = [x - view.target[0], y - view.target[1], z - view.target[2]]
+            const relative: Vec3 = [x - center[0], y - center[1], z - center[2]]
             const cameraDepth = view.radius - dot(relative, forward)
             expect(cameraDepth).toBeGreaterThan(0)
             const fitMargin = input.preset === 'focus' ? 1 : input.tool === 'micrometer' ? 1 : 1.07
@@ -91,6 +93,23 @@ describe('measuring-tools poses', () => {
         }
       }
     }
+  })
+
+  it('orbits around the reading zone and shifts the image so the instrument stays framed', () => {
+    const input: InstrumentViewInput = { tool: 'micrometer', mode: 'outer', preset: 'home', caliperX: 0, reading: 6.125, viewportHeight: 1000 }
+    const box = instrumentBounds(input)
+    const view = instrumentView({ ...input, centerOffsetPixels: 480, centerOffsetYPixels: -60 })
+    // Zoom dollies toward the target, so it sits on the sleeve scale (mid-travel), not the frame.
+    expect(view.target[0]).toBeCloseTo(MICROMETER_ZERO_X + 12.5 - 1, 8)
+    expect(instrumentView({ ...input, reading: 20 }).target).toEqual(view.target)
+    expect(view.target[0]).toBeGreaterThan((box.min[0] + box.max[0]) / 2)
+    // The scale is right of the frame center, so the image shifts right of the free-area center.
+    expect(view.screenOffset![0]).toBeGreaterThan(480)
+
+    const caliper = instrumentView({ tool: 'caliper', mode: 'outer', preset: 'home', caliperX: 23.45, reading: 0, centerOffsetPixels: 200 })
+    expect(caliper.target[0]).toBeGreaterThan(25)
+    expect(caliper.target[0]).toBeLessThan(25 + 19 + 14)
+    expect(caliper.screenOffset![0]).toBeLessThan(200)
   })
 
   it('fits the rotated depth view at wide and narrow aspect ratios', () => {
