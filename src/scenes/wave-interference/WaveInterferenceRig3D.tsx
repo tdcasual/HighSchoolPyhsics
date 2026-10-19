@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei/web/Html'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'

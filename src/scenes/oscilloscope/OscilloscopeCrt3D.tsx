@@ -1,4 +1,4 @@
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { buildBeamFlightTrailPoints, buildBeamPathPoints, deriveBeamPhase } from './beamPath'

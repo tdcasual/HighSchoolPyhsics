@@ -1,5 +1,5 @@
 import { Html } from '@react-three/drei/web/Html'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { useThree } from '@react-three/fiber'
 import { memo, useEffect, useMemo } from 'react'
 import { CanvasTexture, CylinderGeometry, DoubleSide, SRGBColorSpace } from 'three'

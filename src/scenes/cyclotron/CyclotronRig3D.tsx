@@ -1,4 +1,4 @@
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'

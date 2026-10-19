@@ -1,5 +1,5 @@
 import { Html } from '@react-three/drei/web/Html'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, LinearFilter, type Mesh } from 'three'

@@ -15,7 +15,7 @@
 .wave-state-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
 .wave-state-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
 .wave-state-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
-.wave-state-chart text { fill: #8a7e72; font-size: 10px; }
+.wave-state-chart text { fill: #8a7e72; font-size: 13px; }
 .wave-state-probe-curve { fill: none; stroke: #457b9d; stroke-width: 2.5; }
 .wave-state-arrival { stroke: #e76f51; stroke-width: 1.2; stroke-dasharray: 4 3; }
 .wave-state-arrival-label { fill: #e76f51 !important; }

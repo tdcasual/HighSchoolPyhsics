@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { Html, Line } from '@react-three/drei'
+import { Html } from '@react-three/drei'
+import { Line } from '../../scene3d/ClassroomLine'
 import { CanvasTexture, CatmullRomCurve3, Euler, SRGBColorSpace, Vector3 } from 'three'
 import { ohmFraction } from './model'
 import { NEEDLE_LENGTH, NEEDLE_PIVOT_Y, NEEDLE_SPAN, type MeterPose } from './pose'

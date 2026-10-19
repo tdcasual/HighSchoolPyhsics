@@ -1,4 +1,4 @@
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BufferAttribute, BufferGeometry, DoubleSide, Plane, Vector3 } from 'three'

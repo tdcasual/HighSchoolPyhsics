@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
 import type { ThemeMode } from '../../store/useAppStore'
 import { buildEquipotentialContours, buildFieldArcLines } from './model'

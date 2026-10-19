@@ -1,4 +1,4 @@
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useMemo, type ReactNode } from 'react'

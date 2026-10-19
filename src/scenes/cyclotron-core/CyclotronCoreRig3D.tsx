@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { Html } from '@react-three/drei/web/Html'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo } from 'react'
 import { DoubleSide, Shape } from 'three'
 import type { ThemeMode } from '../../store/useAppStore'

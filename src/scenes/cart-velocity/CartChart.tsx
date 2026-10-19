@@ -59,7 +59,7 @@ export function CartChart({
         return (
           <g key={`x-${index}`}>
             <line x1={x} y1={pad.top} x2={x} y2={height - pad.bottom} stroke="#dce7e8" />
-            <text x={x} y={height - pad.bottom + 16} textAnchor="middle" fontSize="10" fill="#60777d">{time.toFixed(1)}</text>
+            <text x={x} y={height - pad.bottom + 16} textAnchor="middle" fontSize="13" fill="#60777d">{time.toFixed(1)}</text>
           </g>
         )
       })}
@@ -69,14 +69,14 @@ export function CartChart({
         return (
           <g key={`y-${index}`}>
             <line x1={pad.left} y1={y} x2={width - pad.right} y2={y} stroke="#dce7e8" />
-            <text x={pad.left - 8} y={y + 3} textAnchor="end" fontSize="10" fill="#60777d">{speed.toFixed(yDecimals)}</text>
+            <text x={pad.left - 8} y={y + 3} textAnchor="end" fontSize="13" fill="#60777d">{speed.toFixed(yDecimals)}</text>
           </g>
         )
       })}
       <line x1={pad.left} y1={pad.top} x2={pad.left} y2={height - pad.bottom} stroke="#8aa0a6" />
       <line x1={pad.left} y1={height - pad.bottom} x2={width - pad.right} y2={height - pad.bottom} stroke="#8aa0a6" />
-      <text x={width / 2} y={height - 7} textAnchor="middle" fontSize="11" fill="#4d646c">t / s</text>
-      <text x="13" y={height / 2} textAnchor="middle" fontSize="11" fill="#4d646c" transform={`rotate(-90 13 ${height / 2})`}>v / (m·s⁻¹)</text>
+      <text x={width / 2} y={height - 7} textAnchor="middle" fontSize="14" fill="#4d646c">t / s</text>
+      <text x="13" y={height / 2} textAnchor="middle" fontSize="14" fill="#4d646c" transform={`rotate(-90 13 ${height / 2})`}>v / (m·s⁻¹)</text>
       {runs.map((run) => {
         const line = runFit(run, group)
         if (!line) return null
@@ -108,8 +108,8 @@ export function CartChart({
         <g className="cart-slope-triangle" data-testid="slope-triangle">
           <line x1={mapX(first.t)} y1={mapY(firstFit)} x2={mapX(last.t)} y2={mapY(firstFit)} stroke="#c17a48" strokeWidth="1.5" strokeDasharray="4 3" />
           <line x1={mapX(last.t)} y1={mapY(firstFit)} x2={mapX(last.t)} y2={mapY(lastFit)} stroke="#c17a48" strokeWidth="1.5" strokeDasharray="4 3" />
-          <text x={(mapX(first.t) + mapX(last.t)) / 2} y={mapY(firstFit) - 5} textAnchor="middle" fontSize="10" fill="#a86435">Δt</text>
-          <text x={mapX(last.t) + 5} y={(mapY(firstFit) + mapY(lastFit)) / 2} fontSize="10" fill="#a86435">Δv</text>
+          <text x={(mapX(first.t) + mapX(last.t)) / 2} y={mapY(firstFit) - 5} textAnchor="middle" fontSize="13" fill="#a86435">Δt</text>
+          <text x={mapX(last.t) + 5} y={(mapY(firstFit) + mapY(lastFit)) / 2} fontSize="13" fill="#a86435">Δv</text>
         </g>
       ) : null}
       {points.map((point) => (

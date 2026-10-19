@@ -13,7 +13,7 @@
 .orthogonal-em-wave-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
 .orthogonal-em-wave-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
 .orthogonal-em-wave-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
-.orthogonal-em-wave-chart text { fill: #8a7e72; font-size: 10px; }
+.orthogonal-em-wave-chart text { fill: #8a7e72; font-size: 13px; }
 .orthogonal-em-wave-e-curve { fill: none; stroke: #e63946; stroke-width: 2.4; }
 .orthogonal-em-wave-b-curve { fill: none; stroke: #457b9d; stroke-width: 2.4; stroke-dasharray: 5 3; }
 .orthogonal-em-wave-tracker { stroke: rgba(42, 157, 143, 0.8); stroke-width: 1.2; stroke-dasharray: 3 3; }

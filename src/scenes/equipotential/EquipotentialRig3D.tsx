@@ -1,5 +1,5 @@
 import { Html } from '@react-three/drei/web/Html'
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { useEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry, DoubleSide } from 'three'
 import type { EquipotentialCharge, EquipotentialSurface } from './model'

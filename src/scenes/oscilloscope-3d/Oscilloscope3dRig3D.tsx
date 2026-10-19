@@ -1,4 +1,4 @@
-import { Line } from '@react-three/drei/core/Line'
+import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { useEffect, useMemo } from 'react'

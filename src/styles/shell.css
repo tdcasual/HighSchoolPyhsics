@@ -440,6 +440,20 @@ body {
   cursor: pointer;
 }
 
+.chart-mask {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 160px;
+  border: 1.5px dashed var(--action-active-border);
+  border-radius: 12px;
+  background: var(--control-accent-6);
+  color: var(--action-active-border);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .answer-mask:hover {
   background: var(--control-accent-10);
 }
