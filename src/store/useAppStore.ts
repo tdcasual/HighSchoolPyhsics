@@ -23,6 +23,8 @@ type AppState = {
   predicting: boolean
   /** Slow motion for scenes that opt into the shared time control; reset per scene. */
   playbackRate: number
+  /** Overview arrangement: by textbook chapter, physics topic or lesson type. Persisted. */
+  navView: NavViewId
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
   setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
@@ -31,9 +33,12 @@ type AppState = {
   setPresenting: (presenting: boolean) => void
   setPredicting: (predicting: boolean) => void
   setPlaybackRate: (playbackRate: number) => void
+  setNavView: (navView: NavViewId) => void
 }
 
-type PersistedAppState = Pick<AppState, 'theme' | 'largeText'>
+export type NavViewId = 'textbook' | 'topic' | 'lesson'
+
+type PersistedAppState = Pick<AppState, 'theme' | 'largeText' | 'navView'>
 
 type BasicStorage = {
   getItem: (name: string) => string | null
@@ -62,8 +67,12 @@ function sanitizeThemeMode(value: unknown, fallback: ThemeMode): ThemeMode {
   return value === 'day' || value === 'night' ? value : fallback
 }
 
+function sanitizeNavView(value: unknown, fallback: NavViewId): NavViewId {
+  return value === 'textbook' || value === 'topic' || value === 'lesson' ? value : fallback
+}
+
 function pickPersistedAppState(state: AppState): PersistedAppState {
-  return { theme: sanitizeThemeMode(state.theme, 'day'), largeText: state.largeText !== false }
+  return { theme: sanitizeThemeMode(state.theme, 'day'), largeText: state.largeText !== false, navView: sanitizeNavView(state.navView, 'textbook') }
 }
 
 function sanitizePersistedAppState(value: unknown, fallback: PersistedAppState): PersistedAppState {
@@ -71,6 +80,7 @@ function sanitizePersistedAppState(value: unknown, fallback: PersistedAppState):
   return {
     theme: sanitizeThemeMode(value.theme, fallback.theme),
     largeText: typeof value.largeText === 'boolean' ? value.largeText : fallback.largeText,
+    navView: sanitizeNavView(value.navView, fallback.navView),
   }
 }
 
@@ -99,6 +109,7 @@ export const useAppStore = create<AppState>()(
       presenting: false,
       predicting: false,
       playbackRate: 1,
+      navView: 'textbook',
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
       setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
@@ -107,11 +118,12 @@ export const useAppStore = create<AppState>()(
       setPresenting: (presenting) => set({ presenting }),
       setPredicting: (predicting) => set({ predicting }),
       setPlaybackRate: (playbackRate) => set({ playbackRate }),
+      setNavView: (navView) => set({ navView }),
     }),
     {
       name: 'electromagnetics-lab-ui',
       storage: createJSONStorage(resolveStorage),
-      partialize: (state) => ({ theme: state.theme, largeText: state.largeText }),
+      partialize: (state) => ({ theme: state.theme, largeText: state.largeText, navView: state.navView }),
       merge: (persistedState, currentState) => ({
         ...currentState,
         ...sanitizePersistedAppState(persistedState, pickPersistedAppState(currentState)),

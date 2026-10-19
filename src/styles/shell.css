@@ -1368,6 +1368,35 @@ input[type="range"]::-moz-range-track {
   color: var(--overview-ink-muted);
 }
 
+.scene-overview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+}
+
+.scene-overview-toolbar > :first-child {
+  width: min(360px, 100%);
+}
+
+.scene-overview-search {
+  flex: 1 1 260px;
+  max-width: 420px;
+  padding: 0 1rem;
+  border: 1px solid var(--overview-border);
+  border-radius: 999px;
+  background: var(--overview-card-bg);
+  color: var(--overview-ink-soft);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.scene-overview-empty {
+  margin: 2rem 0;
+  color: var(--overview-ink-soft);
+}
+
 .scene-overview-jump {
   display: flex;
   flex-wrap: wrap;

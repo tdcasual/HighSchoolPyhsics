@@ -4,7 +4,8 @@ import { NavigationPage } from '../NavigationPage'
 import type { DemoRoute } from '../../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../../app/routeWarmupPolicy'
 import sceneCatalog from '../../../config/demo-scenes.json'
-import { PHYSICS_REGIONS, orderRoutesForOverview } from '../../ui/navigation/regionData'
+import { PHYSICS_REGIONS } from '../../ui/navigation/regionData'
+import { NAVIGATION_VIEWS, findNavigationView, orderRoutesForView } from '../../ui/navigation/navigationViews'
 
 vi.mock('../../app/routeWarmupPolicy', () => ({
   shouldWarmRouteOnOverview: vi.fn(() => true),
@@ -98,10 +99,17 @@ describe('NavigationPage Linear layout', () => {
     expect(onOpenRoute).toHaveBeenCalledWith('/cyclotron')
   })
 
-  it('numbers cards in chapter teaching order, matching the 1–9 shortcuts', () => {
-    const ordered = orderRoutesForOverview(sceneCatalog)
+  it('orders the textbook view by chapter teaching order', () => {
+    const ordered = orderRoutesForView(findNavigationView('textbook'), sceneCatalog)
     expect(ordered.map((entry) => entry.pageId).slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'celestial-motion'])
-    expect(ordered).toHaveLength(sceneCatalog.length)
+  })
+
+  it('places every catalogued scene exactly once in every view', () => {
+    for (const view of NAVIGATION_VIEWS) {
+      const ids = view.groups.flatMap((group) => group.scenePageIds)
+      expect(new Set(ids).size, view.id).toBe(ids.length)
+      expect([...ids].sort(), view.id).toEqual(sceneCatalog.map((entry) => entry.pageId).sort())
+    }
   })
 
   it('places every catalogued scene in exactly one topic', () => {

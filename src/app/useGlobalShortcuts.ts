@@ -1,13 +1,9 @@
 import { useEffect } from 'react'
-import type { DemoRoute } from './demoRoutes'
 import type { ThemeMode } from '../store/useAppStore'
-import { safePreload } from './safePreload'
 
 type UseGlobalShortcutsOptions = {
-  routes: DemoRoute[]
   pathname: string
   setTheme: (theme: ThemeMode) => void
-  navigateTo: (path: string) => void
   onToggleHelp?: () => void
   onToggleLargeText?: () => void
   onTogglePresenting?: () => void
@@ -22,10 +18,8 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 export function useGlobalShortcuts({
-  routes,
   pathname,
   setTheme,
-  navigateTo,
   onToggleHelp,
   onToggleLargeText,
   onTogglePresenting,
@@ -46,14 +40,10 @@ export function useGlobalShortcuts({
       if (key === 'escape') { onExitPresenting?.(); return }
       if (key === 'p' && pathname !== '/') { event.preventDefault(); onTogglePresenting?.(); return }
       if (key === 'h' && pathname !== '/') { event.preventDefault(); onTogglePredicting?.(); return }
-
-      if (pathname === '/' && /^[1-9]$/.test(key)) {
-        const nextRoute = routes[Number(key) - 1]
-        if (nextRoute) { event.preventDefault(); safePreload(nextRoute.preload); navigateTo(nextRoute.path) }
-      }
+      // 1–9 and / on the overview are handled by NavigationPage, which knows the current view.
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [navigateTo, onExitPresenting, onToggleHelp, onToggleLargeText, onTogglePredicting, onTogglePresenting, pathname, routes, setTheme])
+  }, [onExitPresenting, onToggleHelp, onToggleLargeText, onTogglePredicting, onTogglePresenting, pathname, setTheme])
 }

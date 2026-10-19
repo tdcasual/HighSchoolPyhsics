@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import App from '../../App'
 import { useAppStore } from '../../store/useAppStore'
 
-function navigateToScene(sceneName: string) {
+async function navigateToScene(sceneName: string) {
   fireEvent.click(screen.getByRole('button', { name: '返回导航' }))
-  fireEvent.click(screen.getByText(sceneName))
+  // The overview is loaded on demand.
+  fireEvent.click(await screen.findByText(sceneName, {}, { timeout: 3000 }))
 }
 
 describe('3d interaction policy', () => {
@@ -21,15 +22,15 @@ describe('3d interaction policy', () => {
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
 
-    navigateToScene('回旋加速器')
+    await navigateToScene('回旋加速器')
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
 
-    navigateToScene('磁流体发电机')
+    await navigateToScene('磁流体发电机')
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
 
-    navigateToScene('奥斯特实验')
+    await navigateToScene('奥斯特实验')
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
   })

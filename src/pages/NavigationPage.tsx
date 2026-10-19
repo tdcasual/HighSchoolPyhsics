@@ -2,7 +2,9 @@ import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } fr
 import type { DemoRoute } from '../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
-import { PHYSICS_REGIONS, TEXTBOOK_VOLUMES, findVolumeById } from '../ui/navigation/regionData'
+import { NAVIGATION_VIEWS, findNavigationView, type NavigationViewId } from '../ui/navigation/navigationViews'
+import { SegmentedControl } from '../ui/controls/SegmentedControl'
+import { useAppStore } from '../store/useAppStore'
 
 export type NavigationPageProps = {
   routes: DemoRoute[]
@@ -129,24 +131,65 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     [handlePointerLeave, onOpenRoute],
   )
 
-  // Chapters in textbook order, scenes in each chapter's teaching order; card numbers run across
-  // the page and match the 1–9 shortcuts (see orderRoutesForOverview).
+  const navView = useAppStore((state) => state.navView)
+  const setNavView = useAppStore((state) => state.setNavView)
+  const view = findNavigationView(navView)
+  const [query, setQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  // Cards are numbered across the page in the view's order; the 1–9 shortcuts follow the same
+  // numbers, so they always open what the teacher sees.
   const routesById = new Map(routes.map((route) => [route.pageId, route]))
+  const needle = query.trim().toLowerCase()
+  // A search hits a scene by its own text or by its group (a chapter title names the knowledge point).
+  const matches = (route: DemoRoute, group: { title: string; description: string }) =>
+    !needle ||
+    [route.label, route.meta?.summary, route.meta?.tag, route.meta?.level, ...(route.meta?.highlights ?? []), group.title, group.description]
+      .some((text) => text?.toLowerCase().includes(needle))
   let runningIndex = 0
-  const indexedGroups = PHYSICS_REGIONS.flatMap((region) => {
-    const regionRoutes = region.scenePageIds
+  const indexedGroups = view.groups.flatMap((group) => {
+    const groupRoutes = group.scenePageIds
       .map((pageId) => routesById.get(pageId))
-      .filter((route): route is DemoRoute => route !== undefined)
+      .filter((route): route is DemoRoute => route !== undefined && matches(route, group))
       .map((route) => ({ route, index: ++runningIndex }))
-    const volume = findVolumeById(region.volumeId)
-    return regionRoutes.length > 0 && volume ? [{ region, volume, routes: regionRoutes }] : []
+    return groupRoutes.length > 0 ? [{ group, routes: groupRoutes }] : []
   })
-  const volumeChips = TEXTBOOK_VOLUMES.flatMap((volume) => {
-    const groups = indexedGroups.filter((group) => group.volume.id === volume.id)
-    return groups.length > 0
-      ? [{ volume, firstRegionId: groups[0].region.id, count: groups.reduce((sum, group) => sum + group.routes.length, 0) }]
-      : []
+  const numberedRoutes = indexedGroups.flatMap((group) => group.routes.map(({ route }) => route))
+  const jumpChips = indexedGroups.reduce<{ id: string; label: string; anchor: string; color: string; count: number }[]>(
+    (chips, { group, routes: groupRoutes }) => {
+      const jump = group.jumpGroup ?? { id: group.id, label: group.title }
+      const existing = chips.find((chip) => chip.id === jump.id)
+      if (existing) existing.count += groupRoutes.length
+      else chips.push({ id: jump.id, label: jump.label, anchor: group.id, color: group.color, count: groupRoutes.length })
+      return chips
+    },
+    [],
+  )
+
+  const numberedRoutesRef = useRef(numberedRoutes)
+  useEffect(() => {
+    numberedRoutesRef.current = numberedRoutes
   })
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      const target = event.target
+      const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+      if (event.key === '/' && !typing) {
+        event.preventDefault()
+        searchRef.current?.focus()
+        return
+      }
+      if (typing || !/^[1-9]$/.test(event.key)) return
+      const route = numberedRoutesRef.current[Number(event.key) - 1]
+      if (!route || typeof route.path !== 'string') return
+      event.preventDefault()
+      safePreload(route.preload)
+      onOpenRoute(route.path)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onOpenRoute])
 
   return (
     <section className="scene-overview" data-testid="overview-page">
@@ -154,23 +197,43 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
         <span className="scene-overview-kicker">物理演示</span>
         <h1 className="scene-overview-title">高中物理 3D 课堂</h1>
         <p className="scene-overview-count">
-          {routes.length} 个交互演示场景 · 按人教版教材章节排列
+          {routes.length} 个交互演示场景 · {view.caption}
         </p>
-        {volumeChips.length > 1 ? (
-          <nav className="scene-overview-jump" aria-label="教材分册">
-            {volumeChips.map(({ volume, firstRegionId, count }) => (
+        <div className="scene-overview-toolbar">
+          <SegmentedControl
+            options={NAVIGATION_VIEWS.map((option) => ({ key: option.id, label: option.label }))}
+            value={view.id}
+            onChange={(key) => setNavView(key as NavigationViewId)}
+          />
+          <input
+            ref={searchRef}
+            type="search"
+            className="scene-overview-search touch-target"
+            placeholder="搜索场景、知识点（快捷键 /）"
+            aria-label="搜索场景"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setQuery('')
+              if (event.key === 'Enter' && numberedRoutes[0]) onOpenRoute(numberedRoutes[0].path)
+            }}
+          />
+        </div>
+        {jumpChips.length > 1 ? (
+          <nav className="scene-overview-jump" aria-label="分组">
+            {jumpChips.map((chip) => (
               <a
-                key={volume.id}
-                href={`#region-${firstRegionId}`}
+                key={chip.id}
+                href={`#group-${chip.anchor}`}
                 className="scene-overview-jump-link"
-                style={{ '--scene-card-accent': volume.color } as CSSProperties}
+                style={{ '--scene-card-accent': chip.color } as CSSProperties}
                 onClick={(event) => {
                   event.preventDefault()
-                  document.getElementById(`region-${firstRegionId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  document.getElementById(`group-${chip.anchor}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }}
               >
-                {volume.name}
-                <span>{count}</span>
+                {chip.label}
+                <span>{chip.count}</span>
               </a>
             ))}
           </nav>
@@ -178,27 +241,30 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
       </header>
 
       <main className="scene-overview-groups">
-        {indexedGroups.map(({ region, volume, routes: regionRoutes }) => (
+        {indexedGroups.length === 0 ? (
+          <p className="scene-overview-empty">没有找到与「{query.trim()}」相关的场景。</p>
+        ) : null}
+        {indexedGroups.map(({ group, routes: groupRoutes }) => (
           <section
-            key={region.id}
-            id={`region-${region.id}`}
+            key={group.id}
+            id={`group-${group.id}`}
             className="scene-overview-group"
-            aria-labelledby={`region-${region.id}-title`}
-            style={{ '--scene-card-accent': volume.color } as CSSProperties}
+            aria-labelledby={`group-${group.id}-title`}
+            style={{ '--scene-card-accent': group.color } as CSSProperties}
           >
             <div className="scene-overview-group-header">
               <span className="scene-overview-group-dot" />
-              <span className="scene-overview-group-volume">{volume.shortName}</span>
-              <h2 id={`region-${region.id}-title`} className="scene-overview-group-name">{region.name}</h2>
-              <span className="scene-overview-group-desc">{region.description}</span>
+              {group.badge ? <span className="scene-overview-group-volume">{group.badge}</span> : null}
+              <h2 id={`group-${group.id}-title`} className="scene-overview-group-name">{group.title}</h2>
+              <span className="scene-overview-group-desc">{group.description}</span>
             </div>
             <div className="scene-overview-grid">
-              {regionRoutes.map(({ route, index }) => (
+              {groupRoutes.map(({ route, index }) => (
                 <SceneCard
                   key={route.pageId}
                   route={route}
                   index={index}
-                  accent={volume.color}
+                  accent={group.color}
                   onPointerEnter={handlePointerEnter}
                   onPointerLeave={handlePointerLeave}
                   onPointerDown={warmRouteNow}
@@ -214,3 +280,5 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     </section>
   )
 }
+
+export default NavigationPage

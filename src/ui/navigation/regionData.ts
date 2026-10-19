@@ -130,19 +130,3 @@ export function findVolumeById(id: string): TextbookVolume | undefined {
 export function getRegionSceneCount(region: PhysicsRegion): number {
   return region.scenePageIds.length
 }
-
-/**
- * Routes in overview order: textbook chapter, then the chapter's teaching order. The overview's
- * card numbers and the 1–9 shortcuts both use this order so they always agree.
- */
-export function orderRoutesForOverview<T extends { pageId: string }>(routes: T[]): T[] {
-  const byId = new Map(routes.map((route) => [route.pageId, route]))
-  const ordered: T[] = []
-  for (const region of PHYSICS_REGIONS) {
-    for (const pageId of region.scenePageIds) {
-      const route = byId.get(pageId)
-      if (route) ordered.push(route)
-    }
-  }
-  return ordered
-}

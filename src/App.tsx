@@ -1,19 +1,16 @@
-import { orderRoutesForOverview } from './ui/navigation/regionData'
-import { Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import {
   DEMO_ROUTES,
   findDemoRoute,
   normalizeDemoPath,
 } from './app/demoRoutes'
 import { SceneRuntimeBoundary } from './app/SceneRuntimeBoundary'
-import { NavigationPage } from './pages/NavigationPage'
 import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
 import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize } from './app/touchProfile'
 import { useMediaQuery, MOBILE_BREAKPOINT } from './ui/hooks/useMediaQuery'
-import { ShortcutHelpOverlay } from './ui/overlays/ShortcutHelpOverlay'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -29,7 +26,11 @@ function resolveRouteButtonPath(path: unknown): string {
   return isNonBlankText(path) ? path : '/'
 }
 
-const OVERVIEW_ROUTES = orderRoutesForOverview(DEMO_ROUTES)
+// The overview and the shortcut help are loaded on demand so the entry stays a thin shell.
+const NavigationPage = lazy(() => import('./pages/NavigationPage'))
+const ShortcutHelpOverlay = lazy(() =>
+  import('./ui/overlays/ShortcutHelpOverlay').then((module) => ({ default: module.ShortcutHelpOverlay })),
+)
 
 function App() {
   const theme = useAppStore((state) => state.theme)
@@ -120,11 +121,8 @@ function App() {
   }, [])
 
   useGlobalShortcuts({
-    // 1–9 open the cards numbered 01–09 on the overview.
-    routes: OVERVIEW_ROUTES,
     pathname,
     setTheme,
-    navigateTo,
     onToggleHelp: () => setHelpVisible((v) => !v),
     onToggleLargeText: () => setLargeText(!largeText),
     onTogglePresenting: () => (presenting ? exitPresenting() : enterPresenting()),
@@ -331,7 +329,11 @@ function App() {
           )}
         </Suspense>
       </section>
-      <ShortcutHelpOverlay visible={helpVisible} onClose={() => setHelpVisible(false)} />
+      {helpVisible ? (
+        <Suspense fallback={null}>
+          <ShortcutHelpOverlay visible onClose={() => setHelpVisible(false)} />
+        </Suspense>
+      ) : null}
     </main>
   )
 }

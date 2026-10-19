@@ -13,6 +13,7 @@ describe('App shell', () => {
       activeScenePath: '/',
       largeText: true,
       presenting: false,
+      navView: 'textbook',
     })
     window.history.replaceState(null, '', '/')
   })
@@ -21,13 +22,14 @@ describe('App shell', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders the product title and overview navigation entries', () => {
+  it('renders the product title and overview navigation entries', async () => {
     render(<App />)
 
     expect(
       screen.getByRole('heading', { name: '教学动画演示' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('物理演示')).toBeInTheDocument()
+    // The overview is loaded on demand.
+    expect(await screen.findByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
 
     // Scenes are grouped by textbook chapter
@@ -61,6 +63,33 @@ describe('App shell', () => {
     expect(shell).toHaveClass('theme-day')
     expect(dayButton).toHaveAttribute('aria-pressed', 'true')
     expect(nightButton).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('switches the overview between textbook, topic and lesson-type views', async () => {
+    useAppStore.setState({ navView: 'textbook' })
+    render(<App />)
+    expect(await screen.findByRole('heading', { level: 2, name: '第十一章 电路及其应用' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: '按专题' }))
+    expect(screen.getByRole('heading', { level: 2, name: '电磁感应与交变电流' })).toBeInTheDocument()
+    expect(useAppStore.getState().navView).toBe('topic')
+
+    fireEvent.click(screen.getByRole('radio', { name: '按课型' }))
+    expect(screen.getByRole('heading', { level: 2, name: '学生实验' })).toBeInTheDocument()
+    // 1 follows the visible numbering: card 01 of 按课型 is the measuring tools.
+    fireEvent.keyDown(window, { key: '1' })
+    expect(window.location.pathname).toBe('/measuring-tools')
+    useAppStore.setState({ navView: 'textbook' })
+  })
+
+  it('filters the overview with search', async () => {
+    render(<App />)
+    const search = await screen.findByRole('searchbox', { name: '搜索场景' })
+    fireEvent.change(search, { target: { value: '洛伦兹' } })
+    expect(screen.getByText(/回旋加速器核心结构与原理/)).toBeInTheDocument()
+    expect(screen.queryByText('打点计时器')).not.toBeInTheDocument()
+    fireEvent.change(search, { target: { value: '不存在的场景' } })
+    expect(screen.getByText(/没有找到/)).toBeInTheDocument()
   })
 
   it('toggles classroom large text from the header and the L shortcut', () => {
@@ -146,6 +175,7 @@ describe('App shell', () => {
     expect(shell).toHaveClass('theme-night')
 
     // 1 opens card 01 on the overview: the first scene of the first textbook chapter.
+    await screen.findByText('物理演示')
     fireEvent.keyDown(window, { key: '1' })
     expect(await screen.findByText('打点计时器控制', {}, { timeout: 3000 })).toBeInTheDocument()
     expect(window.location.pathname).toBe('/ticker-timer')
