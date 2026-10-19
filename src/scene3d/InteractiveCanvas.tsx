@@ -157,7 +157,9 @@ export function InteractiveCanvas({
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const overlays = useOverlayObstacles(rootRef)
-  const safeAreaTransform = screenOffset || safeArea === false
+  // Lecture mode hides every overlay, so the composition goes back to the canvas center.
+  const presenting = useAppStore((state) => state.presenting)
+  const safeAreaTransform = presenting || screenOffset || safeArea === false
     ? null
     : resolveSafeAreaTransform({ width: overlays.width, obstacles: overlays.obstacles, options: safeArea === true ? undefined : safeArea })
   const adaptiveBaseTargetRef = useRef<{
@@ -393,7 +395,7 @@ export function InteractiveCanvas({
           shadows={shadowsEnabled ? 'percentage' : false}
         >
           {children}
-          {screenOffset ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
+          {screenOffset && !presenting ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
           {safeAreaTransform ? <ProjectionOffset {...safeAreaTransform} /> : null}
           {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
           <OrbitControls

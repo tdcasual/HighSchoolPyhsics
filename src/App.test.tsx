@@ -12,6 +12,7 @@ describe('App shell', () => {
       theme: 'day',
       activeScenePath: '/',
       largeText: true,
+      presenting: false,
     })
     window.history.replaceState(null, '', '/')
   })
@@ -77,6 +78,31 @@ describe('App shell', () => {
 
     fireEvent.keyDown(window, { key: 'l' })
     expect(shell).toHaveClass('text-large')
+  })
+
+  it('enters lecture mode on scene pages and leaves it with Esc or the exit button', async () => {
+    window.history.replaceState(null, '', '/oscilloscope')
+    const { container } = render(<App />)
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    await screen.findByText('X 偏转电压 Ux(t)', {}, { timeout: 3000 })
+
+    fireEvent.click(within(shell).getByRole('button', { name: '讲解' }))
+    expect(shell).toHaveClass('presenting')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(shell).not.toHaveClass('presenting')
+
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(shell).toHaveClass('presenting')
+    fireEvent.click(screen.getByRole('button', { name: '退出讲解' }))
+    expect(shell).not.toHaveClass('presenting')
+  })
+
+  it('offers no lecture mode on the overview page', () => {
+    const { container } = render(<App />)
+    const shell = container.querySelector('.app-shell') as HTMLElement
+    expect(within(shell).queryByRole('button', { name: '讲解' })).not.toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(shell).not.toHaveClass('presenting')
   })
 
   it('keeps root path on overview navigation page', async () => {

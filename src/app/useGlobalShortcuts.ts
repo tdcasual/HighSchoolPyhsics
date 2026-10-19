@@ -10,6 +10,8 @@ type UseGlobalShortcutsOptions = {
   navigateTo: (path: string) => void
   onToggleHelp?: () => void
   onToggleLargeText?: () => void
+  onTogglePresenting?: () => void
+  onExitPresenting?: () => void
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -25,6 +27,8 @@ export function useGlobalShortcuts({
   navigateTo,
   onToggleHelp,
   onToggleLargeText,
+  onTogglePresenting,
+  onExitPresenting,
 }: UseGlobalShortcutsOptions): void {
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -37,6 +41,8 @@ export function useGlobalShortcuts({
       if (key === 'n') { event.preventDefault(); setTheme('night'); return }
       if (key === '?') { event.preventDefault(); onToggleHelp?.(); return }
       if (key === 'l') { event.preventDefault(); onToggleLargeText?.(); return }
+      if (key === 'escape') { onExitPresenting?.(); return }
+      if (key === 'p' && pathname !== '/') { event.preventDefault(); onTogglePresenting?.(); return }
 
       if (pathname === '/' && /^[1-9]$/.test(key)) {
         const nextRoute = routes[Number(key) - 1]
@@ -46,5 +52,5 @@ export function useGlobalShortcuts({
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [navigateTo, onToggleHelp, onToggleLargeText, pathname, routes, setTheme])
+  }, [navigateTo, onExitPresenting, onToggleHelp, onToggleLargeText, onTogglePresenting, pathname, routes, setTheme])
 }

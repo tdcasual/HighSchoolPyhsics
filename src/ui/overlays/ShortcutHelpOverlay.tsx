@@ -7,6 +7,7 @@ const SHORTCUT_GROUPS = [
       { keys: ['D'], desc: '切换到白天模式' },
       { keys: ['N'], desc: '切换到夜间模式' },
       { keys: ['L'], desc: '切换课堂大字（读数、图表、3D 标签放大）' },
+      { keys: ['P'], desc: '演示页：讲解模式（只显示 3D 并全屏）' },
       { keys: ['?'], desc: '显示/隐藏快捷键帮助' },
     ],
   },
@@ -20,7 +21,7 @@ const SHORTCUT_GROUPS = [
     title: '通用',
     items: [
       { keys: ['空格'], desc: '演示页：播放 / 暂停' },
-      { keys: ['Esc'], desc: '关闭弹窗/返回导航页' },
+      { keys: ['Esc'], desc: '关闭弹窗 / 退出讲解模式' },
     ],
   },
 ]

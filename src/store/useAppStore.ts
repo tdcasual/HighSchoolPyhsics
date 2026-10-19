@@ -17,11 +17,14 @@ type AppState = {
   sidebarCollapsed: boolean
   /** Classroom projection text scale for readouts, charts and 3D labels. */
   largeText: boolean
+  /** Lecture mode: only the 3D view is shown, fullscreen. Never persisted. */
+  presenting: boolean
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
   setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
   setSidebarCollapsed: (collapsed: boolean) => void
   setLargeText: (largeText: boolean) => void
+  setPresenting: (presenting: boolean) => void
 }
 
 type PersistedAppState = Pick<AppState, 'theme' | 'largeText'>
@@ -87,11 +90,13 @@ export const useAppStore = create<AppState>()(
       mobilePlaybackActions: [],
       sidebarCollapsed: false,
       largeText: true,
+      presenting: false,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
       setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
       setLargeText: (largeText) => set({ largeText }),
+      setPresenting: (presenting) => set({ presenting }),
     }),
     {
       name: 'electromagnetics-lab-ui',

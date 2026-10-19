@@ -301,6 +301,47 @@ body {
   backdrop-filter: blur(12px);
 }
 
+/* ── Lecture mode: only the 3D view, edge to edge ── */
+.app-shell.presenting {
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+}
+
+.app-shell.presenting .app-header,
+.app-shell.presenting .sidebar-panel,
+.app-shell.presenting .floating-panel,
+.app-shell.presenting .panel-restore-dock,
+.app-shell.presenting .interaction-hint {
+  display: none;
+}
+
+.app-shell.presenting .scene-container {
+  border-radius: 0;
+}
+
+.presenting-exit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 60;
+  padding: 0 1rem;
+  border: 1px solid var(--action-border);
+  border-radius: 999px;
+  background: var(--panel-glass-bg);
+  color: var(--action-ink);
+  font-weight: 600;
+  font-size: 0.85rem;
+  opacity: 0.55;
+  backdrop-filter: blur(12px);
+  transition: opacity 200ms ease;
+}
+
+.presenting-exit:hover,
+.presenting-exit:focus-visible {
+  opacity: 1;
+}
+
 /* ── Classroom large text ── */
 /* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
    scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.

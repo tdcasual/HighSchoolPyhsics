@@ -33,6 +33,8 @@ function App() {
   const setTheme = useAppStore((state) => state.setTheme)
   const largeText = useAppStore((state) => state.largeText)
   const setLargeText = useAppStore((state) => state.setLargeText)
+  const presenting = useAppStore((state) => state.presenting)
+  const setPresenting = useAppStore((state) => state.setPresenting)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
   const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
@@ -84,7 +86,26 @@ function App() {
 
   useEffect(() => {
     setActiveScenePath(pathname)
-  }, [pathname, setActiveScenePath])
+    setPresenting(false)
+  }, [pathname, setActiveScenePath, setPresenting])
+
+  // Leaving browser fullscreen (Esc is taken by the browser there) also ends lecture mode.
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) setPresenting(false)
+    }
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
+  }, [setPresenting])
+
+  const enterPresenting = () => {
+    setPresenting(true)
+    document.documentElement.requestFullscreen?.().catch(() => {})
+  }
+  const exitPresenting = () => {
+    setPresenting(false)
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {})
+  }
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -99,6 +120,10 @@ function App() {
     navigateTo,
     onToggleHelp: () => setHelpVisible((v) => !v),
     onToggleLargeText: () => setLargeText(!largeText),
+    onTogglePresenting: () => (presenting ? exitPresenting() : enterPresenting()),
+    onExitPresenting: () => {
+      if (presenting) exitPresenting()
+    },
   })
 
   const isOverviewPage = pathname === '/'
@@ -110,7 +135,8 @@ function App() {
     () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
     [activeTouchProfile],
   )
-  const shellClassName = `app-shell theme-${theme}${largeText ? ' text-large' : ''}`
+  const presentingActive = presenting && !isOverviewPage && !isMobile
+  const shellClassName = `app-shell theme-${theme}${largeText ? ' text-large' : ''}${presentingActive ? ' presenting' : ''}`
 
   if (!runtimeCapabilities.supported) {
     return (
@@ -218,6 +244,17 @@ function App() {
                   夜间模式
                 </button>
               </div>
+              {!isOverviewPage ? (
+                <button
+                  type="button"
+                  className="touch-target large-text-toggle"
+                  aria-keyshortcuts="P"
+                  title="讲解模式：只显示 3D 并全屏，Esc 退出（快捷键 P）"
+                  onClick={enterPresenting}
+                >
+                  讲解
+                </button>
+              ) : null}
               <button
                 type="button"
                 className={`touch-target large-text-toggle ${largeText ? 'active' : ''}`.trim()}
@@ -241,6 +278,11 @@ function App() {
           )}
         </div>
       </header>
+      {presentingActive ? (
+        <button type="button" className="touch-target presenting-exit" onClick={exitPresenting}>
+          退出讲解
+        </button>
+      ) : null}
       <section className="scene-container" id="scene-content">
         <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
           {isOverviewPage ? (
