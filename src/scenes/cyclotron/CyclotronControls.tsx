@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
@@ -74,9 +75,9 @@ export function CyclotronControls({
           value={energyMode}
           onChange={(key) => onEnergyModeChange(key as CyclotronEnergyMode)}
         />
-        <p className="text-xs leading-5 text-slate-500">
+        <ModelNote><p className="text-xs leading-5 text-slate-500">
           此模式只切换封顶于理想圆轨道 Ek,max 的理论曲线；实时动能来自粒子仿真，强缝隙电场下可能暂时高于该参考值。D 形盒半径固定，轨道尺寸为示意。
-        </p>
+        </p></ModelNote>
       </ControlSection>
     </div>
   )

@@ -5,6 +5,7 @@ import { SidebarPanel } from '../panels/SidebarPanel'
 import { SegmentedControl } from '../controls/SegmentedControl'
 import { useMediaQuery, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
 import { useAppStore, type MobilePlaybackAction } from '../../store/useAppStore'
+import { ModelNoteTargetContext } from '../notes/modelNoteTarget'
 
 type SceneLayoutProps = {
   viewport: ReactNode
@@ -58,6 +59,7 @@ export function SceneLayout({
   const [chartDismissVersion, setChartDismissVersion] = useState(0)
   const [playbackDismissVersion, setPlaybackDismissVersion] = useState(0)
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('controls')
+  const [notesTarget, setNotesTarget] = useState<HTMLDivElement | null>(null)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const setMobilePlaybackActions = useAppStore((s) => s.setMobilePlaybackActions)
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed)
@@ -200,15 +202,20 @@ export function SceneLayout({
     return mobileTabOptions[0]?.key ?? 'controls'
   }, [mobileTabOptions, activeMobileTab])
 
-  const notesBlock = notes ? (
+  // Always mounted so <ModelNote>s inside the controls can portal into it; hidden by CSS when empty.
+  const notesBlock = (
     <details className="scene-notes">
       <summary className="touch-target">教师备注 · 模型与公式</summary>
-      <div className="scene-notes-body">{notes}</div>
+      <div className="scene-notes-body">
+        {notes}
+        <div className="scene-notes-portal" ref={setNotesTarget} />
+      </div>
     </details>
-  ) : null
+  )
 
   if (isMobile) {
     return (
+      <ModelNoteTargetContext.Provider value={notesTarget}>
       <div className="flex flex-col w-full h-full">
         <div className="flex-1 min-h-0">{viewport}</div>
 
@@ -233,10 +240,12 @@ export function SceneLayout({
           </div>
         </div>
       </div>
+      </ModelNoteTargetContext.Provider>
     )
   }
 
   return (
+    <ModelNoteTargetContext.Provider value={notesTarget}>
     <div className="relative w-full h-full">
       <div className="absolute inset-0 z-0">{viewport}</div>
 
@@ -315,5 +324,6 @@ export function SceneLayout({
         </div>
       )}
     </div>
+    </ModelNoteTargetContext.Provider>
   )
 }

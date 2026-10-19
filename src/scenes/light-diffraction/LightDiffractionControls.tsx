@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
@@ -132,9 +133,9 @@ export function LightDiffractionControls({ state }: LightDiffractionControlsProp
             </p>
           </>
         )}
-        <p className="diffraction-parameter-note">
+        <ModelNote><p className="diffraction-parameter-note">
           单缝、圆孔和光栅使用夫琅禾费远场模型，自动保持 F=b²/(λL)≤0.1（b 为半缝宽、孔半径或受光宽的一半）；孔径或波长增大时会提高屏距下限。圆盘采用近轴近似。3D 尺寸、光栅槽纹和屏幕亮度均为示意。
-        </p>
+        </p></ModelNote>
         {state.mode === 'circular-obstacle' && (
           <p className="diffraction-parameter-note">
             不透明圆盘采用近轴菲涅耳 / 巴比涅近似，显示轴上泊松亮斑与同心暗环。

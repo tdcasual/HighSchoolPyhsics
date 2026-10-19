@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
@@ -76,19 +77,19 @@ export function RotationalEmfControls({
         )}
       </div>
 
-      <p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
+      <ModelNote><p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
         {scenario === 'rod'
           ? '径向导体棒绕与 B 平行的轴转动，L 为棒长；圆环是棒端轨迹示意：ε = ½BωL²。'
           : 'L 为正方形线框边长；θ 从磁场平行线框面的初始位置计，ε = BωL²|cos θ|。θ=0° 时电动势最大。'}
-      </p>
+      </p></ModelNote>
       {scenario === 'frame' && viewMode === 'top' && (
         <p className="m-0 text-[var(--control-ink-muted)] text-[0.78rem] leading-[1.35]">
           俯视方向沿转轴观察，线框呈边缘投影；主视图可查看线框平面。
         </p>
       )}
-      <p className="m-0 text-[var(--control-ink-muted)] text-[0.78rem] leading-[1.35]">
+      <ModelNote><p className="m-0 text-[var(--control-ink-muted)] text-[0.78rem] leading-[1.35]">
         几何按统一的 3.4 场景单位/m 示意缩放；只计算电动势大小，不模拟回路电流、极性或非均匀磁场。
-      </p>
+      </p></ModelNote>
 
       <ControlSection title="实验类型">
         <SegmentedControl

@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
@@ -91,7 +92,7 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           value={state.playSpeed}
           onChange={state.setPlaySpeed}
         />
-        <p className="text-xs leading-relaxed opacity-75">播放速度只改变动画时间倍率；波速 c 固定为 {state.waveSpeed.toFixed(1)} m/s，频率由 f = c / λ 决定。</p>
+        <ModelNote><p className="text-xs leading-relaxed opacity-75">播放速度只改变动画时间倍率；波速 c 固定为 {state.waveSpeed.toFixed(1)} m/s，频率由 f = c / λ 决定。</p></ModelNote>
       </ControlSection>
       <SceneActions
         actions={[

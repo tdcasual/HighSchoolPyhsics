@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
@@ -71,9 +72,9 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
               value={state.voltageV}
               onChange={state.setVoltageV}
             />
-            <p className="ticker-hint" role="note">
+            <ModelNote><p className="ticker-hint" role="note">
               实物通常使用 4–6 V AC；模型用低电压示意漏点、过大振幅示意拖尾，故障阈值仅作定性演示。
-            </p>
+            </p></ModelNote>
           </>
         ) : (
           <p className="ticker-hint" role="note">
@@ -131,7 +132,7 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
         />
       </ControlSection>
 
-      <div className="structure-card ticker-notes">
+      <ModelNote><div className="structure-card ticker-notes">
         <h3>课堂要点</h3>
         <ul>
           <li>先通电打点，再释放纸带，避免起始点挤在一起无法计数。</li>
@@ -142,7 +143,7 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
           <li>纸带到达模型行程或 240 个计时周期上限时自动停止，重置后可再做实验。</li>
           <li>匀速模式假设拉力平衡纸带阻力；匀加速模式显示扣除阻力后的净加速度。</li>
         </ul>
-      </div>
+      </div></ModelNote>
     </div>
   )
 }

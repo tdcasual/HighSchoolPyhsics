@@ -1,3 +1,4 @@
+import { ModelNote } from '../../ui/notes/ModelNote'
 import {
   MODE_LABEL,
   FILTER_LABEL,
@@ -98,9 +99,9 @@ export function DiffractionControls({ state }: { state: DiffractionSceneState })
         />
       )}
 
-      <p className="text-xs opacity-80 leading-snug">
+      <ModelNote><p className="text-xs opacity-80 leading-snug">
         单缝、圆孔和光栅按夫琅禾费远场模型，自动保持 F=b²/(λL)≤0.1（b 为半缝宽、孔半径或受光宽的一半）；孔径或波长增大时会提高屏距下限。圆盘按近轴泊松亮斑近似。屏幕视场随参数调整，三维几何按观察需要放大。
-      </p>
+      </p></ModelNote>
 
       <RangeField
         id="screen-distance"

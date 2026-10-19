@@ -344,6 +344,17 @@ body {
   margin: 0;
 }
 
+.scene-notes-portal,
+.model-note {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Scenes without notes keep no empty 教师备注 section. */
+.scene-notes:not(:has(.scene-notes-body > :not(.scene-notes-portal), .scene-notes-portal > *)) {
+  display: none;
+}
+
 /* ── Lecture mode: only the 3D view, edge to edge ── */
 .app-shell.presenting {
   grid-template-rows: minmax(0, 1fr);
