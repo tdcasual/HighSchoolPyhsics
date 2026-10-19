@@ -9,9 +9,10 @@ describe('potential-energy structure', () => {
     expect(await screen.findByText('电势图控制')).toBeInTheDocument()
     const dataPanel = screen.getByRole('region', { name: '数据' })
     expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '1. 显示电势切片' })).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '2. 开始旋转' })).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '3. 重置' })).toBeInTheDocument()
+    // Opens on the slice; the surface build is the playback action (Space starts it too).
+    const playback = screen.getByRole('region', { name: '播放控制' })
+    expect(within(playback).getByRole('button', { name: '旋转生成曲面' })).toBeEnabled()
+    expect(within(playback).getByRole('button', { name: '重置' })).toBeDisabled()
 
     expect(await screen.findByText(/^60 点/)).toBeInTheDocument()
   })

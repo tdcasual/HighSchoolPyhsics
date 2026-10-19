@@ -19,7 +19,12 @@ describe('wave-state structure', () => {
     fireEvent.click(chartPanel.querySelector('button[aria-label="展开"]')!)
     expect(screen.getByText('P 点位移—时间图像')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: '简谐横波 P 点位移时间图' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '开始传播' })).toBeInTheDocument()
+    // Opens paused mid-way (front halfway to P) so there is a waveform to discuss.
+    expect(screen.getByTestId('wave-state-sim-time')).toHaveTextContent('1.50 s')
+    expect(screen.getByTestId('wave-state-probe-status')).toHaveTextContent('尚未起振')
+    expect(screen.getByRole('button', { name: '继续传播' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '重置相位' }))
+    expect(screen.getByTestId('wave-state-sim-time')).toHaveTextContent('0.00 s')
     expect(screen.getByTestId('wave-state-rig')).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })

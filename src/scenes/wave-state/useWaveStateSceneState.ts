@@ -30,8 +30,13 @@ const INITIAL_SIMULATION: Simulation = {
   probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0, running: false,
   showGhost: false, showVelocity: true, showAcceleration: true,
 }
+/**
+ * The scene opens paused with the wave front halfway to P (it arrives at t = 3 s), so the class
+ * sees a waveform and can predict P's start-up direction straight away. 重置 replays from t = 0.
+ */
+export const OPENING_ELAPSED = 1.5
 export function useWaveStateSceneState(): WaveStateSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(INITIAL_SIMULATION)
+  const [simulation, setSimulation] = useState<Simulation>(() => ({ ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }))
   const simulationRef = useRef(simulation)
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)

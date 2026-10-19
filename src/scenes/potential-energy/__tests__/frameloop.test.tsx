@@ -29,8 +29,7 @@ describe('potential-energy frameloop policy', () => {
     const canvas = screen.getByTestId('interactive-canvas')
     expect(canvas).toHaveAttribute('data-frameloop', 'demand')
 
-    fireEvent.click(screen.getByRole('button', { name: '1. 显示电势切片' }))
-    fireEvent.click(screen.getByRole('button', { name: '2. 开始旋转' }))
+    fireEvent.click(screen.getByRole('button', { name: '旋转生成曲面' }))
 
     expect(canvas).toHaveAttribute('data-frameloop', 'always')
   })
