@@ -14,10 +14,15 @@ export type GeneratorCoreSceneState = {
   setMode: (mode: GeneratorMode) => void
   setAngularSpeedRad: (value: number) => void
   toggleRunning: () => void
+  /** Pause and turn the coil by 15°. */
+  step: () => void
   reset: () => void
 }
 
 type Simulation = Pick<GeneratorCoreSceneState, 'mode' | 'angleRad' | 'angularSpeedRad' | 'running'>
+
+/** 单步 turns the coil 15°, enough to see Φ and e change between neutral and parallel positions. */
+const STEP_ANGLE_RAD = Math.PI / 12
 
 const INITIAL_SIMULATION: Simulation = {
   mode: 'model',
@@ -76,6 +81,7 @@ export function useGeneratorCoreSceneState(): GeneratorCoreSceneState {
     setAngleRad: (angleRad) => commit({ angleRad }),
     setAngularSpeedRad: (angularSpeedRad) => commit({ angularSpeedRad }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
+    step: () => { lastTimestampRef.current = null; commit({ running: false, angleRad: wrapAngle(simulationRef.current.angleRad + STEP_ANGLE_RAD) }) },
     reset: () => {
       lastTimestampRef.current = null
       const next = { ...INITIAL_SIMULATION }

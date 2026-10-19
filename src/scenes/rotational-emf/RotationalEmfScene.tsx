@@ -84,6 +84,7 @@ export function RotationalEmfScene() {
           label: state.running ? '暂停' : '播放',
           onClick: state.toggleRunning,
         },
+        { key: 'step', label: '单步 15°', onClick: state.step },
         {
           key: 'reset',
           label: '重置',

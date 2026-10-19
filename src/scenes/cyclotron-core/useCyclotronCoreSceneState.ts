@@ -1,7 +1,7 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { deriveCyclotronReadings, type ParticleType } from './model'
+import { deriveCyclotronReadings, elapsedAtNextCrossing, type ParticleType } from './model'
 
 export type CyclotronCoreSceneState = {
   particleType: ParticleType
@@ -14,10 +14,12 @@ export type CyclotronCoreSceneState = {
   setB: (value: number) => void
   setU: (value: number) => void
   toggleRunning: () => void
+  /** Pause and advance to the next gap crossing (one more acceleration). */
+  step: () => void
   reset: () => void
 }
 
-type Simulation = Omit<CyclotronCoreSceneState, 'readings' | 'setParticleType' | 'setB' | 'setU' | 'toggleRunning' | 'reset'>
+type Simulation = Omit<CyclotronCoreSceneState, 'readings' | 'setParticleType' | 'setB' | 'setU' | 'toggleRunning' | 'step' | 'reset'>
 const INITIAL_SIMULATION: Simulation = { particleType: 'proton', B: 3, U: 30, elapsed: 0, running: false }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
@@ -112,6 +114,13 @@ export function useCyclotronCoreSceneState(): CyclotronCoreSceneState {
       if (currentReadings.extracted) return
       lastTimestampRef.current = null
       commit({ running: !current.running })
+    },
+    step: () => {
+      const current = simulationRef.current
+      const currentReadings = deriveCyclotronReadings({ type: current.particleType, B: current.B, U: current.U, elapsed: current.elapsed, running: false })
+      if (currentReadings.extracted) return
+      lastTimestampRef.current = null
+      commit({ running: false, elapsed: elapsedAtNextCrossing({ type: current.particleType, B: current.B, elapsed: current.elapsed }) })
     },
     reset: () => {
       lastTimestampRef.current = null

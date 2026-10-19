@@ -69,4 +69,20 @@ describe('SceneLayout playback zone', () => {
     expect(useAppStore.getState().playbackRate).toBe(0.25)
     useAppStore.setState({ playbackRate: 1 })
   })
+
+  it('steps with the . key when the scene offers a step action', () => {
+    const onStep = vi.fn()
+    render(
+      <SceneLayout
+        controls={<div />}
+        viewport={<div />}
+        playbackActions={[
+          { key: 'toggle-running', label: '播放', onClick: vi.fn() },
+          { key: 'step', label: '单步 15°', onClick: onStep },
+        ]}
+      />,
+    )
+    fireEvent.keyDown(window, { key: '.' })
+    expect(onStep).toHaveBeenCalledTimes(1)
+  })
 })

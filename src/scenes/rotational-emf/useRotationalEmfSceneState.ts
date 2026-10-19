@@ -36,6 +36,8 @@ export type RotationalEmfSceneState = {
   angleLabel: string
   running: boolean
   toggleRunning: () => void
+  /** Pause and turn by 15°. */
+  step: () => void
   reset: () => void
   emfMagnitudeV: number
   emfMagnitudeLabel: string
@@ -111,6 +113,10 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
     angleLabel: formatAngleDegrees(angleRad),
     running,
     toggleRunning: () => setRunning((value) => !value),
+    step: () => {
+      setRunning(false)
+      setAngleRad((current) => (current + Math.PI / 12) % FULL_ROTATION_RAD)
+    },
     reset,
     emfMagnitudeV: readout.emfMagnitudeV,
     emfMagnitudeLabel: formatEmfMagnitude(readout.emfMagnitudeV),

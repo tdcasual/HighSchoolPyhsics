@@ -34,6 +34,8 @@ export type AlternatorSceneState = AlternatorState & ReturnType<typeof buildRead
   setTurnCount: (value: number) => void
   setCoilAreaM2: (value: number) => void
   toggleRunning: () => void
+  /** Pause and turn the coil by 15°, recording the waveform on the way. */
+  step: () => void
   reset: () => void
 }
 
@@ -151,6 +153,15 @@ export function useAlternatorSceneState(): AlternatorSceneState {
         ...previous,
         isRunning: !previous.isRunning,
       }))
+    },
+    step: () => {
+      resetAnimationClock()
+      commitSimulation((previous) => {
+        const steps = Math.max(1, Math.round(Math.PI / 12 / Math.max(1e-6, previous.angularSpeedRad * FIXED_STEP_S)))
+        let next: typeof previous = { ...previous, isRunning: true }
+        for (let i = 0; i < steps; i++) next = stepAlternatorState(next, FIXED_STEP_S)
+        return { ...next, isRunning: false }
+      })
     },
     reset: () => {
       resetAnimationClock()

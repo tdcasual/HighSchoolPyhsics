@@ -155,9 +155,12 @@ export function SceneLayout({
   }, [isMobile, playbackActionsKey])
 
   const primaryPlayback = playbackActions?.find((action) => PRIMARY_PLAYBACK_KEYS.has(action.key))
+  const stepPlayback = playbackActions?.find((action) => action.key === 'step')
   const primaryPlaybackRef = useRef(primaryPlayback)
+  const stepPlaybackRef = useRef(stepPlayback)
   useLayoutEffect(() => {
     primaryPlaybackRef.current = primaryPlayback
+    stepPlaybackRef.current = stepPlayback
   })
 
   // Space = play/pause. A button the teacher just clicked keeps focus and would otherwise
@@ -173,11 +176,12 @@ export function SceneLayout({
       pointerFocused = performance.now() - lastPointerDown < 600 ? (event.target as Element) : null
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== ' ' || event.repeat || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      if ((event.key !== ' ' && event.key !== '.') || event.repeat || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
       const target = event.target
       if (isTextEntry(target)) return
       if (target instanceof HTMLElement && target !== document.body && target !== pointerFocused) return
-      const action = primaryPlaybackRef.current
+      // Space = play/pause, . = 单步 (step).
+      const action = event.key === '.' ? stepPlaybackRef.current : primaryPlaybackRef.current
       if (!action || action.disabled) return
       event.preventDefault()
       if (target instanceof HTMLElement) target.blur()

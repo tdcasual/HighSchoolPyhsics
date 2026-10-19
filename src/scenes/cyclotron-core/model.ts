@@ -182,6 +182,15 @@ export function buildCyclotronTrail(input: {
   }
 }
 
+/** Elapsed time at which the particle next reaches the gap (one more acceleration), for 单步. */
+export function elapsedAtNextCrossing(input: { type: ParticleType; B: number; elapsed: number }): number {
+  const spec = getParticleSpec(input.type)
+  const cyclesPerSecond = (spec.charge * Math.max(0, input.B) / spec.mass / PI) * VISUAL_TIME_SCALE
+  if (cyclesPerSecond <= 0) return input.elapsed
+  const cycle = Math.max(0, input.elapsed) * cyclesPerSecond
+  return (Math.floor(cycle + 1e-9) + 1) / cyclesPerSecond
+}
+
 export function deriveCyclotronReadings(input: {
   type: ParticleType
   B: number

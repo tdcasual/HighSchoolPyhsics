@@ -22,6 +22,7 @@ const SHORTCUT_GROUPS = [
     title: '通用',
     items: [
       { keys: ['空格'], desc: '演示页：播放 / 暂停' },
+      { keys: ['.'], desc: '演示页：单步（转 15°、走 T/4 或到下一次过缝）' },
       { keys: ['Esc'], desc: '关闭弹窗 / 退出讲解模式' },
     ],
   },

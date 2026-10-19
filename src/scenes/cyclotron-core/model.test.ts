@@ -91,3 +91,15 @@ describe('cyclotron-core model', () => {
     expect(trace.at(-1)?.[1]).toBeCloseTo(360)
   })
 })
+
+describe('elapsedAtNextCrossing', () => {
+  it('advances exactly one gap crossing per step', async () => {
+    const { deriveCyclotronReadings, elapsedAtNextCrossing } = await import('./model')
+    let elapsed = 0
+    for (let n = 1; n <= 3; n++) {
+      elapsed = elapsedAtNextCrossing({ type: 'proton', B: 3, elapsed })
+      const readings = deriveCyclotronReadings({ type: 'proton', B: 3, U: 30, elapsed, running: false })
+      expect(readings.accelerationCount).toBe(n)
+    }
+  })
+})

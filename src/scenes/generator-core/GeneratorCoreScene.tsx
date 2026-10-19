@@ -23,7 +23,7 @@ export function GeneratorCoreScene() {
     dataOverlay={<div className="generator-core-telemetry scene-core-summary-stack"><p><span>相位 θ · 位置</span><strong>{angleLabel} · {state.readings.positionLabel}</strong></p><p><span>磁通量</span><strong><Answer>{state.readings.fluxNormalized.toFixed(2)} Φₘ</Answer></strong></p><p><span>感应电动势</span><strong><Answer>{state.readings.emfNormalized.toFixed(2)} Eₘ</Answer></strong></p><p><span>电流方向</span><strong><Answer>{state.readings.currentDirection}</Answer></strong></p></div>}
     notes={<><p>{state.description}</p><p>切割比例 v⊥/v = |sinθ| = {Math.abs(state.readings.emfNormalized).toFixed(2)}，与 e/Eₘ 相等。</p></>}
     chart={<GeneratorCoreChart angleRad={state.angleRad} running={state.running} />}
-    playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停旋转' : '继续旋转', onClick: state.toggleRunning }, { key: 'reset', label: '重置相位', onClick: state.reset }]}
+    playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停旋转' : '继续旋转', onClick: state.toggleRunning }, { key: 'step', label: '单步 15°', onClick: state.step }, { key: 'reset', label: '重置相位', onClick: state.reset }]}
     chartVisible={true}
     chartInitiallyCollapsed
   />

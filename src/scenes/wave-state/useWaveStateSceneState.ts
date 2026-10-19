@@ -23,9 +23,11 @@ export type WaveStateSceneState = WaveStateParams & {
   setShowVelocity: (value: boolean) => void
   setShowAcceleration: (value: boolean) => void
   toggleRunning: () => void
+  /** Pause and advance a quarter period (the textbook's T/4 snapshots). */
+  step: () => void
   reset: () => void
 }
-type Simulation = Omit<WaveStateSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'reset'>
+type Simulation = Omit<WaveStateSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'step' | 'reset'>
 const INITIAL_SIMULATION: Simulation = {
   amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up',
   probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0, running: false,
@@ -111,6 +113,7 @@ export function useWaveStateSceneState(): WaveStateSceneState {
     setShowVelocity: (showVelocity) => commit({ showVelocity }),
     setShowAcceleration: (showAcceleration) => commit({ showAcceleration }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
+    step: () => { lastTimestampRef.current = null; commit({ running: false, elapsed: simulationRef.current.elapsed + simulationRef.current.period / 4 }) },
     reset: () => {
       lastTimestampRef.current = null
       const next = { ...INITIAL_SIMULATION }

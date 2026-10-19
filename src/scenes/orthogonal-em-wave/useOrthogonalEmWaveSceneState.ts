@@ -17,10 +17,12 @@ export type OrthogonalEmWaveSceneState = EmWaveParams & {
   setShowOrthogonality: (value: boolean) => void
   setShowProjectionMarks: (value: boolean) => void
   toggleRunning: () => void
+  /** Pause and advance a quarter period. */
+  step: () => void
   reset: () => void
 }
 
-type Simulation = Omit<OrthogonalEmWaveSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setSpeed' | 'setDirection' | 'setViewMode' | 'setShowOrthogonality' | 'setShowProjectionMarks' | 'toggleRunning' | 'reset'>
+type Simulation = Omit<OrthogonalEmWaveSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setSpeed' | 'setDirection' | 'setViewMode' | 'setShowOrthogonality' | 'setShowProjectionMarks' | 'toggleRunning' | 'step' | 'reset'>
 const INITIAL_SIMULATION: Simulation = {
   amplitude: 1,
   wavelength: 4,
@@ -86,6 +88,11 @@ export function useOrthogonalEmWaveSceneState(): OrthogonalEmWaveSceneState {
     setShowOrthogonality: (showOrthogonality) => commit({ showOrthogonality }),
     setShowProjectionMarks: (showProjectionMarks) => commit({ showProjectionMarks }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
+    step: () => {
+      const current = simulationRef.current
+      lastTimestampRef.current = null
+      commit({ running: false, elapsed: current.elapsed + current.wavelength / Math.max(1e-6, current.speed) / 4 })
+    },
     reset: () => { lastTimestampRef.current = null; const next = { ...INITIAL_SIMULATION }; simulationRef.current = next; setSimulation(next) },
   }
 }

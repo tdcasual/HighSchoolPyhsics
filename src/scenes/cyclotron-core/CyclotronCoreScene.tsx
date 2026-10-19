@@ -73,6 +73,7 @@ export function CyclotronCoreScene() {
           onClick: state.toggleRunning,
           disabled: readings.extracted,
         },
+        { key: 'step', label: '下一次过缝', onClick: state.step },
         { key: 'reset', label: '重置参数', onClick: state.reset },
       ]}
     />
