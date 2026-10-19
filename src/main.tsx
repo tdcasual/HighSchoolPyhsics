@@ -5,6 +5,9 @@ import './styles/shell.css'
 import './styles/theme.css'
 import './index.css'
 import App from './App.tsx'
+import { registerOfflineCache } from './app/offlineCache'
+
+registerOfflineCache()
 
 createRoot(document.getElementById('root')!).render(
   <App />,

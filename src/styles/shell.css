@@ -1373,6 +1373,16 @@ input[type="range"]::-moz-range-track {
   color: var(--overview-ink-muted);
 }
 
+.scene-overview-offline {
+  margin-left: 0.75rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: var(--control-accent-6);
+  color: var(--control-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .scene-overview-toolbar {
   display: flex;
   flex-wrap: wrap;

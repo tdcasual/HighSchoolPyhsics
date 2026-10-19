@@ -3,11 +3,12 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { resolveManualChunk } from './scripts/chunking/chunking'
 import { slimSceneCatalog } from './scripts/bundling/slimSceneCatalog'
+import { offlineCache } from './scripts/bundling/offlineCache'
 import { ENHANCED_TOUCH_PROFILE } from './src/app/defaultTouchProfile'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react(), slimSceneCatalog(ENHANCED_TOUCH_PROFILE)],
+  plugins: [tailwindcss(), react(), slimSceneCatalog(ENHANCED_TOUCH_PROFILE), offlineCache()],
   resolve: {
     dedupe: ['three'],
     alias: {

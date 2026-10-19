@@ -5,6 +5,7 @@ import { safePreload } from '../app/safePreload'
 import { NAVIGATION_VIEWS, findNavigationView, type NavigationViewId } from '../ui/navigation/navigationViews'
 import { SegmentedControl } from '../ui/controls/SegmentedControl'
 import { useAppStore } from '../store/useAppStore'
+import { useOfflineReady } from '../app/offlineCache'
 
 export type NavigationPageProps = {
   routes: DemoRoute[]
@@ -131,6 +132,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     [handlePointerLeave, onOpenRoute],
   )
 
+  const offlineReady = useOfflineReady()
   const navView = useAppStore((state) => state.navView)
   const setNavView = useAppStore((state) => state.setNavView)
   const view = findNavigationView(navView)
@@ -198,6 +200,7 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
         <h1 className="scene-overview-title">高中物理 3D 课堂</h1>
         <p className="scene-overview-count">
           {routes.length} 个交互演示场景 · {view.caption}
+          {offlineReady ? <span className="scene-overview-offline">✓ 已缓存，断网也可使用</span> : null}
         </p>
         <div className="scene-overview-toolbar">
           <SegmentedControl
