@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { MeasuringToolsChart } from '../measuring-tools/MeasuringToolsChart'
 import { useViewportSize } from '../measuring-tools/useViewportSize'
@@ -120,9 +121,9 @@ export function ResistivityScene() {
           {diameterView ? (
             <>
               <p><span>样品 / 位置</span><strong>{state.wireName} · {state.position + 1}</strong></p>
-              <p><span>测微器示数</span><strong>{diameterReading.text} mm</strong></p>
-              <p><span>固定刻度</span><strong>{diameterReading.fixed.toFixed(1)} mm · 半线{diameterReading.halfLine ? '已露' : '未露'}</strong></p>
-              <p><span>可动刻度</span><strong>{diameterReading.divisions.toFixed(1)} 格 × 0.01 mm</strong></p>
+              <p><span>测微器示数</span><strong><Answer>{diameterReading.text} mm</Answer></strong></p>
+              <p><span>固定刻度</span><strong><Answer>{diameterReading.fixed.toFixed(1)} mm · 半线{diameterReading.halfLine ? '已露' : '未露'}</Answer></strong></p>
+              <p><span>可动刻度</span><strong><Answer>{diameterReading.divisions.toFixed(1)} 格 × 0.01 mm</Answer></strong></p>
               <p><span>零点误差 / 接触</span><strong>{state.zero > 0 ? '+' : ''}{state.zero.toFixed(3)} mm · {isSeated(state) ? '已接触' : '未接触'}</strong></p>
             </>
           ) : state.stage === 'circuit' ? (

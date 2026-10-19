@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -30,11 +31,11 @@ export function EquipotentialDipoleScene() {
     controls={<EquipotentialDipoleControls state={state} />}
     viewport={<InteractiveCanvas camera={{ position: [0, 0, 14], fov: 40 }} controls={{ target: [0, 0, 0], minDistance: 7, maxDistance: 18, maxPolarAngle: Math.PI * 0.92 }} frameloop={state.running ? 'always' : 'demand'}><EquipotentialDipoleRig3D elapsed={state.elapsed} flow={state.flow} showEquipotential={state.showEquipotential} showVectors={state.showVectors} separation={state.separation} charge={state.charge} probeX={state.probeX} probeY={state.probeY} readings={r} theme={theme} /></InteractiveCanvas>}
     dataOverlay={<div className="equipotential-dipole-telemetry scene-core-summary-stack">
-      <p><span>坐标位置 (x, y)</span><strong>({state.probeX.toFixed(1)}, {state.probeY.toFixed(1)}) cm</strong></p>
-      <p><span>正电荷场强 E₁</span><strong>{formatFieldStrength(r.positiveMagnitude)} N/C</strong></p>
-      <p><span>负电荷场强 E₂</span><strong>{formatFieldStrength(r.negativeMagnitude)} N/C</strong></p>
-      <p><span>合场强 |E|</span><strong>{formatFieldStrength(r.totalMagnitude)} N/C</strong></p>
-      <p><span>该点电势 V</span><strong>{(r.potential / 1000).toFixed(2)} kV</strong></p>
+      <p><span>已知 Q · d · P(x, y)</span><strong>{state.charge.toFixed(1)} μC · {state.separation.toFixed(1)} cm · ({state.probeX.toFixed(1)}, {state.probeY.toFixed(1)}) cm</strong></p>
+      <p><span>正电荷场强 E₁</span><strong><Answer>{formatFieldStrength(r.positiveMagnitude)} N/C</Answer></strong></p>
+      <p><span>负电荷场强 E₂</span><strong><Answer>{formatFieldStrength(r.negativeMagnitude)} N/C</Answer></strong></p>
+      <p><span>合场强 |E|</span><strong><Answer>{formatFieldStrength(r.totalMagnitude)} N/C</Answer></strong></p>
+      <p><span>该点电势 V</span><strong><Answer>{(r.potential / 1000).toFixed(2)} kV</Answer></strong></p>
     </div>}
     notes={<p>{motion}</p>}
     playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停流动' : '继续流动', onClick: state.toggleRunning }, { key: 'reset', label: '重置探针', onClick: state.reset }]}

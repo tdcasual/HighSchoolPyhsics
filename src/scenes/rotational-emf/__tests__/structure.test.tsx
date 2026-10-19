@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
@@ -54,7 +54,7 @@ describe('rotational-emf structure', () => {
     expect(canvas).toHaveAttribute('data-sync-camera', 'true')
     expect(canvas).toHaveAttribute('data-adaptive-framing', 'false')
     expect(canvas).toHaveAttribute('data-camera-up', '0,1,0')
-    expect(screen.getByRole('region', { name: '数据' }).querySelector('button')).toHaveAttribute('aria-label', '折叠')
+    expect(within(screen.getByRole('region', { name: '数据' })).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: '播放控制' }).querySelector('button')).toHaveAttribute('aria-label', '折叠')
     expect(screen.getByText(/感应电动势/)).toBeInTheDocument()
     expect(screen.getByTestId('rotational-emf-rig')).toBeInTheDocument()

@@ -396,6 +396,54 @@ body {
   opacity: 1;
 }
 
+/* ── Prediction mode ── */
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-text-button {
+  min-height: var(--touch-target-min-size, 44px);
+  padding: 0 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--control-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.panel-text-button:hover {
+  background: var(--control-hover-bg);
+  color: var(--control-ink);
+}
+
+.panel-text-button.active {
+  background: var(--action-active-bg);
+  border-color: var(--action-active-border);
+  color: var(--action-active-ink);
+}
+
+/* A masked conclusion: same footprint as a reading, clearly a question. */
+.answer-mask {
+  min-width: 3.2em;
+  min-height: 1.6em;
+  padding: 0 0.6em;
+  border: 1.5px dashed var(--action-active-border);
+  border-radius: 8px;
+  background: var(--control-accent-6);
+  color: var(--action-active-border);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.answer-mask:hover {
+  background: var(--control-accent-10);
+}
+
 /* ── Classroom large text ── */
 /* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
    scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.

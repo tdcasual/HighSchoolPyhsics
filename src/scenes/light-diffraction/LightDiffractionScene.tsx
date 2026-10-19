@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -85,7 +86,7 @@ export function LightDiffractionScene() {
           </p>
           <p>
             <span>{state.featureLabel}</span>
-            <strong>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</strong>
+            <strong><Answer>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</Answer></strong>
           </p>
         </div>
       }

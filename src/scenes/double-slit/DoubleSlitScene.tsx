@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { FILTER_HEX, FILTER_LABEL } from './model'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
@@ -45,23 +46,26 @@ export function DoubleSlitScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            <span>光源波长 λ</span>
+            <span>已知 λ · d · L</span>
             <strong>
               {state.isWhiteLight
-                ? '白光 400–700 nm' + (state.filterColor !== 'none' ? '（' + FILTER_LABEL[state.filterColor] + '滤光片）' : '')
-                : state.isBlindMode ? '未知单色光（已隐藏）' : state.wavelength + ' nm'}
+                ? '白光' + (state.filterColor !== 'none' ? '（' + FILTER_LABEL[state.filterColor] + '滤光片）' : '')
+                : state.isBlindMode ? 'λ 未知' : state.wavelength + ' nm'}
+              {` · ${state.slitDistance.toFixed(2)} mm · ${state.screenDistance.toFixed(2)} m`}
             </strong>
           </p>
-          <p><span>理论条纹间距 Δx</span><strong>{state.fringeSpacingLabel}</strong></p>
+          <p><span>理论条纹间距 Δx</span><strong><Answer>{state.fringeSpacingLabel}</Answer></strong></p>
           <p><span>测量头读数 a</span><strong>{state.wheelReadoutMm.toFixed(3)} mm</strong></p>
           <p><span>记录 a₁ / a₂</span><strong>{state.firstReadingMm === null ? '—' : state.firstReadingMm.toFixed(3)} / {state.secondReadingMm === null ? '—' : state.secondReadingMm.toFixed(3)} mm</strong></p>
           <p>
             <span>测得 Δx → λ</span>
             <strong>
-              {state.measurementResult
-                ? `${state.measurementResult.fringeSpacingMm.toFixed(3)} mm → ${state.measurementResult.wavelengthNm.toFixed(1)} nm` +
-                  (state.isBlindMode && measurementError !== null ? `（误差 ${measurementError.toFixed(2)}%）` : '')
-                : '等待两次读数'}
+              {state.measurementResult ? (
+                <Answer>
+                  {`${state.measurementResult.fringeSpacingMm.toFixed(3)} mm → ${state.measurementResult.wavelengthNm.toFixed(1)} nm` +
+                    (state.isBlindMode && measurementError !== null ? `（误差 ${measurementError.toFixed(2)}%）` : '')}
+                </Answer>
+              ) : '等待两次读数'}
             </strong>
           </p>
         </div>

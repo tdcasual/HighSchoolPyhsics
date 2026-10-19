@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -35,8 +36,12 @@ export function WedgeInterferenceScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
+            <span>已知 λ · θ</span>
+            <strong>{Math.round(state.wavelength)} nm · {(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad</strong>
+          </p>
+          <p>
             <span>条纹间距 l</span>
-            <strong>{state.fringeSpacingLabel}</strong>
+            <strong><Answer>{state.fringeSpacingLabel}</Answer></strong>
           </p>
           <p>
             <span>视场最大间隙 hmax</span>
@@ -50,7 +55,7 @@ export function WedgeInterferenceScene() {
           )}
           <p>
             <span>可见条纹数</span>
-            <strong>~{state.fringeCount}</strong>
+            <strong><Answer>~{state.fringeCount}</Answer></strong>
           </p>
         </div>
       }

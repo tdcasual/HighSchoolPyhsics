@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -62,15 +63,15 @@ export function WaveInterferenceScene() {
         </p>
         <p>
           <span>相位差 Δφ</span>
-          <strong>{(wrapPhase(dphi) / Math.PI).toFixed(2)}π rad</strong>
+          <strong><Answer>{(wrapPhase(dphi) / Math.PI).toFixed(2)}π rad</Answer></strong>
         </p>
         <p>
           <span>{sameFrequency ? '合振幅（包络）' : '瞬时合位移 y'}</span>
-          <strong>{(sameFrequency ? envelopeAmplitude : instantaneousDisplacement).toFixed(3)} m</strong>
+          <strong><Answer>{(sameFrequency ? envelopeAmplitude : instantaneousDisplacement).toFixed(3)} m</Answer></strong>
         </p>
         <p>
           <span>{sameFrequency ? '干涉关系' : '当前相位关系'}</span>
-          <strong>{phaseLabel}{sameFrequency ? '' : '（频率不同，无固定干涉线）'}</strong>
+          <strong><Answer>{phaseLabel}{sameFrequency ? '' : '（频率不同，无固定干涉线）'}</Answer></strong>
         </p>
       </div>
     )

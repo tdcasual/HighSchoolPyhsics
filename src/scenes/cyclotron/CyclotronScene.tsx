@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
@@ -47,8 +48,8 @@ export function CyclotronScene() {
           </p>
           <p><span>缝隙电压 U</span><strong>{formatScientific(state.currentVoltageV)} V · {state.voltageDirectionText}</strong></p>
           <p><span>动能 Ek</span><strong>{formatScientific(state.currentEnergyJ)} J（{formatScientific(state.currentEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
-          <p><span>Ek,max（R=0.675 mm）</span><strong>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
-          <p><span>回旋周期 T</span><strong>{formatScientific(state.cyclotronPeriodS)} s</strong></p>
+          <p><span>Ek,max（R=0.675 mm）</span><strong><Answer>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</Answer></strong></p>
+          <p><span>回旋周期 T</span><strong><Answer>{formatScientific(state.cyclotronPeriodS)} s</Answer></strong></p>
           {state.simulation.error ? <p>错误: {state.simulation.error}</p> : null}
         </div>
       }

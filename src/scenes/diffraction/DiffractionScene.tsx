@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 // readyText: 衍射演示控制
 
 import { useMemo } from 'react'
@@ -63,22 +64,29 @@ export function DiffractionScene() {
       controls={<DiffractionControls state={state} />}
       dataOverlay={
         <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
-          <p><span>光源</span><strong>{state.isLightOn ? (state.isWhiteLight ? '白光' : '单色') : '关闭'}</strong></p>
-          {!state.isWhiteLight && <p><span>波长</span><strong>{state.params.wavelength} nm</strong></p>}
-          {state.isWhiteLight && state.filterColor !== 'none' && (
-            <p><span>滤光片</span><strong>{state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}</strong></p>
+          <p>
+            <span>光源</span>
+            <strong>
+              {!state.isLightOn ? '关闭' : state.isWhiteLight
+                ? '白光' + (state.filterColor !== 'none' ? `（${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片）` : '')
+                : `${state.params.wavelength} nm`}
+            </strong>
+          </p>
+          {state.mode === 'diffraction-grating' ? (
+            <p><span>光栅常数 d</span><strong>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm（{state.params.gratingLines} 条/mm）</strong></p>
+          ) : (
+            <p><span>{state.mode === 'single-slit' ? '缝宽 a' : state.mode === 'circular-aperture' ? '孔径 D' : '障碍物直径'}</span><strong>{state.params.apertureSize.toFixed(3)} mm</strong></p>
           )}
-          <p>{featureLabel}: {featureValue}</p>
-          {state.mode === 'diffraction-grating' && (
-            <>
-              <p><span>光栅常数 d</span><strong>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm</strong></p>
-              <p><span>狭缝宽 a</span><strong>{(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm</strong></p>
-              <p><span>有效照明狭缝数 N</span><strong>{gratingIlluminatedSlitCount(state.params.gratingLines)}</strong></p><p><span>有效照明宽度</span><strong>{GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm</strong></p>
-              <p><span>线密度</span><strong>{state.params.gratingLines} 条/mm</strong></p>
-            </>
-          )}
-          <p><span>屏距</span><strong>{formatScreenDistance(state.params.screenDistance)}</strong></p>
+          <p><span>屏距 L</span><strong>{formatScreenDistance(state.params.screenDistance)}</strong></p>
+          <p><span>{featureLabel}</span><strong><Answer>{featureValue}</Answer></strong></p>
         </div>
+      }
+      notes={
+        state.mode === 'diffraction-grating' ? (
+          <p>
+            光栅模型：狭缝宽 a = {(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm，照明狭缝数 N = {gratingIlluminatedSlitCount(state.params.gratingLines)}。
+          </p>
+        ) : undefined
       }
       chart={state.showProfile ? (
         <div className="flex flex-col gap-2" style={{ width: 360 }}>

@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -54,9 +55,9 @@ export function InductionCurrentScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p><span>磁铁状态</span><strong>{motionStatusText}</strong></p>
-          <p><span>最近一次感应电流方向</span><strong>{currentDirectionText}</strong></p>
-          <p><span>瞬时感应电流方向</span><strong>{instantaneousCurrentText}</strong></p>
-          <p><span>感应磁场轴向</span><strong>{latestInducedFieldDirection}</strong></p>
+          <p><span>最近一次感应电流方向</span><strong><Answer>{currentDirectionText}</Answer></strong></p>
+          <p><span>瞬时感应电流方向</span><strong><Answer>{instantaneousCurrentText}</Answer></strong></p>
+          <p><span>感应磁场轴向</span><strong><Answer>{latestInducedFieldDirection}</Answer></strong></p>
           <p><span>实验记录</span><strong>{state.records.length} 条</strong></p>
         </div>
       }

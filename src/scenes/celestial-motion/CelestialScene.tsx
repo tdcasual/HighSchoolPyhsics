@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
@@ -107,15 +108,15 @@ export function CelestialScene() {
       dataOverlay={
         <div className="celestial-telemetry scene-core-summary-stack">
           <p><span>轨道半径 r</span><strong>{(currentRadius / 1000).toFixed(0)} km · {(currentRadius / scenario.body.R).toFixed(2)} R</strong></p>
-          <p><span>速度 v</span><strong>{formatSpeed(currentSpeed)}</strong></p>
-          <p><span>{scenario.mode === 'transfer' ? '转移时间' : '周期'}</span><strong>{formatDuration(currentPeriod)}</strong></p>
+          <p><span>速度 v</span><strong><Answer>{formatSpeed(currentSpeed)}</Answer></strong></p>
+          <p><span>{scenario.mode === 'transfer' ? '转移时间' : '周期'}</span><strong><Answer>{formatDuration(currentPeriod)}</Answer></strong></p>
           {scenario.mode === 'rendezvous' ? (
-            <p><span>会合周期</span><strong>{formatDuration(scenario.synodic)}</strong></p>
+            <p><span>会合周期</span><strong><Answer>{formatDuration(scenario.synodic)}</Answer></strong></p>
           ) : (
-            <p><span>向心加速度</span><strong>{currentAcceleration.toFixed(3)} m/s²</strong></p>
+            <p><span>向心加速度</span><strong><Answer>{currentAcceleration.toFixed(3)} m/s²</Answer></strong></p>
           )}
           {scenario.mode === 'circular' ? (
-            <p><span>表面 v₁ / 逃逸 v₂</span><strong>{formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v1)} / {formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v2)}</strong></p>
+            <p><span>表面 v₁ / 逃逸 v₂</span><strong><Answer>{formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v1)} / {formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v2)}</Answer></strong></p>
           ) : scenario.mode === 'transfer' ? (
             <p><span>进度 · 点火 Δv</span><strong>{transferProgress.toFixed(0)}% · {scenario.dv1.toFixed(0)} / {scenario.dv2.toFixed(0)} m/s</strong></p>
           ) : scenario.mode === 'synchronous' && ground ? (

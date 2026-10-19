@@ -13,6 +13,8 @@ type FloatingPanelProps = {
   resizable?: boolean
   /** Which layout zone this panel is; styles (e.g. classroom large text) key off it. */
   zone?: 'data' | 'chart' | 'playback'
+  /** Extra header buttons, placed before the collapse button. */
+  headerActions?: ReactNode
   children: ReactNode
 }
 
@@ -35,6 +37,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
     zIndex = 'z-10',
     resizable = false,
     zone,
+    headerActions,
     children,
   },
   forwardedRef,
@@ -155,8 +158,14 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       >
         {icon}
         <span className="panel-title">{title}</span>
+        <span className="ml-auto" />
+        {headerActions ? (
+          <span className="panel-header-actions" onPointerDown={(e) => e.stopPropagation()}>
+            {headerActions}
+          </span>
+        ) : null}
         <button
-          className="panel-icon-button ml-auto"
+          className="panel-icon-button"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? '展开' : '折叠'}

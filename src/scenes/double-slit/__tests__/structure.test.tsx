@@ -50,7 +50,7 @@ describe('double-slit structure', () => {
     const dataPanel = screen.getByRole('region', { name: '数据' })
     expect(within(dataPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
 
-    expect(screen.getByText(/光源波长 λ/)).toBeInTheDocument()
+    expect(screen.getByText(/已知 λ · d · L/)).toBeInTheDocument()
     expect(screen.getByText(/单缝宽度 a/)).toBeInTheDocument()
     expect(screen.getByText(/双缝间距 d/)).toBeInTheDocument()
     expect(screen.getByText(/缝屏距 L/)).toBeInTheDocument()

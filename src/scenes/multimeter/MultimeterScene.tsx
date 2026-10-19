@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -93,7 +94,7 @@ export function MultimeterScene() {
       {state.stage === 'use' ? <>
         <p><span>挡位</span><strong>{state.rangeLabel}</strong></p>
         <p><span>指针</span><strong>{state.fraction.toFixed(3)}</strong></p>
-        <p><span>表盘读数</span><strong>{state.reading.warning || formatReading(state.reading.indicated, state.reading.unit)}</strong></p>
+        <p><span>表盘读数</span><strong>{state.reading.warning || <Answer>{formatReading(state.reading.indicated, state.reading.unit)}</Answer>}</strong></p>
         <p><span>调零</span><strong>{state.mechanicalOk ? '机械已对准' : '机械未对准'} · {RANGE[state.range].kind === 'ohm' ? (state.ohmOk ? '欧姆已调零' : '欧姆未调零') : '非欧姆挡'}</strong></p>
         <p><span>表笔</span><strong>{RANGE[state.range].kind === 'ohm'
           ? state.task === 'D'
@@ -103,7 +104,7 @@ export function MultimeterScene() {
       </> : null}
       {state.stage === 'convert' ? <>
         <p><span>改装目标</span><strong>{state.convKind === 'V' ? `电压表 · ${state.convRange.toFixed(1)} V` : `电流表 · ${state.convRange.toFixed(2)} A`}</strong></p>
-        <p><span>所需电阻</span><strong>{state.requiredResistance.toFixed(2)} Ω · {state.convKind === 'V' ? '串联' : '并联'}</strong></p>
+        <p><span>所需电阻</span><strong><Answer>{state.requiredResistance.toFixed(2)} Ω · {state.convKind === 'V' ? '串联' : '并联'}</Answer></strong></p>
         <p><span>校准输入</span><strong>{(state.convRange * state.convTest).toFixed(state.convKind === 'V' ? 2 : 3)} {state.convKind === 'V' ? 'V' : 'A'}</strong></p>
         <p><span>接入状态</span><strong>{state.convResistance === null ? '尚未接入' : `已接入 ${state.convResistance.toFixed(2)} Ω`}</strong></p>
         <p><span>表头偏转</span><strong>{state.fraction.toFixed(3)} / 1.000</strong></p>

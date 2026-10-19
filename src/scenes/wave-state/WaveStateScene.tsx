@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -17,7 +18,7 @@ export function WaveStateScene() {
   return <SceneLayout
     controls={<WaveStateControls state={state}/>}
     viewport={<InteractiveCanvas camera={{position:[0,0,14],fov:42}} controls={{target:[0,0,0],minDistance:7,maxDistance:20,maxPolarAngle:Math.PI*0.9}} frameloop={state.running?'always':'demand'}><WaveStateRig3D {...state} theme={theme}/></InteractiveCanvas>}
-    dataOverlay={<div className="wave-state-telemetry scene-core-summary-stack"><p><span>当前时刻 t</span><strong data-testid="wave-state-sim-time">{state.elapsed.toFixed(2)} s</strong></p><p><span>波前位置</span><strong data-testid="wave-state-front-position">{r.wavefrontX.toFixed(2)} m</strong></p><p><span>P 点 x₀ / 状态</span><strong data-testid="wave-state-probe-status">{state.probeX.toFixed(1)} m · {probeStatus}</strong></p><p><span>P 点瞬时速度</span><strong className="wave-state-velocity-value">{velocityLabel}</strong></p><p><span>P 点加速度方向</span><strong className="wave-state-acceleration-value">{accelerationLabel}</strong></p></div>}
+    dataOverlay={<div className="wave-state-telemetry scene-core-summary-stack"><p><span>当前时刻 t</span><strong data-testid="wave-state-sim-time">{state.elapsed.toFixed(2)} s</strong></p><p><span>波前位置</span><strong data-testid="wave-state-front-position">{r.wavefrontX.toFixed(2)} m</strong></p><p><span>P 点 x₀ / 状态</span><strong data-testid="wave-state-probe-status">{state.probeX.toFixed(1)} m · <Answer>{probeStatus}</Answer></strong></p><p><span>P 点瞬时速度</span><strong className="wave-state-velocity-value"><Answer>{velocityLabel}</Answer></strong></p><p><span>P 点加速度方向</span><strong className="wave-state-acceleration-value"><Answer>{accelerationLabel}</Answer></strong></p></div>}
     notes={<><p>{directionLabel}：波速 v = λ/T = {r.waveSpeed.toFixed(2)} m/s，频率 f = 1/T = {r.frequency.toFixed(2)} Hz。</p><p>波前以 v = λ/T 传播；到达 P 点后，质点才按起振方向做简谐振动，质点不随波迁移。</p></>}
     chart={<WaveStateChart state={state}/>}
     playbackActions={[{key:'toggle-running',label:state.running?'暂停传播':state.elapsed===0?'开始传播':'继续传播',onClick:state.toggleRunning},{key:'reset',label:'重置相位',onClick:state.reset}]}

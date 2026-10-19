@@ -6,6 +6,7 @@ import { SegmentedControl } from '../controls/SegmentedControl'
 import { useMediaQuery, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
 import { useAppStore, type MobilePlaybackAction } from '../../store/useAppStore'
 import { ModelNoteTargetContext } from '../notes/modelNoteTarget'
+import { PredictionContext, type PredictionState } from '../notes/predictionContext'
 
 type SceneLayoutProps = {
   viewport: ReactNode
@@ -60,6 +61,45 @@ export function SceneLayout({
   const [playbackDismissVersion, setPlaybackDismissVersion] = useState(0)
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('controls')
   const [notesTarget, setNotesTarget] = useState<HTMLDivElement | null>(null)
+  const predicting = useAppStore((s) => s.predicting)
+  const setPredicting = useAppStore((s) => s.setPredicting)
+  const [answerCount, setAnswerCount] = useState(0)
+  const [predictionRound, setPredictionRound] = useState({ predicting, round: 0, revealAll: false })
+  // A new round starts whenever prediction mode turns on (adjusting state during render).
+  if (predictionRound.predicting !== predicting) {
+    setPredictionRound((current) => ({ predicting, round: predicting ? current.round + 1 : current.round, revealAll: false }))
+  }
+  const registerAnswer = useCallback(() => {
+    setAnswerCount((count) => count + 1)
+    return () => setAnswerCount((count) => count - 1)
+  }, [])
+  const prediction = useMemo<PredictionState>(
+    () => ({ predicting, round: predictionRound.round, revealAll: predictionRound.revealAll, register: registerAnswer }),
+    [predicting, predictionRound.round, predictionRound.revealAll, registerAnswer],
+  )
+  const predictionActions = answerCount > 0 ? (
+    <>
+      {predicting && !predictionRound.revealAll ? (
+        <button
+          type="button"
+          className="panel-text-button"
+          onClick={() => setPredictionRound((current) => ({ ...current, revealAll: true }))}
+        >
+          全部揭晓
+        </button>
+      ) : null}
+      <button
+        type="button"
+        className={`panel-text-button${predicting ? ' active' : ''}`}
+        aria-pressed={predicting}
+        aria-keyshortcuts="H"
+        title="预测模式：先遮住结论，学生预测后再揭晓（快捷键 H）"
+        onClick={() => setPredicting(!predicting)}
+      >
+        预测
+      </button>
+    </>
+  ) : null
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const setMobilePlaybackActions = useAppStore((s) => s.setMobilePlaybackActions)
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed)
@@ -216,6 +256,7 @@ export function SceneLayout({
   if (isMobile) {
     return (
       <ModelNoteTargetContext.Provider value={notesTarget}>
+      <PredictionContext.Provider value={prediction}>
       <div className="flex flex-col w-full h-full">
         <div className="flex-1 min-h-0">{viewport}</div>
 
@@ -240,12 +281,14 @@ export function SceneLayout({
           </div>
         </div>
       </div>
+      </PredictionContext.Provider>
       </ModelNoteTargetContext.Provider>
     )
   }
 
   return (
     <ModelNoteTargetContext.Provider value={notesTarget}>
+    <PredictionContext.Provider value={prediction}>
     <div className="relative w-full h-full">
       <div className="absolute inset-0 z-0">{viewport}</div>
 
@@ -259,6 +302,7 @@ export function SceneLayout({
           key={dataInitiallyCollapsed ? 'data-collapsed' : 'data-expanded'}
           title="数据"
           zone="data"
+          headerActions={predictionActions}
           ref={stableRef0}
           defaultCollapsed={dataInitiallyCollapsed}
           defaultPosition={{ x: 0, y: 0 }}
@@ -324,6 +368,7 @@ export function SceneLayout({
         </div>
       )}
     </div>
+    </PredictionContext.Provider>
     </ModelNoteTargetContext.Provider>
   )
 }

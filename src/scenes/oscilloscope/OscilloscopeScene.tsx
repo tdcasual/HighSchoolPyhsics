@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { useMemo, useState } from 'react'
 import { deriveDeflectionFromVoltage, deriveTimeCursor } from './runtime'
 import { compileVoltageExpression } from './expression'
@@ -142,7 +143,7 @@ export function OscilloscopeScene() {
           <p><span>状态</span><strong>{simulation.running ? '运行中' : '已暂停'}</strong></p>
           <p><span>时刻</span><strong>t = {timeCursor.toFixed(3)} s</strong></p>
           <p><span>Ux / Uy</span><strong>{ux.toFixed(2)} V / {uy.toFixed(2)} V</strong></p>
-          <p><span>屏幕坐标（±1）</span><strong>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</strong></p>
+          <p><span>屏幕坐标（±1）</span><strong><Answer>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</Answer></strong></p>
           <p className={clippingReasons.length ? 'scope-overrange' : undefined}>
             <span>满偏 ±10 V</span>
             <strong>{clippingReasons.length ? `已限幅：${clippingReasons.join('、')}` : '未超量程'}</strong>

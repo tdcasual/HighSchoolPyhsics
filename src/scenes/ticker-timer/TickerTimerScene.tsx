@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from "../../scene3d/InteractiveCanvas";
 import { RangeField } from "../../ui/controls/RangeField";
 import { SceneLayout } from "../../ui/layout/SceneLayout";
@@ -49,7 +50,7 @@ export function TickerTimerScene() {
           </p>
           <p>
             <span>逐差法加速度</span>
-            <strong>{state.measuredAccelerationLabel}</strong>
+            <strong><Answer>{state.measuredAccelerationLabel}</Answer></strong>
           </p>
         </div>
       }

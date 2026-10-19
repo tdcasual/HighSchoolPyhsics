@@ -35,6 +35,8 @@ function App() {
   const setLargeText = useAppStore((state) => state.setLargeText)
   const presenting = useAppStore((state) => state.presenting)
   const setPresenting = useAppStore((state) => state.setPresenting)
+  const predicting = useAppStore((state) => state.predicting)
+  const setPredicting = useAppStore((state) => state.setPredicting)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
   const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
@@ -124,6 +126,7 @@ function App() {
     onExitPresenting: () => {
       if (presenting) exitPresenting()
     },
+    onTogglePredicting: () => setPredicting(!predicting),
   })
 
   const isOverviewPage = pathname === '/'

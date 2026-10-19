@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -41,10 +42,10 @@ export function CyclotronCoreScene() {
       }
       dataOverlay={
         <div className="cyclotron-core-telemetry scene-core-summary-stack">
-          <p><span>加速次数 n</span><strong>{readings.accelerationCount}</strong></p>
-          <p><span>当前动能 Eₖ</span><strong>{readings.energy.toFixed(0)} keV</strong></p>
-          <p><span>最大动能 Eₖ,max</span><strong>{readings.maxEnergy.toFixed(0)} keV</strong></p>
-          <p><span>周期比 T/Tₚ</span><strong>{readings.periodRatio.toFixed(2)}</strong></p>
+          <p><span>已知 B · U · R</span><strong>{state.B.toFixed(1)} T · {state.U.toFixed(0)} kV · 2.88 cm</strong></p>
+          <p><span>加速次数 n · 动能 Eₖ</span><strong>{readings.accelerationCount} · {readings.energy.toFixed(0)} keV</strong></p>
+          <p><span>最大动能 Eₖ,max</span><strong><Answer>{readings.maxEnergy.toFixed(0)} keV</Answer></strong></p>
+          <p><span>周期比 T/Tₚ</span><strong><Answer>{readings.periodRatio.toFixed(2)}</Answer></strong></p>
           <p>
             <span>运行状态</span>
             <strong data-testid="cyclotron-core-status" className={`cyclotron-core-status ${readings.extracted ? 'extracted' : readings.inGap ? 'gap' : 'dee'}`}>

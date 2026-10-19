@@ -1,3 +1,4 @@
+import { Answer } from '../../ui/notes/Answer'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
@@ -63,8 +64,8 @@ export function OerstedScene() {
                   <tr key={'needle-reading-' + index} data-testid={'oersted-swing-' + (index + 1)}>
                     <th scope="row">{index + 1}</th>
                     <td data-testid={'oersted-actual-swing-' + (index + 1)}>{actualSwingDeg.toFixed(1)}°</td>
-                    <td data-testid={'oersted-target-swing-' + (index + 1)}>{needleState.observedSwingDeg.toFixed(1)}°</td>
-                    <td>{needleState.wireFieldMicroT.toFixed(1)} μT</td>
+                    <td data-testid={'oersted-target-swing-' + (index + 1)}><Answer>{needleState.observedSwingDeg.toFixed(1)}°</Answer></td>
+                    <td><Answer>{needleState.wireFieldMicroT.toFixed(1)} μT</Answer></td>
                   </tr>
                 )
               })}
