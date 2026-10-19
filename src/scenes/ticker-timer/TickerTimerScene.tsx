@@ -18,8 +18,6 @@ export function TickerTimerScene() {
   return (
     <SceneLayout
       controls={<TickerTimerControls state={state} />}
-      panelPlacement="default"
-      auxiliaryPanelPlacement="after-sidebar"
       chartInitiallyCollapsed
       dataOverlay={
         <div className="ticker-telemetry scene-core-summary-stack">

@@ -1,5 +1,4 @@
 import { useEffect, useState, type RefObject } from 'react'
-import type { ScreenRect } from './framing'
 
 export type ViewportSize = { left: number; width: number; height: number }
 
@@ -36,61 +35,4 @@ export function useViewportSize(ref: RefObject<HTMLDivElement | null>): Viewport
   }, [ref])
 
   return size
-}
-
-const OVERLAY_SELECTOR = '.sidebar-panel, .floating-panel, .interaction-hint'
-
-function sameRects(a: ScreenRect[], b: ScreenRect[]): boolean {
-  return a.length === b.length && a.every((rect, index) => {
-    const other = b[index]
-    return Math.abs(rect.left - other.left) < 4 && Math.abs(rect.top - other.top) < 4 &&
-      Math.abs(rect.right - other.right) < 4 && Math.abs(rect.bottom - other.bottom) < 4
-  })
-}
-
-/**
- * Snapshots where the sidebar, floating panels and gesture hint sit over the canvas, so the
- * camera can frame the instrument in the largest uncovered area. Measured only when the scene
- * opens, when `refitKey` changes (tool, part or view preset) and when the window resizes:
- * opening, collapsing or dragging a panel afterwards just covers the 3D view, like every other
- * scene, instead of moving the camera and discarding the teacher's zoom.
- */
-export function useOverlayObstacles(ref: RefObject<HTMLDivElement | null>, refitKey: string): ScreenRect[] {
-  const [obstacles, setObstacles] = useState<ScreenRect[]>([])
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    let root: HTMLElement | null = element.parentElement
-    while (root && !root.querySelector('.sidebar-panel')) root = root.parentElement
-    if (!root) return
-    const layoutRoot = root
-
-    let timer: ReturnType<typeof setTimeout> | undefined
-    const measure = () => {
-      const base = element.getBoundingClientRect()
-      const next: ScreenRect[] = []
-      layoutRoot.querySelectorAll<HTMLElement>(OVERLAY_SELECTOR).forEach((overlay) => {
-        const rect = overlay.getBoundingClientRect()
-        if (rect.width < 1 || rect.height < 1) return
-        next.push({ left: rect.left - base.left, top: rect.top - base.top, right: rect.right - base.left, bottom: rect.bottom - base.top })
-      })
-      setObstacles((previous) => (sameRects(previous, next) ? previous : next))
-    }
-    // Panels finish their first layout a moment after mount, so measure again once it settles.
-    function schedule() {
-      clearTimeout(timer)
-      timer = setTimeout(measure, 200)
-    }
-
-    measure()
-    schedule()
-    window.addEventListener('resize', schedule)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', schedule)
-    }
-  }, [ref, refitKey])
-
-  return obstacles
 }

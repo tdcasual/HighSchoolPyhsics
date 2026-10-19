@@ -9,6 +9,8 @@ import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { useMediaQuery } from '../ui/hooks/useMediaQuery'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
 import { ProjectionOffset } from './ProjectionOffset'
+import { resolveSafeAreaTransform, type SafeAreaOptions } from './safeArea'
+import { useOverlayObstacles } from './useOverlayObstacles'
 import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
 import { DEFAULT_ADAPTIVE_FRAMING, resolveAdaptiveFramingTarget, type AdaptiveFramingOptions } from './adaptiveFraming'
 import {
@@ -126,6 +128,11 @@ type InteractiveCanvasProps = PropsWithChildren<{
   syncCamera?: boolean
   /** Shift the rendered image by [x, y] CSS px so the orbit target shows off-center. */
   screenOffset?: [number, number]
+  /**
+   * Fit the composition into the area right of the sidebar and panel column (sampled when the
+   * scene opens, so later panel changes only cover the view). Ignored when `screenOffset` is set.
+   */
+  safeArea?: boolean | SafeAreaOptions
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
   adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
   presentationFocus?: PresentationFocus
@@ -139,6 +146,7 @@ export function InteractiveCanvas({
   controlsEnabled = true,
   syncCamera = false,
   screenOffset,
+  safeArea = true,
   controls,
   adaptiveFraming = true,
   presentationFocus,
@@ -147,6 +155,11 @@ export function InteractiveCanvas({
 }: InteractiveCanvasProps) {
   const activeScenePath = useAppStore((state) => state.activeScenePath)
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+  const overlays = useOverlayObstacles(rootRef)
+  const safeAreaTransform = screenOffset || safeArea === false
+    ? null
+    : resolveSafeAreaTransform({ width: overlays.width, obstacles: overlays.obstacles, options: safeArea === true ? undefined : safeArea })
   const adaptiveBaseTargetRef = useRef<{
     x: number
     y: number
@@ -359,6 +372,7 @@ export function InteractiveCanvas({
 
   return (
     <div
+      ref={rootRef}
       className="interactive-canvas"
       role="img"
       aria-label="3D 物理模拟场景，支持鼠标拖拽旋转、滚轮缩放"
@@ -380,6 +394,7 @@ export function InteractiveCanvas({
         >
           {children}
           {screenOffset ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
+          {safeAreaTransform ? <ProjectionOffset {...safeAreaTransform} /> : null}
           {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
           <OrbitControls
             ref={controlsRef}

@@ -18,7 +18,6 @@ export function OerstedScene() {
 
   return (
     <SceneLayout
-      auxiliaryPanelPlacement="after-sidebar"
       controls={
         <OerstedControls
           presetButtons={OERSTED_PRESETS.map((preset) => ({
@@ -95,8 +94,8 @@ export function OerstedScene() {
       ]}
       viewport={
         <InteractiveCanvas
-          camera={{ position: isMobile ? [3.4, 2, 5.2] : [2.9, 2.9, 6.6], fov: 36 }}
-          controls={{ target: isMobile ? [-0.25, 0, 0] : [-0.9, 0.35, 0.65] }}
+          camera={{ position: isMobile ? [3.4, 2, 5.2] : [3.55, 2.75, 5.95], fov: 36 }}
+          controls={{ target: isMobile ? [-0.25, 0, 0] : [-0.25, 0.2, 0] }}
           presentationFocus={presentationFocus}
           frameloop={state.running || state.draggingNeedleIndex !== null ? 'always' : 'demand'}
           controlsEnabled={state.draggingNeedleIndex === null}

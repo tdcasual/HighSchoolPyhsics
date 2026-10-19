@@ -148,7 +148,6 @@ export function CelestialScene() {
       chart={<CelestialChart scenario={scenario} />}
       chartVisible
       chartInitiallyCollapsed
-      auxiliaryPanelPlacement="after-sidebar"
       playbackActions={[
         { key: 'play', label: playLabel, onClick: state.toggleRunning },
         { key: 'step', label: '单步', onClick: state.step },

@@ -14,10 +14,9 @@ import './induction-current.css'
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
-  // Desktop: aim left of the apparatus so the coil, magnet travel (y 0…21) and meter sit to
-  // the right of the floating data panel instead of underneath it.
-  const cameraTarget: [number, number, number] = isMobile ? [7.5, 1, 0] : [-6, 3, 0]
-  const cameraPosition: [number, number, number] = isMobile ? [12.5, 10, 65] : [-1, 12, 64]
+  // Desktop looks a little higher to keep the full magnet travel (y 0…21) in view.
+  const cameraTarget: [number, number, number] = isMobile ? [7.5, 1, 0] : [7.5, 3, 0]
+  const cameraPosition: [number, number, number] = isMobile ? [12.5, 10, 65] : [12.5, 12, 64]
   const presentationFocus = state.motionDirection || state.lastOutcome
     ? { mode: 'focus' as const, primary: cameraTarget }
     : { mode: 'overview' as const }

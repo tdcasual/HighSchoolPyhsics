@@ -89,7 +89,6 @@ export function MhdGeneratorScene() {
           onClick: state.reset,
         },
       ]}
-      auxiliaryPanelPlacement="after-sidebar"
     />
   )
 }

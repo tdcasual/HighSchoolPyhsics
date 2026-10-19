@@ -46,10 +46,7 @@ export function ElectromagneticDriveScene() {
         />
       }
       chartVisible={true}
-      panelPlacement="after-sidebar"
-      auxiliaryPanelPlacement="after-sidebar"
       chartInitiallyCollapsed
-      chartOffsetY={230}
       viewport={
         <InteractiveCanvas
           camera={{ position: [1.2, 11.7, 18.2], fov: 42 }}

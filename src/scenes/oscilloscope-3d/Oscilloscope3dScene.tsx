@@ -37,8 +37,8 @@ export function Oscilloscope3dScene() {
   const theme = useAppStore((state) => state.theme)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const state = useOscilloscope3dSceneState()
-  const cameraPosition: [number, number, number] = isMobile ? [11.8, 7.2, 15.2] : [16.9, 8.8, 16.1]
-  const cameraTarget: [number, number, number] = isMobile ? [0.2, 0, 0] : [3, 0, -2.3]
+  const cameraPosition: [number, number, number] = isMobile ? [11.8, 7.2, 15.2] : [14.1, 8.8, 18.4]
+  const cameraTarget: [number, number, number] = [0.2, 0, 0]
   const effectiveTrigger = state.mode === 'scan' ? state.trigger : true
   const trace = useMemo(
     () => state.mode === 'xy'

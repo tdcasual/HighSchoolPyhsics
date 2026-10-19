@@ -77,7 +77,6 @@ export function RotationalEmfScene() {
           <p><span>感应电动势</span><strong>{state.emfMagnitudeLabel}</strong></p>
         </div>
       }
-      panelPlacement="after-sidebar"
       playbackActions={[
         {
           key: 'toggle-running',

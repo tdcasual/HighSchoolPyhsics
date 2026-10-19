@@ -1,5 +1,6 @@
-/** Axis-aligned screen rectangle in CSS pixels, relative to the canvas element. */
-export type ScreenRect = { left: number; top: number; right: number; bottom: number }
+import type { ScreenRect } from '../../scene3d/useOverlayObstacles'
+
+export type { ScreenRect }
 
 const MIN_WIDTH = 220
 const MIN_HEIGHT = 140

@@ -10,7 +10,8 @@ import { MeasuringToolsRig3D } from './MeasuringToolsRig3D'
 import { cameraLimits, instrumentView, orbitPosition, type OrbitView } from './pose'
 import { useMeasuringToolsSceneState } from './useMeasuringToolsSceneState'
 import { freeRects } from './framing'
-import { useOverlayObstacles, useViewportSize } from './useViewportSize'
+import { useOverlayObstacles } from '../../scene3d/useOverlayObstacles'
+import { useViewportSize } from './useViewportSize'
 import './measuring-tools.css'
 
 export function MeasuringToolsScene() {
@@ -21,7 +22,7 @@ export function MeasuringToolsScene() {
   const [instrumentDragging, setInstrumentDragging] = useState(false)
   const [dragView, setDragView] = useState<OrbitView | null>(null)
   const currentView = useRef<OrbitView | null>(null)
-  const obstacles = useOverlayObstacles(viewportRef, `${state.tool}-${state.measure}-${state.view}`)
+  const { obstacles } = useOverlayObstacles(viewportRef, `${state.tool}-${state.measure}-${state.view}`)
   const limits = cameraLimits(state.tool)
   const showWork = shouldShowSpecimen(state)
   const viewInput = {
@@ -71,7 +72,6 @@ export function MeasuringToolsScene() {
   return (
     <SceneLayout
       chartContentClassName="measure-chart-content"
-      panelPlacement="after-sidebar"
       controls={<MeasuringToolsControls state={state} />}
       dataOverlay={
         <div className="measure-telemetry scene-core-summary-stack">

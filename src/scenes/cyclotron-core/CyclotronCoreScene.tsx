@@ -13,8 +13,9 @@ export function CyclotronCoreScene() {
   const state = useCyclotronCoreSceneState()
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const readings = state.readings
-  const cameraTarget: [number, number, number] = isMobile ? [0, 0, 0] : [-4.15, 0, 0]
-  const cameraPosition: [number, number, number] = isMobile ? [0, 0, 22] : [-4.15, 0, 14]
+  // Centered on the D-boxes; the shared safe-area transform moves it clear of the panels.
+  const cameraTarget: [number, number, number] = [0, 0, 0]
+  const cameraPosition: [number, number, number] = isMobile ? [0, 0, 22] : [0, 0, 16]
   const statusLabel = readings.extracted
     ? '粒子已射出'
     : !state.running && state.elapsed === 0
@@ -28,8 +29,6 @@ export function CyclotronCoreScene() {
   return (
     <SceneLayout
       controls={<CyclotronCoreControls state={state} />}
-      panelPlacement="after-sidebar"
-      auxiliaryPanelPlacement="default"
       chartInitiallyCollapsed
       viewport={
         <InteractiveCanvas

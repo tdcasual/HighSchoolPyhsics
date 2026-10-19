@@ -169,9 +169,7 @@ export function MultimeterScene() {
       chart={chart}
       chartVisible={state.stage !== 'use'}
       chartInitiallyCollapsed={state.stage !== 'use'}
-      chartOffsetY={state.stage === 'use' ? 0 : 50}
       overlayZIndex="z-20"
-      panelPlacement="after-sidebar"
       playbackActions={playbackActions}
       viewport={
         <div ref={viewportRef} style={{ width: '100%', height: '100%' }}>

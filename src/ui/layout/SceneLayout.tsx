@@ -15,12 +15,8 @@ type SceneLayoutProps = {
   playbackControls?: ReactNode
   chartVisible?: boolean
   chartContentClassName?: string
-  /** Opt-in: place overlays immediately after the sidebar instead of using the legacy offset. */
-  panelPlacement?: 'default' | 'after-sidebar'
-  auxiliaryPanelPlacement?: 'default' | 'after-sidebar'
   chartInitiallyCollapsed?: boolean
   dataInitiallyCollapsed?: boolean
-  chartOffsetY?: number
   overlayZIndex?: 'z-10' | 'z-20'
 }
 
@@ -49,11 +45,8 @@ export function SceneLayout({
   playbackControls,
   chartVisible = false,
   chartContentClassName,
-  panelPlacement = 'default',
-  auxiliaryPanelPlacement = 'default',
   chartInitiallyCollapsed = false,
   dataInitiallyCollapsed = false,
-  chartOffsetY = 0,
   overlayZIndex = 'z-10',
 }: SceneLayoutProps) {
   const [chartDismissVersion, setChartDismissVersion] = useState(0)
@@ -130,34 +123,15 @@ export function SceneLayout({
   const chartDismissed = Boolean(chart) && chartVisible && chartDismissVersion !== 0
   const hasPlayback = Boolean(playbackActions || playbackControls)
   const playbackDismissed = hasPlayback && playbackDismissVersion !== 0
-  const panelX = useMemo(
-    () => (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP,
-    [sidebarCollapsed],
-  )
-  const panelBaseX = panelPlacement === 'after-sidebar' ? panelX / 2 : panelX
-  const panelOffsetX = panelPlacement === 'after-sidebar' ? panelX / 2 : panelX
-  const auxiliaryPanelBaseX = auxiliaryPanelPlacement === 'after-sidebar' ? panelX / 2 : panelBaseX
-  const auxiliaryPanelOffsetX = auxiliaryPanelPlacement === 'after-sidebar' ? panelX / 2 : panelOffsetX
-  // Panel stacking: measure each panel's height and offset subsequent panels
+  // Every scene stacks its overlays in one column right after the sidebar (data → chart →
+  // playback), leaving the rest of the canvas as one uncovered area for the 3D composition.
+  const panelX = (sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + PANEL_GAP
   const [panelHeights, setPanelHeights] = useState<number[]>([])
   const panelElsRef = useRef<Map<number, HTMLDivElement>>(new Map())
   const panelObserversRef = useRef<Map<number, ResizeObserver>>(new Map())
 
-  // Compute stacked Y positions from measured panel heights
-  const stackedYs = useMemo(() => {
-    const result: number[] = []
-    let cumulative = 0
-    for (let i = 0; i < panelHeights.length; i++) {
-      result[i] = cumulative
-      cumulative += (panelHeights[i] ?? 0) + STACK_GAP
-    }
-    return result
-  }, [panelHeights])
-
-  const chartPanelY = auxiliaryPanelPlacement === 'after-sidebar' ? chartOffsetY : (stackedYs[1] ?? 300) + chartOffsetY
-  const playbackPanelY = auxiliaryPanelPlacement === 'after-sidebar'
-    ? (showChart ? (panelHeights[1] ?? 0) + STACK_GAP : 0)
-    : (stackedYs[2] ?? 500)
+  const chartPanelY = dataOverlay ? (panelHeights[0] ?? 0) + STACK_GAP : 0
+  const playbackPanelY = chartPanelY + (chart && showChart ? (panelHeights[1] ?? 0) + STACK_GAP : 0)
 
   const registerPanel = useCallback((index: number, el: HTMLDivElement | null) => {
     const prev = panelElsRef.current.get(index)
@@ -263,8 +237,8 @@ export function SceneLayout({
           zone="data"
           ref={stableRef0}
           defaultCollapsed={dataInitiallyCollapsed}
-          defaultPosition={{ x: panelBaseX, y: stackedYs[0] ?? 0 }}
-          offsetX={panelOffsetX}
+          defaultPosition={{ x: 0, y: 0 }}
+          offsetX={panelX}
           zIndex={overlayZIndex}
         >
           <div className="min-w-[200px]">{dataOverlay}</div>
@@ -278,8 +252,8 @@ export function SceneLayout({
           zone="chart"
           ref={stableRef1}
           defaultCollapsed={chartInitiallyCollapsed}
-          defaultPosition={{ x: auxiliaryPanelBaseX, y: chartPanelY }}
-          offsetX={auxiliaryPanelOffsetX}
+          defaultPosition={{ x: 0, y: chartPanelY }}
+          offsetX={panelX}
           zIndex={overlayZIndex}
           closable
           onClose={() => setChartDismissVersion(1)}
@@ -294,8 +268,8 @@ export function SceneLayout({
           title="播放控制"
           zone="playback"
           ref={stableRef2}
-          defaultPosition={{ x: auxiliaryPanelBaseX, y: playbackPanelY }}
-          offsetX={auxiliaryPanelOffsetX}
+          defaultPosition={{ x: 0, y: playbackPanelY }}
+          offsetX={panelX}
           zIndex="z-20"
           closable
           onClose={() => setPlaybackDismissVersion(1)}
