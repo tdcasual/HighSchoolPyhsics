@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useParticleSimulation } from '../../core/useParticleSimulation'
 import type { ParticleState } from '../../core/types'
 import type { CyclotronConfig } from './model'
@@ -30,6 +31,7 @@ export function useCyclotronSimulation(
       computeCyclotronStepAcceleration(state, config, timeS, stepDt),
     shouldStop: (state) => Math.hypot(state.position.x, state.position.y) >= MAX_ORBIT_RADIUS_M,
     runningByDefault: false,
+    getTimeScale: getPlaybackRate,
     autoResetOnInitialStateChange: true,
   })
 }

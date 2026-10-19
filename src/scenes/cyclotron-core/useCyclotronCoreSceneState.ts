@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveCyclotronReadings, type ParticleType } from './model'
 
@@ -33,7 +34,7 @@ export function useCyclotronCoreSceneState(): CyclotronCoreSceneState {
       const previous = lastTimestampRef.current
       lastTimestampRef.current = timestamp
       if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
+        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000) * getPlaybackRate()
         const current = simulationRef.current
         const elapsed = current.elapsed + delta
         const nextReadings = deriveCyclotronReadings({

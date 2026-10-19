@@ -40,7 +40,7 @@ export function InductionCurrentScene() {
     : '无'
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={<InductionCurrentControls state={state} />}
       notes={
         <p>

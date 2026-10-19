@@ -21,6 +21,8 @@ type AppState = {
   presenting: boolean
   /** Prediction mode: readings marked as conclusions are masked until revealed. */
   predicting: boolean
+  /** Slow motion for scenes that opt into the shared time control; reset per scene. */
+  playbackRate: number
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
   setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
@@ -28,6 +30,7 @@ type AppState = {
   setLargeText: (largeText: boolean) => void
   setPresenting: (presenting: boolean) => void
   setPredicting: (predicting: boolean) => void
+  setPlaybackRate: (playbackRate: number) => void
 }
 
 type PersistedAppState = Pick<AppState, 'theme' | 'largeText'>
@@ -95,6 +98,7 @@ export const useAppStore = create<AppState>()(
       largeText: true,
       presenting: false,
       predicting: false,
+      playbackRate: 1,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
       setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
@@ -102,6 +106,7 @@ export const useAppStore = create<AppState>()(
       setLargeText: (largeText) => set({ largeText }),
       setPresenting: (presenting) => set({ presenting }),
       setPredicting: (predicting) => set({ predicting }),
+      setPlaybackRate: (playbackRate) => set({ playbackRate }),
     }),
     {
       name: 'electromagnetics-lab-ui',

@@ -19,7 +19,7 @@ export function AlternatorScene() {
   const viewportNeedleAngleRad = state.meterNeedleAngleRad
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={<AlternatorControls state={state} />}
       viewport={
         <InteractiveCanvas

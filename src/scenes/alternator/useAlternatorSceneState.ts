@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   FIXED_STEP_S,
@@ -91,7 +92,7 @@ export function useAlternatorSceneState(): AlternatorSceneState {
         const elapsedMs = Math.max(0, timestampMs - lastTimestampRef.current)
         lastTimestampRef.current = timestampMs
         accumulatedMsRef.current = Math.min(
-          accumulatedMsRef.current + elapsedMs,
+          accumulatedMsRef.current + elapsedMs * getPlaybackRate(),
           MAX_ACCUMULATED_MS,
         )
 

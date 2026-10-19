@@ -364,10 +364,16 @@ body {
 
 .app-shell.presenting .app-header,
 .app-shell.presenting .sidebar-panel,
-.app-shell.presenting .floating-panel,
+.app-shell.presenting .floating-panel:not([data-panel='data']),
 .app-shell.presenting .panel-restore-dock,
 .app-shell.presenting .interaction-hint {
   display: none;
+}
+
+/* Core readings stay on screen in lecture mode (collapsible from its header), pinned top-left
+   since the sidebar it normally sits beside is hidden. */
+.app-shell.presenting .floating-panel[data-panel='data'] {
+  transform: translate(16px, 16px) !important;
 }
 
 .app-shell.presenting .scene-container {
@@ -456,6 +462,24 @@ body {
 
 .answer-mask:hover {
   background: var(--control-accent-10);
+}
+
+/* Shared slow-motion selector in the playback zone. */
+.playback-rate {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.playback-rate-label {
+  flex: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--control-ink-muted);
+}
+
+.playback-rate > :last-child {
+  flex: 1;
 }
 
 /* ── Classroom large text ── */

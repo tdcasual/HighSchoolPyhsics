@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   createExperimentRecord,
@@ -94,12 +95,15 @@ export function useInductionCurrentSceneState(): InductionCurrentSceneState {
       return
     }
 
-    const startedAt = performance.now()
+    let simulatedMs = 0
+    let previous = performance.now()
     let frameId = 0
 
     const frame = () => {
-      const elapsedMs = performance.now() - startedAt
-      const nextProgress = Math.min(1, elapsedMs / MOTION_DURATION_MS)
+      const now = performance.now()
+      simulatedMs += (now - previous) * getPlaybackRate()
+      previous = now
+      const nextProgress = Math.min(1, simulatedMs / MOTION_DURATION_MS)
       setMotionProgress(nextProgress)
 
       const nextY = resolveMagnetY(magnetPosition, motionDirection, nextProgress)

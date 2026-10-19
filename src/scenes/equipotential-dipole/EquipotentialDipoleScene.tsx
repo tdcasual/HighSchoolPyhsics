@@ -27,7 +27,7 @@ export function EquipotentialDipoleScene() {
       : Math.abs(state.probeY) < 0.12
         ? '两电荷外侧 E₁、E₂ 反向，合场强相减。'
         : '斜向位置应分解两个场强矢量，等势线与合场强正交。'
-  return <SceneLayout
+  return <SceneLayout timeControl
     controls={<EquipotentialDipoleControls state={state} />}
     viewport={<InteractiveCanvas camera={{ position: [0, 0, 14], fov: 40 }} controls={{ target: [0, 0, 0], minDistance: 7, maxDistance: 18, maxPolarAngle: Math.PI * 0.92 }} frameloop={state.running ? 'always' : 'demand'}><EquipotentialDipoleRig3D elapsed={state.elapsed} flow={state.flow} showEquipotential={state.showEquipotential} showVectors={state.showVectors} separation={state.separation} charge={state.charge} probeX={state.probeX} probeY={state.probeY} readings={r} theme={theme} /></InteractiveCanvas>}
     dataOverlay={<div className="equipotential-dipole-telemetry scene-core-summary-stack">

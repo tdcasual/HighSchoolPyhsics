@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MOTIONAL_EMF_LAYOUT } from './layout'
 import {
@@ -115,7 +116,7 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
     let previous = performance.now()
 
     const frame = (now: number) => {
-      const deltaS = Math.min(0.05, (now - previous) / 1000)
+      const deltaS = Math.min(0.05, (now - previous) / 1000) * getPlaybackRate()
       previous = now
 
       const previousPhase = phaseRef.current

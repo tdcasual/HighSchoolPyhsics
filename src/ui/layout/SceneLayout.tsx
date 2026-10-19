@@ -6,6 +6,7 @@ import { SegmentedControl } from '../controls/SegmentedControl'
 import { useMediaQuery, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
 import { useAppStore, type MobilePlaybackAction } from '../../store/useAppStore'
 import { ModelNoteTargetContext } from '../notes/modelNoteTarget'
+import { PLAYBACK_RATE_OPTIONS } from '../../scene3d/playbackRate'
 import { PredictionContext, type PredictionState } from '../notes/predictionContext'
 
 type SceneLayoutProps = {
@@ -20,6 +21,8 @@ type SceneLayoutProps = {
   chart?: ReactNode
   playbackActions?: MobilePlaybackAction[]
   playbackControls?: ReactNode
+  /** The scene's loop honours the shared playback rate: show 速度 1× / ½× / ¼× in the playback zone. */
+  timeControl?: boolean
   chartVisible?: boolean
   chartContentClassName?: string
   chartInitiallyCollapsed?: boolean
@@ -51,6 +54,7 @@ export function SceneLayout({
   chart,
   playbackActions,
   playbackControls,
+  timeControl = false,
   chartVisible = false,
   chartContentClassName,
   chartInitiallyCollapsed = false,
@@ -61,6 +65,18 @@ export function SceneLayout({
   const [playbackDismissVersion, setPlaybackDismissVersion] = useState(0)
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('controls')
   const [notesTarget, setNotesTarget] = useState<HTMLDivElement | null>(null)
+  const playbackRate = useAppStore((s) => s.playbackRate)
+  const setPlaybackRate = useAppStore((s) => s.setPlaybackRate)
+  const rateControl = timeControl ? (
+    <div className="playback-rate" aria-label="播放速度">
+      <span className="playback-rate-label">速度</span>
+      <SegmentedControl
+        options={PLAYBACK_RATE_OPTIONS}
+        value={String(playbackRate)}
+        onChange={(key) => setPlaybackRate(Number(key))}
+      />
+    </div>
+  ) : null
   const predicting = useAppStore((s) => s.predicting)
   const setPredicting = useAppStore((s) => s.setPredicting)
   const [answerCount, setAnswerCount] = useState(0)
@@ -178,7 +194,7 @@ export function SceneLayout({
 
   const showChart = chartVisible && chartDismissVersion === 0
   const chartDismissed = Boolean(chart) && chartVisible && chartDismissVersion !== 0
-  const hasPlayback = Boolean(playbackActions || playbackControls)
+  const hasPlayback = Boolean(playbackActions || playbackControls || timeControl)
   const playbackDismissed = hasPlayback && playbackDismissVersion !== 0
   // Every scene stacks its overlays in one column right after the sidebar (data → chart →
   // playback), leaving the rest of the canvas as one uncovered area for the 3D composition.
@@ -281,7 +297,7 @@ export function SceneLayout({
               onChange={(key) => setActiveMobileTab(key as MobileTabKey)}
             />
           </div>
-          {playbackControls && <div className="px-2 pt-2 shrink-0">{playbackControls}</div>}
+          {(playbackControls || rateControl) && <div className="px-2 pt-2 shrink-0">{playbackControls}{rateControl}</div>}
           <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
             {effectiveMobileTab === 'controls' && controls}
             {effectiveMobileTab === 'controls' && notesBlock}
@@ -353,6 +369,7 @@ export function SceneLayout({
         >
           <div className="flex flex-col gap-3">
             {playbackControls}
+            {rateControl}
             {playbackActions && (
               <div className="flex items-center gap-2">
                 <SceneActions actions={playbackActions} />

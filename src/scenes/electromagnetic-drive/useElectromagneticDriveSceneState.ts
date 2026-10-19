@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   createElectromagneticDriveState,
@@ -59,7 +60,7 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
         const elapsedMs = Math.max(0, timestampMs - lastTimestampRef.current)
         lastTimestampRef.current = timestampMs
         accumulatedMsRef.current = Math.min(
-          accumulatedMsRef.current + elapsedMs,
+          accumulatedMsRef.current + elapsedMs * getPlaybackRate(),
           MAX_ACCUMULATED_MS,
         )
 

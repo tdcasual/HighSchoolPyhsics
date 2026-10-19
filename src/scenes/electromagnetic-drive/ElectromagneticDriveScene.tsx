@@ -21,7 +21,7 @@ export function ElectromagneticDriveScene() {
     : 'demand'
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={<ElectromagneticDriveControls />}
       playbackActions={[
         { key: 'toggle-running', label: state.isRunning ? '停止摇动' : '开始摇动', onClick: state.isRunning ? state.pause : state.start },

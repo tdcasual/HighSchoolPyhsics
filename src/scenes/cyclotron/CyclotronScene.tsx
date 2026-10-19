@@ -26,7 +26,7 @@ export function CyclotronScene() {
   }, [state.particleInGap, state.particlePoint, state.simulation.running])
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       chartInitiallyCollapsed
       controls={
         <CyclotronControls

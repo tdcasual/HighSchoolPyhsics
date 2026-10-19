@@ -17,7 +17,7 @@ export function GeneratorCoreScene() {
   const angleLabel = useMemo(() => `${state.readings.angleDeg.toFixed(1)}°`, [state.readings.angleDeg])
   const cameraPosition: [number, number, number] = isMobile ? [16, 8, 16] : [11.5, 8.2, 15.4]
   const cameraTarget: [number, number, number] = [0, 0, 0]
-  return <SceneLayout
+  return <SceneLayout timeControl
     controls={<GeneratorCoreControls state={state} />}
     viewport={<InteractiveCanvas camera={{ position: cameraPosition, fov: isMobile ? 48 : 56 }} controls={{ target: cameraTarget, minDistance: 8, maxDistance: 35, maxPolarAngle: Math.PI * 0.82 }} frameloop={state.running ? 'always' : 'demand'}><GeneratorCoreRig3D angleRad={state.angleRad} running={state.running} theme={theme} /></InteractiveCanvas>}
     dataOverlay={<div className="generator-core-telemetry scene-core-summary-stack"><p><span>相位 θ · 位置</span><strong>{angleLabel} · {state.readings.positionLabel}</strong></p><p><span>磁通量</span><strong><Answer>{state.readings.fluxNormalized.toFixed(2)} Φₘ</Answer></strong></p><p><span>感应电动势</span><strong><Answer>{state.readings.emfNormalized.toFixed(2)} Eₘ</Answer></strong></p><p><span>电流方向</span><strong><Answer>{state.readings.currentDirection}</Answer></strong></p></div>}

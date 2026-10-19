@@ -96,9 +96,7 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
       </ControlSection>
       <SceneActions
         actions={[
-          { key: 'play', label: state.isPlaying ? '暂停' : '播放', onClick: state.togglePlay },
           { key: 'chart', label: state.showChart ? '隐藏X-t图' : '显示X-t图', onClick: state.toggleChart },
-          { key: 'reset', label: '重置', onClick: state.reset },
         ]}
       />
       <ControlSection title="干涉线">

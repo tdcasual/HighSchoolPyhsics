@@ -60,7 +60,7 @@ export function MotionalEmfScene() {
   const activeCameraPreset = useMemo(() => CAMERA_PRESETS[cameraView], [cameraView])
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={
         <>
           <MotionalEmfControls

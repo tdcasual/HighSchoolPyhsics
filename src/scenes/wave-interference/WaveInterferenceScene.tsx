@@ -84,6 +84,10 @@ export function WaveInterferenceScene() {
     <SceneLayout
       controls={<WaveInterferenceControls state={state} />}
       dataOverlay={dataOverlay}
+      playbackActions={[
+        { key: 'play', label: state.isPlaying ? '暂停' : '播放', onClick: state.togglePlay },
+        { key: 'reset', label: '重置', onClick: state.reset },
+      ]}
       chart={state.showChart ? (
         <WaveInterferenceChart
           observer={state.observer}

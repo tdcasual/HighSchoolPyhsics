@@ -89,6 +89,7 @@ function App() {
   useEffect(() => {
     setActiveScenePath(pathname)
     setPresenting(false)
+    useAppStore.getState().setPlaybackRate(1)
   }, [pathname, setActiveScenePath, setPresenting])
 
   // Leaving browser fullscreen (Esc is taken by the browser there) also ends lecture mode.

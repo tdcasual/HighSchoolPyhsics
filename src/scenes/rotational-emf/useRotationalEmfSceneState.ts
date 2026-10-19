@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   deriveRotationalEmfReadout,
@@ -58,7 +59,7 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
     const tick = (timestamp: number) => {
       const previousTimestamp = previousTimestampRef.current
       if (previousTimestamp !== null) {
-        const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.05)
+        const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.05) * getPlaybackRate()
         setAngleRad((current) => (current + angularSpeed * elapsedSeconds) % FULL_ROTATION_RAD)
       }
       previousTimestampRef.current = timestamp

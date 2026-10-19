@@ -54,7 +54,7 @@ export function RotationalEmfScene() {
   }, [state.effectiveLengthM, state.scenario, state.viewMode])
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={
         <RotationalEmfControls
           scenario={state.scenario}

@@ -1,3 +1,4 @@
+import { getPlaybackRate } from '../../scene3d/playbackRate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { deriveGeneratorReadings, positionDescription, wrapAngle, type GeneratorMode } from './model'
 
@@ -37,7 +38,7 @@ export function useGeneratorCoreSceneState(): GeneratorCoreSceneState {
       const previous = lastTimestampRef.current
       lastTimestampRef.current = timestamp
       if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
+        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000) * getPlaybackRate()
         const current = simulationRef.current
         const next = { ...current, angleRad: wrapAngle(current.angleRad + delta * current.angularSpeedRad) }
         simulationRef.current = next

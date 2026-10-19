@@ -28,7 +28,7 @@ export function CyclotronCoreScene() {
           : 'D 型盒内偏转'
 
   return (
-    <SceneLayout
+    <SceneLayout timeControl
       controls={<CyclotronCoreControls state={state} />}
       chartInitiallyCollapsed
       viewport={
