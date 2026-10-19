@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { fitCameraDistance, orbitPosition, type OrbitView } from '../measuring-tools/pose'
 import { MeterAssembly } from './MeterAssembly'
@@ -51,18 +50,8 @@ export function MultimeterScene() {
   const state = useMultimeterSceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
   const viewportSize = useViewportSize(viewportRef)
-  const sidebarCollapsed = useAppStore((store) => store.sidebarCollapsed)
-  const mobileViewport = viewportSize.width <= 767
-  const sidebarOffset = mobileViewport ? 0 : Math.max(0, (sidebarCollapsed ? 44 : 320) + 20 - viewportSize.left)
-  const overlayReserve = mobileViewport
-    ? 0
-    : state.stage === 'use'
-      ? 250
-      : 300
-  const safeLeft = mobileViewport ? 12 : sidebarOffset + overlayReserve + 24
-  const safeRight = Math.max(safeLeft + 1, viewportSize.width - 20)
-  const safeAspect = (safeRight - safeLeft) / Math.max(1, viewportSize.height)
-  const centerOffsetPixels = (safeLeft + safeRight) / 2 - viewportSize.width / 2
+  // Fit to the whole canvas; InteractiveCanvas's safe area moves the result clear of the panels.
+  const safeAspect = viewportSize.width / Math.max(1, viewportSize.height)
   const baseView = meterView(state.view)
   const bounds = state.view === 'focus'
     ? { min: [-8, 0, -10] as [number, number, number], max: [8, 20, 2] as [number, number, number] }
@@ -81,13 +70,7 @@ export function MultimeterScene() {
     minDistance: METER_CAMERA.minDistance,
     margin: state.view === 'focus' ? 1.06 : 1.12,
   })
-  const shift = centerOffsetPixels * (2 * radius * Math.tan((METER_CAMERA.fov * Math.PI) / 360)) / Math.max(1, viewportSize.height)
-  const screenRight: [number, number, number] = [Math.cos(baseView.azimuth), 0, -Math.sin(baseView.azimuth)]
-  const view: OrbitView = {
-    ...baseView,
-    radius,
-    target: [baseView.target[0] - screenRight[0] * shift, baseView.target[1], baseView.target[2] - screenRight[2] * shift],
-  }
+  const view: OrbitView = { ...baseView, radius }
   const maxDistance = Math.max(METER_CAMERA.maxDistance, Math.ceil(radius * 1.25))
   const far = Math.max(METER_CAMERA.far, Math.ceil(maxDistance * 1.5))
   const comparison = voltAmmeter({ Rx: 10 ** state.lgRx, RA: state.ammeterResistance, RV: state.voltmeterResistance, E: 3, Rs: 10 })

@@ -75,7 +75,6 @@ export function CelestialScene() {
   const state = useCelestialMotionSceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
   const viewportSize = useViewportSize(viewportRef)
-  const sidebarCollapsed = useAppStore((store) => store.sidebarCollapsed)
   const scenario = state.scenario
   const pose = celestialPose({
     scenario,
@@ -85,15 +84,11 @@ export function CelestialScene() {
     corotate: state.corotate,
   })
   const outer = outerRadius(scenario)
-  const compactViewport = viewportSize.width <= 767
-  const sidebarWidth = sidebarCollapsed ? 44 : 320
-  const safeLeft = compactViewport ? 12 : Math.max(12, sidebarWidth + 24 - viewportSize.left)
-  const safeRight = Math.max(safeLeft + 1, viewportSize.width - (compactViewport ? 12 : 24))
-  const safeAspect = (safeRight - safeLeft) / Math.max(1, viewportSize.height)
-  const centerOffsetPixels = (safeLeft + safeRight) / 2 - viewportSize.width / 2
+  // Fit the orbits to the whole canvas; InteractiveCanvas's safe area moves the result clear
+  // of the panel column once, so collapsing the sidebar no longer re-frames the view.
   const cameraFrame = celestialCamera(state.azimuthDeg, state.elevationDeg, outer, {
-    aspect: safeAspect,
-    centerOffsetPixels,
+    aspect: viewportSize.width / Math.max(1, viewportSize.height),
+    centerOffsetPixels: 0,
     viewportHeight: viewportSize.height,
   })
   const maxCameraDistance = Math.max(32, Math.ceil(cameraFrame.radius * 1.5))

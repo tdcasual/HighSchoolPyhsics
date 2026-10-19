@@ -3,7 +3,6 @@ import { MeasuringToolsChart } from '../measuring-tools/MeasuringToolsChart'
 import { useViewportSize } from '../measuring-tools/useViewportSize'
 import { cameraLimits, fitCameraDistance, instrumentView, orbitPosition, type OrbitView, type ViewPreset } from '../measuring-tools/pose'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CIRCUIT_CAMERA, circuitPose, circuitView, circuitWires } from './circuitPose'
 import { ElementChart, ResistivityChart } from './ResistivityChart'
@@ -21,7 +20,6 @@ export function ResistivityScene() {
   const state = useResistivitySceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
   const viewportSize = useViewportSize(viewportRef)
-  const sidebarCollapsed = useAppStore((store) => store.sidebarCollapsed)
   const [instrumentDragging, setInstrumentDragging] = useState(false)
   const [dragView, setDragView] = useState<OrbitView | null>(null)
   const [showSecant, setShowSecant] = useState(true)
@@ -35,7 +33,8 @@ export function ResistivityScene() {
   const mobileViewport = viewportSize.width <= 767
   const sidebarOffset = mobileViewport
     ? 0
-    : Math.max(0, (sidebarCollapsed ? 44 : 320) + 20 - viewportSize.left)
+    // Reserve the expanded sidebar: collapsing it later only uncovers more view, never re-frames.
+    : Math.max(0, 320 + 20 - viewportSize.left)
   const panelReserve = mobileViewport ? 0 : diameterView ? 280 : state.stage === 'circuit' ? 260 : Math.min(548, viewportSize.width * 0.43)
   const safeLeft = mobileViewport ? 12 : sidebarOffset + panelReserve + 24
   const safeRight = Math.max(safeLeft + 1, viewportSize.width - 48)
