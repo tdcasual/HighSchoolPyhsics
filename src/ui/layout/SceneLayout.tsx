@@ -77,6 +77,15 @@ export function SceneLayout({
     () => ({ predicting, round: predictionRound.round, revealAll: predictionRound.revealAll, register: registerAnswer }),
     [predicting, predictionRound.round, predictionRound.revealAll, registerAnswer],
   )
+  // Charts usually plot the outcome too (e.g. P's future displacement), so in prediction mode the
+  // chart stays covered until the teacher opens it or reveals everything.
+  const [chartRevealedRound, setChartRevealedRound] = useState<number | null>(null)
+  const chartMasked = predicting && answerCount > 0 && !predictionRound.revealAll && chartRevealedRound !== predictionRound.round
+  const chartBody = chartMasked ? (
+    <button type="button" className="chart-mask" onClick={() => setChartRevealedRound(predictionRound.round)}>
+      图表含结论 · 点击显示
+    </button>
+  ) : chart
   const predictionActions = answerCount > 0 ? (
     <>
       {predicting && !predictionRound.revealAll ? (
@@ -277,7 +286,7 @@ export function SceneLayout({
             {effectiveMobileTab === 'controls' && controls}
             {effectiveMobileTab === 'controls' && notesBlock}
             {effectiveMobileTab === 'data' && dataOverlay}
-            {effectiveMobileTab === 'chart' && chart}
+            {effectiveMobileTab === 'chart' && chartBody}
           </div>
         </div>
       </div>
@@ -327,7 +336,7 @@ export function SceneLayout({
           onClose={() => setChartDismissVersion(1)}
           resizable
         >
-          <div className={chartContentClassName ? `scene-chart-content ${chartContentClassName}` : 'scene-chart-content'}>{chart}</div>
+          <div className={chartContentClassName ? `scene-chart-content ${chartContentClassName}` : 'scene-chart-content'}>{chartBody}</div>
         </FloatingPanel>
       )}
 

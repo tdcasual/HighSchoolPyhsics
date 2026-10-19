@@ -22,6 +22,22 @@ function renderWithAnswers() {
 }
 
 describe('SceneLayout prediction mode', () => {
+  it('covers the chart while predicting until the teacher opens it', () => {
+    render(
+      <SceneLayout
+        controls={<div />}
+        viewport={<div />}
+        dataOverlay={<p><Answer>2.66 mm</Answer></p>}
+        chart={<div>P 点位移图</div>}
+        chartVisible
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: '预测' }))
+    expect(screen.queryByText('P 点位移图')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '图表含结论 · 点击显示' }))
+    expect(screen.getByText('P 点位移图')).toBeInTheDocument()
+  })
+
   afterEach(() => useAppStore.setState({ predicting: false }))
 
   it('offers 预测 only when the scene marks answers', () => {
