@@ -62,6 +62,7 @@ const SCENE_REGION_MAP = {
   'celestial-motion': '力学',
   'projectile-motion': '力学',
   'circular-motion': '力学',
+  'mechanical-energy': '力学',
 }
 
 export function buildDemoCatalog(scenes) {

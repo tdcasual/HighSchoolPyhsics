@@ -55,6 +55,13 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     scenePageIds: ['celestial-motion'],
   },
   {
+    id: 'energy',
+    volumeId: 'required-2',
+    name: '第八章 机械能守恒定律',
+    description: '动能、重力势能与机械能守恒',
+    scenePageIds: ['mechanical-energy'],
+  },
+  {
     id: 'electrostatics',
     volumeId: 'required-3',
     name: '第九章 静电场及其应用',

@@ -873,5 +873,32 @@
       "readyText": "圆周运动控制",
       "screenshotName": "circular-motion"
     }
+  },
+  {
+    "pageId": "mechanical-energy",
+    "label": "机械能守恒",
+    "meta": {
+      "tag": "能量",
+      "summary": "碗形轨道上的物块：动能、势能与机械能的转化，摩擦生热",
+      "highlights": [
+        "能量柱实时变化",
+        "光滑时回到原高度"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "机械能守恒控制",
+      "screenshotName": "mechanical-energy"
+    }
   }
 ]
