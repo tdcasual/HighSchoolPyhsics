@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { DemoRoute } from '../app/demoRoutes'
+import { SCENE_CARDS } from '../app/sceneCards'
 import { shouldWarmRouteOnOverview } from '../app/routeWarmupPolicy'
 import { safePreload } from '../app/safePreload'
 import { NAVIGATION_VIEWS, findNavigationView, type NavigationViewId } from '../ui/navigation/navigationViews'
@@ -41,6 +42,7 @@ const SceneCard = memo(function SceneCard({
 }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const indexStr = String(index).padStart(2, '0')
+  const card = SCENE_CARDS.get(route.pageId)
   return (
     <button
       className="scene-card touch-target"
@@ -58,7 +60,7 @@ const SceneCard = memo(function SceneCard({
     >
       <span className="scene-card-thumb" aria-hidden="true">
         {thumbnailFailed ? (
-          <span className="scene-card-thumb-fallback">{route.meta?.tag}</span>
+          <span className="scene-card-thumb-fallback">{card?.tag}</span>
         ) : (
           <img
             src={resolveThumbnailUrl(route.pageId)}
@@ -72,10 +74,10 @@ const SceneCard = memo(function SceneCard({
       </span>
       <span className="scene-card-body">
         <span className="scene-card-name">{route.label}</span>
-        <span className="scene-card-summary">{route.meta?.summary}</span>
+        <span className="scene-card-summary">{card?.summary}</span>
         <span className="scene-card-tags">
-          {route.meta?.level ? <span className="scene-card-level">{route.meta.level}</span> : null}
-          <span className="scene-card-tag">{route.meta?.tag}</span>
+          {card?.level ? <span className="scene-card-level">{card.level}</span> : null}
+          <span className="scene-card-tag">{card?.tag}</span>
         </span>
       </span>
     </button>
@@ -144,10 +146,12 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const routesById = new Map(routes.map((route) => [route.pageId, route]))
   const needle = query.trim().toLowerCase()
   // A search hits a scene by its own text or by its group (a chapter title names the knowledge point).
-  const matches = (route: DemoRoute, group: { title: string; description: string }) =>
-    !needle ||
-    [route.label, route.meta?.summary, route.meta?.tag, route.meta?.level, ...(route.meta?.highlights ?? []), group.title, group.description]
+  const matches = (route: DemoRoute, group: { title: string; description: string }) => {
+    if (!needle) return true
+    const card = SCENE_CARDS.get(route.pageId)
+    return [route.label, card?.summary, card?.tag, card?.level, ...(card?.highlights ?? []), group.title, group.description]
       .some((text) => text?.toLowerCase().includes(needle))
+  }
   let runningIndex = 0
   const indexedGroups = view.groups.flatMap((group) => {
     const groupRoutes = group.scenePageIds

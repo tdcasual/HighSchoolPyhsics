@@ -1,4 +1,5 @@
 import type { DemoRoute } from './demoRoutes'
+import { SCENE_CARDS } from './sceneCards'
 
 type RouteConformanceIssue = {
   path: string
@@ -13,14 +14,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function validateRouteMetadata(route: DemoRoute): RouteConformanceIssue[] {
+function validateRouteMetadata(route: DemoRoute, card: unknown): RouteConformanceIssue[] {
   const issues: RouteConformanceIssue[] = []
 
   if (!isNonBlankText(route.label)) {
     issues.push({ path: route.path, message: 'label must be a non-blank string' })
   }
 
-  const meta = isRecord(route.meta) ? route.meta : null
+  const meta = isRecord(card) ? card : null
 
   if (!meta) {
     issues.push({ path: route.path, message: 'meta must be an object with tag, summary, highlights, and tone' })
@@ -171,11 +172,15 @@ function validateRouteIdentity(routes: DemoRoute[]): RouteConformanceIssue[] {
   return issues
 }
 
-export function collectRouteConformanceIssues(routes: DemoRoute[]): RouteConformanceIssue[] {
+/** `cardFor` looks up a scene's overview card text (meta); tests pass malformed cards through it. */
+export function collectRouteConformanceIssues(
+  routes: DemoRoute[],
+  cardFor: (pageId: string) => unknown = (pageId) => SCENE_CARDS.get(pageId),
+): RouteConformanceIssue[] {
   return [
     ...validateRouteIdentity(routes),
     ...routes.flatMap((route) => [
-      ...validateRouteMetadata(route),
+      ...validateRouteMetadata(route, cardFor(route.pageId)),
       ...validateTouchProfile(route),
     ]),
   ]

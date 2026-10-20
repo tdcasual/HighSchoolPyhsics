@@ -1,26 +1,11 @@
-import sceneCatalog from '../../config/demo-scenes.json'
+// Only the shell fields: the overview's card text is in sceneCards.ts, loaded with the overview.
+import sceneCatalog from '../../config/demo-scenes.json?shell'
 import type { TouchProfile } from './touchProfile'
-
-export type DemoTone = 'scope' | 'cyclotron' | 'mhd' | 'oersted'
-
-export type DemoRouteMeta = {
-  tag: string
-  summary: string
-  highlights: string[]
-  tone: DemoTone
-  /** Paired scenes on the same topic: 入门 shows the principle, 进阶 the full apparatus or quantitative model. */
-  level?: '入门' | '进阶'
-}
 
 export type SceneCatalogEntry = {
   pageId: string
   label: string
-  meta: DemoRouteMeta
   touchProfile: TouchProfile
-  playwright: {
-    readyText: string
-    screenshotName: string
-  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

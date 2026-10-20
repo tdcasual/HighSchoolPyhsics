@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { slimSceneCatalogEntries } from './slimSceneCatalog'
+import { sceneCatalogShellEntries, slimSceneCatalogEntries } from './slimSceneCatalog'
 
 const DEFAULT = { pageScroll: 'vertical-outside-canvas', minTouchTargetPx: 44 }
 
@@ -16,5 +16,14 @@ describe('slimSceneCatalogEntries', () => {
     const custom = { ...DEFAULT, minTouchTargetPx: 56 }
     const [slim] = slimSceneCatalogEntries([{ pageId: 'a', touchProfile: custom }], DEFAULT)
     expect(slim.touchProfile).toEqual(custom)
+  })
+})
+
+describe('sceneCatalogShellEntries', () => {
+  it('keeps only what the app shell routes with, leaving card text to the overview', () => {
+    const [shell] = sceneCatalogShellEntries([
+      { pageId: 'mhd', label: '磁流体发电机', meta: { summary: 's', highlights: ['h'] }, touchProfile: { ...DEFAULT }, playwright: { readyText: 'x' } },
+    ])
+    expect(shell).toEqual({ pageId: 'mhd', label: '磁流体发电机', touchProfile: DEFAULT })
   })
 })

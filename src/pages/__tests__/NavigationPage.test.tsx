@@ -20,12 +20,6 @@ function buildRoute(overrides: Partial<DemoRoute> = {}): DemoRoute {
     label: '示波器',
     Component: (() => null) as DemoRoute['Component'],
     preload: async () => undefined,
-    meta: {
-      tag: '波形合成',
-      summary: '双通道电压驱动 + 李萨如图形',
-      highlights: ['函数编辑与预设切换', '荧光屏轨迹实时更新'],
-      tone: 'scope',
-    },
     touchProfile: {
       pageScroll: 'vertical-outside-canvas',
       canvasGestureScope: 'interactive-canvas',
@@ -81,12 +75,6 @@ describe('NavigationPage Linear layout', () => {
         pageId: 'cyclotron',
         path: '/cyclotron',
         label: '回旋加速器',
-        meta: {
-          tag: '粒子动力学',
-          summary: '交变电场加速 + 磁场轨道约束',
-          highlights: ['U-t / Ek-t 双曲线'],
-          tone: 'cyclotron',
-        },
       }),
     ]
 

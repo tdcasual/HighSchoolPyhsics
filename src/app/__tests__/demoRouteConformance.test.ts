@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
 import { SCENE_CATALOG, findSceneCatalogEntryByPath } from '../sceneCatalog'
 import { collectRouteConformanceIssues } from '../routeConformance'
+import { SCENE_CARDS } from '../sceneCards'
 import { useAppStore } from '../../store/useAppStore'
 
 describe('demo route conformance', () => {
@@ -30,16 +31,16 @@ describe('demo route conformance', () => {
     const invalidRoute = {
       ...DEMO_ROUTES[0],
       label: 42 as unknown as (typeof DEMO_ROUTES)[number]['label'],
-      meta: {
-        ...DEMO_ROUTES[0].meta,
-        tag: false as unknown as (typeof DEMO_ROUTES)[number]['meta']['tag'],
-        summary: { text: 'bad' } as unknown as (typeof DEMO_ROUTES)[number]['meta']['summary'],
-        highlights: [42, 'ok'] as unknown as (typeof DEMO_ROUTES)[number]['meta']['highlights'],
-        tone: false as unknown as (typeof DEMO_ROUTES)[number]['meta']['tone'],
-      },
+    }
+    const invalidCard = {
+      ...SCENE_CARDS.get(DEMO_ROUTES[0].pageId),
+      tag: false,
+      summary: { text: 'bad' },
+      highlights: [42, 'ok'],
+      tone: false,
     }
 
-    expect(collectRouteConformanceIssues([invalidRoute])).toEqual(
+    expect(collectRouteConformanceIssues([invalidRoute], () => invalidCard)).toEqual(
       expect.arrayContaining([
         {
           path: invalidRoute.path,
@@ -66,12 +67,9 @@ describe('demo route conformance', () => {
   })
 
   it('reports missing route meta objects as conformance issues instead of throwing', () => {
-    const invalidRoute = {
-      ...DEMO_ROUTES[0],
-      meta: null as unknown as (typeof DEMO_ROUTES)[number]['meta'],
-    }
+    const invalidRoute = DEMO_ROUTES[0]
 
-    expect(collectRouteConformanceIssues([invalidRoute])).toContainEqual({
+    expect(collectRouteConformanceIssues([invalidRoute], () => undefined)).toContainEqual({
       path: invalidRoute.path,
       message: 'meta must be an object with tag, summary, highlights, and tone',
     })
