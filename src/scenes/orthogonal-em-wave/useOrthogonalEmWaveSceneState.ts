@@ -1,5 +1,6 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import { deriveEmWaveReadings, type EmViewMode, type EmWaveDirection, type EmWaveParams } from './model'
 
 export type OrthogonalEmWaveSceneState = EmWaveParams & {
@@ -22,7 +23,7 @@ export type OrthogonalEmWaveSceneState = EmWaveParams & {
   reset: () => void
 }
 
-type Simulation = Omit<OrthogonalEmWaveSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setSpeed' | 'setDirection' | 'setViewMode' | 'setShowOrthogonality' | 'setShowProjectionMarks' | 'toggleRunning' | 'step' | 'reset'>
+type Simulation = Omit<OrthogonalEmWaveSceneState, 'running' | 'readings' | 'setAmplitude' | 'setWavelength' | 'setSpeed' | 'setDirection' | 'setViewMode' | 'setShowOrthogonality' | 'setShowProjectionMarks' | 'toggleRunning' | 'step' | 'reset'>
 const INITIAL_SIMULATION: Simulation = {
   amplitude: 1,
   wavelength: 4,
@@ -30,7 +31,6 @@ const INITIAL_SIMULATION: Simulation = {
   direction: 'right',
   viewMode: '3d',
   elapsed: 0,
-  running: false,
   showOrthogonality: true,
   showProjectionMarks: true,
 }
@@ -41,40 +41,12 @@ const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'speed', 'direction', 'vie
 export function useOrthogonalEmWaveSceneState(): OrthogonalEmWaveSceneState {
   const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('orthogonal-em-wave', INITIAL_SIMULATION, REMEMBERED_FIELDS))
   useRememberFields('orthogonal-em-wave', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
-  const frameRef = useRef<number | null>(null)
-  const lastTimestampRef = useRef<number | null>(null)
-
-  useEffect(() => { simulationRef.current = simulation }, [simulation])
-  useEffect(() => {
-    if (!simulation.running || frameRef.current !== null) return
-    const tick = (timestamp: number) => {
-      const previous = lastTimestampRef.current
-      lastTimestampRef.current = timestamp
-      if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
-        const current = simulationRef.current
-        simulationRef.current = { ...current, elapsed: current.elapsed + delta }
-        setSimulation(simulationRef.current)
-      }
-      if (simulationRef.current.running) frameRef.current = requestAnimationFrame(tick)
-      else frameRef.current = null
-    }
-    frameRef.current = requestAnimationFrame(tick)
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
-      frameRef.current = null
-      lastTimestampRef.current = null
-    }
-  }, [simulation.running])
-
-  const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => {
-      const next = { ...previous, ...patch }
-      simulationRef.current = next
-      return next
-    })
-  }, [])
+  // 单步 = T/4 = λ/(4v).
+  const clock = useSimulationClock({
+    stepSeconds: simulation.wavelength / Math.max(1e-6, simulation.speed) / 4,
+    advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
+  })
+  const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
   const readings = useMemo(() => deriveEmWaveReadings(simulation.elapsed, simulation), [simulation])
 
   return {
@@ -87,12 +59,12 @@ export function useOrthogonalEmWaveSceneState(): OrthogonalEmWaveSceneState {
     setViewMode: (viewMode) => commit({ viewMode }),
     setShowOrthogonality: (showOrthogonality) => commit({ showOrthogonality }),
     setShowProjectionMarks: (showProjectionMarks) => commit({ showProjectionMarks }),
-    toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    step: () => {
-      const current = simulationRef.current
-      lastTimestampRef.current = null
-      commit({ running: false, elapsed: current.elapsed + current.wavelength / Math.max(1e-6, current.speed) / 4 })
+    running: clock.running,
+    toggleRunning: clock.toggle,
+    step: clock.step,
+    reset: () => {
+      clock.pause()
+      setSimulation({ ...INITIAL_SIMULATION })
     },
-    reset: () => { lastTimestampRef.current = null; const next = { ...INITIAL_SIMULATION }; simulationRef.current = next; setSimulation(next) },
   }
 }

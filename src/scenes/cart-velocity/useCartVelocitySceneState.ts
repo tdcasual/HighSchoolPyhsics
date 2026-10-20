@@ -1,5 +1,5 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useEffect, useRef, useState } from 'react'
+import { useAnimatedState } from '../../simulation/useAnimatedState'
 import { DURATION } from './model'
 import type { ViewPreset } from '../../scene3d/orbitFraming'
 import {
@@ -22,38 +22,14 @@ import type { CartPart, CartSkin, CartStage } from './pose'
 const REMEMBERED_FIELDS = ['stage', 'speed', 'hooks', 'v0', 'dh', 'group', 'skin', 'showFit', 'showSlopeTriangle'] as const
 
 export function useCartVelocitySceneState() {
-  const [simulation, setSimulation] = useState(() => rememberFields('cart-velocity', createCartState(), REMEMBERED_FIELDS))
+  const { state: simulation, commit } = useAnimatedState<CartState>(
+    () => rememberFields('cart-velocity', createCartState(), REMEMBERED_FIELDS),
+    (state, dt) => advanceCart(state, dt * state.speed),
+    isAnimating,
+    { maxFrameSeconds: 0.08 },
+  )
   useRememberFields('cart-velocity', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
   const animating = isAnimating(simulation)
-
-  useEffect(() => {
-    simulationRef.current = simulation
-  }, [simulation])
-
-  useEffect(() => {
-    if (!animating) return
-    let frame = 0
-    let last = 0
-    const loop = (now: number) => {
-      const dt = last ? Math.min(0.08, (now - last) / 1000) : 0
-      last = now
-      const next = advanceCart(simulationRef.current, dt * simulationRef.current.speed)
-      simulationRef.current = next
-      setSimulation(next)
-      if (isAnimating(next)) frame = requestAnimationFrame(loop)
-    }
-    frame = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(frame)
-  }, [animating])
-
-  const commit = (updater: (state: CartState) => CartState) => {
-    setSimulation((previous) => {
-      const next = updater(previous)
-      simulationRef.current = next
-      return next
-    })
-  }
 
   const points = currentPoints(simulation)
   const selected = selectedPoint(simulation)
@@ -107,9 +83,7 @@ export function useCartVelocitySceneState() {
     setPreset: (preset: 'uniform' | 'accelerated') => commit((state) => applyPreset(state, preset)),
     assemblyNext: () => commit((state) => assemblyMove(state, 1)),
     assemblyBack: () => commit((state) => assemblyMove(state, -1)),
-    reset: () => {
-      const current = simulationRef.current
-      const next = {
+    reset: () => commit((current) => ({
         ...createCartState(),
         stage: current.stage,
         view: current.view,
@@ -124,10 +98,7 @@ export function useCartVelocitySceneState() {
         showFit: current.showFit,
         showSlopeTriangle: current.showSlopeTriangle,
         notice: '已回到起点。',
-      }
-      simulationRef.current = next
-      setSimulation(next)
-    },
+      })),
   }
 }
 

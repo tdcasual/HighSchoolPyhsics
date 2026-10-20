@@ -1,5 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useAnimationLoop } from '../../simulation/useAnimationLoop'
 import { deriveChargeSeparation, deriveMhdReadings, derivePolarizationTarget } from './model'
 import type { MhdReadings } from './model'
 
@@ -72,29 +73,18 @@ export function useMhdSceneState(): MhdSceneState {
       : 0
   const polarizationTarget = driveRatio * loadVoltageRatio
 
-  useEffect(() => {
-    if (!running) return
-
-    let frameId = 0
-    let previous = performance.now()
-    const frame = (now: number) => {
-      const deltaS = Math.min(0.05, (now - previous) / 1000)
-      previous = now
-      setChargeSeparation((value) =>
-        deriveChargeSeparation({
-          previous: value,
-          deltaS,
-          running: true,
-          responseTimeS: 0.9,
-          targetWhenRunning: polarizationTarget,
-        }),
-      )
-      frameId = requestAnimationFrame(frame)
-    }
-
-    frameId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(frameId)
-  }, [polarizationTarget, running])
+  // Charge separation builds up toward the steady state while the plasma flows.
+  useAnimationLoop(running, (deltaS) => {
+    setChargeSeparation((value) =>
+      deriveChargeSeparation({
+        previous: value,
+        deltaS,
+        running: true,
+        responseTimeS: 0.9,
+        targetWhenRunning: polarizationTarget,
+      }),
+    )
+  })
 
   const reset = () => {
     setRunning(false)

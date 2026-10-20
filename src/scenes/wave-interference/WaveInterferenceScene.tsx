@@ -113,11 +113,9 @@ export function WaveInterferenceScene() {
             amplitude2={state.amplitude2}
             phaseDiff={state.phaseDiff}
             waveSpeed={state.waveSpeed}
-            isPlaying={state.isPlaying}
-            playSpeed={state.playSpeed}
+            time={state.time}
+            frameVersion={state.frameVersion}
             resetVersion={state.resetVersion}
-            stepVersion={state.stepVersion}
-            stepS={state.stepS}
             observerBuffer={state.observerBuffer}
             setSource1={state.setSource1}
             setSource2={state.setSource2}

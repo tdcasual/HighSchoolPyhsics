@@ -23,6 +23,16 @@ const NO_STEP: Record<string, string> = {
   'potential-energy': '播放 sweeps the potential surface into view; no physical time',
 }
 
+/**
+ * requestAnimationFrame outside the shared loop is only allowed for render scheduling, never
+ * for advancing simulated time (that goes through simulation/useSimulationClock,
+ * useAnimatedState or useAnimationLoop, which apply slow motion and the frame cap).
+ */
+const RAW_FRAME_LOOPS: Record<string, string> = {
+  'double-slit': 'redraws the chart and canvas once after a resize; no simulated time',
+  'light-diffraction': 'schedules a chart redraw at a new adaptive resolution',
+}
+
 const hasPlayAction = (text: string) => /key:\s*'(play|toggle-running)'/.test(text)
 const hasStepAction = (text: string) => /key:\s*'step'/.test(text)
 const hasTeacherParameters = (text: string) => /<(RangeField|SegmentedControl|TextField)\b/.test(text)
@@ -44,6 +54,11 @@ describe('scene conventions', () => {
       expect(scenes.has(scene), scene).toBe(true)
       expect(hasStepAction(scenes.get(scene)!), `${scene} has 单步 now; drop the exemption`).toBe(false)
     }
+  })
+
+  it('advances simulated time only through the shared clock and loop', () => {
+    const raw = [...scenes].filter(([scene, text]) => /requestAnimationFrame\(/.test(text) && !(scene in RAW_FRAME_LOOPS))
+    expect(raw.map(([scene]) => scene)).toEqual([])
   })
 
   it('remembers teacher-set parameters across scene switches', () => {

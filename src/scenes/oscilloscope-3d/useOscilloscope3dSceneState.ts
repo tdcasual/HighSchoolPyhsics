@@ -1,5 +1,6 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import { DEFAULT_XY_SETTINGS, deriveMeasurement, deriveXYConclusion, type BasicWaveform, type MeasurementReadout, type OscilloscopeMode, type XYSettings, xyPresetSettings } from './model'
 
 export type Oscilloscope3dSceneState = {
@@ -34,11 +35,11 @@ export type Oscilloscope3dSceneState = {
   reset: () => void
 }
 
-type Simulation = Pick<Oscilloscope3dSceneState, 'mode' | 'selectedPart' | 'wave' | 'amplitudeV' | 'frequencyHz' | 'voltsDiv' | 'timeDiv' | 'trigger' | 'beamSpeed' | 'xy' | 'elapsed' | 'running'>
+type Simulation = Pick<Oscilloscope3dSceneState, 'mode' | 'selectedPart' | 'wave' | 'amplitudeV' | 'frequencyHz' | 'voltsDiv' | 'timeDiv' | 'trigger' | 'beamSpeed' | 'xy' | 'elapsed'>
 
 const INITIAL_SIMULATION: Simulation = {
   mode: 'structure', selectedPart: null, wave: 'sine', amplitudeV: 2, frequencyHz: 200,
-  voltsDiv: 1, timeDiv: 1, trigger: true, beamSpeed: 1, xy: DEFAULT_XY_SETTINGS, elapsed: 0, running: true,
+  voltsDiv: 1, timeDiv: 1, trigger: true, beamSpeed: 1, xy: DEFAULT_XY_SETTINGS, elapsed: 0,
 }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
@@ -47,40 +48,15 @@ const REMEMBERED_FIELDS = ['mode', 'wave', 'amplitudeV', 'frequencyHz', 'voltsDi
 export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
   const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('oscilloscope-3d', INITIAL_SIMULATION, REMEMBERED_FIELDS))
   useRememberFields('oscilloscope-3d', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
-  const frameRef = useRef<number | null>(null)
-  const lastTimestampRef = useRef<number | null>(null)
-
-  useEffect(() => { simulationRef.current = simulation }, [simulation])
-  useEffect(() => {
-    if (!simulation.running || frameRef.current !== null) return
-    const tick = (timestamp: number) => {
-      const previous = lastTimestampRef.current
-      lastTimestampRef.current = timestamp
-      if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
-        const next = { ...simulationRef.current, elapsed: simulationRef.current.elapsed + delta * simulationRef.current.beamSpeed }
-        simulationRef.current = next
-        setSimulation(next)
-      }
-      if (simulationRef.current.running) frameRef.current = requestAnimationFrame(tick)
-      else frameRef.current = null
-    }
-    frameRef.current = requestAnimationFrame(tick)
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
-      frameRef.current = null
-      lastTimestampRef.current = null
-    }
-  }, [simulation.running])
-
-  const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => {
-      const next = { ...previous, ...patch }
-      simulationRef.current = next
-      return next
-    })
-  }, [])
+  // The 扫描速度 control scales the sweep; 单步 = one horizontal division (deriveBeamProgress
+  // sweeps 10 per period: timeDiv ms each, or 1 s per X-Y cycle).
+  const clock = useSimulationClock({
+    initiallyRunning: true,
+    timeScale: simulation.beamSpeed,
+    stepSeconds: simulation.mode === 'xy' ? 0.1 : simulation.timeDiv / 1000,
+    advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
+  })
+  const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
   const measurement = useMemo(() => deriveMeasurement(simulation), [simulation])
   const xyConclusion = useMemo(() => deriveXYConclusion(simulation.xy), [simulation.xy])
   return {
@@ -94,20 +70,14 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
     setTimeDiv: (timeDiv) => commit({ timeDiv }),
     setTrigger: (trigger) => commit({ trigger }),
     setBeamSpeed: (beamSpeed) => commit({ beamSpeed }),
-    setXY: (patch) => commit({ xy: { ...simulationRef.current.xy, ...patch } }),
-    applyXYPreset: (preset) => commit({ xy: preset === 'custom' ? { ...simulationRef.current.xy, preset } : xyPresetSettings(preset) }),
-    toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    step: () => {
-      const current = simulationRef.current
-      // deriveBeamProgress sweeps 10 divisions per period: timeDiv ms each, or 1 s per X-Y cycle.
-      const divisionS = current.mode === 'xy' ? 0.1 : current.timeDiv / 1000
-      commit({ running: false, elapsed: current.elapsed + divisionS })
-    },
+    setXY: (patch) => setSimulation((previous) => ({ ...previous, xy: { ...previous.xy, ...patch } })),
+    applyXYPreset: (preset) => setSimulation((previous) => ({ ...previous, xy: preset === 'custom' ? { ...previous.xy, preset } : xyPresetSettings(preset) })),
+    running: clock.running,
+    toggleRunning: clock.toggle,
+    step: clock.step,
     reset: () => {
-      lastTimestampRef.current = null
-      const next = { ...INITIAL_SIMULATION, xy: { ...DEFAULT_XY_SETTINGS } }
-      simulationRef.current = next
-      setSimulation(next)
+      setSimulation({ ...INITIAL_SIMULATION, xy: { ...DEFAULT_XY_SETTINGS } })
+      clock.play()
     },
   }
 }

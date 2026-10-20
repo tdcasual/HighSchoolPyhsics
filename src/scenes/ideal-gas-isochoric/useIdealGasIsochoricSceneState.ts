@@ -1,5 +1,6 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import { deriveIdealGasReadings, type IdealGasParams, type VolumePreset, VOLUME_PRESETS } from './model'
 
 export type IdealGasIsochoricSceneState = IdealGasParams & {
@@ -12,8 +13,8 @@ export type IdealGasIsochoricSceneState = IdealGasParams & {
   reset: () => void
 }
 
-type Simulation = Omit<IdealGasIsochoricSceneState, 'readings' | 'setTemperatureK' | 'setVolumePreset' | 'toggleRunning' | 'reset'>
-const INITIAL_SIMULATION: Simulation = { temperatureK: 220, volumeL: 6, volumePreset: 'large', elapsed: 0, running: true }
+type Simulation = Omit<IdealGasIsochoricSceneState, 'running' | 'readings' | 'setTemperatureK' | 'setVolumePreset' | 'toggleRunning' | 'reset'>
+const INITIAL_SIMULATION: Simulation = { temperatureK: 220, volumeL: 6, volumePreset: 'large', elapsed: 0 }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
 const REMEMBERED_FIELDS = ['temperatureK', 'volumeL', 'volumePreset'] as const
@@ -21,40 +22,13 @@ const REMEMBERED_FIELDS = ['temperatureK', 'volumeL', 'volumePreset'] as const
 export function useIdealGasIsochoricSceneState(): IdealGasIsochoricSceneState {
   const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('ideal-gas-isochoric', INITIAL_SIMULATION, REMEMBERED_FIELDS))
   useRememberFields('ideal-gas-isochoric', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
-  const frameRef = useRef<number | null>(null)
-  const lastTimestampRef = useRef<number | null>(null)
-
-  useEffect(() => { simulationRef.current = simulation }, [simulation])
-  useEffect(() => {
-    if (!simulation.running || frameRef.current !== null) return
-    const tick = (timestamp: number) => {
-      const previous = lastTimestampRef.current
-      lastTimestampRef.current = timestamp
-      if (previous !== null) {
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000)
-        const current = simulationRef.current
-        simulationRef.current = { ...current, elapsed: current.elapsed + delta }
-        setSimulation(simulationRef.current)
-      }
-      if (simulationRef.current.running) frameRef.current = requestAnimationFrame(tick)
-      else frameRef.current = null
-    }
-    frameRef.current = requestAnimationFrame(tick)
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
-      frameRef.current = null
-      lastTimestampRef.current = null
-    }
-  }, [simulation.running])
-
-  const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => {
-      const next = { ...previous, ...patch }
-      simulationRef.current = next
-      return next
-    })
-  }, [])
+  // Molecular motion only animates; there is no 单步 (see sceneConventions NO_STEP).
+  const clock = useSimulationClock({
+    initiallyRunning: true,
+    stepSeconds: 0,
+    advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
+  })
+  const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
 
   const readings = useMemo(() => deriveIdealGasReadings(simulation), [simulation])
   return {
@@ -62,7 +36,11 @@ export function useIdealGasIsochoricSceneState(): IdealGasIsochoricSceneState {
     readings,
     setTemperatureK: (temperatureK) => commit({ temperatureK }),
     setVolumePreset: (volumePreset) => commit({ volumePreset, volumeL: VOLUME_PRESETS[volumePreset].volumeL }),
-    toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    reset: () => { lastTimestampRef.current = null; simulationRef.current = INITIAL_SIMULATION; setSimulation(INITIAL_SIMULATION) },
+    running: clock.running,
+    toggleRunning: clock.toggle,
+    reset: () => {
+      setSimulation(INITIAL_SIMULATION)
+      clock.play()
+    },
   }
 }

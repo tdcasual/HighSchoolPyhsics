@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'
 import type { Mesh, ShaderMaterial } from 'three'
@@ -23,8 +23,10 @@ import {
 } from './model'
 
 type RigProps = WaveParams & {
-  isPlaying: boolean
-  playSpeed: number
+  /** Simulated time, advanced by the scene's clock; the rig only reads it. */
+  time: { current: number }
+  /** Bumped by 单步 and 重置 so a paused (on-demand) canvas draws the new instant. */
+  frameVersion: number
   observerBuffer: ObserverBuffer | null
   setSource1: (v: Vec2) => void
   setSource2: (v: Vec2) => void
@@ -32,8 +34,6 @@ type RigProps = WaveParams & {
   showConstructive: boolean
   showDestructive: boolean
   resetVersion: number
-  stepVersion: number
-  stepS: number
   _tickSyncRef: { current: () => void }
 }
 
@@ -50,34 +50,21 @@ const dragHitPoint = new Vector3()
 
 /* ─── Wave Surface (ShaderMaterial) ─── */
 
-/** Applies each 单步 request once: advances the clock by `stepS` and renders the new frame. */
-function useStepRequests(stepVersion: number, stepS: number, timeRef: { current: number }, onStep?: () => void) {
+/** Draws one frame when `version` changes, for time moved while the canvas renders on demand. */
+function useRedrawOn(version: number) {
   const invalidate = useThree((state) => state.invalidate)
-  const seenRef = useRef(stepVersion)
   useEffect(() => {
-    if (stepVersion === seenRef.current) return
-    seenRef.current = stepVersion
-    timeRef.current += stepS
-    onStep?.()
     invalidate()
-  }, [invalidate, onStep, stepS, stepVersion, timeRef])
+  }, [invalidate, version])
 }
 
 const WaveSurface = memo(function WaveSurface({
   source1, source2, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, waveSpeed,
-  isPlaying, playSpeed, resetVersion, stepVersion, stepS,
-}: WaveParams & { isPlaying: boolean; playSpeed: number; resetVersion: number; stepVersion: number; stepS: number }) {
+  time, frameVersion,
+}: WaveParams & { time: { current: number }; frameVersion: number }) {
   const matRef = useRef<ShaderMaterial>(null)
-  const timeRef = useRef(0)
-  useStepRequests(stepVersion, stepS, timeRef, useCallback(() => {
-    const mat = matRef.current
-    if (mat) mat.uniforms.uTime.value = timeRef.current
-  }, []))
-  const isPlayingRef = useRef(isPlaying)
-  const playSpeedRef = useRef(playSpeed)
-  useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
-  useEffect(() => { playSpeedRef.current = playSpeed }, [playSpeed])
+  useRedrawOn(frameVersion)
 
   const [uniforms] = useState(() => {
     const source1Plane = worldToWavePlane(source1)
@@ -96,12 +83,6 @@ const WaveSurface = memo(function WaveSurface({
   }
   })
 
-  useEffect(() => {
-    timeRef.current = 0
-    const mat = matRef.current
-    if (mat) mat.uniforms.uTime.value = 0
-  }, [resetVersion])
-
   /* eslint-disable react-hooks/immutability -- Three.js shader uniforms are updated imperatively through this material ref. */
   useEffect(() => {
     const u = matRef.current?.uniforms
@@ -119,12 +100,9 @@ const WaveSurface = memo(function WaveSurface({
   }, [source1, source2, wavelength1, wavelength2, amplitude1, amplitude2, phaseDiff, waveSpeed])
   /* eslint-enable react-hooks/immutability */
 
-  useFrame((_, delta) => {
-    if (isPlayingRef.current) {
-      timeRef.current += delta * playSpeedRef.current
-      const mat = matRef.current
-      if (mat) mat.uniforms.uTime.value = timeRef.current
-    }
+  useFrame(() => {
+    const mat = matRef.current
+    if (mat) mat.uniforms.uTime.value = time.current
   })
 
   return (
@@ -227,7 +205,7 @@ const WaveSource = memo(function WaveSource({
 function ObserverPoint({
   observerBuffer, waveSpeed, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, source1, source2,
-  isPlaying, playSpeed, resetVersion, stepVersion, stepS, setObserverBuffer, tickSyncRef,
+  time, frameVersion, resetVersion, setObserverBuffer, tickSyncRef,
 }: {
   observerBuffer: ObserverBuffer
   waveSpeed: number
@@ -238,22 +216,15 @@ function ObserverPoint({
   phaseDiff: number
   source1: Vec2
   source2: Vec2
-  isPlaying: boolean
-  playSpeed: number
+  time: { current: number }
+  frameVersion: number
   resetVersion: number
-  stepVersion: number
-  stepS: number
   setObserverBuffer: (b: ObserverBuffer | null) => void
   tickSyncRef: { current: () => void }
 }) {
-  const timeRef = useRef(0)
-  useStepRequests(stepVersion, stepS, timeRef)
+  useRedrawOn(frameVersion)
   const headMeshRef = useRef<Mesh>(null)
   const [dragging, setDragging] = useState(false)
-  const isPlayingRef = useRef(isPlaying)
-  const playSpeedRef = useRef(playSpeed)
-  useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
-  useEffect(() => { playSpeedRef.current = playSpeed }, [playSpeed])
 
   const paramsRef = useRef({ wavelength1, wavelength2, amplitude1, amplitude2, phaseDiff, source1, source2, waveSpeed })
   useEffect(() => {
@@ -264,7 +235,6 @@ function ObserverPoint({
   useEffect(() => { bufferRef.current = observerBuffer }, [observerBuffer])
 
   useEffect(() => {
-    timeRef.current = 0
     if (bufferRef.current) bufferRef.current.time = 0
     if (headMeshRef.current) headMeshRef.current.position.y = 0.08
   }, [resetVersion])
@@ -272,13 +242,10 @@ function ObserverPoint({
   const setObserverBufferRef = useRef(setObserverBuffer)
   useEffect(() => { setObserverBufferRef.current = setObserverBuffer }, [setObserverBuffer])
 
-  useFrame((_, delta) => {
-    if (isPlayingRef.current) {
-      timeRef.current += delta * playSpeedRef.current
-    }
+  useFrame(() => {
     const buf = bufferRef.current
     const p = paramsRef.current
-    const t = timeRef.current
+    const t = time.current
     buf.time = t
 
     const y1 = calcWaveDisplacement(buf, p.source1, t, p.wavelength1, p.amplitude1, 0, p.waveSpeed)
@@ -430,9 +397,9 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
   const {
     source1, source2, wavelength1, wavelength2,
     amplitude1, amplitude2, phaseDiff, waveSpeed,
-    isPlaying, playSpeed, observerBuffer,
+    time, frameVersion, observerBuffer,
     setSource1, setSource2, setObserverBuffer,
-    showConstructive, showDestructive, resetVersion, stepVersion, stepS,
+    showConstructive, showDestructive, resetVersion,
     _tickSyncRef,
   } = props
 
@@ -448,7 +415,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
         wavelength1={wavelength1} wavelength2={wavelength2}
         amplitude1={amplitude1} amplitude2={amplitude2}
         phaseDiff={phaseDiff} waveSpeed={waveSpeed}
-        isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion} stepVersion={stepVersion} stepS={stepS}
+        time={time} frameVersion={frameVersion}
       />
 
       <WaveSource
@@ -468,7 +435,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
           amplitude1={amplitude1} amplitude2={amplitude2}
           phaseDiff={phaseDiff}
           source1={source1} source2={source2}
-          isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion} stepVersion={stepVersion} stepS={stepS}
+          time={time} frameVersion={frameVersion} resetVersion={resetVersion}
           setObserverBuffer={setObserverBuffer}
           tickSyncRef={_tickSyncRef}
         />

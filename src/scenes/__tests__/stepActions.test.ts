@@ -38,13 +38,19 @@ describe('单步 actions added for the oscilloscopes and wave interference', () 
     act(() => result.current.step())
     expect(result.current.running).toBe(false)
     expect(result.current.elapsed - before).toBeCloseTo(result.current.timeDiv / 1000, 9)
+    // The 扫描速度 control speeds the running sweep, not the size of one division.
+    act(() => result.current.setBeamSpeed(3))
+    const fast = result.current.elapsed
+    act(() => result.current.step())
+    expect(result.current.elapsed - fast).toBeCloseTo(result.current.timeDiv / 1000, 9)
   })
 
-  it('requests a quarter period of S₁ on the interference pattern', () => {
+  it('advances the interference pattern a quarter period of S₁', () => {
     const { result } = renderHook(() => useWaveInterferenceSceneState())
+    const before = result.current.time.current
     act(() => result.current.step())
     expect(result.current.isPlaying).toBe(false)
-    expect(result.current.stepVersion).toBe(1)
-    expect(result.current.stepS).toBeCloseTo(result.current.wavelength1 / result.current.waveSpeed / 4, 9)
+    expect(result.current.frameVersion).toBe(1)
+    expect(result.current.time.current - before).toBeCloseTo(result.current.wavelength1 / result.current.waveSpeed / 4, 9)
   })
 })

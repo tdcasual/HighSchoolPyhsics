@@ -16,9 +16,7 @@ export function ElectromagneticDriveScene() {
   const lagRatioText = state.magnetSpeed > 0.001
     ? formatLagRatio(state.frameSpeed, state.magnetSpeed)
     : state.frameSpeed > 0.001 ? '磁铁近静止，铝框惯性滑行' : '0%'
-  const frameloop = !state.frozen && (state.isRunning || state.magnetSpeed > 0.01 || state.frameSpeed > 0.01)
-    ? 'always'
-    : 'demand'
+  const frameloop = state.ticking ? 'always' : 'demand'
 
   return (
     <SceneLayout timeControl

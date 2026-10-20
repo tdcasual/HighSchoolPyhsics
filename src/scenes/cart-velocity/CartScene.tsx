@@ -38,6 +38,7 @@ export function CartScene() {
 
   return (
     <SceneLayout
+      timeControl
       controls={<CartControls state={state} />}
       dataOverlay={
         <div className="cart-telemetry scene-core-summary-stack">

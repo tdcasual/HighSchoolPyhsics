@@ -1,6 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { getPlaybackRate } from '../../scene3d/playbackRate'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useAnimationLoop } from '../../simulation/useAnimationLoop'
 import {
   createExperimentRecord,
   deriveRelativeInducedCurrent,
@@ -92,52 +92,33 @@ export function useInductionCurrentSceneState(): InductionCurrentSceneState {
   const [lastOutcome, setLastOutcome] = useState<InductionOutcome | null>(null)
   const [showConclusion, setShowConclusion] = useState(false)
 
-  useEffect(() => {
-    if (!motionDirection) {
-      return
+  // Each push or pull lasts MOTION_DURATION_MS of simulated time (slowed by the shared rate).
+  const progressRef = useRef(0)
+  useAnimationLoop(motionDirection !== null, (dt) => {
+    if (!motionDirection) return
+    const nextProgress = Math.min(1, progressRef.current + (dt * 1000) / MOTION_DURATION_MS)
+    progressRef.current = nextProgress
+    setMotionProgress(nextProgress)
+    setCoilCurrent(
+      deriveRelativeInducedCurrent({
+        poleSetting,
+        motion: motionDirection,
+        magnetOffset: resolveMagnetY(magnetPosition, motionDirection, nextProgress),
+        magnetVelocity: resolveMagnetVelocity(motionDirection, nextProgress),
+      }),
+    )
+    if (nextProgress < 1) return
+    const completedRecord = pendingRecordRef.current
+    if (completedRecord) {
+      setRecords((previous) => [...previous, completedRecord])
+      setLastOutcome(completedRecord)
+      pendingRecordRef.current = null
     }
-
-    let simulatedMs = 0
-    let previous = performance.now()
-    let frameId = 0
-
-    const frame = () => {
-      const now = performance.now()
-      simulatedMs += (now - previous) * getPlaybackRate()
-      previous = now
-      const nextProgress = Math.min(1, simulatedMs / MOTION_DURATION_MS)
-      setMotionProgress(nextProgress)
-
-      const nextY = resolveMagnetY(magnetPosition, motionDirection, nextProgress)
-      const velocity = resolveMagnetVelocity(motionDirection, nextProgress)
-      setCoilCurrent(
-        deriveRelativeInducedCurrent({
-          poleSetting,
-          motion: motionDirection,
-          magnetOffset: nextY,
-          magnetVelocity: velocity,
-        }),
-      )
-
-      if (nextProgress >= 1) {
-        const completedRecord = pendingRecordRef.current
-        if (completedRecord) {
-          setRecords((previous) => [...previous, completedRecord])
-          setLastOutcome(completedRecord)
-          pendingRecordRef.current = null
-        }
-        setMotionDirection(null)
-        setMotionProgress(0)
-        setCoilCurrent(0)
-        return
-      }
-
-      frameId = requestAnimationFrame(frame)
-    }
-
-    frameId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(frameId)
-  }, [magnetPosition, motionDirection, poleSetting])
+    progressRef.current = 0
+    setMotionDirection(null)
+    setMotionProgress(0)
+    setCoilCurrent(0)
+  })
 
   const magnetY = useMemo(
     () => resolveMagnetY(magnetPosition, motionDirection, motionProgress),

@@ -1,5 +1,5 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useEffect, useRef, useState } from 'react'
+import { useAnimatedState } from '../../simulation/useAnimatedState'
 import { ELEMENTS, type ElementKind, type MaterialKey } from './model'
 import { meterReading } from './model'
 import {
@@ -27,38 +27,14 @@ import type { ViewPreset } from '../../scene3d/orbitFraming'
 const REMEMBERED_FIELDS = ['stage', 'material', 'mystery', 'nominal', 'method', 'control', 'ammeter', 'voltmeter', 'lengthCm', 'graph', 'fit', 'element'] as const
 
 export function useResistivitySceneState() {
-  const [simulation, setSimulation] = useState(() => rememberFields('resistivity', createResistivityState(), REMEMBERED_FIELDS))
+  const { state: simulation, commit, replace } = useAnimatedState<ResistivityState>(
+    () => rememberFields('resistivity', createResistivityState(), REMEMBERED_FIELDS),
+    stepGap,
+    isAnimating,
+    { honourPlaybackRate: false },
+  )
   useRememberFields('resistivity', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
   const animating = isAnimating(simulation)
-
-  useEffect(() => {
-    simulationRef.current = simulation
-  }, [simulation])
-
-  useEffect(() => {
-    if (!animating) return
-    let frame = 0
-    let last = 0
-    const loop = (now: number) => {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0
-      last = now
-      const next = stepGap(simulationRef.current, dt)
-      simulationRef.current = next
-      setSimulation(next)
-      if (isAnimating(next)) frame = requestAnimationFrame(loop)
-    }
-    frame = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(frame)
-  }, [animating])
-
-  const commit = (updater: (state: ResistivityState) => ResistivityState) => {
-    setSimulation((previous) => {
-      const next = updater(previous)
-      simulationRef.current = next
-      return next
-    })
-  }
 
   const reading = liveMeasurement(simulation)
   const ammeterKey = simulation.ammeter === 'A3' ? 'A3' : 'A06'
@@ -149,11 +125,7 @@ export function useResistivitySceneState() {
     setVoltage: (voltage: number) => commit((state) => ({
       ...state, voltage: Math.max(ELEMENTS[state.element].min, Math.min(ELEMENTS[state.element].max, voltage)),
     })),
-    reset: () => {
-      const next = createResistivityState()
-      simulationRef.current = next
-      setSimulation(next)
-    },
+    reset: () => replace(createResistivityState()),
   }
 }
 

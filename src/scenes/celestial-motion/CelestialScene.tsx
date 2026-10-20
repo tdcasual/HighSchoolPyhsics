@@ -104,6 +104,7 @@ export function CelestialScene() {
 
   return (
     <SceneLayout
+      timeControl
       controls={<CelestialControls state={state} scenario={scenario} />}
       dataOverlay={
         <div className="celestial-telemetry scene-core-summary-stack">

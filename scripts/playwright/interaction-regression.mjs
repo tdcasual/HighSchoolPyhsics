@@ -20,6 +20,9 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/interaction-regression
 const requested = process.argv.slice(2)
 const scenes = DEMO_CATALOG.filter((demo) => requested.length === 0 || requested.includes(demo.pageId))
 
+/** Scenes whose opening view is still while time runs (a triggered trace is stationary). */
+const STILL_WHILE_PLAYING = new Set(['oscilloscope-3d'])
+
 const failures = []
 function check(ok, message) {
   if (!ok) failures.push(message)
@@ -58,6 +61,14 @@ async function checkScene(context, baseUrl, demo) {
     check(await page.getByRole('region', { name: '数据' }).isVisible(), `${demo.pageId}: data panel visible`)
     // Static scenes (fields, patterns, meters) have no playback panel; the rest must show it.
     const playback = page.getByRole('region', { name: '播放控制' })
+
+    // A scene that opens playing (its button reads 暂停…) must actually move.
+    const pause = playback.getByRole('button', { name: /^暂停/ })
+    if ((await pause.count()) && !STILL_WHILE_PLAYING.has(demo.pageId)) {
+      const first = await canvasImage(page)
+      await page.waitForTimeout(700)
+      check(first !== (await canvasImage(page)), `${demo.pageId}: the picture moves while playing`)
+    }
 
     const step = playback.getByRole('button', { name: /^(单步|\+)/ }).first()
     if (await step.count()) {

@@ -1,6 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getPlaybackRate } from '../../scene3d/playbackRate'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import {
   deriveGapWidthScene,
   MAX_ORBIT_RADIUS_M,
@@ -113,13 +113,27 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   )
   const periodS = cyclotronPeriodS(config)
 
-  const [running, setRunning] = useState(false)
   const [view, setView] = useState<RunView>(() => startRun(config))
   const viewRef = useRef(view)
   const configRef = useRef(config)
   useEffect(() => {
-    viewRef.current = view
     configRef.current = config
+    viewRef.current = view
+  })
+  const show = (next: RunView) => {
+    viewRef.current = next
+    setView(next)
+  }
+  // Shown at TURNS_PER_SECOND turns per real second; 单步 = half a turn (one gap crossing).
+  const clock = useSimulationClock({
+    timeScale: TURNS_PER_SECOND * periodS,
+    stepSeconds: periodS / 2,
+    advance: (dt) => {
+      if (viewRef.current.run.extracted) return false
+      const next = advanceView(viewRef.current, configRef.current, dt)
+      show(next)
+      return !next.run.extracted
+    },
   })
 
   // A new machine set-up restarts the run from the ion source (adjusting state during render).
@@ -127,30 +141,8 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   if (configKey !== config) {
     setConfigKey(config)
     setView(startRun(config))
-    setRunning(false)
+    clock.pause()
   }
-
-  useEffect(() => {
-    if (!running) return
-    let frameId = 0
-    let previous: number | null = null
-    const frame = (now: number) => {
-      if (previous !== null) {
-        const realSeconds = Math.min(0.05, (now - previous) / 1000) * getPlaybackRate()
-        const next = advanceView(viewRef.current, configRef.current, realSeconds * TURNS_PER_SECOND * cyclotronPeriodS(configRef.current))
-        viewRef.current = next
-        setView(next)
-        if (next.run.extracted) {
-          setRunning(false)
-          return
-        }
-      }
-      previous = now
-      frameId = requestAnimationFrame(frame)
-    }
-    frameId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(frameId)
-  }, [running])
 
   const { run } = view
   const voltageAmplitudeV = gapVoltageKv * 1000
@@ -195,20 +187,14 @@ export function useCyclotronSceneState(): CyclotronSceneState {
     setGapWidthCm,
     energyMode,
     setEnergyMode,
-    running,
+    running: clock.running,
     toggleRunning: () => {
-      if (!viewRef.current.run.extracted) setRunning((value) => !value)
+      if (!viewRef.current.run.extracted) clock.toggle()
     },
-    step: () => {
-      setRunning(false)
-      if (viewRef.current.run.extracted) return
-      const next = advanceView(viewRef.current, configRef.current, cyclotronPeriodS(configRef.current) / 2)
-      viewRef.current = next
-      setView(next)
-    },
+    step: clock.step,
     reset: () => {
-      setRunning(false)
-      setView(startRun(config))
+      clock.pause()
+      show(startRun(config))
     },
     timeS: run.timeS,
     crossings: view.crossings,

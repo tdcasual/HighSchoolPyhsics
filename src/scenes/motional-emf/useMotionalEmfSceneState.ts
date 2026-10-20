@@ -1,6 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { getPlaybackRate } from '../../scene3d/playbackRate'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import { MOTIONAL_EMF_LAYOUT } from './layout'
 import {
   advanceMotionOffset,
@@ -135,56 +135,29 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
   const [rodVelocityAngleDeg, setRodVelocityAngleDeg] = useState<RodVelocityAnglePreset>(() => recall('motional-emf.rodVelocityAngleDeg', DEFAULT_ROD_VELOCITY_ANGLE_DEG))
   const [motionDirection, setMotionDirection] = useState<MotionDirectionPreset>(() => recall('motional-emf.motionDirection', DEFAULT_MOTION_DIRECTION))
   useRemember('motional-emf', { magneticFieldT, magneticFieldDirection, rodLengthM, speedMps, rodAngleDeg, discussionMode, velocityPreset, rodVelocityAngleDeg, motionDirection })
-  const [running, setRunning] = useState(false)
-  const [phase, setPhase] = useState(0)
-  const [motionOffset, setMotionOffset] = useState<MotionOffset>(createRestOffset)
-  const phaseRef = useRef(0)
-  const motionOffsetRef = useRef<MotionOffset>(createRestOffset())
-
-  useEffect(() => {
-    phaseRef.current = phase
-  }, [phase])
-
-  useEffect(() => {
-    motionOffsetRef.current = motionOffset
-  }, [motionOffset])
+  const [travel, setTravel] = useState(() => ({ phase: 0, offset: createRestOffset() }))
+  // The clock reads and writes the travel synchronously (it must know when the rails end).
+  const travelRef = useRef(travel)
+  const moveTo = (next: { phase: number; offset: MotionOffset }) => {
+    travelRef.current = next
+    setTravel(next)
+  }
+  const { phase, offset: motionOffset } = travel
 
   // After 单步 the rod is shown as a frozen instant of the motion, so it keeps its velocity
   // (and its EMF) until it is played, reset or reaches the end.
   const [steppedInMotion, setSteppedInMotion] = useState(false)
   const motionParams: MotionParams = { speedMps, discussionMode, velocityPreset, magneticFieldDirection, rodAngleDeg, rodVelocityAngleDeg, motionDirection }
-
-  useEffect(() => {
-    if (!running) {
-      return
-    }
-    const motionParams: MotionParams = { speedMps, discussionMode, velocityPreset, magneticFieldDirection, rodAngleDeg, rodVelocityAngleDeg, motionDirection }
-
-    let frameId = 0
-    let previous = performance.now()
-
-    const frame = (now: number) => {
-      const deltaS = Math.min(0.05, (now - previous) / 1000) * getPlaybackRate()
-      previous = now
-
-      const next = advanceTravel({ phase: phaseRef.current, offset: motionOffsetRef.current }, deltaS, motionParams)
-      motionOffsetRef.current = next.offset
-      setMotionOffset(next.offset)
-      const nextPhase = next.phase
-      phaseRef.current = nextPhase
-      setPhase(nextPhase)
-
-      if (nextPhase >= 1 || speedMps <= 0) {
-        setRunning(false)
-        return
-      }
-
-      frameId = requestAnimationFrame(frame)
-    }
-
-    frameId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(frameId)
-  }, [discussionMode, magneticFieldDirection, motionDirection, rodAngleDeg, rodVelocityAngleDeg, running, speedMps, velocityPreset])
+  const clock = useSimulationClock({
+    stepSeconds: STEP_S,
+    advance: (dt) => {
+      if (speedMps <= 0) return false
+      const next = advanceTravel(travelRef.current, dt, motionParams)
+      moveTo(next)
+      return next.phase < 1
+    },
+  })
+  const running = clock.running
 
   const activeMotionSpeedMps = (running || steppedInMotion) && phase < 1 ? speedMps : 0
 
@@ -205,13 +178,9 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
   )
 
   const reset = () => {
-    const restOffset = createRestOffset()
-    setRunning(false)
+    clock.pause()
     setSteppedInMotion(false)
-    phaseRef.current = 0
-    motionOffsetRef.current = restOffset
-    setPhase(0)
-    setMotionOffset(restOffset)
+    moveTo({ phase: 0, offset: createRestOffset() })
     setMagneticFieldT(DEFAULT_MAGNETIC_FIELD_T)
     setMagneticFieldDirection(DEFAULT_MAGNETIC_FIELD_DIRECTION)
     setRodLengthM(DEFAULT_ROD_LENGTH_M)
@@ -250,35 +219,18 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
     running,
     toggleRunning: () => {
       setSteppedInMotion(false)
-      if (running) {
-        setRunning(false)
+      if (clock.running) {
+        clock.pause()
         return
       }
-
-      if (phaseRef.current >= 1) {
-        const restOffset = createRestOffset()
-        phaseRef.current = 0
-        motionOffsetRef.current = restOffset
-        setPhase(0)
-        setMotionOffset(restOffset)
-      }
-
-      if (speedMps <= 0) {
-        return
-      }
-
-      setRunning(true)
+      if (travelRef.current.phase >= 1) moveTo({ phase: 0, offset: createRestOffset() })
+      if (speedMps > 0) clock.play()
     },
     step: () => {
-      setRunning(false)
       if (speedMps <= 0) return
-      const start = phaseRef.current >= 1 ? { phase: 0, offset: createRestOffset() } : { phase: phaseRef.current, offset: motionOffsetRef.current }
-      const next = advanceTravel(start, STEP_S, motionParams)
-      phaseRef.current = next.phase
-      motionOffsetRef.current = next.offset
-      setPhase(next.phase)
-      setMotionOffset(next.offset)
-      setSteppedInMotion(next.phase < 1)
+      if (travelRef.current.phase >= 1) moveTo({ phase: 0, offset: createRestOffset() })
+      clock.step()
+      setSteppedInMotion(travelRef.current.phase < 1)
     },
     steppedInMotion,
     reset,

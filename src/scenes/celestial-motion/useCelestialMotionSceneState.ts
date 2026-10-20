@@ -1,5 +1,5 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useEffect, useRef, useState } from 'react'
+import { useAnimatedState } from '../../simulation/useAnimatedState'
 import { playbackScale, scenarioOf, type BodyId, type OrbitMode } from './model'
 import {
   applyPreset,
@@ -21,38 +21,13 @@ import {
 const REMEMBERED_FIELDS = ['mode', 'body', 'r1', 'r2', 'phaseDeg', 'inclinationDeg', 'timeScale', 'showVectors', 'showArea', 'showPlane', 'corotate', 'azimuthDeg', 'elevationDeg'] as const
 
 export function useCelestialMotionSceneState() {
-  const [simulation, setSimulation] = useState(() => rememberFields('celestial-motion', createCelestialState(), REMEMBERED_FIELDS))
+  // The scene's own 时间缩放 and each scenario's playback scale ride on the shared slow motion.
+  const { state: simulation, commit } = useAnimatedState<CelestialState>(
+    () => rememberFields('celestial-motion', createCelestialState(), REMEMBERED_FIELDS),
+    (state, dt) => integrateCelestial(state, dt * state.timeScale * playbackScale(scenarioOf(state))),
+    (state) => state.running,
+  )
   useRememberFields('celestial-motion', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
-
-  useEffect(() => {
-    simulationRef.current = simulation
-  }, [simulation])
-
-  useEffect(() => {
-    if (!simulation.running) return
-    let frame = 0
-    let last = 0
-    const loop = (now: number) => {
-      const frameDt = last ? Math.min(0.05, (now - last) / 1000) : 0
-      last = now
-      const current = simulationRef.current
-      const next = integrateCelestial(current, frameDt * current.timeScale * playbackScale(scenarioOf(current)))
-      simulationRef.current = next
-      setSimulation(next)
-      if (next.running) frame = requestAnimationFrame(loop)
-    }
-    frame = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(frame)
-  }, [simulation.running])
-
-  const commit = (updater: (state: CelestialState) => CelestialState) => {
-    setSimulation((previous) => {
-      const next = updater(previous)
-      simulationRef.current = next
-      return next
-    })
-  }
 
   return {
     ...simulation,

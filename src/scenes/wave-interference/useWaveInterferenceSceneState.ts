@@ -1,5 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import {
   DEFAULT_PARAMS,
   type WaveParams,
@@ -35,9 +36,10 @@ export type WaveInterferenceSceneState = WaveParams & {
   toggleDestructive: () => void
   /** Pause and advance a quarter period of source S₁. */
   step: () => void
-  /** Bumped by each 单步; the rig advances its clocks by `stepS` when it changes. */
-  stepVersion: number
-  stepS: number
+  /** Simulated time shared by the wave surface and the observer; the clock advances it. */
+  time: { current: number }
+  /** Bumped by 单步 and 重置 so the paused canvas redraws. */
+  frameVersion: number
   reset: () => void
   resetVersion: number
   _tickSyncRef: { current: () => void }
@@ -48,7 +50,6 @@ const SYNC_INTERVAL = 6
 export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const [params, setParams] = useState<WaveParams>(() => recall('wave-interference.params', DEFAULT_PARAMS))
   const [showChart, setShowChart] = useState(() => recall('wave-interference.showChart', true))
-  const [isPlaying, setIsPlaying] = useState(true)
   const [playSpeed, setPlaySpeedState] = useState(() => recall('wave-interference.playSpeed', 0.5))
   const [observer, setObserver] = useState<Observer | null>({
     ...OBSERVER_DEFAULT,
@@ -62,7 +63,18 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const [showDestructive, setShowDestructive] = useState(() => recall('wave-interference.showDestructive', true))
   useRemember('wave-interference', { params, showChart, playSpeed, showConstructive, showDestructive })
   const [resetVersion, setResetVersion] = useState(0)
-  const [stepVersion, setStepVersion] = useState(0)
+  const [frameVersion, setFrameVersion] = useState(0)
+  const timeRef = useRef(0)
+  // The scene's own 播放速度 slider sets the pace (no shell slow motion on top of it).
+  const clock = useSimulationClock({
+    initiallyRunning: true,
+    honourPlaybackRate: false,
+    timeScale: playSpeed,
+    stepSeconds: params.wavelength1 / params.waveSpeed / 4,
+    advance: (dt) => {
+      timeRef.current += dt
+    },
+  })
 
   // Mutable ring buffer — animation loop writes here, no React state churn
   const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(
@@ -111,36 +123,37 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const setSource1 = useCallback((v: Vec2) => setParams(p => ({ ...p, source1: v })), [])
   const setSource2 = useCallback((v: Vec2) => setParams(p => ({ ...p, source2: v })), [])
   const toggleChart = useCallback(() => setShowChart(p => !p), [])
-  const togglePlay = useCallback(() => setIsPlaying(p => !p), [])
   const setPlaySpeed = useCallback((v: number) => setPlaySpeedState(v), [])
   const toggleConstructive = useCallback(() => setShowConstructive(p => !p), [])
   const toggleDestructive = useCallback(() => setShowDestructive(p => !p), [])
 
-  const step = useCallback(() => {
-    setIsPlaying(false)
-    setStepVersion((version) => version + 1)
-  }, [])
+  const step = () => {
+    clock.step()
+    setFrameVersion((version) => version + 1)
+  }
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setParams(DEFAULT_PARAMS)
     setResetVersion((version) => version + 1)
     setShowChart(true)
-    setIsPlaying(true)
+    timeRef.current = 0
+    setFrameVersion((version) => version + 1)
+    clock.play()
     setPlaySpeedState(0.5)
     bufferRef.current = createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z)
     syncCounterRef.current = 0
     syncBufferToState()
     setShowConstructive(true)
     setShowDestructive(true)
-  }, [syncBufferToState])
+  }
 
   return {
     ...params,
     step,
-    stepVersion,
-    stepS: params.wavelength1 / params.waveSpeed / 4,
+    time: timeRef,
+    frameVersion,
     showChart,
-    isPlaying,
+    isPlaying: clock.running,
     playSpeed,
     observer,
     observerBuffer,
@@ -154,7 +167,7 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
     setSource1,
     setSource2,
     toggleChart,
-    togglePlay,
+    togglePlay: clock.toggle,
     setPlaySpeed,
     setObserver,
     setObserverBuffer,

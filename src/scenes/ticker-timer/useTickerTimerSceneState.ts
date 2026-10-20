@@ -1,6 +1,8 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+import { useAnimatedState } from "../../simulation/useAnimatedState";
+import { useFixedStepper } from "../../simulation/useFixedStepper";
 import {
   FIXED_STEP_S,
   createTickerTimerState,
@@ -24,15 +26,12 @@ import {
   type TickerTimerState,
 } from "./model";
 
-const FIXED_STEP_MS = FIXED_STEP_S * 1000;
-const MAX_ACCUMULATED_MS = FIXED_STEP_MS * 20;
-const STEP_EPSILON_MS = 0.001;
+/** At most 20 fixed steps per frame, so a slow machine falls behind instead of jumping. */
+const MAX_FRAME_S = FIXED_STEP_S * 20;
 export const MIN_PLAYBACK_RATE = 0.25;
 export const MAX_PLAYBACK_RATE = 2;
 export const DEFAULT_PLAYBACK_RATE = 0.5;
 
-type StateUpdater =
-  TickerTimerState | ((previous: TickerTimerState) => TickerTimerState);
 
 export type TickerTimerSceneState = TickerTimerState &
   ReturnType<typeof deriveTapeAnalysis> & {
@@ -65,94 +64,19 @@ export type TickerTimerSceneState = TickerTimerState &
 const REMEMBERED_FIELDS = ['kind', 'motionMode', 'frequencyHz', 'voltageV', 'initialSpeedMps', 'driveAccelerationMps2', 'massKg'] as const
 
 export function useTickerTimerSceneState(): TickerTimerSceneState {
-  const [simulation, setSimulation] = useState(() => rememberFields('ticker-timer', createTickerTimerState(), REMEMBERED_FIELDS));
-  useRememberFields('ticker-timer', simulation, REMEMBERED_FIELDS)
   const [playbackRate, setPlaybackRateState] = useState(() => recall('ticker-timer.playbackRate', DEFAULT_PLAYBACK_RATE));
   const [showLabels, setShowLabels] = useState(() => recall('ticker-timer.showLabels', true));
   useRemember('ticker-timer', { playbackRate, showLabels })
-  const simulationRef = useRef(simulation);
-  const frameRef = useRef<number | null>(null);
-  const lastTimestampRef = useRef<number | null>(null);
-  const accumulatedMsRef = useRef(0);
-  const playbackRateRef = useRef(playbackRate);
-
-  const resetAnimationClock = useCallback(() => {
-    lastTimestampRef.current = null;
-    accumulatedMsRef.current = 0;
-  }, []);
-
-  const commitSimulation = useCallback((updater: StateUpdater) => {
-    setSimulation((previous) => {
-      const next =
-        typeof updater === "function"
-          ? (updater as (prev: TickerTimerState) => TickerTimerState)(previous)
-          : updater;
-      simulationRef.current = next;
-      return next;
-    });
-  }, []);
-
-  useEffect(() => {
-    simulationRef.current = simulation;
-  }, [simulation]);
-
-  useEffect(() => {
-    playbackRateRef.current = playbackRate;
-  }, [playbackRate]);
-
-  const animating = simulation.powered && !simulation.finished;
-
-  useEffect(() => {
-    if (!animating || frameRef.current !== null) {
-      return;
-    }
-
-    const tick = (timestampMs: number) => {
-      if (lastTimestampRef.current === null) {
-        lastTimestampRef.current = timestampMs;
-      } else {
-        const elapsedMs = Math.max(0, timestampMs - lastTimestampRef.current);
-        lastTimestampRef.current = timestampMs;
-        const scaledElapsedMs = elapsedMs * playbackRateRef.current;
-        accumulatedMsRef.current = Math.min(
-          accumulatedMsRef.current + scaledElapsedMs,
-          MAX_ACCUMULATED_MS,
-        );
-
-        let next = simulationRef.current;
-        let advanced = false;
-        while (accumulatedMsRef.current + STEP_EPSILON_MS >= FIXED_STEP_MS) {
-          next = stepTickerTimerState(next, FIXED_STEP_S);
-          accumulatedMsRef.current = Math.max(
-            0,
-            accumulatedMsRef.current - FIXED_STEP_MS,
-          );
-          advanced = true;
-        }
-        if (advanced) {
-          simulationRef.current = next;
-          setSimulation(next);
-        }
-      }
-
-      const current = simulationRef.current;
-      if (current.powered && !current.finished) {
-        frameRef.current = requestAnimationFrame(tick);
-      } else {
-        frameRef.current = null;
-        resetAnimationClock();
-      }
-    };
-
-    frameRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (frameRef.current !== null) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = null;
-      }
-      resetAnimationClock();
-    };
-  }, [animating, resetAnimationClock]);
+  // The tape is punched in fixed steps; this scene has its own 播放速度 instead of the shell's.
+  const { stepper, resetCarry } = useFixedStepper(stepTickerTimerState, FIXED_STEP_S);
+  const { state: simulation, commit: commitSimulation } = useAnimatedState<TickerTimerState>(
+    () => rememberFields('ticker-timer', createTickerTimerState(), REMEMBERED_FIELDS),
+    stepper,
+    (state) => state.powered && !state.finished,
+    { honourPlaybackRate: false, timeScale: playbackRate, maxFrameSeconds: MAX_FRAME_S },
+  );
+  useRememberFields('ticker-timer', simulation, REMEMBERED_FIELDS)
+  const resetAnimationClock = resetCarry;
 
   const analysis = useMemo(() => deriveTapeAnalysis(simulation), [simulation]);
 

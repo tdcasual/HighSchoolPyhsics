@@ -1,5 +1,6 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import { DEFAULT_PROBE_X, deriveWaveReadings, type WaveDirection, type WaveParams, type WavePreset, type WaveStartDirection } from './model'
 type WaveStateParams = Omit<WaveParams, 'startDirection'> & { startDirection: WaveStartDirection }
 export type WaveStateSceneState = WaveStateParams & {
@@ -27,10 +28,10 @@ export type WaveStateSceneState = WaveStateParams & {
   step: () => void
   reset: () => void
 }
-type Simulation = Omit<WaveStateSceneState, 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'step' | 'reset'>
+type Simulation = Omit<WaveStateSceneState, 'running' | 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'step' | 'reset'>
 const INITIAL_SIMULATION: Simulation = {
   amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up',
-  probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0, running: false,
+  probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0,
   showGhost: false, showVelocity: true, showAcceleration: true,
 }
 /**
@@ -44,46 +45,18 @@ const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'period', 'direction', 'st
 export function useWaveStateSceneState(): WaveStateSceneState {
   const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('wave-state', ({ ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }), REMEMBERED_FIELDS))
   useRememberFields('wave-state', simulation, REMEMBERED_FIELDS)
-  const simulationRef = useRef(simulation)
-  const frameRef = useRef<number | null>(null)
-  const lastTimestampRef = useRef<number | null>(null)
-  useEffect(() => { simulationRef.current = simulation }, [simulation])
-  useEffect(() => {
-    if (!simulation.running || frameRef.current !== null) return
-    const tick = (timestamp: number) => {
-      const previous = lastTimestampRef.current
-      lastTimestampRef.current = timestamp
-      if (previous !== null) {
-        const current = simulationRef.current
-        const delta = Math.min(0.05, Math.max(0, timestamp - previous) / 1000) * current.timeScale
-        simulationRef.current = { ...current, elapsed: current.elapsed + delta }
-        setSimulation(simulationRef.current)
-      }
-      if (simulationRef.current.running) frameRef.current = requestAnimationFrame(tick)
-      else frameRef.current = null
-    }
-    frameRef.current = requestAnimationFrame(tick)
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
-      frameRef.current = null
-      lastTimestampRef.current = null
-    }
-  }, [simulation.running])
-  const commit = useCallback((patch: Partial<Simulation>) => {
-    setSimulation((previous) => {
-      const next = { ...previous, ...patch }
-      simulationRef.current = next
-      return next
-    })
-  }, [])
+  // The scene's own 时间缩放 slider multiplies the shared slow motion; 单步 = T/4.
+  const clock = useSimulationClock({
+    timeScale: simulation.timeScale,
+    stepSeconds: simulation.period / 4,
+    advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
+  })
+  const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
   const readings = useMemo(
     () => deriveWaveReadings(simulation.elapsed, simulation, simulation.probeX),
     [simulation],
   )
-  const resetElapsedAndCommit = (patch: Partial<Simulation>) => {
-    lastTimestampRef.current = null
-    commit({ ...patch, elapsed: 0 })
-  }
+  const resetElapsedAndCommit = (patch: Partial<Simulation>) => commit({ ...patch, elapsed: 0 })
   const setPreset = (preset: WavePreset) => {
     if (preset === 'baseline') {
       resetElapsedAndCommit({ amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up', probeX: 6, timeScale: 0.5 })
@@ -112,13 +85,12 @@ export function useWaveStateSceneState(): WaveStateSceneState {
     setShowGhost: (showGhost) => commit({ showGhost }),
     setShowVelocity: (showVelocity) => commit({ showVelocity }),
     setShowAcceleration: (showAcceleration) => commit({ showAcceleration }),
-    toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
-    step: () => { lastTimestampRef.current = null; commit({ running: false, elapsed: simulationRef.current.elapsed + simulationRef.current.period / 4 }) },
+    running: clock.running,
+    toggleRunning: clock.toggle,
+    step: clock.step,
     reset: () => {
-      lastTimestampRef.current = null
-      const next = { ...INITIAL_SIMULATION }
-      simulationRef.current = next
-      setSimulation(next)
+      clock.pause()
+      setSimulation({ ...INITIAL_SIMULATION })
     },
   }
 }

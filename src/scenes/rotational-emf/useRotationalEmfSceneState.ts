@@ -1,6 +1,6 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { getPlaybackRate } from '../../scene3d/playbackRate'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import {
   deriveRotationalEmfReadout,
   formatAngleDegrees,
@@ -51,35 +51,11 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
   const [effectiveLengthM, setEffectiveLengthM] = useState(() => recall('rotational-emf.effectiveLengthM', DEFAULT_EFFECTIVE_LENGTH_M))
   useRemember('rotational-emf', { scenario, viewMode, magneticFieldT, angularSpeed, effectiveLengthM })
   const [angleRad, setAngleRad] = useState(DEFAULT_ANGLE_RAD)
-  const [running, setRunning] = useState(false)
-  const frameRef = useRef<number | null>(null)
-  const previousTimestampRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    if (!running) {
-      return
-    }
-
-    const tick = (timestamp: number) => {
-      const previousTimestamp = previousTimestampRef.current
-      if (previousTimestamp !== null) {
-        const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.05) * getPlaybackRate()
-        setAngleRad((current) => (current + angularSpeed * elapsedSeconds) % FULL_ROTATION_RAD)
-      }
-      previousTimestampRef.current = timestamp
-      frameRef.current = window.requestAnimationFrame(tick)
-    }
-
-    frameRef.current = window.requestAnimationFrame(tick)
-
-    return () => {
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current)
-        frameRef.current = null
-      }
-      previousTimestampRef.current = null
-    }
-  }, [angularSpeed, running])
+  // 单步 turns the rod 15°.
+  const clock = useSimulationClock({
+    stepSeconds: angularSpeed > 0 ? Math.PI / 12 / angularSpeed : 0,
+    advance: (dt) => setAngleRad((current) => (current + angularSpeed * dt) % FULL_ROTATION_RAD),
+  })
 
   const readout = useMemo(
     () => deriveRotationalEmfReadout({ scenario, magneticFieldT, angularSpeed, effectiveLengthM, angleRad }),
@@ -93,7 +69,7 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
     setAngularSpeed(DEFAULT_ANGULAR_SPEED)
     setEffectiveLengthM(DEFAULT_EFFECTIVE_LENGTH_M)
     setAngleRad(DEFAULT_ANGLE_RAD)
-    setRunning(false)
+    clock.pause()
   }
 
   return {
@@ -111,12 +87,9 @@ export function useRotationalEmfSceneState(): RotationalEmfSceneState {
     setEffectiveLengthM,
     angleRad,
     angleLabel: formatAngleDegrees(angleRad),
-    running,
-    toggleRunning: () => setRunning((value) => !value),
-    step: () => {
-      setRunning(false)
-      setAngleRad((current) => (current + Math.PI / 12) % FULL_ROTATION_RAD)
-    },
+    running: clock.running,
+    toggleRunning: clock.toggle,
+    step: clock.step,
     reset,
     emfMagnitudeV: readout.emfMagnitudeV,
     emfMagnitudeLabel: formatEmfMagnitude(readout.emfMagnitudeV),

@@ -1,5 +1,5 @@
-import { getPlaybackRate } from '../../scene3d/playbackRate'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useSimulationClock } from '../../simulation/useSimulationClock'
 import {
   createElectromagneticDriveState,
   isElectromagneticDriveActive,
@@ -13,154 +13,59 @@ export type ElectromagneticDriveSceneState = ElectromagneticDriveState & {
   pause: () => void
   /** Advance 0.1 s and hold that instant; cranking (if on, or from rest) continues on resume. */
   step: () => void
-  /** Time is held after 单步 until it resumes, stops or resets. */
+  /** Time is held after 单步 while the magnet or frame still moves. */
   frozen: boolean
   resume: () => void
   reset: () => void
+  /** Time is flowing (cranking or coasting). */
+  ticking: boolean
 }
 
-type StateUpdater =
-  | ElectromagneticDriveState
-  | ((prev: ElectromagneticDriveState) => ElectromagneticDriveState)
+/** The model integrates in fixed 1/60 s steps. */
+const FIXED_STEP_S = 1 / 60
 
-const FIXED_STEP_MS = 1000 / 60
-const MAX_ACCUMULATED_MS = FIXED_STEP_MS * 15
-const STEP_EPSILON_MS = 0.001
-/** 单步: 0.1 s of fixed physics steps. */
-const SINGLE_STEP_TICKS = 6
-
+/**
+ * The clock runs while anything moves: cranking (isRunning) or coasting afterwards. 停止摇动
+ * only stops the hand; time keeps flowing until the magnet and frame come to rest.
+ */
 export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneState {
   const [simulation, setSimulation] = useState(() => createElectromagneticDriveState())
   const simulationRef = useRef(simulation)
-  const frameRef = useRef<number | null>(null)
-  const lastTimestampRef = useRef<number | null>(null)
-  const accumulatedMsRef = useRef(0)
-  const [frozen, setFrozen] = useState(false)
-
-  const resetAnimationClock = useCallback(() => {
-    lastTimestampRef.current = null
-    accumulatedMsRef.current = 0
-  }, [])
-
-  const commitSimulation = useCallback((updater: StateUpdater) => {
-    setSimulation((previous) => {
-      const next = typeof updater === 'function'
-        ? (updater as (prev: ElectromagneticDriveState) => ElectromagneticDriveState)(previous)
-        : updater
-      simulationRef.current = next
-      return next
-    })
-  }, [])
-
-  useEffect(() => {
-    simulationRef.current = simulation
-  }, [simulation])
-
-  useEffect(() => {
-    if (frozen || !isElectromagneticDriveActive(simulation) || frameRef.current !== null) {
-      return
-    }
-
-    const tick = (timestampMs: number) => {
-      if (lastTimestampRef.current === null) {
-        lastTimestampRef.current = timestampMs
-      } else {
-        const elapsedMs = Math.max(0, timestampMs - lastTimestampRef.current)
-        lastTimestampRef.current = timestampMs
-        accumulatedMsRef.current = Math.min(
-          accumulatedMsRef.current + elapsedMs * getPlaybackRate(),
-          MAX_ACCUMULATED_MS,
-        )
-
-        let next = simulationRef.current
-        let advanced = false
-
-        while (accumulatedMsRef.current + STEP_EPSILON_MS >= FIXED_STEP_MS) {
-          next = stepElectromagneticDriveState(next)
-          accumulatedMsRef.current = Math.max(0, accumulatedMsRef.current - FIXED_STEP_MS)
-          advanced = true
-        }
-
-        if (advanced) {
-          simulationRef.current = next
-          setSimulation(next)
-        }
-      }
-
-      if (isElectromagneticDriveActive(simulationRef.current)) {
-        frameRef.current = requestAnimationFrame(tick)
-      } else {
-        frameRef.current = null
-        resetAnimationClock()
-      }
-    }
-
-    frameRef.current = requestAnimationFrame(tick)
-  }, [frozen, resetAnimationClock, simulation])
-
-  // Freezing stops the loop already in flight.
-  useEffect(() => {
-    if (!frozen || frameRef.current === null) return
-    cancelAnimationFrame(frameRef.current)
-    frameRef.current = null
-    resetAnimationClock()
-  }, [frozen, resetAnimationClock])
-
-  useEffect(() => {
-    return () => {
-      if (frameRef.current !== null) {
-        cancelAnimationFrame(frameRef.current)
-        frameRef.current = null
-      }
-      resetAnimationClock()
-    }
-  }, [resetAnimationClock])
-
-  const start = useCallback(() => {
-    setFrozen(false)
-    resetAnimationClock()
-    commitSimulation((previous) => ({
-      ...previous,
-      isRunning: true,
-    }))
-  }, [commitSimulation, resetAnimationClock])
-
-  const pause = useCallback(() => {
-    setFrozen(false)
-    commitSimulation((previous) => ({
-      ...previous,
-      isRunning: false,
-    }))
-  }, [commitSimulation])
-
-  const step = useCallback(() => {
-    setFrozen(true)
-    commitSimulation((previous) => {
-      // From rest there is nothing to step through, so 单步 starts cranking like 开始摇动.
-      let next = isElectromagneticDriveActive(previous) ? previous : { ...previous, isRunning: true }
-      for (let tick = 0; tick < SINGLE_STEP_TICKS; tick++) next = stepElectromagneticDriveState(next)
-      return next
-    })
-  }, [commitSimulation])
-
-  const resume = useCallback(() => {
-    resetAnimationClock()
-    setFrozen(false)
-  }, [resetAnimationClock])
-
-  const reset = useCallback(() => {
-    setFrozen(false)
-    resetAnimationClock()
-    commitSimulation((previous) => resetElectromagneticDriveState(previous))
-  }, [commitSimulation, resetAnimationClock])
+  const commit = (next: ElectromagneticDriveState) => {
+    simulationRef.current = next
+    setSimulation(next)
+  }
+  const clock = useSimulationClock({
+    stepSeconds: 0.1,
+    fixedStepSeconds: FIXED_STEP_S,
+    // Keep real time on slow classroom machines (up to 15 physics steps per frame).
+    maxFrameSeconds: 15 * FIXED_STEP_S,
+    advance: () => {
+      const next = stepElectromagneticDriveState(simulationRef.current)
+      commit(next)
+      return isElectromagneticDriveActive(next)
+    },
+  })
 
   return {
     ...simulation,
-    start,
-    pause,
-    step,
-    frozen,
-    resume,
-    reset,
+    ticking: clock.running,
+    frozen: !clock.running && isElectromagneticDriveActive(simulation),
+    start: () => {
+      commit({ ...simulationRef.current, isRunning: true })
+      clock.play()
+    },
+    // Coasting continues: the clock stops by itself once everything is at rest.
+    pause: () => commit({ ...simulationRef.current, isRunning: false }),
+    step: () => {
+      // From rest there is nothing to step through, so 单步 starts cranking like 开始摇动.
+      if (!isElectromagneticDriveActive(simulationRef.current)) commit({ ...simulationRef.current, isRunning: true })
+      clock.step()
+    },
+    resume: clock.play,
+    reset: () => {
+      clock.pause()
+      commit(resetElectromagneticDriveState(simulationRef.current))
+    },
   }
 }
