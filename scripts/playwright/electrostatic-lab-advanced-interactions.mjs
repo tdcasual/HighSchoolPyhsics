@@ -45,7 +45,7 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({
+        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: [
             '--use-angle=swiftshader',
@@ -87,13 +87,11 @@ async function run() {
 
         const beforeCount = await readChargeCount(page)
 
-        const addCandidates = [
-          [0.5, 0.58],
-          [0.46, 0.63],
-          [0.54, 0.63],
-          [0.5, 0.7],
-          [0.5, 0.5],
-        ]
+        // The view is framed into the free area right of the panel column, so probe a grid there.
+        const addCandidates = []
+        for (const yRatio of [0.6, 0.66, 0.54, 0.72, 0.48]) {
+          for (const xRatio of [0.62, 0.7, 0.55, 0.78, 0.5]) addCandidates.push([xRatio, yRatio])
+        }
 
         const addChargeByDoubleClick = async (baseCount) => {
           for (const [xRatio, yRatio] of addCandidates) {

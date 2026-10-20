@@ -30,7 +30,7 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({
+        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: [
             '--use-angle=swiftshader',
