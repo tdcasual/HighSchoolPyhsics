@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3 } from '../measuring-tools/pose'
+import { orbitPosition, type OrbitView, type Vec3 } from '../../scene3d/orbitFraming'
 import {
   areaWedges,
   burnPoints,

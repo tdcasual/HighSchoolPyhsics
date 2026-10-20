@@ -1,4 +1,4 @@
-import type { ScreenRect } from '../../scene3d/useOverlayObstacles'
+import type { ScreenRect } from './useOverlayObstacles'
 
 export type { ScreenRect }
 

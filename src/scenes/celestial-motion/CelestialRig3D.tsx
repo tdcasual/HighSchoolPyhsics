@@ -3,7 +3,7 @@ import { Html } from '@react-three/drei/web/Html'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BufferAttribute, BufferGeometry, CanvasTexture, DoubleSide, Quaternion, SRGBColorSpace, Vector3 } from 'three'
-import type { Vec3 } from '../measuring-tools/pose'
+import type { Vec3 } from '../../scene3d/orbitFraming'
 import { diagramDepth, viewAngles, type CelestialPose, type SatellitePose } from './pose'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 

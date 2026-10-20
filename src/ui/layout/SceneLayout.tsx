@@ -3,7 +3,7 @@ import { FloatingPanel } from '../panels/FloatingPanel'
 import { SceneActions } from '../controls/SceneActions'
 import { SidebarPanel } from '../panels/SidebarPanel'
 import { SegmentedControl } from '../controls/SegmentedControl'
-import { useMediaQuery, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
+import { useMediaQuery, COMPACT_DESKTOP_BREAKPOINT, MOBILE_BREAKPOINT } from '../hooks/useMediaQuery'
 import { useAppStore, type MobilePlaybackAction } from '../../store/useAppStore'
 import { ModelNoteTargetContext } from '../notes/modelNoteTarget'
 import { PLAYBACK_RATE_OPTIONS } from '../../scene3d/playbackRate'
@@ -25,6 +25,12 @@ type SceneLayoutProps = {
   /** The scene's loop honours the shared playback rate: show 速度 1× / ½× / ¼× in the playback zone. */
   timeControl?: boolean
   chartVisible?: boolean
+  /**
+   * False when the chart is the question rather than its outcome (e.g. a scale students read):
+   * prediction mode then leaves it visible, and the chart hides its own answer marks with
+   * usePredictionMasked().
+   */
+  chartMaskable?: boolean
   chartContentClassName?: string
   chartInitiallyCollapsed?: boolean
   dataInitiallyCollapsed?: boolean
@@ -34,6 +40,18 @@ type SceneLayoutProps = {
 type MobileTabKey = 'controls' | 'data' | 'chart'
 
 /** Playback action keys that Space toggles (play/pause), so the teacher never hunts for the button. */
+/** Space = play/pause; . or → = 单步 (key 'step'); , or ← = step back (key 'step-back'). */
+const KEY_ACTIONS: Record<string, 'primary' | 'step' | 'step-back'> = {
+  ' ': 'primary',
+  '.': 'step',
+  ArrowRight: 'step',
+  ',': 'step-back',
+  ArrowLeft: 'step-back',
+}
+
+/** Controls that use the arrow keys themselves. */
+const ARROW_KEY_CONTROLS = 'input, select, textarea, [role="slider"], [role="radio"], [role="radiogroup"], [role="tab"]'
+
 const PRIMARY_PLAYBACK_KEYS = new Set(['play', 'toggle-running'])
 
 function isTextEntry(target: EventTarget | null): boolean {
@@ -57,6 +75,7 @@ export function SceneLayout({
   playbackControls,
   timeControl = false,
   chartVisible = false,
+  chartMaskable = true,
   chartContentClassName,
   chartInitiallyCollapsed = false,
   dataInitiallyCollapsed = false,
@@ -97,7 +116,7 @@ export function SceneLayout({
   // Charts usually plot the outcome too (e.g. P's future displacement), so in prediction mode the
   // chart stays covered until the teacher opens it or reveals everything.
   const [chartRevealedRound, setChartRevealedRound] = useState<number | null>(null)
-  const chartMasked = predicting && answerCount > 0 && !predictionRound.revealAll && chartRevealedRound !== predictionRound.round
+  const chartMasked = chartMaskable && predicting && answerCount > 0 && !predictionRound.revealAll && chartRevealedRound !== predictionRound.round
   const chartBody = chartMasked ? (
     <button type="button" className="chart-mask" onClick={() => setChartRevealedRound(predictionRound.round)}>
       图表含结论 · 点击显示
@@ -127,6 +146,10 @@ export function SceneLayout({
     </>
   ) : null
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
+  // On small desktops the chart starts collapsed so the 3D view keeps the room right of the
+  // data panel; it opens on demand like everywhere else.
+  const compactDesktop = useMediaQuery(COMPACT_DESKTOP_BREAKPOINT)
+  const chartStartsCollapsed = chartInitiallyCollapsed || compactDesktop
   const setMobilePlaybackActions = useAppStore((s) => s.setMobilePlaybackActions)
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed)
   const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed)
@@ -156,11 +179,14 @@ export function SceneLayout({
 
   const primaryPlayback = playbackActions?.find((action) => PRIMARY_PLAYBACK_KEYS.has(action.key))
   const stepPlayback = playbackActions?.find((action) => action.key === 'step')
+  const stepBackPlayback = playbackActions?.find((action) => action.key === 'step-back')
   const primaryPlaybackRef = useRef(primaryPlayback)
   const stepPlaybackRef = useRef(stepPlayback)
+  const stepBackPlaybackRef = useRef(stepBackPlayback)
   useLayoutEffect(() => {
     primaryPlaybackRef.current = primaryPlayback
     stepPlaybackRef.current = stepPlayback
+    stepBackPlaybackRef.current = stepBackPlayback
   })
 
   // Space = play/pause. A button the teacher just clicked keeps focus and would otherwise
@@ -176,12 +202,16 @@ export function SceneLayout({
       pointerFocused = performance.now() - lastPointerDown < 600 ? (event.target as Element) : null
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.key !== ' ' && event.key !== '.') || event.repeat || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      const key = KEY_ACTIONS[event.key]
+      if (!key || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      // Holding an arrow keeps stepping (fine adjustment); Space and . act once per press.
+      if (event.repeat && !event.key.startsWith('Arrow')) return
       const target = event.target
       if (isTextEntry(target)) return
+      // Arrow keys belong to a focused slider, radio group or tab list, however it got focus.
+      if (event.key.startsWith('Arrow') && target instanceof Element && target.closest(ARROW_KEY_CONTROLS)) return
       if (target instanceof HTMLElement && target !== document.body && target !== pointerFocused) return
-      // Space = play/pause, . = 单步 (step).
-      const action = event.key === '.' ? stepPlaybackRef.current : primaryPlaybackRef.current
+      const action = key === 'step' ? stepPlaybackRef.current : key === 'step-back' ? stepBackPlaybackRef.current : primaryPlaybackRef.current
       if (!action || action.disabled) return
       event.preventDefault()
       if (target instanceof HTMLElement) target.blur()
@@ -362,11 +392,11 @@ export function SceneLayout({
 
       {chart && showChart && (
         <FloatingPanel
-          key={chartInitiallyCollapsed ? 'chart-collapsed' : 'chart-expanded'}
+          key={chartStartsCollapsed ? 'chart-collapsed' : 'chart-expanded'}
           title="图表"
           zone="chart"
           ref={stableRef1}
-          defaultCollapsed={chartInitiallyCollapsed}
+          defaultCollapsed={chartStartsCollapsed}
           defaultPosition={{ x: 0, y: chartPanelY }}
           offsetX={panelX}
           zIndex={overlayZIndex}

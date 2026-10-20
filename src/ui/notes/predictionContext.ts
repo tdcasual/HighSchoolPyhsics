@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext, useContext } from 'react'
 
 export type PredictionState = {
   /** Conclusions are masked until the teacher reveals them. */
@@ -17,3 +17,12 @@ export const PredictionContext = createContext<PredictionState>({
   revealAll: false,
   register: () => () => {},
 })
+
+/**
+ * True while prediction mode is hiding answers that are not wrapped in <Answer>, e.g. the
+ * highlighted lines of a reading figure the class is reading from.
+ */
+export function usePredictionMasked(): boolean {
+  const { predicting, revealAll } = useContext(PredictionContext)
+  return predicting && !revealAll
+}

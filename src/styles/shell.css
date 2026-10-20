@@ -565,8 +565,17 @@ body {
 /* ── Classroom large text ── */
 /* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
    scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.
-   Small desktops keep the normal scale so panels still fit. */
-@media (min-width: 1280px) and (min-height: 760px) {
+   Small desktops keep the normal scale so panels still fit. A 1366-wide projection shows each
+   pixel ~1.4× larger than 1920, so the middle tier zooms less for the same size on the wall
+   and leaves the 3D view room. */
+@media (min-width: 1280px) and (max-width: 1679px) and (min-height: 760px) {
+  .app-shell.text-large .floating-panel[data-panel='data'] .panel-body > *,
+  .app-shell.text-large .interactive-canvas-surface > div > div:not(:has(canvas)) > div {
+    zoom: 1.1;
+  }
+}
+
+@media (min-width: 1680px) and (min-height: 760px) {
   .app-shell.text-large .floating-panel[data-panel='data'] .panel-body > * {
     zoom: 1.5;
   }
@@ -1000,6 +1009,8 @@ input[type="range"]::-moz-range-track {
 
   .app-controls {
     flex-wrap: nowrap;
+    /* safe: when the buttons overflow, start from the left edge so all of them can be scrolled to. */
+    justify-content: safe flex-end;
     min-width: 0;
     max-width: 100%;
     overflow-x: auto;

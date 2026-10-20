@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { orbitPosition } from '../measuring-tools/pose'
+import { orbitPosition } from '../../scene3d/orbitFraming'
 import { CartChart } from './CartChart'
 import { CartControls } from './CartControls'
 import { CartRig3D } from './CartRig3D'

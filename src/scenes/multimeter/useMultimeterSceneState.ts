@@ -1,6 +1,6 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useState } from 'react'
-import type { ViewPreset } from '../measuring-tools/pose'
+import type { ViewPreset } from '../../scene3d/orbitFraming'
 import { RANGE, rheostat, trialContact, type RangeKey } from './model'
 import {
   chooseOhmRange,

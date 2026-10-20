@@ -1,7 +1,7 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useRef, useState } from 'react'
 import { DURATION } from './model'
-import type { ViewPreset } from '../measuring-tools/pose'
+import type { ViewPreset } from '../../scene3d/orbitFraming'
 import {
   advanceCart,
   applyPreset,

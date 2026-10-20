@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../measuring-tools/pose'
+import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
 import { RANGES, type MeasureTarget, type RangeKey } from './model'
 import type { ContactMethod } from './state'
 

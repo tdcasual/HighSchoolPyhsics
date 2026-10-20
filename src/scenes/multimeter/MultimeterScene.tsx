@@ -1,8 +1,9 @@
 import { Answer } from '../../ui/notes/Answer'
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { fitCameraDistance, orbitPosition, type OrbitView } from '../measuring-tools/pose'
+import { fitCameraDistance, orbitPosition, type OrbitView } from '../../scene3d/orbitFraming'
+import { useViewportSize } from '../../scene3d/useViewportSize'
 import { MeterAssembly } from './MeterAssembly'
 import { ReadingChart, RheostatChart, VoltAmmeterChart } from './MultimeterChart'
 import { MultimeterControls } from './MultimeterControls'
@@ -10,33 +11,6 @@ import { RANGE, voltAmmeter } from './model'
 import { METER_CAMERA, meterPose, meterView } from './pose'
 import { useMultimeterSceneState } from './useMultimeterSceneState'
 import './multimeter.css'
-
-type ViewportSize = { left: number; width: number; height: number }
-
-function useViewportSize(ref: RefObject<HTMLDivElement | null>): ViewportSize {
-  const [size, setSize] = useState<ViewportSize>({ left: 0, width: 1280, height: 720 })
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    const update = () => {
-      const rect = element.getBoundingClientRect()
-      const width = rect.width || window.innerWidth
-      const height = rect.height || window.innerHeight
-      setSize((previous) => Math.abs(previous.left - rect.left) < 1 && Math.abs(previous.width - width) < 1 && Math.abs(previous.height - height) < 1
-        ? previous
-        : { left: rect.left, width, height })
-    }
-    update()
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
-    observer?.observe(element)
-    window.addEventListener('resize', update)
-    return () => {
-      observer?.disconnect()
-      window.removeEventListener('resize', update)
-    }
-  }, [ref])
-  return size
-}
 
 function formatReading(value: number | null, unit: string): string {
   if (value === null || Number.isNaN(value)) return '—'
