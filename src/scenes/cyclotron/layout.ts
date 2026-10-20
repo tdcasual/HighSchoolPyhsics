@@ -1,29 +1,24 @@
 export type Point3 = [number, number, number]
 
-const SCENE_SCALE = 3200
 export const SCENE_Y = 0.24
 export const DEE_THICKNESS = 0.14
 export const DEE_RADIUS = 2.16
-export const MAX_ORBIT_RADIUS_M = DEE_RADIUS / SCENE_SCALE
+/** Textbook-scale machine: D-box radius 0.5 m (drawn as DEE_RADIUS scene units). */
+export const DEE_RADIUS_M = 0.5
+const SCENE_SCALE = DEE_RADIUS / DEE_RADIUS_M
+export const MAX_ORBIT_RADIUS_M = DEE_RADIUS_M
 export const DEE_TOP_Y = SCENE_Y + DEE_THICKNESS / 2
 export const TRAJECTORY_Y = DEE_TOP_Y + 0.004
-const MIN_VISUAL_GAP_WIDTH = 0.064
-const MAX_VISUAL_GAP_WIDTH = 0.128
-const MIN_GAP_HALF_WIDTH_M = 0.005e-3
-const MAX_GAP_HALF_WIDTH_M = 0.02e-3
+export const MIN_GAP_HALF_WIDTH_M = 0.005
+export const MAX_GAP_HALF_WIDTH_M = 0.02
 
 function clamp(value: number, minValue: number, maxValue: number): number {
   return Math.min(maxValue, Math.max(minValue, value))
 }
 
+/** The gap is drawn at its physical width (1–4 cm → 0.04–0.17 scene units). */
 export function deriveGapWidthScene(gapHalfWidthM: number): number {
-  const ratio = clamp(
-    (Math.abs(gapHalfWidthM) - MIN_GAP_HALF_WIDTH_M) /
-      (MAX_GAP_HALF_WIDTH_M - MIN_GAP_HALF_WIDTH_M),
-    0,
-    1,
-  )
-  return MIN_VISUAL_GAP_WIDTH + ratio * (MAX_VISUAL_GAP_WIDTH - MIN_VISUAL_GAP_WIDTH)
+  return 2 * clamp(Math.abs(gapHalfWidthM), MIN_GAP_HALF_WIDTH_M, MAX_GAP_HALF_WIDTH_M) * SCENE_SCALE
 }
 
 function clampPointToChamber(x: number, z: number, maxRadius = DEE_RADIUS): Point3 {

@@ -2,17 +2,17 @@ import { Answer } from '../../ui/notes/Answer'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
-import { formatScientific } from '../../core/formatNumber'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
 import { CyclotronRig3D } from './CyclotronRig3D'
 import { CyclotronTraceChart } from './CyclotronTraceChart'
 import { MAX_ORBIT_RADIUS_M } from './layout'
+import { STEPS_PER_TURN } from './run'
 import { useCyclotronSceneState } from './useCyclotronSceneState'
 import { CYCLOTRON_CAMERA, CYCLOTRON_CONTROLS } from './view'
 import './cyclotron.css'
 
-const ELEMENTARY_CHARGE_C = 1.6e-19
+const MEV_J = 1.6e-13
 
 export function CyclotronScene() {
   const state = useCyclotronSceneState()
@@ -20,11 +20,11 @@ export function CyclotronScene() {
     if (state.particleInGap) {
       return { mode: 'focus', primary: state.particlePoint }
     }
-    if (state.simulation.running) {
+    if (state.running) {
       return { mode: 'compare', primary: state.particlePoint, secondary: [0, state.particlePoint[1], 0] }
     }
     return { mode: 'overview' }
-  }, [state.particleInGap, state.particlePoint, state.simulation.running])
+  }, [state.particleInGap, state.particlePoint, state.running])
 
   return (
     <SceneLayout timeControl
@@ -33,10 +33,10 @@ export function CyclotronScene() {
         <CyclotronControls
           magneticFieldT={state.magneticFieldT}
           onMagneticFieldChange={state.setMagneticFieldT}
-          electricFieldVPerM={state.electricFieldVPerM}
-          onElectricFieldChange={state.setElectricFieldVPerM}
-          gapHalfWidthMm={state.gapHalfWidthMm}
-          onGapHalfWidthChange={state.setGapHalfWidthMm}
+          gapVoltageKv={state.gapVoltageKv}
+          onGapVoltageChange={state.setGapVoltageKv}
+          gapWidthCm={state.gapWidthCm}
+          onGapWidthChange={state.setGapWidthCm}
           energyMode={state.energyMode}
           onEnergyModeChange={state.setEnergyMode}
         />
@@ -44,39 +44,42 @@ export function CyclotronScene() {
       dataOverlay={
         <div className="scene-core-summary-stack">
           <p>
-            <span>状态</span>
-            <strong>{state.particleReachedRim ? '已到达 D 形盒边缘' : state.simulation.running ? '运行中' : '已暂停'}</strong>
+            <span>已知 B · U · R</span>
+            <strong>{state.magneticFieldT.toFixed(1)} T · {state.gapVoltageKv.toFixed(0)} kV · {MAX_ORBIT_RADIUS_M.toFixed(1)} m</strong>
           </p>
-          <p><span>缝隙电压 U</span><strong>{formatScientific(state.currentVoltageV)} V · {state.voltageDirectionText}</strong></p>
-          <p><span>动能 Ek</span><strong>{formatScientific(state.currentEnergyJ)} J（{formatScientific(state.currentEnergyJ / ELEMENTARY_CHARGE_C)} eV）</strong></p>
-          <p><span>Ek,max（示意 R = {(MAX_ORBIT_RADIUS_M * 1000).toFixed(3)} mm）</span><strong><Answer>{formatScientific(state.maximumKineticEnergyJ)} J（{formatScientific(state.maximumKineticEnergyJ / ELEMENTARY_CHARGE_C)} eV）</Answer></strong></p>
-          <p><span>回旋周期 T</span><strong><Answer>{formatScientific(state.cyclotronPeriodS)} s</Answer></strong></p>
-          {state.simulation.error ? <p>错误: {state.simulation.error}</p> : null}
+          <p><span>缝隙电压 u</span><strong>{(state.currentVoltageV / 1000).toFixed(0)} kV · {state.voltageDirectionText}</strong></p>
+          <p><span>动能 Eₖ · 过缝次数</span><strong>{(state.currentEnergyJ / MEV_J).toFixed(2)} MeV · {state.crossings}</strong></p>
+          <p><span>Eₖ,max = q²B²R²/(2m)</span><strong><Answer>{(state.maximumKineticEnergyJ / MEV_J).toFixed(1)} MeV</Answer></strong></p>
+          <p><span>回旋周期 T = 2πm/(qB)</span><strong><Answer>{(state.cyclotronPeriodS * 1e9).toFixed(1)} ns</Answer></strong></p>
         </div>
       }
       notes={
-        <p>
-          本场景为缩小示意：D 形盒半径仅 {(MAX_ORBIT_RADIUS_M * 1000).toFixed(3)} mm，故动能只有 eV 量级。Eₖ,max = q²B²R²/(2m) 只取决于 B 与 R、与加速电压 U 无关；按教材常见量级 R = 0.5 m、当前 B = {state.magneticFieldT.toFixed(1)} T，质子 Eₖ,max ≈{' '}
-          {((state.maximumKineticEnergyJ * (0.5 / MAX_ORBIT_RADIUS_M) ** 2) / (ELEMENTARY_CHARGE_C * 1e6)).toFixed(1)} MeV。
-        </p>
+        <>
+          <p>
+            教材量级的质子回旋加速器：D 形盒半径 {MAX_ORBIT_RADIUS_M} m，缝隙宽 {state.gapWidthCm} cm，交变电压频率等于回旋频率。粒子运动由洛伦兹力与缝隙电场直接积分得到（每圈 {STEPS_PER_TURN} 步，非相对论）。
+          </p>
+          <p>
+            Eₖ,max 只取决于 B 与 R、与 U 无关；U 越大，过缝次数越少、加速越快。实际出射动能略小于 q²B²R²/(2m)：每次过缝都使轨道圆心偏移，粒子在轨道半径略小于 R 时就到达边缘。
+          </p>
+        </>
       }
       chart={
         <>
           <CyclotronTraceChart
             title="U-t 曲线"
-            series={state.voltageSeries}
-            running={state.simulation.running}
-            valueLabel="U"
-            unit="V"
+            series={state.voltageSeries.map((sample) => ({ timeS: sample.timeS, value: sample.value / 1000 }))}
+            running={state.running}
+            valueLabel="u"
+            unit="kV"
             tone="voltage"
-            fixedRange={state.voltageRange}
+            fixedRange={[state.voltageRange[0] / 1000, state.voltageRange[1] / 1000]}
           />
           <CyclotronTraceChart
-            title="Ek-t 曲线（理论）"
-            series={state.energySeries}
-            running={state.simulation.running}
+            title={state.energyMode === 'include-acceleration-time' ? 'Ek-t 曲线（仿真）' : 'Ek-t 曲线（理想台阶）'}
+            series={state.energySeries.map((sample) => ({ timeS: sample.timeS, value: sample.value / MEV_J }))}
+            running={state.running}
             valueLabel="Ek"
-            unit="J"
+            unit="MeV"
             tone="energy"
           />
         </>
@@ -84,10 +87,11 @@ export function CyclotronScene() {
       playbackActions={[
         {
           key: 'toggle-running',
-          label: state.particleReachedRim ? '已出射' : state.simulation.running ? '暂停' : '播放',
+          label: state.particleReachedRim ? '已出射' : state.running ? '暂停' : '播放',
           disabled: state.particleReachedRim,
-          onClick: state.simulation.toggleRunning,
+          onClick: state.toggleRunning,
         },
+        { key: 'step', label: '单步 半圈', onClick: state.step, disabled: state.particleReachedRim },
         {
           key: 'reset',
           label: '重置',
@@ -100,13 +104,13 @@ export function CyclotronScene() {
           camera={CYCLOTRON_CAMERA}
           controls={CYCLOTRON_CONTROLS}
           presentationFocus={presentationFocus}
-          frameloop={state.simulation.running ? 'always' : 'demand'}
+          frameloop={state.running ? 'always' : 'demand'}
         >
           <CyclotronRig3D
             trailPoints={state.trailPoints}
             particlePoint={state.particlePoint}
             phase={state.voltagePhase}
-            running={state.simulation.running}
+            running={state.running}
             voltageSign={state.currentVoltageV}
             particleInGap={state.particleInGap}
             deeGapWidth={state.deeGapWidth}

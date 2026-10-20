@@ -24,8 +24,6 @@ type Options = {
   computeAccelerationAtTime?: (state: ParticleState, timeS: number, dt: number) => Vector3Like
   shouldStop?: (state: ParticleState) => boolean
   runningByDefault?: boolean
-  /** Slow-motion factor read each frame; the step shrinks so the motion slows and stays accurate. */
-  getTimeScale?: () => number
   autoResetOnInitialStateChange?: boolean
 }
 
@@ -47,7 +45,6 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
   const accelerationRef = useRef(computeAcceleration)
   const accelerationAtTimeRef = useRef(options.computeAccelerationAtTime)
   const shouldStopRef = useRef(options.shouldStop)
-  const getTimeScaleRef = useRef(options.getTimeScale)
 
   const [state, setState] = useState<ParticleState>(() => cloneState(initialStateRef.current))
   const [elapsedTimeS, setElapsedTimeS] = useState(0)
@@ -127,21 +124,20 @@ export function useParticleSimulation(options: Options): ParticleSimulation {
       }
 
       const current = stateRef.current
-      const stepDt = dt * (getTimeScaleRef.current?.() ?? 1)
 
       try {
         const acceleration = accelerationAtTimeRef.current
-          ? accelerationAtTimeRef.current(current, elapsedTimeRef.current, stepDt)
+          ? accelerationAtTimeRef.current(current, elapsedTimeRef.current, dt)
           : accelerationRef.current(current)
         const next = await stepperRef.current.step({
           state: current,
           acceleration,
-          dt: stepDt,
+          dt,
         })
         if (cancelled) {
           return
         }
-        elapsedTimeRef.current += stepDt
+        elapsedTimeRef.current += dt
         frameCount++
         const shouldStop = shouldStopRef.current?.(next) ?? false
         if (frameCount % 2 === 0 || shouldStop) {

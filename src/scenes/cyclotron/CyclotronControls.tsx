@@ -5,17 +5,17 @@ import { ControlSection } from '../../ui/controls/ControlSection'
 import type { CyclotronEnergyMode } from './trace'
 
 const energyModeOptions = [
-  { key: 'ignore-acceleration-time', label: '忽略加速时间' },
-  { key: 'include-acceleration-time', label: '考虑加速时间' },
+  { key: 'ignore-acceleration-time', label: '理想台阶' },
+  { key: 'include-acceleration-time', label: '仿真（含加速时间）' },
 ]
 
 type CyclotronControlsProps = {
   magneticFieldT: number
   onMagneticFieldChange: (value: number) => void
-  electricFieldVPerM: number
-  onElectricFieldChange: (value: number) => void
-  gapHalfWidthMm: number
-  onGapHalfWidthChange: (value: number) => void
+  gapVoltageKv: number
+  onGapVoltageChange: (value: number) => void
+  gapWidthCm: number
+  onGapWidthChange: (value: number) => void
   energyMode: CyclotronEnergyMode
   onEnergyModeChange: (value: CyclotronEnergyMode) => void
 }
@@ -23,10 +23,10 @@ type CyclotronControlsProps = {
 export function CyclotronControls({
   magneticFieldT,
   onMagneticFieldChange,
-  electricFieldVPerM,
-  onElectricFieldChange,
-  gapHalfWidthMm,
-  onGapHalfWidthChange,
+  gapVoltageKv,
+  onGapVoltageChange,
+  gapWidthCm,
+  onGapWidthChange,
   energyMode,
   onEnergyModeChange,
 }: CyclotronControlsProps) {
@@ -40,43 +40,43 @@ export function CyclotronControls({
           label="磁场 B"
           unit="T"
           min={0.5}
-          max={3}
+          max={1.5}
           step={0.1}
           value={magneticFieldT}
           onChange={onMagneticFieldChange}
         />
 
         <RangeField
-          id="cyc-e"
-          label="缝隙电场 E"
-          unit="V/m"
-          min={1e4}
-          max={2e5}
-          step={2000}
-          value={electricFieldVPerM}
-          onChange={onElectricFieldChange}
+          id="cyc-u"
+          label="加速电压峰值 U"
+          unit="kV"
+          min={20}
+          max={300}
+          step={10}
+          value={gapVoltageKv}
+          onChange={onGapVoltageChange}
         />
 
         <RangeField
           id="cyc-gap"
-          label="加速缝隙半宽 Δx"
-          unit="mm"
-          min={0.005}
-          max={0.02}
-          step={0.001}
-          value={gapHalfWidthMm}
-          onChange={onGapHalfWidthChange}
+          label="D 形盒缝隙宽度 d"
+          unit="cm"
+          min={1}
+          max={4}
+          step={0.5}
+          value={gapWidthCm}
+          onChange={onGapWidthChange}
         />
       </ControlSection>
 
-      <ControlSection title="能量模式">
+      <ControlSection title="Ek-t 曲线">
         <SegmentedControl
           options={energyModeOptions}
           value={energyMode}
           onChange={(key) => onEnergyModeChange(key as CyclotronEnergyMode)}
         />
         <ModelNote><p className="text-xs leading-5 text-slate-500">
-          此模式只切换封顶于理想圆轨道 Ek,max 的理论曲线；实时动能来自粒子仿真，强缝隙电场下可能暂时高于该参考值。D 形盒半径固定，轨道尺寸为示意。
+          「仿真」画出粒子仿真得到的动能：每次穿过缝隙的几纳秒内逐渐增加，且因交变电压已偏离峰值，每次略小于 qU。「理想台阶」是教材的简化：每半个周期瞬间增加 qU。
         </p></ModelNote>
       </ControlSection>
     </div>

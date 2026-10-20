@@ -2,6 +2,9 @@ import { Line } from '../../scene3d/ClassroomLine'
 import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
+import { SAMPLES_PER_TURN } from './run'
+
+const RECENT_TRAIL_POINTS = SAMPLES_PER_TURN
 import {
   DEE_LABEL_Y,
   INFO_LABEL_Y,
@@ -209,7 +212,14 @@ export function CyclotronRig3D({
       ))}
 
       {trailPoints.length > 1 ? (
-        <Line points={trailPoints} color="#7a3016" lineWidth={3.4} transparent opacity={0.95} />
+        <>
+          {/* A textbook-scale run makes ~40 turns: the whole spiral stays faint so it does not
+              merge into a disc, and the latest turn is drawn bold. */}
+          <Line points={trailPoints} color="#7a3016" lineWidth={1.1} transparent opacity={0.45} />
+          {trailPoints.length > RECENT_TRAIL_POINTS ? (
+            <Line points={trailPoints.slice(-RECENT_TRAIL_POINTS)} color="#7a3016" lineWidth={3.2} transparent opacity={0.95} />
+          ) : null}
+        </>
       ) : null}
 
       <mesh position={particlePoint}>
