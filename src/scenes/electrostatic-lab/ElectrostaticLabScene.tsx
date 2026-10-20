@@ -6,11 +6,11 @@ import { ElectrostaticLabRig3D } from './ElectrostaticLabRig3D'
 import { samplePotentialTerrainHeight } from './model'
 import {
   ELECTROSTATIC_LAB_SCENE_BOUNDS,
-  useElectrostaticLabState,
-} from './useElectrostaticLabState'
+  useElectrostaticLabSceneState,
+} from './useElectrostaticLabSceneState'
 
 export function ElectrostaticLabScene() {
-  const state = useElectrostaticLabState()
+  const state = useElectrostaticLabSceneState()
   const resolveFocusHeight = (point: { x: number; z: number }) =>
     state.displayMode === 'potential'
       ? samplePotentialTerrainHeight(state.terrain, ELECTROSTATIC_LAB_SCENE_BOUNDS, point) + 0.2

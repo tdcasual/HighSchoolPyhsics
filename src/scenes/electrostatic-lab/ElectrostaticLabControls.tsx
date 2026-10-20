@@ -9,8 +9,8 @@ import type { PresetKey } from './model'
 import {
   ELECTROSTATIC_LAB_CHARGE_LIMIT,
   ELECTROSTATIC_LAB_MAX_CHARGES,
-} from './useElectrostaticLabState'
-import type { ElectrostaticLabState } from './useElectrostaticLabState'
+} from './useElectrostaticLabSceneState'
+import type { ElectrostaticLabSceneState } from './useElectrostaticLabSceneState'
 
 const PRESET_OPTIONS: Array<{ key: PresetKey; label: string }> = [
   { key: 'single', label: '单点电荷' },
@@ -27,7 +27,7 @@ function formatNetCharge(netCharge: number): string {
 }
 
 type ElectrostaticLabControlsProps = {
-  state: ElectrostaticLabState
+  state: ElectrostaticLabSceneState
 }
 
 export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProps) {

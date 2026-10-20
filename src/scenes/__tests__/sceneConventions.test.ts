@@ -10,11 +10,13 @@ const sources = import.meta.glob<string>(['../*/*.ts', '../*/*.tsx', '!../*/*.te
 const scenes = new Map<string, string>()
 const chartFiles: Array<[string, string]> = []
 const sceneShells: Array<[string, string]> = []
+const fileNames = new Map<string, string[]>()
 for (const [path, text] of Object.entries(sources)) {
   const scene = path.split('/')[1]
   scenes.set(scene, (scenes.get(scene) ?? '') + '\n' + text)
   if (/Chart\.tsx$/.test(path)) chartFiles.push([path, text])
   if (/Scene\.tsx$/.test(path)) sceneShells.push([path, text])
+  fileNames.set(scene, [...(fileNames.get(scene) ?? []), path.split('/').pop() ?? ''])
 }
 
 /**
@@ -109,6 +111,15 @@ describe('scene conventions', () => {
   it('composes one view for every screen size (no phone or tablet camera branches in scene shells)', () => {
     const branched = sceneShells.filter(([, text]) => /MOBILE_BREAKPOINT|isTablet|innerWidth\s*<=/.test(text))
     expect(branched.map(([path]) => path)).toEqual([])
+  })
+
+  it('keeps the layered structure: useXxxSceneState + XxxControls + XxxScene', () => {
+    const missing = [...fileNames].flatMap(([scene, names]) =>
+      [/^use\w+SceneState\.ts$/, /^\w+Controls\.tsx$/, /^\w+Scene\.tsx$/]
+        .filter((pattern) => !names.some((name) => pattern.test(name)))
+        .map((pattern) => `${scene} ${pattern.source}`),
+    )
+    expect(missing).toEqual([])
   })
 
   it('shares viewport measuring and framing helpers instead of copying them', () => {

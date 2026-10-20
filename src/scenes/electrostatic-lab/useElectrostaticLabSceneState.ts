@@ -49,7 +49,7 @@ function nextChargeId(charges: ReadonlyArray<ElectrostaticCharge>, lastIssuedInd
   return `C${maxIndex + 1}`
 }
 
-export type ElectrostaticLabState = {
+export type ElectrostaticLabSceneState = {
   presetKey: PresetKey | 'custom'
   presetLabel: string
   charges: ElectrostaticCharge[]
@@ -87,7 +87,7 @@ export type ElectrostaticLabState = {
   deleteChargeById: (chargeId: string) => void
 }
 
-export function useElectrostaticLabState(): ElectrostaticLabState {
+export function useElectrostaticLabSceneState(): ElectrostaticLabSceneState {
   const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>(() => recall('electrostatic-lab.presetKey', 'dipole'))
   const [charges, setCharges] = useState<ElectrostaticCharge[]>(() => recall('electrostatic-lab.charges', () => clonePresetCharges('dipole')))
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')

@@ -1,84 +1,24 @@
-import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { DataRows } from '../../ui/panels/DataRows'
-import { useMemo, useState } from 'react'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { SegmentedControl } from '../../ui/controls/SegmentedControl'
-import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import {
-  buildPotentialSlicePoints,
-  POTENTIAL_DISPLAY_LIMIT,
-  POTENTIAL_DISPLAY_MIN_RADIUS,
-  POTENTIAL_FIELD_SCALE,
-  POTENTIAL_SURFACE_FULL_ANGLE,
-  summarizeSlice,
-} from './model'
+import { POTENTIAL_DISPLAY_LIMIT, POTENTIAL_DISPLAY_MIN_RADIUS, POTENTIAL_FIELD_SCALE } from './model'
+import { PotentialEnergyControls } from './PotentialEnergyControls'
 import { PotentialEnergyRig3D } from './PotentialEnergyRig3D'
-
-function resolveChargeLabel(chargeSign: 1 | -1): string {
-  return chargeSign > 0 ? '正电荷 (+)' : '负电荷 (-)'
-}
+import { usePotentialEnergySceneState } from './usePotentialEnergySceneState'
 
 export function PotentialEnergyScene() {
-  const [chargeSign, setChargeSign] = useState<1 | -1>(() => recall('potential-energy.chargeSign', 1))
-  useRemember('potential-energy', { chargeSign })
-  const [surfaceVisible, setSurfaceVisible] = useState(false)
-  const [rotationInProgress, setRotationInProgress] = useState(false)
-  const [sweepAngle, setSweepAngle] = useState(0.01)
-
-  const slicePoints = useMemo(() => buildPotentialSlicePoints(chargeSign), [chargeSign])
-  const sliceStats = useMemo(() => summarizeSlice(slicePoints), [slicePoints])
-
-  const startRotation = () => {
-    setSurfaceVisible(true)
-    setRotationInProgress(true)
-    setSweepAngle(0.01)
-  }
-
-  const resetScene = () => {
-    setSurfaceVisible(false)
-    setRotationInProgress(false)
-    setSweepAngle(0.01)
-  }
-
-  const toggleChargeSign = () => {
-    setChargeSign((value) => (value > 0 ? -1 : 1))
-    if (surfaceVisible && !rotationInProgress) {
-      setSweepAngle(POTENTIAL_SURFACE_FULL_ANGLE)
-    }
-  }
-
-  const chargeTypeLabel = resolveChargeLabel(chargeSign)
-  const sweepProgress = Math.min(100, (sweepAngle / POTENTIAL_SURFACE_FULL_ANGLE) * 100)
+  const state = usePotentialEnergySceneState()
+  const { sliceStats, surfaceVisible, rotationInProgress, sweepAngle } = state
 
   return (
     <SceneLayout
-      controls={
-        <div className="grid gap-[0.8rem]">
-          <h2>电势图控制</h2>
-
-          <ControlSection title="电荷极性">
-            <SegmentedControl
-              options={[
-                { key: 'positive', label: '正电荷 (+)' },
-                { key: 'negative', label: '负电荷 (-)' },
-              ]}
-              value={chargeSign > 0 ? 'positive' : 'negative'}
-              onChange={(key) => {
-                if ((key === 'positive' && chargeSign < 0) || (key === 'negative' && chargeSign > 0)) {
-                  toggleChargeSign()
-                }
-              }}
-            />
-          </ControlSection>
-        </div>
-      }
+      controls={<PotentialEnergyControls state={state} />}
       dataOverlay={
         <DataRows
           rows={[
-            { label: '当前电荷', value: chargeTypeLabel },
+            { label: '当前电荷', value: state.chargeSign > 0 ? '正电荷 (+)' : '负电荷 (-)' },
             { label: '相对电势显示范围', value: <>{sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</> },
-            { label: '旋转', value: surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始' },
+            { label: '旋转', value: surfaceVisible ? `${state.sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始' },
             { label: '切片', value: <>{sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</> },
           ]}
         />
@@ -95,10 +35,10 @@ export function PotentialEnergyScene() {
         {
           key: 'play',
           label: rotationInProgress ? '旋转中…' : surfaceVisible ? '重新旋转' : '旋转生成曲面',
-          onClick: startRotation,
+          onClick: state.startRotation,
           disabled: rotationInProgress,
         },
-        { key: 'reset', label: '重置', onClick: resetScene, disabled: !surfaceVisible },
+        { key: 'reset', label: '重置', onClick: state.reset, disabled: !surfaceVisible },
       ]}
       viewport={
         <FittedCanvas
@@ -109,16 +49,16 @@ export function PotentialEnergyScene() {
           frameloop={rotationInProgress ? 'always' : 'demand'}
         >
           <PotentialEnergyRig3D
-            chargeSign={chargeSign}
+            chargeSign={state.chargeSign}
             // Opens on the φ–r slice so there is something to discuss immediately; rotating builds the surface.
             sliceVisible
             surfaceVisible={surfaceVisible}
             rotationInProgress={rotationInProgress}
             sweepAngle={sweepAngle}
-            onSweepAngleChange={setSweepAngle}
-            onRotationComplete={() => setRotationInProgress(false)}
-            onChargeClick={toggleChargeSign}
-            slicePoints={slicePoints}
+            onSweepAngleChange={state.setSweepAngle}
+            onRotationComplete={state.completeRotation}
+            onChargeClick={state.toggleChargeSign}
+            slicePoints={state.slicePoints}
           />
         </FittedCanvas>
       }

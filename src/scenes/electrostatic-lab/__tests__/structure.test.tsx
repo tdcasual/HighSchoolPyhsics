@@ -29,9 +29,9 @@ vi.mock('../ElectrostaticLabRig3D', () => ({
   },
 }))
 
-vi.mock('../useElectrostaticLabState', () => ({
+vi.mock('../useElectrostaticLabSceneState', () => ({
   ELECTROSTATIC_LAB_SCENE_BOUNDS: 7,
-  useElectrostaticLabState: () => mockUseElectrostaticLabState(),
+  useElectrostaticLabSceneState: () => mockUseElectrostaticLabState(),
 }))
 
 import { ElectrostaticLabScene } from '../ElectrostaticLabScene'
