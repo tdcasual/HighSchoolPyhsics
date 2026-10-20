@@ -1,6 +1,7 @@
 import { DataRows } from '../../ui/panels/DataRows'
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { useViewportSize } from '../../scene3d/useViewportSize'
 import { useAppStore } from '../../store/useAppStore'
 import { formatScientific } from '../../core/formatNumber'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -21,36 +22,6 @@ import { CELESTIAL_CAMERA, celestialCamera, celestialPose, outerRadius } from '.
 import { useCelestialMotionSceneState } from './useCelestialMotionSceneState'
 import './celestial-motion.css'
 
-type ViewportSize = { left: number; width: number; height: number }
-
-function useViewportSize(ref: RefObject<HTMLDivElement | null>): ViewportSize {
-  const [size, setSize] = useState<ViewportSize>({ left: 0, width: 1280, height: 720 })
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    const update = () => {
-      const rect = element.getBoundingClientRect()
-      const width = rect.width || window.innerWidth
-      const height = rect.height || window.innerHeight
-      setSize((previous) =>
-        Math.abs(previous.left - rect.left) < 1 &&
-        Math.abs(previous.width - width) < 1 &&
-        Math.abs(previous.height - height) < 1
-          ? previous
-          : { left: rect.left, width, height },
-      )
-    }
-    update()
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
-    observer?.observe(element)
-    window.addEventListener('resize', update)
-    return () => {
-      observer?.disconnect()
-      window.removeEventListener('resize', update)
-    }
-  }, [ref])
-  return size
-}
 
 function conclusion(scenario: ReturnType<typeof useCelestialMotionSceneState>['scenario']) {
   if (scenario.mode === 'synchronous') {

@@ -61,6 +61,11 @@ describe('scene conventions', () => {
     expect(raw.map(([scene]) => scene)).toEqual([])
   })
 
+  it('shares viewport measuring and framing helpers instead of copying them', () => {
+    const copies = [...scenes].filter(([, text]) => /function (useViewportSize|freeRects|fitCameraDistance)\b/.test(text))
+    expect(copies.map(([scene]) => scene)).toEqual([])
+  })
+
   it('declares the data panel with DataRows', () => {
     const custom = [...scenes].filter(([, text]) => /dataOverlay=/.test(text) && !/<DataRows\b/.test(text))
     expect(custom.map(([scene]) => scene)).toEqual([])

@@ -3,7 +3,7 @@ import { DataRows } from '../../ui/panels/DataRows'
 import { cameraLimits, instrumentView } from '../../instruments/measuring/pose'
 import { shouldShowSpecimen, specimenSize } from '../../instruments/measuring/practice'
 import { MicrometerFigure } from '../../instruments/measuring/ReadingFigures'
-import { useInstrumentCamera } from '../../instruments/measuring/useInstrumentCamera'
+import { useFittedOrbitCamera } from '../../scene3d/useFittedOrbitCamera'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -20,7 +20,7 @@ export function MicrometerScene() {
   const showWork = shouldShowSpecimen(state)
   const workSize = specimenSize(state)
   const limits = cameraLimits('micrometer')
-  const camera = useInstrumentCamera(viewportRef, state.view, limits, (area) => instrumentView({
+  const camera = useFittedOrbitCamera(viewportRef, state.view, limits, (area) => instrumentView({
     ...area,
     tool: 'micrometer',
     mode: 'outer',

@@ -4,7 +4,7 @@ import { VERNIER_SPANS } from '../../instruments/measuring/model'
 import { cameraLimits, instrumentView } from '../../instruments/measuring/pose'
 import { shouldShowSpecimen, specimenSize } from '../../instruments/measuring/practice'
 import { CaliperFigure } from '../../instruments/measuring/ReadingFigures'
-import { useInstrumentCamera } from '../../instruments/measuring/useInstrumentCamera'
+import { useFittedOrbitCamera } from '../../scene3d/useFittedOrbitCamera'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -21,7 +21,7 @@ export function CaliperScene() {
   const showWork = shouldShowSpecimen(state)
   const workSize = specimenSize(state)
   const limits = cameraLimits('caliper')
-  const camera = useInstrumentCamera(viewportRef, `${state.measure}-${state.view}`, limits, (area) => instrumentView({
+  const camera = useFittedOrbitCamera(viewportRef, `${state.measure}-${state.view}`, limits, (area) => instrumentView({
     ...area,
     tool: 'caliper',
     mode: state.measure,

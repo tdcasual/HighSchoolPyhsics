@@ -1,8 +1,9 @@
 import { DataRows } from '../../ui/panels/DataRows'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { MicrometerFigure } from '../../instruments/measuring/ReadingFigures'
-import { useViewportSize } from '../../scene3d/useViewportSize'
-import { cameraLimits, fitCameraDistance, instrumentView, orbitPosition, type OrbitView, type ViewPreset } from '../../instruments/measuring/pose'
+import { fitOrbitView } from '../../scene3d/orbitFraming'
+import { useFittedOrbitCamera } from '../../scene3d/useFittedOrbitCamera'
+import { cameraLimits, instrumentView, type ViewPreset } from '../../instruments/measuring/pose'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CIRCUIT_CAMERA, circuitPose, circuitView, circuitWires } from './circuitPose'
@@ -20,64 +21,31 @@ import './resistivity.css'
 export function ResistivityScene() {
   const state = useResistivitySceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
-  const viewportSize = useViewportSize(viewportRef)
-  const [instrumentDragging, setInstrumentDragging] = useState(false)
-  const [dragView, setDragView] = useState<OrbitView | null>(null)
   const [showSecant, setShowSecant] = useState(true)
   const [showTangent, setShowTangent] = useState(false)
-  const currentView = useRef<OrbitView | null>(null)
   const sample = activeWire(state)
   const analysis = analysisOf(state)
   const diameterView = state.stage === 'diameter'
   const diameterReading = micrometerReading(indicatedGap(state))
   const limits = diameterView ? cameraLimits('micrometer') : CIRCUIT_CAMERA
-  const mobileViewport = viewportSize.width <= 767
-  const sidebarOffset = mobileViewport
-    ? 0
-    // Reserve the expanded sidebar: collapsing it later only uncovers more view, never re-frames.
-    : Math.max(0, 320 + 20 - viewportSize.left)
-  const panelReserve = mobileViewport ? 0 : diameterView ? 280 : state.stage === 'circuit' ? 260 : Math.min(548, viewportSize.width * 0.43)
-  const safeLeft = mobileViewport ? 12 : sidebarOffset + panelReserve + 24
-  const safeRight = Math.max(safeLeft + 1, viewportSize.width - 48)
-  const safeWidth = safeRight - safeLeft
-  const safeAspect = safeWidth / Math.max(1, viewportSize.height)
-  const centerOffsetPixels = (safeLeft + safeRight) / 2 - viewportSize.width / 2
   const ivMode = state.stage === 'iv'
-  const fittedView = diameterView
-    ? instrumentView({
-        tool: 'micrometer',
-        mode: 'outer',
-        preset: state.view,
-        caliperX: 0,
-        reading: state.gap + state.zero,
-        aspect: safeAspect,
-        centerOffsetPixels,
-        viewportHeight: viewportSize.height,
-      })
-    : (() => {
-        const base = circuitView(state.view as ViewPreset)
-        const radius = fitCameraDistance({
-          bounds: { min: [-38, -1, -20], max: [33, ivMode ? 12 : 15, 18] },
-          target: base.target,
-          azimuth: base.azimuth,
-          elevation: base.elevation,
-          fov: limits.fov,
-          aspect: safeAspect,
-          margin: 1.12,
-        })
-        return { ...base, radius: Math.max(base.radius, radius), screenOffset: [centerOffsetPixels, 0] as [number, number] }
-      })()
-  useLayoutEffect(() => {
-    currentView.current = fittedView
-  }, [fittedView])
-  const view = dragView ?? fittedView
-  const position = orbitPosition(view)
-  const maxDistance = Math.max(limits.maxDistance, Math.ceil(view.radius * 1.2))
-  const cameraFar = Math.max(limits.far, Math.ceil(maxDistance * 1.5))
-  const onInstrumentDragChange = useCallback((dragging: boolean) => {
-    setInstrumentDragging(dragging)
-    setDragView(dragging ? currentView.current : null)
-  }, [])
+  // Fitted into the largest uncovered area once per stage and view; panels then only cover it.
+  const camera = useFittedOrbitCamera(viewportRef, `${state.stage}-${state.view}`, limits, (area) => {
+    if (diameterView) {
+      return instrumentView({ ...area, tool: 'micrometer', mode: 'outer', preset: state.view, caliperX: 0, reading: state.gap + state.zero })
+    }
+    const base = circuitView(state.view as ViewPreset)
+    return fitOrbitView({
+      ...area,
+      bounds: { min: [-38, -1, -20], max: [33, ivMode ? 12 : 15, 18] },
+      anchor: base.target,
+      azimuth: base.azimuth,
+      elevation: base.elevation,
+      fov: limits.fov,
+      minDistance: base.radius,
+      margin: 1.12,
+    })
+  })
   const measuredResistance = state.voltmeterReading.reading > 0 && state.ammeterReading.reading > 0
     ? state.voltmeterReading.reading / state.ammeterReading.reading
     : null
@@ -177,18 +145,7 @@ export function ResistivityScene() {
         <div ref={viewportRef} className='h-full w-full'>
         <InteractiveCanvas
           key={`${state.stage}-${state.view}`}
-          camera={{ position, fov: limits.fov, near: limits.near, far: cameraFar }}
-          adaptiveFraming={false}
-          syncCamera
-          screenOffset={view.screenOffset}
-          controlsEnabled={!instrumentDragging}
-          controls={{
-            target: view.target,
-            minDistance: limits.minDistance,
-            maxDistance,
-            minPolarAngle: limits.minPolarAngle,
-            maxPolarAngle: limits.maxPolarAngle,
-          }}
+          {...camera.canvasProps}
           frameloop={state.animating ? 'always' : 'demand'}
         >
           <ResistivityRig3D
@@ -207,7 +164,7 @@ export function ResistivityScene() {
             voltmeterRange={voltmeterRange}
             ammeterDivision={ammeterSpec.division}
             voltmeterDivision={voltmeterSpec.division}
-            onInstrumentDragChange={onInstrumentDragChange}
+            onInstrumentDragChange={camera.onInstrumentDragChange}
           />
         </InteractiveCanvas>
         </div>

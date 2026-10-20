@@ -3,8 +3,8 @@ import { Answer } from '../../ui/notes/Answer'
 import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { fitCameraDistance, orbitPosition, type OrbitView } from '../../scene3d/orbitFraming'
-import { useViewportSize } from '../../scene3d/useViewportSize'
+import { fitOrbitView, type Bounds3 } from '../../scene3d/orbitFraming'
+import { useFittedOrbitCamera } from '../../scene3d/useFittedOrbitCamera'
 import { MeterAssembly } from './MeterAssembly'
 import { ReadingChart, RheostatChart, VoltAmmeterChart } from './MultimeterChart'
 import { MultimeterControls } from './MultimeterControls'
@@ -25,30 +25,25 @@ function formatReading(value: number | null, unit: string): string {
 export function MultimeterScene() {
   const state = useMultimeterSceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
-  const viewportSize = useViewportSize(viewportRef)
-  // Fit to the whole canvas; InteractiveCanvas's safe area moves the result clear of the panels.
-  const safeAspect = viewportSize.width / Math.max(1, viewportSize.height)
   const baseView = meterView(state.view)
-  const bounds = state.view === 'focus'
-    ? { min: [-8, 0, -10] as [number, number, number], max: [8, 20, 2] as [number, number, number] }
+  const bounds: Bounds3 = state.view === 'focus'
+    ? { min: [-8, 0, -10], max: [8, 20, 2] }
     : state.stage === 'convert'
-      ? { min: [-13, 0, -8] as [number, number, number], max: [16, 20, 20] as [number, number, number] }
+      ? { min: [-13, 0, -8], max: [16, 20, 20] }
       : state.stage === 'rheostat'
-        ? { min: [-18, 0, -8] as [number, number, number], max: [18, 18, 22] as [number, number, number] }
-        : { min: [-22, 0, -8] as [number, number, number], max: [22, 20, 22] as [number, number, number] }
-  const radius = fitCameraDistance({
+        ? { min: [-18, 0, -8], max: [18, 18, 22] }
+        : { min: [-22, 0, -8], max: [22, 20, 22] }
+  // Fitted into the largest uncovered area once per stage and view; panels then only cover it.
+  const camera = useFittedOrbitCamera(viewportRef, `${state.stage}-${state.view}`, METER_CAMERA, (area) => fitOrbitView({
+    ...area,
     bounds,
-    target: baseView.target,
+    anchor: baseView.target,
     azimuth: baseView.azimuth,
     elevation: baseView.elevation,
     fov: METER_CAMERA.fov,
-    aspect: safeAspect,
     minDistance: METER_CAMERA.minDistance,
     margin: state.view === 'focus' ? 1.06 : 1.12,
-  })
-  const view: OrbitView = { ...baseView, radius }
-  const maxDistance = Math.max(METER_CAMERA.maxDistance, Math.ceil(radius * 1.25))
-  const far = Math.max(METER_CAMERA.far, Math.ceil(maxDistance * 1.5))
+  }))
   const comparison = voltAmmeter({ Rx: 10 ** state.lgRx, RA: state.ammeterResistance, RV: state.voltmeterResistance, E: 3, Rs: 10 })
   const selectedComparison = comparison[state.contactMethod]
   const slide = state.rheostatResult
@@ -128,16 +123,7 @@ export function MultimeterScene() {
       viewport={
         <div ref={viewportRef} style={{ width: '100%', height: '100%' }}>
           <InteractiveCanvas
-            syncCamera
-            camera={{ position: orbitPosition(view), fov: METER_CAMERA.fov, near: METER_CAMERA.near, far }}
-            adaptiveFraming={false}
-            controls={{
-              target: view.target,
-              minDistance: METER_CAMERA.minDistance,
-              maxDistance,
-              minPolarAngle: METER_CAMERA.minPolarAngle,
-              maxPolarAngle: METER_CAMERA.maxPolarAngle,
-            }}
+            {...camera.canvasProps}
             frameloop="demand"
           >
             <MeterAssembly pose={pose} stage={state.stage} rheostatSlider={state.slider} rheostatMode={state.rheostatMode} rheostatClosed={state.rheostatClosed} rheostatCurrentFraction={secondaryFraction} rangeLabel={state.stage === 'convert' ? (state.convKind === 'V' ? state.convRange.toFixed(1) + ' V' : state.convRange.toFixed(2) + ' A') : state.rangeLabel} convKind={state.convKind} conversionConnected={state.convResistance !== null} secondaryFraction={secondaryFraction} />
