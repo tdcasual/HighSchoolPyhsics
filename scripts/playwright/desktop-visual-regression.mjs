@@ -133,6 +133,8 @@ async function run() {
       baseUrl,
       devPort,
       logPath: DEV_SERVER_LOG,
+      // PLAYWRIGHT_SERVER_MODE=preview serves the production build (run npm run build first).
+      mode: process.env.PLAYWRIGHT_SERVER_MODE || 'dev',
     },
     async () => {
       let browser = null

@@ -197,3 +197,15 @@
 ## 第十轮：删减场景（2026-10-20）
 
 按要求删除 10 个场景：抛体运动、圆周运动、机械能守恒、动量守恒、等量异种电荷电场线与等势面模型、奥斯特实验、回旋加速器核心结构与原理、交流发电机、单摆、光的折射与全反射（按专题视图编号 3、4、6、7、8、18、19、27、28、32），现为 27 个场景。没有场景的教材章节保留定义、导航中自动隐藏；失去配对的回旋加速器、发电机核心去掉「入门 / 进阶」标签。
+
+## 第十一轮：共享基础加强（2026-10-20，本地，未推送）
+
+| 事项 | 结果 |
+|---|---|
+| 模拟时钟 | `src/simulation/`：`useAnimationLoop`、`useSimulationClock`（播放/暂停/单步/慢放/固定子步/过程结束自动停）、`clockActions`、`useAnimatedState`、`useFixedStepper`；全部动画场景迁入，约定测试禁止手写时间循环 |
+| 数据面板 | `ui/panels/DataRows` 声明式行（结论 `answer`、条件 `when`），27 个场景全部改用；3D 示波器 X-Y 模式改为只列结论 |
+| 取景 | `scene3d/useFittedOrbitCamera`：电阻率、多用电表去掉写死的面板预留；天体运动去掉第三份视口钩子；约定测试禁止复制取景工具 |
+| 入口体积 | 总览页与快捷键帮助的样式随懒加载块加载：入口 CSS 64.7 → 55.5 kB；预算收紧为 JS 32 kB、CSS 60 kB |
+| InteractiveCanvas | 415 → 154 行，拆出 `useAdaptiveOrbit`、`CameraSynchronizer`、`cameraSync`、`testRuntime` |
+| 脚手架 | `scaffold:scene` 按现行架构生成（原生成器使用已不存在的属性），并自动登记目录与导航表 |
+| CI | 新增 interaction 任务：构建后用 `vite preview` 跑交互回归（开发服务器在 GitHub 运行器上不稳定）；像素级视觉回归保留在本机 |

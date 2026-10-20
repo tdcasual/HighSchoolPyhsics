@@ -164,7 +164,8 @@ async function checkMeasuringInstruments(context, baseUrl) {
 await mkdir(OUTPUT_DIR, { recursive: true })
 const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({ defaultBaseUrl: 'http://127.0.0.1:4185', env: process.env })
 
-await runWithManagedViteServer({ rootDir: ROOT_DIR, baseUrl, devPort, logPath: path.join(OUTPUT_DIR, 'vite-dev.log') }, async () => {
+// PLAYWRIGHT_SERVER_MODE=preview serves the production build (run npm run build first); CI uses it.
+await runWithManagedViteServer({ rootDir: ROOT_DIR, baseUrl, devPort, logPath: path.join(OUTPUT_DIR, 'vite-dev.log'), mode: process.env.PLAYWRIGHT_SERVER_MODE || 'dev' }, async () => {
   const browser = await chromium.launch({
     headless: true,
     executablePath: process.env.CHROME_PATH || undefined,

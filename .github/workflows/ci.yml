@@ -35,34 +35,44 @@ jobs:
       - name: Verify CI Gate
         run: npm run verify:ci
 
-  # NOTE: e2e job temporarily disabled — Vite dev server startup is flaky
-  # in GitHub Actions Ubuntu runners (esbuild child processes hang).
-  # verify:ci covers lint + test + build + bundle budget, which is sufficient
-  # for merge gating. Re-enable after switching E2E to vite preview or fixing
-  # the dev server spawn/cleanup logic.
-  #
-  # e2e:
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 15
-  #   needs: verify
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
-  #         cache: npm
-  #     - name: Install Dependencies
-  #       run: npm ci
-  #     - name: Install Playwright Chromium
-  #       run: npx playwright install --with-deps chromium
-  #     - name: End-to-End Tests
-  #       run: npm run test:e2e:ci
-  #     - name: Upload Playwright Artifacts
-  #       if: always()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: playwright-output
-  #         path: output/playwright
-  #         if-no-files-found: ignore
+  # Classroom interaction regression against the production build: every scene opens without
+  # page errors, 单步 moves the picture, playing scenes move, plus overview and instrument
+  # checks. It serves `vite preview` because the Vite dev server hangs on GitHub's Ubuntu
+  # runners. The pixel-level visual smoke test stays local (npm run test:visual-smoke): its
+  # baselines are rendered with the maintainer's Chrome and differ slightly on other machines.
+  interaction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: verify
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Interaction Regression
+        run: npm run test:interaction
+        env:
+          PLAYWRIGHT_SERVER_MODE: preview
+
+      - name: Upload Playwright Artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interaction-regression
+          path: output/playwright/interaction-regression
+          if-no-files-found: ignore
