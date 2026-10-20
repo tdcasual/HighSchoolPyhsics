@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import './shortcut-help.css'
 
 const SHORTCUT_GROUPS = [
   {
@@ -22,7 +23,8 @@ const SHORTCUT_GROUPS = [
     title: '通用',
     items: [
       { keys: ['空格'], desc: '演示页：播放 / 暂停' },
-      { keys: ['.'], desc: '演示页：单步（转 15°、走 T/4 或到下一次过缝）' },
+      { keys: ['.', '→'], desc: '演示页：单步（转 15°、走 T/4 或到下一次过缝），按住 → 连续' },
+      { keys: [',', '←'], desc: '演示页：后退一步（游标卡尺、螺旋测微器调一格）' },
       { keys: ['Esc'], desc: '关闭弹窗 / 退出讲解模式' },
     ],
   },

@@ -154,38 +154,6 @@
   background: var(--night-panel-bg);
 }
 
-.app-shell.theme-night .shortcut-help-panel {
-  background: var(--night-shortcut-bg);
-  border-color: var(--night-border-medium);
-}
-
-.app-shell.theme-night .shortcut-help-header h2 {
-  color: var(--shell-ink-night);
-}
-
-.app-shell.theme-night .shortcut-help-close {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .shortcut-help-close:hover {
-  background: var(--night-border);
-  color: var(--shell-ink-night);
-}
-
-.app-shell.theme-night .shortcut-help-group h3 {
-  color: var(--shell-ink-soft-night);
-}
-
-.app-shell.theme-night .shortcut-help-group li {
-  color: var(--shell-ink-night);
-}
-
-.app-shell.theme-night .shortcut-help-group kbd {
-  color: var(--shell-ink-night);
-  background: var(--night-border);
-  border-color: var(--night-border-strong);
-}
-
 .app-shell.theme-night .theme-toggle-icon {
   border-color: var(--night-border-medium);
   background: var(--night-action-bg);
@@ -298,19 +266,6 @@
   color: var(--shell-ink-muted-night);
 }
 
-/* ── Night Overview ── */
-.app-shell.theme-night .scene-overview {
-  --overview-bg: #0b0d12;
-  --overview-ink: #f1f5f9;
-  --overview-ink-soft: #cbd5e1;
-  --overview-ink-muted: #94a3b8;
-  --overview-border: rgba(255, 255, 255, 0.08);
-  --overview-card-bg: #141821;
-  --overview-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --overview-card-shadow-hover: 0 16px 36px rgba(0, 0, 0, 0.5);
-  --overview-thumb-bg: #1b202b;
-  --overview-chip-bg: rgba(15, 17, 21, 0.75);
-}
 
 .app-shell.theme-night .theme-switch {
   background: rgba(255, 255, 255, 0.04);

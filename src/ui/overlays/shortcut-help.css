@@ -1,0 +1,144 @@
+/* Shortcut help overlay: loaded with the lazily imported overlay, not the entry. */
+
+/* ═════════════════════════════════════════════════════════════════
+   Shortcut Help Overlay
+   ═════════════════════════════════════════════════════════════════ */
+
+.shortcut-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--day-overlay-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.shortcut-help-panel {
+  width: min(420px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--glass-bg-day, rgba(255, 255, 255, 0.92));
+  border: 1px solid var(--glass-border-outer-day, rgba(200, 210, 220, 0.45));
+  border-radius: 12px;
+  box-shadow: 0 16px 48px var(--day-shadow-strong);
+  padding: 1.25rem;
+}
+
+.shortcut-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.shortcut-help-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--shell-ink-day, #0f172a);
+}
+
+.shortcut-help-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--control-ink-muted, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcut-help-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--shell-ink-day, #0f172a);
+}
+
+.shortcut-help-group {
+  margin-bottom: 1rem;
+}
+
+.shortcut-help-group:last-child {
+  margin-bottom: 0;
+}
+
+.shortcut-help-group h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--control-ink-muted, #64748b);
+}
+
+.shortcut-help-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shortcut-help-group li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  font-size: 0.875rem;
+  color: var(--shell-ink-day, #0f172a);
+}
+
+.shortcut-help-group kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0.15rem 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--shell-ink-day, #0f172a);
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--day-border);
+  border-radius: 5px;
+  box-shadow: 0 1px 0 var(--day-border-soft);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.app-shell.theme-night .shortcut-help-panel {
+  background: var(--night-shortcut-bg);
+  border-color: var(--night-border-medium);
+}
+
+.app-shell.theme-night .shortcut-help-header h2 {
+  color: var(--shell-ink-night);
+}
+
+.app-shell.theme-night .shortcut-help-close {
+  color: var(--shell-ink-soft-night);
+}
+
+.app-shell.theme-night .shortcut-help-close:hover {
+  background: var(--night-border);
+  color: var(--shell-ink-night);
+}
+
+.app-shell.theme-night .shortcut-help-group h3 {
+  color: var(--shell-ink-soft-night);
+}
+
+.app-shell.theme-night .shortcut-help-group li {
+  color: var(--shell-ink-night);
+}
+
+.app-shell.theme-night .shortcut-help-group kbd {
+  color: var(--shell-ink-night);
+  background: var(--night-border);
+  border-color: var(--night-border-strong);
+}

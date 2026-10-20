@@ -7,6 +7,7 @@ import { NAVIGATION_VIEWS, findNavigationView, type NavigationViewId } from '../
 import { SegmentedControl } from '../ui/controls/SegmentedControl'
 import { useAppStore } from '../store/useAppStore'
 import { useOfflineReady } from '../app/offlineCache'
+import './navigation.css'
 
 export type NavigationPageProps = {
   routes: DemoRoute[]
