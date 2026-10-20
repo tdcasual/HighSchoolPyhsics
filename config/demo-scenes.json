@@ -954,5 +954,32 @@
       "readyText": "单摆控制",
       "screenshotName": "simple-pendulum"
     }
+  },
+  {
+    "pageId": "light-refraction",
+    "label": "光的折射与全反射",
+    "meta": {
+      "tag": "几何光学",
+      "summary": "折射定律、临界角与全反射，反射光与折射光的能量分配",
+      "highlights": [
+        "入射角连续增大观察全反射",
+        "空气、水、玻璃、金刚石"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "光的折射控制",
+      "screenshotName": "light-refraction"
+    }
   }
 ]

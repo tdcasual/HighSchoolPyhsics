@@ -114,8 +114,8 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     id: 'light',
     volumeId: 'elective-1',
     name: '第四章 光',
-    description: '光的干涉、薄膜干涉与衍射',
-    scenePageIds: ['double-slit', 'wedge-interference', 'diffraction', 'light-diffraction'],
+    description: '光的折射与全反射、干涉与衍射',
+    scenePageIds: ['light-refraction', 'double-slit', 'wedge-interference', 'diffraction', 'light-diffraction'],
   },
   {
     id: 'lorentz-force',

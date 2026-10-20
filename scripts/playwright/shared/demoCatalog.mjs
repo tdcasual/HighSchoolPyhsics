@@ -65,6 +65,7 @@ const SCENE_REGION_MAP = {
   'mechanical-energy': '力学',
   'momentum-collision': '力学',
   'simple-pendulum': '波动与振动',
+  'light-refraction': '波动与振动',
 }
 
 export function buildDemoCatalog(scenes) {

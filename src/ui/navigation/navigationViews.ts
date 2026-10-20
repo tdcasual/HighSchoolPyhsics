@@ -85,9 +85,9 @@ const TOPIC_GROUPS: NavigationGroup[] = [
   {
     id: 'optics',
     title: '光学',
-    description: '双缝与薄膜干涉、光的衍射',
+    description: '折射与全反射、双缝与薄膜干涉、光的衍射',
     color: '#7c3aed',
-    scenePageIds: ['double-slit', 'wedge-interference', 'diffraction', 'light-diffraction'],
+    scenePageIds: ['light-refraction', 'double-slit', 'wedge-interference', 'diffraction', 'light-diffraction'],
   },
   {
     id: 'thermal',
@@ -119,20 +119,7 @@ const LESSON_GROUPS: NavigationGroup[] = [
     title: '现象演示',
     description: '课堂上难以实际做或看不清的演示实验',
     color: '#db2777',
-    scenePageIds: [
-      'oersted',
-      'induction-current',
-      'electromagnetic-drive',
-      'alternator',
-      'cyclotron',
-      'mhd',
-      'oscilloscope',
-      'wave-interference',
-      'wedge-interference',
-      'diffraction',
-      'light-diffraction',
-      'ideal-gas-isochoric',
-    ],
+    scenePageIds: ['oersted', 'induction-current', 'electromagnetic-drive', 'alternator', 'cyclotron', 'mhd', 'oscilloscope', 'wave-interference', 'light-refraction', 'wedge-interference', 'diffraction', 'light-diffraction', 'ideal-gas-isochoric'],
   },
 ]
 
