@@ -41,7 +41,7 @@ describe('measuring-tools animation audit', () => {
   it('opens the instrument at 2.2 units per second', () => {
     const moving = stepMotion({ ...createMeasuringState(), caliperExplodeTarget: 1 }, 0.1)
     expect(moving.caliperExplode).toBeCloseTo(0.22, 8)
-    expect(caliperPose({ x: moving.caliperX, exploded: moving.caliperExplode, locked: false, mode: 'outer' }).frame[2]).toBeCloseTo(6.6, 6)
+    expect(caliperPose({ x: moving.caliperX, exploded: moving.caliperExplode, locked: false, mode: 'outer' }).frame[2]).toBeCloseTo(4.84, 6)
   })
 
   it('refuses to move a locked jaw and clicks when the fine thimble seats', () => {

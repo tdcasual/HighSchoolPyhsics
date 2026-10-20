@@ -42,6 +42,8 @@ export type MeasuringState = {
   view: ViewPreset
   hints: boolean
   showLabels: boolean
+  /** 自由调节: show a workpiece held between the jaws (its size follows the opening). */
+  freeWork: boolean
   caliperX: number
   /** Fixed specimen size, independent of the instrument opening while measuring. */
   workSize: number
@@ -59,6 +61,8 @@ export type MeasuringState = {
   target: number | null
   /** True after a practice question is issued and until settings/question are reset. */
   challengeActive: boolean
+  /** The view before a practice run zoomed to the scales; restored when the run ends. */
+  viewBeforePractice: ViewPreset | null
   lastCheckAt: number | null
   answer: string
   feedback: string
@@ -76,6 +80,7 @@ export function createMeasuringState(): MeasuringState {
     view: 'home',
     hints: true,
     showLabels: true,
+    freeWork: false,
     caliperX: 23.45,
     workSize: 23.45,
     caliperExplode: 0,
@@ -91,11 +96,12 @@ export function createMeasuringState(): MeasuringState {
     micClick: 0,
     target: null,
     challengeActive: false,
+    viewBeforePractice: null,
     lastCheckAt: null,
     answer: '',
     feedback: '',
     feedbackOk: null,
-    notice: '直接拖动尺框或微分筒，也可用滑块精确调节。输入目标读数后仪器会平滑移动。',
+    notice: '拖动尺框移动游标；上下拖微分筒表面可转动它（转一圈前进 0.5 mm），沿轴向拖可快速移动。播放面板的 ± 按钮或「.」键每次调一格。',
     history: [],
   }
 }
@@ -115,7 +121,16 @@ export function positionOf(state: MeasuringState): number {
 }
 
 export function shouldShowSpecimen(state: MeasuringState): boolean {
-  return state.lesson === 'read' && state.challengeActive
+  return (state.lesson === 'read' && state.challengeActive) || (state.lesson === 'free' && state.freeWork)
+}
+
+/** The specimen size: fixed for a reading question, held by the jaws in free adjustment. */
+export function specimenSize(state: MeasuringState): number {
+  return state.lesson === 'free' ? positionOf(state) : state.workSize
+}
+
+export function setFreeWork(state: MeasuringState, freeWork: boolean): MeasuringState {
+  return { ...state, freeWork }
 }
 
 export function indicatedOf(state: MeasuringState): number {
@@ -139,6 +154,20 @@ function clearedPractice(state: MeasuringState): MeasuringState {
   return { ...state, lastCheckAt: null, feedback: '', feedbackOk: null }
 }
 
+/** Ends a practice run: back to the view the teacher had before it zoomed to the scales. */
+function endPracticeView(state: MeasuringState): Pick<MeasuringState, 'view' | 'viewBeforePractice'> {
+  return { view: state.viewBeforePractice ?? state.view, viewBeforePractice: null }
+}
+
+/**
+ * Starts (or continues) a practice run. The whole-instrument view is too small to read the
+ * scales at classroom distance, so questions open on the scale close-up.
+ */
+function practiceView(state: MeasuringState): Pick<MeasuringState, 'view' | 'viewBeforePractice'> {
+  if (state.challengeActive) return { view: state.view, viewBeforePractice: state.viewBeforePractice }
+  return { view: 'focus', viewBeforePractice: state.view }
+}
+
 export function setTool(state: MeasuringState, tool: InstrumentTool): MeasuringState {
   const workSize = state.lesson === 'read' ? (tool === 'caliper' ? state.caliperX : state.micGap) : state.workSize
   return clearedPractice({
@@ -146,6 +175,7 @@ export function setTool(state: MeasuringState, tool: InstrumentTool): MeasuringS
     tool,
     workSize,
     challengeActive: false,
+    viewBeforePractice: null,
     target: null,
     answer: '',
     caliperAnim: null,
@@ -161,6 +191,7 @@ export function setLesson(state: MeasuringState, lesson: LessonMode): MeasuringS
     lesson,
     workSize: lesson === 'read' ? positionOf(state) : state.workSize,
     challengeActive: false,
+    ...endPracticeView(state),
     target: null,
     answer: '',
     caliperAnim: null,
@@ -436,6 +467,7 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
         caliperX,
         workSize: caliperX,
         challengeActive: true,
+        ...practiceView(state),
         caliperAnim: null,
         caliperLocked: false,
         answer: '',
@@ -450,6 +482,7 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
       micGap,
       workSize: micGap,
       challengeActive: true,
+      ...practiceView(state),
       micAnim: null,
       micLocked: false,
       answer: '',
@@ -465,6 +498,7 @@ export function newQuestion(state: MeasuringState, rng: () => number = Math.rand
     ...state,
     target,
     challengeActive: true,
+    ...practiceView(state),
     caliperAnim: null,
     micAnim: null,
     caliperLocked: false,

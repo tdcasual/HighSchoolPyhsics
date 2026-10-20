@@ -187,6 +187,13 @@ export function MeasuringToolsControls({ state }: { state: MeasuringToolsSceneSt
               label: state.showLabels ? "隐藏部件名称" : "显示部件名称",
               onClick: () => state.setShowLabels(!state.showLabels),
             },
+            ...(state.lesson === 'free'
+              ? [{
+                  key: 'work',
+                  label: state.freeWork ? '隐藏工件' : '显示工件',
+                  onClick: () => state.setFreeWork(!state.freeWork),
+                }]
+              : []),
           ]}
         />
       </ControlSection>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Ray, Vector3 } from 'three'
-import { axisDragDelta, createAxisDragPlane } from './axisDrag'
+import { axisDragDelta, createAxisDragPlane, thimbleTurn } from './axisDrag'
 
 function rayToCanvasPoint(x: number, y: number): Ray {
   return new Ray(new Vector3(x, y, 10), new Vector3(0, 0, -1))
@@ -28,5 +28,25 @@ describe('measuring-tool direct-axis dragging', () => {
   it('declines direct dragging when the scale axis is almost edge-on', () => {
     const drag = createAxisDragPlane(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 0, 1))
     expect(drag).toBeNull()
+  })
+})
+
+describe('micrometer thimble turning', () => {
+  it('advances one pitch per circumference of surface travel', () => {
+    const turn = thimbleTurn(new Vector3(30, 0, 7.1), 0.5)!
+    expect(turn.mmPerSurfaceMm * 2 * Math.PI * 7.1).toBeCloseTo(0.5)
+    // About 0.89 mm of surface per 0.01 mm division: big, easy-to-follow pointer motion.
+    expect(0.01 / turn.mmPerSurfaceMm).toBeCloseTo(0.892, 2)
+  })
+
+  it('turns toward a larger reading when the front surface moves down', () => {
+    // The thimble rotates about +x by 2π·reading/pitch, so the point facing the camera (+z) moves to −y.
+    const turn = thimbleTurn(new Vector3(30, 0, 7.1), 0.5)!
+    expect(turn.tangent.y).toBeCloseTo(-1)
+    expect(turn.tangent.z).toBeCloseTo(0)
+  })
+
+  it('declines points on the axis', () => {
+    expect(thimbleTurn(new Vector3(30, 0, 0), 0.5)).toBeNull()
   })
 })

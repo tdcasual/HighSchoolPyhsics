@@ -173,7 +173,7 @@ export function CaliperAssembly({
           <Workpiece measure={measure} size={workSize} />
         </group>
       ) : null}
-      {showLabels ? <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [118, 20, 2]}>主尺</PartLabel> : null}
+      {showLabels ? <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [200, 26, 2]}>主尺</PartLabel> : null}
       {showLabels && measure === 'inner' ? (
         <PartLabel position={[0, viewPreset === 'focus' ? 29 : 39, 4]}>固定内爪</PartLabel>
       ) : null}

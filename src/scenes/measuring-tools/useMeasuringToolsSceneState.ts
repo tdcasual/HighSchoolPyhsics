@@ -18,6 +18,7 @@ import {
   setMicGap,
   setMicZero,
   setShowLabels,
+  setFreeWork,
   setTool,
   setView,
   stepMotion,
@@ -46,6 +47,7 @@ export type MeasuringToolsSceneState = MeasuringState & {
   setView: (view: ViewPreset) => void
   setHints: (hints: boolean) => void
   setShowLabels: (showLabels: boolean) => void
+  setFreeWork: (freeWork: boolean) => void
   setAnswer: (answer: string) => void
   setCaliperX: (value: number) => void
   setMicGap: (value: number, source?: GapSource) => void
@@ -59,7 +61,7 @@ export type MeasuringToolsSceneState = MeasuringState & {
 }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
-const REMEMBERED_FIELDS = ['tool', 'lesson', 'divisions', 'measure', 'hints', 'showLabels', 'caliperX', 'workSize', 'micGap', 'micZero'] as const
+const REMEMBERED_FIELDS = ['tool', 'lesson', 'divisions', 'measure', 'hints', 'showLabels', 'freeWork', 'caliperX', 'workSize', 'micGap', 'micZero'] as const
 
 export function useMeasuringToolsSceneState(): MeasuringToolsSceneState {
   const [simulation, setSimulation] = useState(() => rememberFields('measuring-tools', createMeasuringState(), REMEMBERED_FIELDS))
@@ -130,6 +132,7 @@ export function useMeasuringToolsSceneState(): MeasuringToolsSceneState {
     setView: (view) => commit((state) => setView(state, view)),
     setHints: (hints) => commit((state) => setHints(state, hints)),
     setShowLabels: (showLabels) => commit((state) => setShowLabels(state, showLabels)),
+    setFreeWork: (freeWork) => commit((state) => setFreeWork(state, freeWork)),
     setAnswer: (answer) => commit((state) => setAnswer(state, answer)),
     setCaliperX: (value) => commit((state) => setCaliperX(state, value)),
     setMicGap: (value, source) => commit((state) => setMicGap(state, value, source)),

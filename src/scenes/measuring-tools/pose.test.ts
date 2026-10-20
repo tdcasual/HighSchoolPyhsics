@@ -24,7 +24,7 @@ describe('measuring-tools poses', () => {
     expect(closed.groundY).toBe(-62)
 
     const open = caliperPose({ x: 23.4, exploded: 0.5, locked: true, mode: 'depth' })
-    expect(open.frame).toEqual([23.4, 0, 15])
+    expect(open.frame).toEqual([23.4, -14, 11])
     expect(open.rodZ).toBeCloseTo(-23.05, 8)
     expect(open.screw[1]).toBe(26)
     expect(open.screwHeadRotationY).toBe(0.9)
@@ -187,14 +187,9 @@ describe('measuring-tools poses', () => {
     expect(focused.max[1]).toBeGreaterThanOrEqual(1)
   })
 
-  it('includes the maximum micrometer specimen in the focused camera bounds', () => {
-    const focused = instrumentBounds({
-      tool: 'micrometer', mode: 'outer', preset: 'focus', caliperX: 0, reading: 25, showWork: true, workSize: 25,
-    })
-    expect(focused.min[0]).toBeLessThanOrEqual(0)
-    expect(focused.max[0]).toBeGreaterThanOrEqual(25)
-    expect(focused.min[1]).toBeLessThan(-14)
-    expect(focused.max[1]).toBeGreaterThan(14)
+  it('keeps the micrometer scale close-up on the scales even with a specimen clamped', () => {
+    const input = { tool: 'micrometer', mode: 'outer', preset: 'focus', caliperX: 0, reading: 25, workSize: 25 } as const
+    expect(instrumentBounds({ ...input, showWork: true })).toEqual(instrumentBounds({ ...input, showWork: false }))
   })
 
   it('keeps a depth-scale close-up independent of the distant workpiece', () => {

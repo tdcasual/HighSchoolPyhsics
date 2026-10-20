@@ -72,6 +72,9 @@ export const MICROMETER_CAMERA = {
 } as const
 
 export const MICROMETER_ZERO_X = 44
+/** Caliper explode: the frame drops below the beam and comes forward, visible from the front. */
+export const CALIPER_EXPLODE_DROP = 28
+export const CALIPER_EXPLODE_FORWARD = 22
 export const CALIPER_INNER_CONTACT_Y = 31.5
 export const MICROMETER_REF_RAD = 28 * Math.PI / 180
 
@@ -84,7 +87,7 @@ export function caliperPose(input: {
   const exploded = input.exploded
   const depth = input.mode === 'depth'
   return {
-    frame: [input.x, 0, 30 * exploded],
+    frame: [input.x, 0 - CALIPER_EXPLODE_DROP * exploded, CALIPER_EXPLODE_FORWARD * exploded],
     rodZ: -1.05 - 44 * exploded,
     screw: [34, 20 + 12 * exploded, 0.2],
     screwHeadRotationY: input.locked ? 0.9 : 0,
@@ -210,17 +213,15 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
       const reading = Math.max(0, Math.min(25, input.reading))
       // The reading zone: sleeve graduations left of the thimble edge plus the thimble numbers.
       const edge = MICROMETER_ZERO_X + reading + 16 * explode
-      const scale = bounds([edge - 15, -9, -8], [edge + 13, 10, 8])
-      if (!input.showWork) return scale
-      const size = Math.max(0, Math.min(25, input.workSize ?? reading))
-      const workZ = -30 * explode
-      return mergeBounds(scale, bounds([0, -size / 2 - 2, workZ - 14], [size, size / 2 + 2, workZ + 14]))
+      // Scales only: practice questions open here, and a specimen up to 25 mm across would
+      // shrink the 0.01 mm graduations below what the back row can read.
+      return bounds([edge - 15, -9, -8], [edge + 13, 10, 8])
     }
 
     const explode = Math.max(0, Math.min(1, input.caliperExplode ?? 0))
     const read = Math.max(0, Math.min(150, input.caliperX))
     const span = input.vernierSpan ?? 19
-    let focused = bounds([read - 10, -18, -5 - 49 * explode], [read + span + 14, 33, 5 + 30 * explode])
+    let focused = bounds([read - 10, -18 - CALIPER_EXPLODE_DROP * explode, -5 - 49 * explode], [read + span + 14, 33, 5 + CALIPER_EXPLODE_FORWARD * explode])
     if (input.showWork && input.mode === 'inner') {
       const size = Math.max(0, Math.min(150, input.workSize ?? read))
       const outerRadius = size / 2 + 2.2
@@ -259,10 +260,10 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
   const explode = Math.max(0, Math.min(1, input.caliperExplode ?? 0))
   const read = Math.max(0, Math.min(150, input.caliperX))
   const zMin = -5 - 49 * explode
-  const zMax = 5 + 30 * explode
+  const zMax = 5 + CALIPER_EXPLODE_FORWARD * explode
   // The depth rod leaves the beam end (x = 215) by exactly the reading.
   const rodTip = 215 + read + 2
-  const main = bounds([-30, -44 - 12 * explode, zMin], [Math.max(CALIPER_RANGE_MM + 74, rodTip), 40 + 12 * explode, zMax])
+  const main = bounds([-30, -44 - CALIPER_EXPLODE_DROP * explode, zMin], [Math.max(CALIPER_RANGE_MM + 74, rodTip), 40 + 12 * explode, zMax])
   if (input.mode === 'depth') {
     let result = transformCaliperDepthBounds(main)
     if (input.showWork) {

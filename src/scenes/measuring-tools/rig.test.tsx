@@ -33,7 +33,7 @@ describe('measuring-tools rig', () => {
     const rod = elements.find((element) => element.props.name === 'caliper-rod')
     const root = elements.find((element) => element.props.name === 'caliper-root')
 
-    expect(frame?.props.position).toEqual([23.4, 0, 15])
+    expect(frame?.props.position).toEqual([23.4, -14, 11])
     expect(screw?.props.position).toEqual([34, 26, 0.2])
     expect(rod?.props.position).toEqual([132.5, 7.8, pose.rodZ])
     expect(root?.props.rotation).toEqual([0, 0, -Math.PI / 2])

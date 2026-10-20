@@ -101,7 +101,7 @@ describe('measuring-tools structure', () => {
   it('offers precision steps in free mode and snaps the caliper to the vernier precision', () => {
     render(<MeasuringToolsScene />)
     fireEvent.click(screen.getByRole('radio', { name: '10 分度' }))
-    fireEvent.click(screen.getByRole('button', { name: '+0.1 mm' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '+0.1 mm' })[0])
     expect(screen.getAllByText('23.6 mm').length).toBeGreaterThan(0)
   })
 
@@ -109,5 +109,25 @@ describe('measuring-tools structure', () => {
     render(<MeasuringToolsScene />)
     fireEvent.click(screen.getByRole('button', { name: '调到该读数' }))
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
+  })
+
+  it('fine steps one least count from the playback panel and the "." key', () => {
+    sessionStorage.clear()
+    render(<MeasuringToolsScene />)
+    const data = screen.getByRole('region', { name: '数据' })
+    const playback = screen.getByRole('region', { name: '播放控制' })
+    expect(within(data).getByText('23.45 mm')).toBeInTheDocument()
+    fireEvent.click(within(playback).getByRole('button', { name: '+0.05 mm' }))
+    expect(within(data).getByText('23.50 mm')).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: '.' })
+    expect(within(data).getByText('23.55 mm')).toBeInTheDocument()
+    fireEvent.click(within(playback).getByRole('button', { name: '−0.05 mm' }))
+    expect(within(data).getByText('23.50 mm')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: '螺旋测微器' }))
+    fireEvent.click(within(playback).getByRole('button', { name: '+0.01 mm' }))
+    expect(within(data).getByText('5.247 mm')).toBeInTheDocument()
+    fireEvent.click(within(playback).getByRole('button', { name: '锁紧' }))
+    expect(within(playback).getByRole('button', { name: '+0.01 mm' })).toBeDisabled()
   })
 })

@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei/web/Html'
 import type { BufferGeometry } from 'three'
-import { MICROMETER_RANGE_MM } from './model'
+import { MICROMETER_PITCH_MM, MICROMETER_RANGE_MM } from './model'
 import { createAxisDragHandlers } from './axisDrag'
 import { MICROMETER_BOW, MICROMETER_INSULATOR, RATCHET_GEOMETRY, SLEEVE_SCALE_GEOMETRY, THIMBLE_BODY_GEOMETRY, THIMBLE_CAP_GEOMETRY } from './instrumentGeometry'
 import type { MicrometerPose, ViewPreset } from './pose'
@@ -103,6 +103,7 @@ export function MicrometerAssembly({
         onValueChange: onMicGapChange,
         onDraggingChange: onInstrumentDragChange,
         onLockedAttempt: () => onMicGapChange(gap),
+        turnPitchMm: MICROMETER_PITCH_MM,
       })
     : {}
   const labelPositions: Array<{ label: string; position: [number, number, number] }> = viewPreset === 'focus'
@@ -114,10 +115,11 @@ export function MicrometerAssembly({
         { label: '测砧', position: [pose.anvilTipX - 12, 8, 8] },
         { label: '测微螺杆', position: [pose.spindleX - 14, 10, 8] },
         { label: '锁紧装置', position: [pose.lock[0] - 6, 15, -8] },
-        { label: '固定刻度', position: [pose.thimbleX - 7, 12, 6] },
-        { label: '微分筒', position: [pose.thimbleX + 19, 13, 0] },
-        { label: '棘轮', position: [pose.thimbleX + 34, 9, 0] },
-        { label: '可动刻度', position: [pose.thimbleX + 3, -12, 6] },
+        // Scale names below the barrel, part names above, so the top row is not crowded.
+        { label: '固定刻度', position: [pose.thimbleX - 12, -11, 6] },
+        { label: '微分筒', position: [pose.thimbleX + 12, 13, 0] },
+        { label: '棘轮', position: [pose.thimbleX + 36, 10, 0] },
+        { label: '可动刻度', position: [pose.thimbleX + 9, -12, 6] },
       ]
 
   return (

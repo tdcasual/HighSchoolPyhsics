@@ -173,6 +173,7 @@ function MicrometerFigure({ reading, zero, reveal, click }: { reading: number; z
         <line x1={sleeveStart} y1={sleeveTop} x2={sleeveStart} y2={sleeveBottom} stroke={INK} strokeWidth="1.4" />
       ) : null}
       <line data-testid="sleeve-datum" x1={sleeveStart} y1={datum} x2={edgeX} y2={datum} stroke={INK} strokeWidth="1.5" />
+      {/* A figure the thimble would half cover is left out rather than drawn cut off. */}
       {visibleMarks.map((half) => {
         const integer = half % 2 === 0
         const x = map(half / 2)
@@ -188,7 +189,7 @@ function MicrometerFigure({ reading, zero, reveal, click }: { reading: number; z
               stroke={hot ? HIGHLIGHT : INK}
               strokeWidth={hot ? 2.6 : 1.5}
             />
-            {integer && (half / 2) % 5 === 0 ? (
+            {integer && (half / 2) % 5 === 0 && x + String(half / 2).length * 5.5 + 1 < edgeX ? (
               <text x={x} y={datum - 24} textAnchor="middle" fontSize="20" fill={INK}>{half / 2}</text>
             ) : null}
           </g>
@@ -215,7 +216,8 @@ function MicrometerFigure({ reading, zero, reveal, click }: { reading: number; z
                 stroke={hot ? HIGHLIGHT : INK}
                 strokeWidth={hot ? 2.6 : 1.5}
               />
-              {major ? (
+              {/* Only whole numbers: a figure half cut by the thimble outline reads as another value. */}
+              {major && y - 13 >= thimbleTop && y + 6 <= thimbleBottom ? (
                 <text x={edgeX + 38} y={y + 6} fontSize="18" fill={INK}>{label}</text>
               ) : null}
             </g>
