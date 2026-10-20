@@ -77,10 +77,10 @@ const TOPIC_GROUPS: NavigationGroup[] = [
   },
   {
     id: 'waves',
-    title: '机械波与电磁波',
-    description: '波的传播与干涉，电磁波的正交关系',
+    title: '振动与波',
+    description: '单摆、波的传播与干涉，电磁波的正交关系',
     color: '#14b8a6',
-    scenePageIds: ['wave-state', 'wave-interference', 'orthogonal-em-wave'],
+    scenePageIds: ['simple-pendulum', 'wave-state', 'wave-interference', 'orthogonal-em-wave'],
   },
   {
     id: 'optics',
@@ -105,7 +105,7 @@ const LESSON_GROUPS: NavigationGroup[] = [
     title: '学生实验',
     description: '教材要求的分组实验：仪器使用、读数与数据处理',
     color: '#0891b2',
-    scenePageIds: ['measuring-tools', 'ticker-timer', 'cart-velocity', 'resistivity', 'multimeter', 'momentum-collision', 'double-slit'],
+    scenePageIds: ['measuring-tools', 'ticker-timer', 'cart-velocity', 'resistivity', 'multimeter', 'momentum-collision', 'simple-pendulum', 'double-slit'],
   },
   {
     id: 'models',

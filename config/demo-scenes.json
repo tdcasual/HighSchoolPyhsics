@@ -927,5 +927,32 @@
       "readyText": "动量守恒控制",
       "screenshotName": "momentum-collision"
     }
+  },
+  {
+    "pageId": "simple-pendulum",
+    "label": "单摆",
+    "meta": {
+      "tag": "机械振动",
+      "summary": "单摆的回复力、周期公式与大摆角修正，地球与月球对比",
+      "highlights": [
+        "T = 2π√(L/g) 与质量无关",
+        "实测周期与公式对照"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "单摆控制",
+      "screenshotName": "simple-pendulum"
+    }
   }
 ]

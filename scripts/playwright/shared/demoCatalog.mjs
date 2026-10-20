@@ -64,6 +64,7 @@ const SCENE_REGION_MAP = {
   'circular-motion': '力学',
   'mechanical-energy': '力学',
   'momentum-collision': '力学',
+  'simple-pendulum': '波动与振动',
 }
 
 export function buildDemoCatalog(scenes) {

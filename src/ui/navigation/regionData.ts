@@ -97,6 +97,13 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     scenePageIds: ['momentum-collision'],
   },
   {
+    id: 'oscillation',
+    volumeId: 'elective-1',
+    name: '第二章 机械振动',
+    description: '简谐运动与单摆',
+    scenePageIds: ['simple-pendulum'],
+  },
+  {
     id: 'mechanical-waves',
     volumeId: 'elective-1',
     name: '第三章 机械波',
