@@ -76,9 +76,9 @@ describe('App shell', () => {
 
     fireEvent.click(screen.getByRole('radio', { name: '按课型' }))
     expect(screen.getByRole('heading', { level: 2, name: '学生实验' })).toBeInTheDocument()
-    // 1 follows the visible numbering: card 01 of 按课型 is the measuring tools.
+    // 1 follows the visible numbering: card 01 of 按课型 is the first experiment in teaching order.
     fireEvent.keyDown(window, { key: '1' })
-    expect(window.location.pathname).toBe('/measuring-tools')
+    expect(window.location.pathname).toBe('/ticker-timer')
     useAppStore.setState({ navView: 'textbook' })
   })
 

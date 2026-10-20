@@ -29,45 +29,6 @@ export function parseSceneCatalog() {
   return parsed
 }
 
-const SCENE_REGION_MAP = {
-  oscilloscope: '波动与振动',
-  'double-slit': '波动与振动',
-  'wedge-interference': '波动与振动',
-  'wave-interference': '波动与振动',
-  'light-diffraction': '波动与振动',
-  diffraction: '波动与振动',
-  'oscilloscope-3d': '波动与振动',
-  'wave-state': '波动与振动',
-  cyclotron: '电磁学',
-  mhd: '电磁感应',
-  oersted: '电磁学',
-  equipotential: '静电学',
-  'potential-energy': '静电学',
-  'electrostatic-lab': '静电学',
-  'induction-current': '电磁感应',
-  'motional-emf': '电磁感应',
-  'electromagnetic-drive': '电磁感应',
-  'rotational-emf': '电磁感应',
-  alternator: '电磁感应',
-  'generator-core': '电磁感应',
-  'cyclotron-core': '电磁学',
-  'orthogonal-em-wave': '电磁学',
-  'measuring-tools': '电磁学',
-  resistivity: '电磁学',
-  multimeter: '电磁学',
-  'ticker-timer': '力学',
-  'ideal-gas-isochoric': '热学',
-  'equipotential-dipole': '静电学',
-  'cart-velocity': '力学',
-  'celestial-motion': '力学',
-  'projectile-motion': '力学',
-  'circular-motion': '力学',
-  'mechanical-energy': '力学',
-  'momentum-collision': '力学',
-  'simple-pendulum': '波动与振动',
-  'light-refraction': '波动与振动',
-}
-
 export function buildDemoCatalog(scenes) {
   if (!Array.isArray(scenes)) {
     throw new Error('config/demo-scenes.json must be an array')
@@ -101,16 +62,10 @@ export function buildDemoCatalog(scenes) {
     assertNonBlankText(scene.playwright.readyText, `${sceneField}.playwright.readyText`)
     assertNonBlankText(scene.playwright.screenshotName, `${sceneField}.playwright.screenshotName`)
 
-    const regionName = SCENE_REGION_MAP[scene.pageId]
-    if (!regionName) {
-      throw new Error(`Unknown region for scene "${scene.pageId}"`)
-    }
-
     return {
       pageId: scene.pageId,
       path: `/${scene.pageId}`,
       label: scene.label,
-      regionName,
       readyText: scene.playwright.readyText,
       screenshotName: scene.playwright.screenshotName,
     }

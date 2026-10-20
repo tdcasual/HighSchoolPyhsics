@@ -73,7 +73,7 @@
 4a. 结论读数包 `<Answer>`；计算类场景加「已知」行；快速过程传 `timeControl` 并在循环中使用 `getPlaybackRate()`。
 4b. 3D 线条从 `scene3d/ClassroomLine` 引入 `Line`（课堂大字时自动加粗）。
 4b2. 新场景的图表优先用 `ui/charts/LineChart`，3D 矢量用 `scene3d/VectorArrow`（标签自动避开箭头）。
-4c. 导航页有三种视图（按教材 / 按专题 / 按课型，记住上次选择）和搜索（快捷键 /）。新场景须在 `ui/navigation/regionData.ts` 的教材章节，以及 `ui/navigation/navigationViews.ts` 的专题与课型中各登记一次（组内按教学顺序；测试会检查每个视图恰好覆盖全部场景），并运行 `npm run thumbnails -- <pageId>` 生成缩略图。卡片编号与 1–9 快捷键跟随当前视图。
+4c. 导航页有三种视图（按教材 / 按专题 / 按课型，记住上次选择）和搜索（快捷键 /）。新场景只需在 `config/demo-scenes.json` 加条目，并在 `ui/navigation/sceneNavigation.ts` 按教材教学顺序加一行（章节、专题、课型）；三个视图的分组都由这张表生成，组内统一按教学顺序（测试检查表与目录一致、分组存在），并运行 `npm run thumbnails -- <pageId>` 生成缩略图。卡片编号与 1–9 快捷键跟随当前视图。
 4d. 首页按需加载：导航页与快捷键帮助为懒加载，首页不预加载 three.js / R3F（`check:homepage-preload` 会拦截）；入口 JS 预算 35 kB。
 5. 相机居中构图即可，交给安全区避让面板；如场景自行计算避让（如测量工具按读数区缩放），传 `screenOffset`，安全区会自动让位。
 6. 默认状态应可直接讲解，不要求教师先点若干步骤。

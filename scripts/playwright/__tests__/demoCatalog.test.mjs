@@ -17,7 +17,6 @@ describe('playwright demo catalog', () => {
   it('includes required UI selectors for each demo', () => {
     for (const demo of DEMO_CATALOG) {
       expect(demo.label.trim().length).toBeGreaterThan(0)
-      expect(demo.regionName.trim().length).toBeGreaterThan(0)
       expect(demo.readyText.trim().length).toBeGreaterThan(0)
       expect(demo.path.startsWith('/')).toBe(true)
     }
