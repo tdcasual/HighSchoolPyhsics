@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CALIPER_RANGE_MM, MAIN_SCALE_END_MM, caliperReading, checkCaliper, checkMicrometer, micrometerReading } from './model'
 
-describe('measuring-tools readings', () => {
+describe('measuring instrument readings', () => {
   it('reads a 20-division caliper without estimating an extra digit', () => {
     const reading = caliperReading(12.35, 20)
     expect(reading.value).toBe(12.35)

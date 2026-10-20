@@ -28,7 +28,8 @@ const NO_STEP: Record<string, string> = {
 const hasPlayAction = (text: string) => /key:\s*'(play|toggle-running)'/.test(text)
 const hasStepAction = (text: string) => /key:\s*'step'/.test(text)
 const hasTeacherParameters = (text: string) => /<(RangeField|SegmentedControl|TextField)\b/.test(text)
-const remembersParameters = (text: string) => /\b(recall|rememberFields)\(/.test(text)
+// usePracticeState (shared by the measuring instruments) remembers through rememberFields.
+const remembersParameters = (text: string) => /\b(recall|rememberFields)\(|\busePracticeState\b/.test(text)
 
 describe('scene conventions', () => {
   it('finds the scenes', () => {

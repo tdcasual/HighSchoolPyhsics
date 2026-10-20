@@ -37,7 +37,7 @@ describe('App shell', () => {
       expect(screen.getByRole('heading', { level: 2, name: chapter })).toBeInTheDocument()
     }
     // …and every scene is listed exactly once
-    expect(screen.getAllByRole('button', { name: /游标卡尺与螺旋测微器/ })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: /^游标卡尺/ })).toHaveLength(1)
   })
 
   it('supports day/night mode across the app shell', () => {

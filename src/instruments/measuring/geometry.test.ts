@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { micrometerBowPoints, revolvePoint } from './geometry'
 
-describe('measuring-tools geometry frame', () => {
+describe('measuring instrument geometry frame', () => {
   it('starts the micrometer bow at 168 degrees on the outer radius', () => {
     const points = micrometerBowPoints()
     const angle = 168 * Math.PI / 180

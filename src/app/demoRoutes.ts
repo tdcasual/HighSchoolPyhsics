@@ -132,6 +132,11 @@ export const DEMO_ROUTES: DemoRoute[] = DEMO_SCENE_DEFINITIONS.map((definition) 
   }
 })
 
+/** Scenes that were split or renamed: old bookmarks keep working. */
+const LEGACY_PATHS: Record<string, string> = {
+  '/measuring-tools': '/vernier-caliper',
+}
+
 export function normalizeDemoPath(pathname: unknown): string {
   if (typeof pathname !== 'string') {
     return '/'
@@ -141,8 +146,9 @@ export function normalizeDemoPath(pathname: unknown): string {
     return '/'
   }
 
-  const normalized = pathname.replace(/\/+$/, '')
-  return normalized.startsWith('/') ? normalized : `/${normalized}`
+  const trimmed = pathname.replace(/\/+$/, '')
+  const normalized = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return LEGACY_PATHS[normalized] ?? normalized
 }
 
 export function findDemoRoute(pathname: string): DemoRoute | null {

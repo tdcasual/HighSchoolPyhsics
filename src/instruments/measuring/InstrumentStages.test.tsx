@@ -3,7 +3,7 @@ import { Children, isValidElement } from 'react'
 import { describe, expect, it } from 'vitest'
 import { CaliperAssembly, CaliperDepthWork } from './CaliperAssembly'
 import { MicrometerAssembly } from './MicrometerAssembly'
-import { CaliperStage } from './MeasuringToolsRig3D'
+import { CaliperStage } from './InstrumentStages'
 import { caliperPose, micrometerPose } from './pose'
 
 type SceneElement = ReactElement<Record<string, unknown>>
@@ -22,7 +22,7 @@ function collectElements(node: ReactNode): SceneElement[] {
   return elements
 }
 
-describe('measuring-tools rig', () => {
+describe('instrument stages', () => {
   it('drives the caliper frame, screw and depth root from the shared pose', () => {
     const pose = caliperPose({ x: 23.4, exploded: 0.5, locked: true, mode: 'depth' })
     const elements = collectElements(
@@ -40,16 +40,11 @@ describe('measuring-tools rig', () => {
     expect(root?.props.position).toEqual([0, 215, 0])
 
     const depth = collectElements(CaliperStage({
-      tool: 'caliper',
       divisions: 20,
       measure: 'depth',
       caliperX: 23.4,
       caliperExplode: 0.5,
       caliperLocked: true,
-      micGap: 0,
-      micZero: 0,
-      micExplode: 0,
-      micLocked: false,
       showWork: true,
       showLabels: false,
       workSize: 23.4,

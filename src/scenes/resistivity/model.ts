@@ -1,4 +1,4 @@
-import { clamp, roundTo } from '../measuring-tools/model'
+import { clamp, roundTo } from '../../instruments/measuring/model'
 
 export type MeterKey = 'A06' | 'A3' | 'V3' | 'V15'
 export type MaterialKey = 'iron' | 'manganin' | 'constantan' | 'nichrome'

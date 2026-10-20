@@ -3,8 +3,8 @@
 //   - every scene opens without page errors, shows the data panel, and its
 //     单步 (button and "." key) changes the picture and then holds still;
 //   - overview: search and the 1–9 shortcuts;
-//   - measuring tools: dragging the thimble turns it, one-click fine steps, practice opens on
-//     the scale close-up.
+//   - measuring instruments: the legacy link, one-click and arrow-key fine steps, practice opens
+//     on the scale close-up, dragging the thimble turns it.
 //   npm run test:interaction              all checks
 //   npm run test:interaction -- mhd       scene checks for selected scenes only
 // Set CHROME_PATH to use a system Chrome instead of Playwright's bundled browser.
@@ -100,21 +100,37 @@ async function checkOverview(context, baseUrl) {
   }
 }
 
-async function checkMeasuringTools(context, baseUrl) {
-  const { page } = await freshPage(context, `${baseUrl}/measuring-tools`)
-  const data = page.getByRole('region', { name: '数据' })
-  const reading = async () => readingOf(await data.innerText())
+async function checkMeasuringInstruments(context, baseUrl) {
+  // The old combined scene's URL still opens the caliper.
+  let { page } = await freshPage(context, `${baseUrl}/measuring-tools`)
+  const reading = async () => readingOf(await page.getByRole('region', { name: '数据' }).innerText())
   try {
+    await page.getByText('游标卡尺控制').first().waitFor({ timeout: 20000 })
+    check(true, 'vernier-caliper: the legacy /measuring-tools link opens it')
     await page.waitForSelector('canvas', { timeout: 20000 })
     await page.waitForTimeout(1500)
-    const caliperStart = await reading()
+    const start = await reading()
     await page.getByRole('region', { name: '播放控制' }).getByRole('button', { name: '+0.05 mm' }).click()
-    check(Math.abs((await reading()) - caliperStart - 0.05) < 1e-6, 'measuring-tools: +0.05 mm moves the vernier one least count')
+    await page.keyboard.press('ArrowRight')
+    check(Math.abs((await reading()) - start - 0.1) < 1e-6, 'vernier-caliper: +0.05 mm and → each move one least count')
+    await page.getByRole('radio', { name: '读数练习', exact: true }).click()
+    await page.getByRole('button', { name: '出题', exact: true }).click()
+    check(await page.getByRole('radio', { name: '刻度', exact: true }).isChecked(), 'vernier-caliper: a question opens on the scale close-up')
+    await page.getByRole('button', { name: '结束本题并返回自由调节', exact: true }).click()
+    check(await page.getByRole('radio', { name: '全景', exact: true }).isChecked(), 'vernier-caliper: ending practice restores the view')
+  } catch (error) {
+    check(false, `vernier-caliper: ${error instanceof Error ? error.message.split('\n')[0] : error}`)
+    await page.screenshot({ path: path.join(OUTPUT_DIR, 'vernier-caliper-failure.png') })
+  } finally {
+    await page.close()
+  }
 
-    await page.getByRole('radio', { name: '螺旋测微器', exact: true }).click()
+  ;({ page } = await freshPage(context, `${baseUrl}/micrometer`))
+  try {
+    await page.waitForSelector('canvas', { timeout: 20000 })
     await page.getByRole('radio', { name: '刻度', exact: true }).click()
     await page.waitForTimeout(1500)
-    const micStart = await reading()
+    const start = await reading()
     // The scale close-up puts the thimble at the right of the free area; drag down across it.
     const box = await page.locator('canvas').first().boundingBox()
     const x = box.x + box.width * 0.9
@@ -123,19 +139,12 @@ async function checkMeasuringTools(context, baseUrl) {
     await page.mouse.down()
     await page.mouse.move(x, y + 80, { steps: 12 })
     await page.mouse.up()
-    const turned = (await reading()) - micStart
+    const turned = (await reading()) - start
     // About 23 px per division in the close-up: 80 px is a few divisions; a slide would be millimetres.
-    check(turned > 0.02 && turned < 0.2, `measuring-tools: dragging the thimble down turns it (+${turned.toFixed(3)} mm)`)
-
-    await page.getByRole('radio', { name: '全景', exact: true }).click()
-    await page.getByRole('radio', { name: '读数练习', exact: true }).click()
-    await page.getByRole('button', { name: '出题', exact: true }).click()
-    check(await page.getByRole('radio', { name: '刻度', exact: true }).isChecked(), 'measuring-tools: a question opens on the scale close-up')
-    await page.getByRole('button', { name: '结束本题并返回自由调节', exact: true }).click()
-    check(await page.getByRole('radio', { name: '全景', exact: true }).isChecked(), 'measuring-tools: ending practice restores the view')
+    check(turned > 0.02 && turned < 0.2, `micrometer: dragging the thimble down turns it (+${turned.toFixed(3)} mm)`)
   } catch (error) {
-    check(false, `measuring-tools: ${error instanceof Error ? error.message.split('\n')[0] : error}`)
-    await page.screenshot({ path: path.join(OUTPUT_DIR, 'measuring-tools-failure.png') })
+    check(false, `micrometer: ${error instanceof Error ? error.message.split('\n')[0] : error}`)
+    await page.screenshot({ path: path.join(OUTPUT_DIR, 'micrometer-failure.png') })
   } finally {
     await page.close()
   }
@@ -154,7 +163,7 @@ await runWithManagedViteServer({ rootDir: ROOT_DIR, baseUrl, devPort, logPath: p
     const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
     if (requested.length === 0) {
       await checkOverview(context, baseUrl)
-      await checkMeasuringTools(context, baseUrl)
+      await checkMeasuringInstruments(context, baseUrl)
     }
     for (const demo of scenes) await checkScene(context, baseUrl, demo)
   } finally {

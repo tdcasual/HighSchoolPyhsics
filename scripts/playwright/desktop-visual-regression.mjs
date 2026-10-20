@@ -19,6 +19,8 @@ const DIFF_DIR = path.join(OUTPUT_DIR, 'diff')
 const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
 const BASELINE_DIR = path.join(ROOT_DIR, 'scripts/playwright/baseline/desktop')
 const UPDATE_BASELINE = process.argv.includes('--update-baseline')
+// Optional page ids (or "overview") to limit the run, e.g. after adding a scene.
+const ONLY = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 
 const VISUAL_PIXEL_THRESHOLD = Number(process.env.VISUAL_PIXEL_THRESHOLD ?? 0.2)
 const VISUAL_MAX_MISMATCH_RATIO = Number(process.env.VISUAL_MAX_MISMATCH_RATIO ?? 0.04)
@@ -153,7 +155,7 @@ async function run() {
 
         const page = await context.newPage()
 
-        for (const scenario of SCENARIOS) {
+        for (const scenario of SCENARIOS.filter((item) => ONLY.length === 0 || ONLY.includes(item.id))) {
           const url = `${baseUrl}${scenario.path === '/' ? '' : scenario.path}`
           await page.goto(url, { waitUntil: 'domcontentloaded' })
           // Opening state, not whatever the previous run remembered.

@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../measuring-tools/pose'
+import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
 
 export type WireColor = 'red' | 'black' | 'orange' | 'blue'
 export type WireLink = [string, string, WireColor, number?]

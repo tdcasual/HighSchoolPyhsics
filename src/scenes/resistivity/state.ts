@@ -1,4 +1,4 @@
-import { easeInOutQuad, goToDuration } from '../measuring-tools/state'
+import { easeInOutQuad, goToDuration } from '../../instruments/measuring/practice'
 import {
   differential,
   element,

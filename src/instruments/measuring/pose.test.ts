@@ -12,7 +12,7 @@ import {
   type Vec3,
 } from './pose'
 
-describe('measuring-tools poses', () => {
+describe('measuring instrument poses', () => {
   it('places the caliper frame, rod and screw from the reference update()', () => {
     const closed = caliperPose({ x: 23.4, exploded: 0, locked: false, mode: 'outer' })
     expect(closed.frame).toEqual([23.4, 0, 0])

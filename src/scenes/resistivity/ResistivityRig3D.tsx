@@ -1,4 +1,4 @@
-import { MeasuringToolsRig3D } from '../measuring-tools/MeasuringToolsRig3D'
+import { InstrumentBackdrop, MicrometerStage } from '../../instruments/measuring/InstrumentStages'
 import { CircuitAssembly } from './CircuitAssembly'
 import type { CircuitPose, WireLink } from './circuitPose'
 import type { ElementKind } from './model'
@@ -41,24 +41,21 @@ export function ResistivityRig3D({
 }) {
   if (stage === 'diameter') {
     return (
-      <MeasuringToolsRig3D
-        tool="micrometer"
-        divisions={20}
-        measure="outer"
-        caliperX={0}
-        caliperExplode={0}
-        caliperLocked={false}
-        micGap={gap}
-        micZero={zero}
-        micExplode={0}
-        micLocked={false}
-        showWork
-        workVisible
-        objectSize={wireSize}
-        showLabels={false}
-        onMicGapChange={onMicGapChange}
-        onInstrumentDragChange={onInstrumentDragChange}
-      />
+      <group>
+        <InstrumentBackdrop tool="micrometer" />
+        <MicrometerStage
+          micGap={gap}
+          micZero={zero}
+          micExplode={0}
+          micLocked={false}
+          showWork
+          workVisible
+          workSize={wireSize}
+          showLabels={false}
+          onMicGapChange={onMicGapChange}
+          onInstrumentDragChange={onInstrumentDragChange}
+        />
+      </group>
     )
   }
   return (

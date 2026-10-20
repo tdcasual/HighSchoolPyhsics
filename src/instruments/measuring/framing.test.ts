@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { freeRects } from './framing'
+import { freeRects } from '../../scene3d/freeRects'
 import { instrumentView } from './pose'
 
 // 1920×1080 desktop: sidebar plus the data / chart / playback column stacked beside it.

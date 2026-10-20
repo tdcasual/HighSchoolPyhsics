@@ -29,10 +29,10 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 1. Every new scene must provide `controls`, `dataOverlay`, `chart` (if applicable), and `playbackActions` to `SceneLayout`.
 2. `dataOverlay` should contain 3-5 lines of key readings (results, not echoes of sidebar parameters).
 3. Model caveats, formulas and sign conventions go in `notes` (or `<ModelNote>` inside controls), which render in the sidebar's collapsed 教师备注; the sidebar body keeps controls, how-to hints and legends.
-4. Play/step/reset belong in `playbackActions`; give the main play action the key `play` or `toggle-running` so Space triggers it.
-5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that.
+4. Play/step/reset belong in `playbackActions`; give the main play action the key `play` or `toggle-running` so Space triggers it. Keys: Space = primary, `.`/→ = `step`, `,`/← = `step-back` (arrows held repeat).
+5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that. A scene that computes its camera from the apparatus bounds uses `useBoundsFraming` (`scene3d/`) with `fitOrbitView`: it fits the bounds into the largest uncovered area once (on open and on a view preset), never per panel change.
 6. Open in a state that can be taught immediately (no mandatory "step 1" click).
-7. Wrap conclusion readings in `<Answer>` (prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate.
+7. Wrap conclusion readings in `<Answer>` (prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate. If the chart is what students read from (not the outcome), pass `chartMaskable={false}` and hide its answer marks with `usePredictionMasked()`.
 8. For fast processes pass `timeControl` and multiply the loop's frame delta by `getPlaybackRate()`; import `Line` from `scene3d/ClassroomLine`.
 9. Use textbook notation on screen (`U<sub>AB</sub>`, not `U_AB`; no "a.u."); label reduced model scales 示意 and convert to textbook magnitude in notes.
 10. Remember teacher-set parameters with `recall` + `useRemember` (or `rememberFields` / `useRememberFields`) from `app/sceneMemory`; offer 单步 in a meaningful unit (15°, T/4, 0.1 s) as a `step` playback action. `scenes/__tests__/sceneConventions.test.ts` enforces both: any scene with a `play`/`toggle-running` action needs `step` (or a reasoned entry in `NO_STEP`), and any scene with sliders/segmented controls/text fields must remember them. Prefer `ui/charts/LineChart` and `scene3d/VectorArrow` for charts and vectors.
@@ -45,7 +45,7 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 
 1. In classroom mode, the data floating panel shows key readings without requiring sidebar interaction.
 2. If the sidebar is collapsed, teachers can still access core data from the data overlay.
-3. Chart floating panel can be opened on demand for waveform/trend analysis.
+3. Chart floating panel can be opened on demand for waveform/trend analysis. Below 1680 px width the chart starts collapsed and large text zooms less, so a 1366×768 projector keeps room for the 3D view.
 
 ## Scene Structure Template
 
@@ -92,3 +92,5 @@ export function NewDemoScene() {
 - `src/ui/layout/SceneLayout.tsx` — layout implementation
 - `src/ui/panels/FloatingPanel.tsx` — floating panel component
 - `src/ui/panels/SidebarPanel.tsx` — sidebar panel component
+- `src/scene3d/orbitFraming.ts`, `src/scene3d/useBoundsFraming.ts` — bounds-based camera framing shared by apparatus scenes
+- `src/instruments/measuring/` — caliper/micrometer models, scales, 3D assemblies, reading figures and practice flow, shared by the 游标卡尺, 螺旋测微器 and 电阻率 scenes

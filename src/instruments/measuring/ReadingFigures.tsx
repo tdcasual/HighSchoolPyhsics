@@ -1,30 +1,13 @@
-import { useId } from 'react'
-import { MAIN_SCALE_END_MM, caliperReading, micrometerReading, vernier, type VernierDivisions } from './model'
-import type { InstrumentTool } from './pose'
-import { vernierLabel, vernierTickKind } from './scalePaint'
-
-type MeasuringToolsChartProps = {
-  tool: InstrumentTool
-  reveal: boolean
-  divisions: VernierDivisions
-  caliperX: number
-  micGap: number
-  micZero: number
-  click: number
-}
-
 /**
  * Reading figures drawn the way 高考 papers print them: black line art on white,
  * no perspective, the vernier sliding directly under the main-scale tick edge and
  * the thimble edge sitting on the sleeve datum line. Colour only appears after a
  * reading has been revealed.
  */
-export function MeasuringToolsChart(props: MeasuringToolsChartProps) {
-  if (props.tool === 'caliper') {
-    return <CaliperFigure divisions={props.divisions} x={props.caliperX} reveal={props.reveal} />
-  }
-  return <MicrometerFigure reading={props.micGap + props.micZero} zero={props.micZero} reveal={props.reveal} click={props.click} />
-}
+import { useId } from 'react'
+import { usePredictionMasked } from '../../ui/notes/predictionContext'
+import { MAIN_SCALE_END_MM, caliperReading, micrometerReading, vernier, type VernierDivisions } from './model'
+import { vernierLabel, vernierTickKind } from './scalePaint'
 
 const INK = '#111'
 const PAPER = '#fff'
@@ -41,7 +24,10 @@ function caliperWindow(x: number, n: VernierDivisions): { start: number; end: nu
   return { start: x - pad, end: x + span + pad }
 }
 
-function CaliperFigure({ x, divisions, reveal }: { x: number; divisions: VernierDivisions; reveal: boolean }) {
+export function CaliperFigure({ x, divisions, reveal: revealed }: { x: number; divisions: VernierDivisions; reveal: boolean }) {
+  // Prediction mode keeps the scale but hides the marked answer until it is revealed.
+  const masked = usePredictionMasked()
+  const reveal = revealed && !masked
   const reading = caliperReading(x, divisions)
   const { start, end } = caliperWindow(reading.value, divisions)
   const left = 24
@@ -130,7 +116,9 @@ function CaliperFigure({ x, divisions, reveal }: { x: number; divisions: Vernier
 const THIMBLE_STEP = 12
 const SLEEVE_PX_PER_MM = 58
 
-function MicrometerFigure({ reading, zero, reveal, click }: { reading: number; zero: number; reveal: boolean; click: number }) {
+export function MicrometerFigure({ reading, zero, reveal: revealed, click }: { reading: number; zero: number; reveal: boolean; click: number }) {
+  const masked = usePredictionMasked()
+  const reveal = revealed && !masked
   const value = micrometerReading(reading)
   const clipId = `thimble-clip-${useId().replace(/:/g, '')}`
   const datum = 102

@@ -1,8 +1,8 @@
 import { Answer } from '../../ui/notes/Answer'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { MeasuringToolsChart } from '../measuring-tools/MeasuringToolsChart'
-import { useViewportSize } from '../measuring-tools/useViewportSize'
-import { cameraLimits, fitCameraDistance, instrumentView, orbitPosition, type OrbitView, type ViewPreset } from '../measuring-tools/pose'
+import { MicrometerFigure } from '../../instruments/measuring/ReadingFigures'
+import { useViewportSize } from '../../scene3d/useViewportSize'
+import { cameraLimits, fitCameraDistance, instrumentView, orbitPosition, type OrbitView, type ViewPreset } from '../../instruments/measuring/pose'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CIRCUIT_CAMERA, circuitPose, circuitView, circuitWires } from './circuitPose'
@@ -12,9 +12,9 @@ import { ResistivityControls } from './ResistivityControls'
 import { ResistivityRig3D } from './ResistivityRig3D'
 import { activeWire, analysisOf, indicatedGap, isSeated } from './state'
 import { ELEMENTS, METERS } from './model'
-import { micrometerReading } from '../measuring-tools/model'
+import { micrometerReading } from '../../instruments/measuring/model'
 import { useResistivitySceneState } from './useResistivitySceneState'
-import '../measuring-tools/measuring-tools.css'
+import '../../instruments/measuring/measuring.css'
 import './resistivity.css'
 
 export function ResistivityScene() {
@@ -157,7 +157,7 @@ export function ResistivityScene() {
         </div>
       }
       chart={diameterView ? (
-        <MeasuringToolsChart tool="micrometer" reveal divisions={20} caliperX={0} micGap={state.gap} micZero={state.zero} click={0} />
+        <MicrometerFigure reveal reading={state.gap + state.zero} zero={state.zero} click={0} />
       ) : state.stage === 'iv' ? (
         <ElementChart kind={state.element} voltage={state.voltage} showSecant={showSecant} showTangent={showTangent} />
       ) : (

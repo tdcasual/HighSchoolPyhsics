@@ -21,7 +21,7 @@ import {
   type ResistivityState,
 } from './state'
 import type { CircuitControl, CircuitMethod } from './model'
-import type { ViewPreset } from '../measuring-tools/pose'
+import type { ViewPreset } from '../../scene3d/orbitFraming'
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
 const REMEMBERED_FIELDS = ['stage', 'material', 'mystery', 'nominal', 'method', 'control', 'ammeter', 'voltmeter', 'lengthCm', 'graph', 'fit', 'element'] as const

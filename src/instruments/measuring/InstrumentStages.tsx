@@ -5,26 +5,33 @@ import { caliperPose, micrometerPose, type CaliperMeasure, type InstrumentTool, 
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 import { StudioEnvironment } from '../../scene3d/StudioEnvironment'
 
-export type MeasuringToolsRigProps = {
+type StageCommon = {
   night?: boolean
-  tool: InstrumentTool
+  showWork: boolean
+  showLabels: boolean
+  viewPreset?: ViewPreset
+  /** Specimen size in mm. */
+  workSize: number
+  onInstrumentDragChange?: (dragging: boolean) => void
+}
+
+export type CaliperStageProps = StageCommon & {
   divisions: VernierDivisions
   measure: CaliperMeasure
   caliperX: number
   caliperExplode: number
   caliperLocked: boolean
+  onCaliperXChange?: (value: number) => void
+}
+
+export type MicrometerStageProps = StageCommon & {
   micGap: number
   micZero: number
   micExplode: number
   micLocked: boolean
-  showWork: boolean
-  showLabels: boolean
-  viewPreset?: ViewPreset
-  objectSize?: number
+  /** Overrides the default rule (shown while showWork and larger than 0.2 mm). */
   workVisible?: boolean
-  onCaliperXChange?: (value: number) => void
   onMicGapChange?: (value: number) => void
-  onInstrumentDragChange?: (dragging: boolean) => void
 }
 
 function StageLights({ tool }: { tool: InstrumentTool }) {
@@ -55,22 +62,17 @@ function StageLights({ tool }: { tool: InstrumentTool }) {
   )
 }
 
-export function MeasuringToolsRig3D(props: MeasuringToolsRigProps) {
-  const workSize = props.objectSize ?? Math.max(1, props.tool === 'caliper' ? props.caliperX : props.micGap)
+/** Backdrop, ground fog and lights sized for one instrument. */
+export function InstrumentBackdrop({ tool }: { tool: InstrumentTool }) {
   return (
-    <group>
-      <SceneBackdrop day="#e3e9ec" fog={props.tool === 'caliper' ? [950, 2600] : [420, 1300]} />
-      <StageLights tool={props.tool} />
-      {props.tool === 'caliper' ? (
-        <CaliperStage {...props} workSize={workSize} />
-      ) : (
-        <MicrometerStage {...props} workSize={workSize} />
-      )}
-    </group>
+    <>
+      <SceneBackdrop day="#e3e9ec" fog={tool === 'caliper' ? [950, 2600] : [420, 1300]} />
+      <StageLights tool={tool} />
+    </>
   )
 }
 
-export function CaliperStage(props: MeasuringToolsRigProps & { workSize: number }) {
+export function CaliperStage(props: CaliperStageProps) {
   const night = props.night ?? false
   const pose = caliperPose({
     x: props.caliperX,
@@ -103,7 +105,7 @@ export function CaliperStage(props: MeasuringToolsRigProps & { workSize: number 
   )
 }
 
-function MicrometerStage(props: MeasuringToolsRigProps & { workSize: number }) {
+export function MicrometerStage(props: MicrometerStageProps) {
   const night = props.night ?? false
   const pose = micrometerPose({
     gap: props.micGap,

@@ -686,14 +686,14 @@
     }
   },
   {
-    "pageId": "measuring-tools",
-    "label": "游标卡尺与螺旋测微器",
+    "pageId": "vernier-caliper",
+    "label": "游标卡尺",
     "meta": {
       "tag": "测量工具",
-      "summary": "三维游标卡尺与螺旋测微器，尺框和微分筒按示数运动",
+      "summary": "三维游标卡尺：拖动尺框，游标线对齐与读数同步",
       "highlights": [
-        "10/20/50 分度与 0.5 mm 螺距的读数同步到三维仪器",
-        "外径、内径、深度和零点误差可在课堂模式里练习"
+        "10/20/50 分度，外径、内径、深度三种测量",
+        "读数练习与调节练习，按高考图例判读"
       ],
       "tone": "oersted"
     },
@@ -708,8 +708,35 @@
       }
     },
     "playwright": {
-      "readyText": "测量工具控制",
-      "screenshotName": "measuring-tools"
+      "readyText": "游标卡尺控制",
+      "screenshotName": "vernier-caliper"
+    }
+  },
+  {
+    "pageId": "micrometer",
+    "label": "螺旋测微器",
+    "meta": {
+      "tag": "测量工具",
+      "summary": "三维螺旋测微器：拖动微分筒转动，转一圈前进 0.5 mm",
+      "highlights": [
+        "固定刻度、半毫米刻线与可动刻度的估读",
+        "零点误差的读数与校正练习"
+      ],
+      "tone": "oersted"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "螺旋测微器控制",
+      "screenshotName": "micrometer"
     }
   },
   {
