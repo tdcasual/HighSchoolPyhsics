@@ -48,6 +48,7 @@ describe('scene scaffold generator', () => {
     expect(scene).toContain('<DataRows')
     expect(scene).toContain('clockActions(clock')
     expect(scene).toContain('notes=')
+    expect(scene).toContain('<FittedCanvas')
     expect(state).toContain('useSimulationClock(')
     expect(state).toContain("recall('hall-effect.intensity'")
     expect(state).not.toContain('requestAnimationFrame')

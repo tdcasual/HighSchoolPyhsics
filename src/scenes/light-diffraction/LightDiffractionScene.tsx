@@ -1,6 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { FILTER_HEX, FILTER_LABEL, GRATING_ILLUMINATED_WIDTH_MM, MODE_LABEL, formatScreenDistance, formatWhiteLightFeatureValue, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing } from './model'
 import { LightDiffractionChart } from './LightDiffractionChart'
@@ -9,30 +9,11 @@ import { LightDiffractionRig3D } from './LightDiffractionRig3D'
 import { useLightDiffractionSceneState } from './useLightDiffractionSceneState'
 import './light-diffraction.css'
 
-function createCamera(screenDistance: number) {
-  const tubeLength = 10 * screenDistance
-  const railStartX = -14
-  const railEndX = -2 + tubeLength + 3
-  const centerX = (railStartX + railEndX) / 2
-  const targetY = 0.8
-  const distance = Math.max(29, (railEndX - railStartX) * 1.4)
-  return {
-    camera: {
-      position: [centerX + distance * 0.9, targetY + distance * 0.25, distance * 0.35] as const,
-      fov: 32,
-    },
-    controls: {
-      target: [centerX, targetY, 0] as const,
-      minDistance: 10,
-      maxDistance: 90,
-      maxPolarAngle: Math.PI / 2 + 0.1,
-    },
-  }
-}
+/** Looking along the bench from the screen end; FittedCanvas sets the distance from the apparatus. */
+const BENCH_SHOT = { azimuth: Math.atan2(0.9, 0.35), elevation: Math.atan2(0.25, Math.hypot(0.9, 0.35)) }
 
 export function LightDiffractionScene() {
   const state = useLightDiffractionSceneState()
-  const { camera, controls } = createCamera(state.screenDistance)
 
   const beamColorHex = useMemo(() => {
     if (!state.isWhiteLight) return state.lightColorHex
@@ -94,11 +75,15 @@ export function LightDiffractionScene() {
       chartVisible={state.showChart}
       chartInitiallyCollapsed={false}
       viewport={
-        <InteractiveCanvas
-          camera={camera}
-          controls={controls}
+        <FittedCanvas
+          shot={BENCH_SHOT}
+          refitKey={String(state.screenDistance)}
+          fov={32}
+          minDistance={10}
+          maxDistance={90}
+          far={400}
+          maxPolarAngle={Math.PI / 2 + 0.1}
           frameloop="demand"
-          adaptiveFraming={false}
         >
           <LightDiffractionRig3D
             params={chartParams}
@@ -108,7 +93,7 @@ export function LightDiffractionScene() {
             isWhiteLight={state.isWhiteLight}
             filterColor={state.filterColor}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

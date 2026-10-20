@@ -3,9 +3,10 @@ import { Line } from '../../scene3d/ClassroomLine'
 import type { ThemeMode } from '../../store/useAppStore'
 import type { IdealGasIsochoricSceneState } from './useIdealGasIsochoricSceneState'
 import { chamberGasHeightForVolumeL, clamp } from './model'
+import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 
 type Point3 = [number, number, number]
-type Props = Pick<IdealGasIsochoricSceneState, 'temperatureK' | 'volumeL' | 'elapsed' | 'readings'> & { theme: ThemeMode; mobile?: boolean }
+type Props = Pick<IdealGasIsochoricSceneState, 'temperatureK' | 'volumeL' | 'elapsed' | 'readings'> & { theme: ThemeMode }
 
 const PARTICLES = Array.from({ length: 36 }, (_, index) => ({
   x: ((index * 37) % 100) / 100,
@@ -146,7 +147,9 @@ function HeatingSource({ temperatureK, elapsed }: { temperatureK: number; elapse
   </group>
 }
 
-export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, readings, theme, mobile = false }: Props) {
+export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, readings, theme }: Props) {
+  // Phones get the short gauge caption; the camera itself fits every screen.
+  const mobile = useMediaQuery(MOBILE_BREAKPOINT)
   const dark = theme === 'night'
   const frameColor = dark ? '#d8dee8' : '#343a40'
   const textColor = dark ? '#f0f4f8' : '#343a40'

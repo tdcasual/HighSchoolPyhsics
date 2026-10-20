@@ -1,7 +1,7 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CyclotronControls } from './CyclotronControls'
@@ -95,9 +95,13 @@ export function CyclotronScene() {
       )}
       chartVisible={true}
       viewport={
-        <InteractiveCanvas
-          camera={CYCLOTRON_CAMERA}
-          controls={CYCLOTRON_CONTROLS}
+        <FittedCanvas
+          shot={{ from: CYCLOTRON_CAMERA.position, to: CYCLOTRON_CONTROLS.target }}
+          fov={CYCLOTRON_CAMERA.fov}
+          minDistance={CYCLOTRON_CONTROLS.minDistance}
+          maxDistance={CYCLOTRON_CONTROLS.maxDistance}
+          minPolarAngle={CYCLOTRON_CONTROLS.minPolarAngle}
+          maxPolarAngle={CYCLOTRON_CONTROLS.maxPolarAngle}
           presentationFocus={presentationFocus}
           frameloop={state.running ? 'always' : 'demand'}
         >
@@ -110,7 +114,7 @@ export function CyclotronScene() {
             particleInGap={state.particleInGap}
             deeGapWidth={state.deeGapWidth}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

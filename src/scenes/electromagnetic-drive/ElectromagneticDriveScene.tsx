@@ -1,4 +1,4 @@
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -51,19 +51,14 @@ export function ElectromagneticDriveScene() {
       chartVisible={true}
       chartInitiallyCollapsed
       viewport={
-        <InteractiveCanvas
-          camera={{ position: [1.2, 11.7, 18.2], fov: 42 }}
-          controls={{ target: [-10.08, 4.2, 0], minDistance: 12, maxDistance: 42 }}
-          adaptiveFraming={false}
-          frameloop={frameloop}
-        >
+        <FittedCanvas shot={{ from: [1.2, 11.7, 18.2], to: [-10.08, 4.2, 0] }} fov={42} minDistance={12} maxDistance={42} frameloop={frameloop}>
           <ElectromagneticDriveRig3D
             magnetAngle={state.magnetAngle}
             frameAngle={state.frameAngle}
             magnetSpeed={state.magnetSpeed}
             frameSpeed={state.frameSpeed}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

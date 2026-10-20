@@ -1,4 +1,4 @@
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { DataRows } from '../../ui/panels/DataRows'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectrostaticLabControls } from './ElectrostaticLabControls'
@@ -38,11 +38,12 @@ export function ElectrostaticLabScene() {
         />
       }
       viewport={
-        <InteractiveCanvas
-          camera={{ position: [10, 10, 11], fov: 52 }}
-          controls={{ target: [0, 0.4, 0], minDistance: 6, maxDistance: 30 }}
+        <FittedCanvas
+          shot={{ from: [10, 10, 11], to: [0, 0.4, 0] }}
+          fov={52}
+          minDistance={6}
+          maxDistance={30}
           presentationFocus={presentationFocus}
-          adaptiveFraming={false}
           frameloop="demand"
         >
           <ElectrostaticLabRig3D
@@ -63,7 +64,7 @@ export function ElectrostaticLabScene() {
             onAddChargeAt={state.addChargeAtPoint}
             onDeleteCharge={state.deleteChargeById}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

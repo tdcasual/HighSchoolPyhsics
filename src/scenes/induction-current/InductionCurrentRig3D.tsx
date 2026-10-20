@@ -10,6 +10,7 @@ import {
 } from 'three'
 import { INDUCTION_COIL_RADIUS, type PoleSetting } from './model'
 import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
+import { NO_FIT } from '../../scene3d/FitBounds'
 
 type InductionCurrentRig3DProps = {
   poleSetting: PoleSetting
@@ -160,7 +161,7 @@ export function InductionCurrentRig3D({
       <directionalLight position={[10, 30, 20]} intensity={1.2} />
       <color attach="background" args={['#151515']} />
 
-      <gridHelper args={[80, 80, '#9aa7b5', '#d5dce4']} position={[0, -12, 0]} />
+      <gridHelper args={[80, 80, '#9aa7b5', '#d5dce4']} position={[0, -12, 0]} userData={NO_FIT} />
 
       <mesh geometry={coilGeometry}>
         <meshStandardMaterial color="#b87333" metalness={0.6} roughness={0.3} />

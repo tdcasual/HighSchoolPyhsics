@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
+import type { OrbitView, ViewPreset } from '../../scene3d/orbitFraming'
 import { at, dots, hangingDrop, hangingMass, hookAcceleration, type MotionInput } from './model'
 
 export const SCENE_SCALE = 4.4
@@ -103,11 +103,8 @@ export function cartPose(input: {
   }
 }
 
-export function cartView(
-  preset: ViewPreset,
-  focusPart: CartPart | null = null,
-  compact = false,
-): OrbitView {
+/** Direction and anchor of each preset; FittedCanvas fits the distance to the free area. */
+export function cartView(preset: ViewPreset, focusPart: CartPart | null = null): OrbitView {
   const focusedViews: Record<CartPart, OrbitView> = {
     timer: { target: [TIMER_X, 0.9, 0], azimuth: 0.35, elevation: 0.55, radius: 6.8 },
     cart: { target: [CART_X0, 0.95, 0], azimuth: 0.4, elevation: 0.5, radius: 6.6 },
@@ -116,18 +113,11 @@ export function cartView(
     pulley: { target: [PULLEY_X, 0.35, 0], azimuth: 0.4, elevation: 0.5, radius: 6.8 },
   }
   if (focusPart) {
-    const view = focusedViews[focusPart]
-    return compact ? { ...view, radius: view.radius * 1.12 } : view
+    return focusedViews[focusPart]
   }
 
-  let view: OrbitView
-  if (preset === 'front') view = { target: [0, 0.1, 0], azimuth: 0, elevation: 0.14, radius: 11.7 }
-  else if (preset === 'top') view = { target: [0, 0.1, 0], azimuth: 0, elevation: 1.53, radius: 11.7 }
-  else if (preset === 'focus') view = { target: [-2.2, 0.8, 0], azimuth: 0.45, elevation: 0.48, radius: 7.6 }
-  else view = { target: [0, 0.1, 0], azimuth: 0.28, elevation: 0.62, radius: 11.7 }
-  return compact ? { ...view, radius: view.radius * 1.3 } : view
-}
-
-export function cartCameraPosition(preset: ViewPreset): Vec3 {
-  return orbitPosition(cartView(preset))
+  if (preset === 'front') return { target: [0, 0.1, 0], azimuth: 0, elevation: 0.14, radius: 11.7 }
+  if (preset === 'top') return { target: [0, 0.1, 0], azimuth: 0, elevation: 1.53, radius: 11.7 }
+  if (preset === 'focus') return { target: [-2.2, 0.8, 0], azimuth: 0.45, elevation: 0.48, radius: 7.6 }
+  return { target: [0, 0.1, 0], azimuth: 0.28, elevation: 0.62, radius: 11.7 }
 }

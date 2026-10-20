@@ -1,10 +1,9 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { GeneratorCoreChart } from './GeneratorCoreChart'
 import { GeneratorCoreControls } from './GeneratorCoreControls'
 import { GeneratorCoreRig3D } from './GeneratorCoreRig3D'
@@ -13,14 +12,11 @@ import './generator-core.css'
 
 export function GeneratorCoreScene() {
   const theme = useAppStore((state) => state.theme)
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const state = useGeneratorCoreSceneState()
   const angleLabel = useMemo(() => `${state.readings.angleDeg.toFixed(1)}°`, [state.readings.angleDeg])
-  const cameraPosition: [number, number, number] = isMobile ? [16, 8, 16] : [11.5, 8.2, 15.4]
-  const cameraTarget: [number, number, number] = [0, 0, 0]
   return <SceneLayout timeControl
     controls={<GeneratorCoreControls state={state} />}
-    viewport={<InteractiveCanvas camera={{ position: cameraPosition, fov: isMobile ? 48 : 56 }} controls={{ target: cameraTarget, minDistance: 8, maxDistance: 35, maxPolarAngle: Math.PI * 0.82 }} frameloop={state.running ? 'always' : 'demand'}><GeneratorCoreRig3D angleRad={state.angleRad} running={state.running} theme={theme} /></InteractiveCanvas>}
+    viewport={<FittedCanvas shot={{ from: [11.5, 8.2, 15.4], to: [0, 0, 0] }} fov={48} minDistance={8} maxDistance={35} maxPolarAngle={Math.PI * 0.82} frameloop={state.running ? 'always' : 'demand'}><GeneratorCoreRig3D angleRad={state.angleRad} running={state.running} theme={theme} /></FittedCanvas>}
     dataOverlay={<DataRows
           className="generator-core-telemetry"
           rows={[

@@ -1,4 +1,5 @@
 import type { RotationalEmfScenario } from './model'
+import { NO_FIT } from '../../scene3d/FitBounds'
 
 export const ROTATIONAL_EMF_VISUAL_UNITS_PER_METER = 3.4
 export const ROD_FIELD_SHAFT_LENGTH = 2.8
@@ -145,7 +146,7 @@ export function RotationalEmfRig3D({ scenario, angleRad, effectiveLengthM }: Rot
       <directionalLight position={[5, 8, 6]} intensity={1.1} />
       <pointLight position={[-4, 4, 3]} intensity={0.35} color="#b7d7ff" />
       <color attach="background" args={['#101821']} />
-      <gridHelper args={[14 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 14, '#3c536a', '#1d2833']} position={[0, -1.1 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 0]} />
+      <gridHelper args={[14 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 14, '#3c536a', '#1d2833']} position={[0, -1.1 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 0]} userData={NO_FIT} />
 
       {scenario === 'rod'
         ? <RodScenario angleRad={angleRad} effectiveLengthM={effectiveLengthM} />

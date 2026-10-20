@@ -2,21 +2,13 @@ import { Answer } from '../../ui/notes/Answer'
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { FILTER_HEX, FILTER_LABEL } from './model'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DoubleSlitChart } from './DoubleSlitChart'
 import { DoubleSlitControls } from './DoubleSlitControls'
 import { DoubleSlitRig3D } from './DoubleSlitRig3D'
 import { useDoubleSlitSceneState } from './useDoubleSlitSceneState'
 import './double-slit.css'
-
-const CAMERA = { position: [-10, 14.5, 28] as const, fov: 45 }
-const CAMERA_CONTROLS = {
-  target: [-5.5, 3.5, 0] as const,
-  minDistance: 8,
-  maxDistance: 55,
-  maxPolarAngle: Math.PI / 2 + 0.1,
-}
 
 export function DoubleSlitScene() {
   const state = useDoubleSlitSceneState()
@@ -85,11 +77,10 @@ export function DoubleSlitScene() {
       chartVisible={state.showChart}
       chartInitiallyCollapsed
       viewport={
-        <InteractiveCanvas
-          camera={CAMERA}
-          controls={CAMERA_CONTROLS}
+        <FittedCanvas
+          shot={{ from: [-10, 14.5, 28], to: [-5.5, 3.5, 0] }}
+          fov={45} minDistance={8} maxDistance={55} far={400} maxPolarAngle={Math.PI / 2 + 0.1}
           frameloop="demand"
-          adaptiveFraming={false}
         >
           <DoubleSlitRig3D
             params={chartParams}
@@ -103,7 +94,7 @@ export function DoubleSlitScene() {
             wheelReadoutMm={state.wheelReadoutMm}
             showFringeOrders={state.showFringeOrders}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

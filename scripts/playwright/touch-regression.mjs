@@ -58,18 +58,18 @@ async function run() {
             'Runtime capability gate blocked touch regression in headless browser; verify WebGL2 flags are enabled for Playwright Chromium.',
           )
         }
-        await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
+        await page.getByRole('heading', { name: '高中物理 3D 课堂' }).waitFor({ state: 'visible', timeout: 15000 })
 
         for (const demo of DEMO_CATALOG) {
-          await page.getByRole('button', { name: demo.enterButton }).click({ force: true })
+          await page.locator('.scene-card').filter({ has: page.locator('.scene-card-name').getByText(demo.label, { exact: true }) }).click({ force: true })
           await page.waitForURL(`${baseUrl}${demo.path}`, { timeout: 15000 })
-          await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
+          await page.getByText(demo.readyText).filter({ visible: true }).first().waitFor({ state: 'visible', timeout: 15000 })
 
           const canvasSurface = page.locator('.interactive-canvas-surface').first()
           if ((await canvasSurface.count()) > 0) {
             await canvasSurface.waitFor({ state: 'visible', timeout: 15000 })
             await page
-              .getByText(/拖拽旋转.*单指旋转.*双指缩放\/平移/)
+              .getByText(/单指旋转.*双指缩放\/平移/)
               .first()
               .waitFor({ state: 'visible', timeout: 5000 })
           }
@@ -79,9 +79,9 @@ async function run() {
             fullPage: true,
           })
 
-          await page.getByRole('button', { name: '返回导航' }).click()
+          await page.getByRole('button', { name: /^返回/ }).click()
           await page.waitForURL(baseUrl, { timeout: 15000 })
-          await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
+          await page.getByRole('heading', { name: '高中物理 3D 课堂' }).waitFor({ state: 'visible', timeout: 15000 })
         }
 
         await context.close()

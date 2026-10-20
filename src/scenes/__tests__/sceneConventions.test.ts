@@ -9,10 +9,12 @@ const sources = import.meta.glob<string>(['../*/*.ts', '../*/*.tsx', '!../*/*.te
 
 const scenes = new Map<string, string>()
 const chartFiles: Array<[string, string]> = []
+const sceneShells: Array<[string, string]> = []
 for (const [path, text] of Object.entries(sources)) {
   const scene = path.split('/')[1]
   scenes.set(scene, (scenes.get(scene) ?? '') + '\n' + text)
   if (/Chart\.tsx$/.test(path)) chartFiles.push([path, text])
+  if (/Scene\.tsx$/.test(path)) sceneShells.push([path, text])
 }
 
 /**
@@ -93,6 +95,20 @@ describe('scene conventions', () => {
     expect(chartFiles.length).toBeGreaterThan(10)
     const custom = chartFiles.filter(([, text]) => !/ui\/charts\//.test(text))
     expect(custom.map(([path]) => path)).toEqual([])
+  })
+
+  it('fits every camera to the apparatus and the free area (FittedCanvas or useFittedOrbitCamera)', () => {
+    const with3d = [...scenes].filter(([, text]) => /<(InteractiveCanvas|FittedCanvas)\b/.test(text))
+    expect(with3d.length).toBeGreaterThan(20)
+    const unfitted = with3d.filter(([, text]) => !/<FittedCanvas\b|useFittedOrbitCamera\(/.test(text))
+    expect(unfitted.map(([scene]) => scene)).toEqual([])
+    const literal = [...scenes].filter(([, text]) => /<InteractiveCanvas\b[^>]*?\bcamera=\{/s.test(text))
+    expect(literal.map(([scene]) => scene)).toEqual([])
+  })
+
+  it('composes one view for every screen size (no phone or tablet camera branches in scene shells)', () => {
+    const branched = sceneShells.filter(([, text]) => /MOBILE_BREAKPOINT|isTablet|innerWidth\s*<=/.test(text))
+    expect(branched.map(([path]) => path)).toEqual([])
   })
 
   it('shares viewport measuring and framing helpers instead of copying them', () => {

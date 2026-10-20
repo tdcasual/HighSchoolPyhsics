@@ -1,6 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MhdControls } from './MhdControls'
 import { MhdGeneratorRig3D } from './MhdGeneratorRig3D'
@@ -39,9 +39,12 @@ export function MhdGeneratorScene() {
         />
       }
       viewport={
-        <InteractiveCanvas
-          camera={{ position: [-6.65, 1.8, -2.43], fov: 36 }}
-          controls={{ target: [0.2, 0, 0], minDistance: 4.8, maxDistance: 13, maxPolarAngle: Math.PI * 0.82 }}
+        <FittedCanvas
+          shot={{ from: [-6.65, 1.8, -2.43], to: [0.2, 0, 0] }}
+          fov={36}
+          minDistance={4.8}
+          maxDistance={13}
+          maxPolarAngle={Math.PI * 0.82}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <MhdGeneratorRig3D
@@ -52,7 +55,7 @@ export function MhdGeneratorScene() {
             electrodeGapM={state.electrodeGapM}
             plasmaVelocityMps={state.plasmaVelocityMps}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
       dataOverlay={
         <DataRows

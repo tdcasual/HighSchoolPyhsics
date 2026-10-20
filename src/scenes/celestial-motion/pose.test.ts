@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CIRCULAR_OFFSET, ORBIT_NODE, scenarioOf, worldOrbit } from './model'
-import { CELESTIAL_CAMERA, celestialCamera, celestialPose, celestialView, diagramDepth, diagramScale, drawnOrbitRadius, labToScene, outerRadius } from './pose'
+import { CELESTIAL_CAMERA, celestialPose, celestialView, diagramDepth, diagramScale, drawnOrbitRadius, labToScene, outerRadius } from './pose'
 
 describe('celestial pose', () => {
   it('maps lab north to scene up and keeps the orbit radius', () => {
@@ -42,15 +42,15 @@ describe('celestial pose', () => {
     expect(drawnOrbitRadius(sync)).toBeCloseTo(184 / 48, 8)
     const mobileView = celestialView(-25, 42, drawnOrbitRadius(sync), { aspect: 1.36 })
     const bound = drawnOrbitRadius(sync) * 1.22
-    expect(mobileView.target.every((value) => Math.abs(value) < 1e-10)).toBe(true)
+    expect(mobileView.target).toEqual([0, 0, 0])
     expect(Math.asin(bound / mobileView.radius)).toBeLessThan((16 * Math.PI) / 180)
-    const desktopView = celestialCamera(-35, 44, drawnOrbitRadius(sync), {
-      aspect: 1.5,
-      centerOffsetPixels: 154,
-      viewportHeight: 589,
-    })
-    expect(desktopView.target).not.toEqual([0, 0, 0])
-    expect(desktopView.position).toHaveLength(3)
+    // Beside the panel column: the body stays the target and is shifted to the area's centre.
+    const desktopView = celestialView(-35, 44, drawnOrbitRadius(sync), { aspect: 1.5, centerOffsetPixels: 154, viewportHeight: 589 })
+    expect(desktopView.target).toEqual([0, 0, 0])
+    expect(desktopView.screenOffset).toEqual([154, 0])
+    // Below the panels on a phone: a shorter area means a farther camera.
+    const below = celestialView(-35, 44, drawnOrbitRadius(sync), { aspect: 1.5, heightFraction: 0.6 })
+    expect(below.radius).toBeGreaterThan(celestialView(-35, 44, drawnOrbitRadius(sync), { aspect: 1.5 }).radius)
     expect(CELESTIAL_CAMERA.fov).toBe(32)
     expect(CELESTIAL_CAMERA.minDistance).toBe(6)
     expect(CELESTIAL_CAMERA.maxDistance).toBe(26)

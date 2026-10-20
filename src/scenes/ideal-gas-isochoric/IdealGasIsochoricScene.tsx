@@ -1,9 +1,8 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { IdealGasIsochoricChart } from './IdealGasIsochoricChart'
 import { IdealGasIsochoricControls } from './IdealGasIsochoricControls'
 import { IdealGasIsochoricRig3D } from './IdealGasIsochoricRig3D'
@@ -12,20 +11,21 @@ import './ideal-gas-isochoric.css'
 
 export function IdealGasIsochoricScene() {
   const theme = useAppStore((state) => state.theme)
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
-  const cameraTargetX = isMobile ? 0 : 1.9
   const state = useIdealGasIsochoricSceneState()
   const readings = state.readings
   return <SceneLayout
     controls={<IdealGasIsochoricControls state={state} />}
     viewport={
-      <InteractiveCanvas
-        camera={{ position: [cameraTargetX, 0.15, isMobile ? 9.2 : 14.5], fov: 42 }}
-        controls={{ target: [cameraTargetX, 0, 0], minDistance: 7, maxDistance: 19, maxPolarAngle: Math.PI * 0.9 }}
+      <FittedCanvas
+        shot={{ azimuth: 0, elevation: 0.01 }}
+        fov={42}
+        minDistance={7}
+        maxDistance={19}
+        maxPolarAngle={Math.PI * 0.9}
         frameloop={state.running ? 'always' : 'demand'}
       >
-        <IdealGasIsochoricRig3D {...state} theme={theme} mobile={isMobile} />
-      </InteractiveCanvas>
+        <IdealGasIsochoricRig3D {...state} theme={theme} />
+      </FittedCanvas>
     }
     dataOverlay={
       <DataRows

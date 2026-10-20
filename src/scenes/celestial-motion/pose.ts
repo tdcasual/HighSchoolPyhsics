@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3 } from '../../scene3d/orbitFraming'
+import type { FramingArea, OrbitView, Vec3 } from '../../scene3d/orbitFraming'
 import {
   areaWedges,
   burnPoints,
@@ -102,52 +102,20 @@ function scaleLab(vector: LabVec, factor: number): LabVec {
   return { x: vector.x * factor, y: vector.y * factor, z: vector.z * factor }
 }
 
-export type CelestialCameraFrame = {
-  aspect?: number
-  centerOffsetPixels?: number
-  viewportHeight?: number
-}
-
-export function celestialView(
-  azimuthDeg: number,
-  elevationDeg: number,
-  outer: number,
-  frame: CelestialCameraFrame = {},
-): OrbitView {
-  const azimuth = (azimuthDeg * Math.PI) / 180
-  const elevation = (elevationDeg * Math.PI) / 180
-  const radius = frameRadius(outer, frame.aspect ?? 1.6)
-  const viewportHeight = frame.viewportHeight ?? 0
-  const centerOffsetPixels = frame.centerOffsetPixels ?? 0
-  const shift = viewportHeight > 0
-    ? (centerOffsetPixels * 2 * radius * Math.tan((CELESTIAL_CAMERA.fov * Math.PI) / 360)) / viewportHeight
-    : 0
-  const right: Vec3 = [Math.cos(azimuth), 0, -Math.sin(azimuth)]
+/**
+ * Fits the drawn orbits (a sphere of radius `outer` around the central body) into one free
+ * area of the canvas, seen from the teacher's 方位 / 仰角. The body stays the orbit target;
+ * the screen offset moves it to the area's centre.
+ */
+export function celestialView(azimuthDeg: number, elevationDeg: number, outer: number, area: FramingArea = {}): OrbitView {
+  const heightFraction = Math.max(0.2, area.heightFraction ?? 1)
   return {
-    target: [-right[0] * shift, 0, -right[2] * shift],
-    azimuth,
-    elevation,
-    radius,
+    target: [0, 0, 0],
+    azimuth: (azimuthDeg * Math.PI) / 180,
+    elevation: (elevationDeg * Math.PI) / 180,
+    radius: frameRadius(outer / heightFraction, (area.aspect ?? 1.6) / heightFraction),
+    screenOffset: [area.centerOffsetPixels ?? 0, area.centerOffsetYPixels ?? 0],
   }
-}
-
-export function celestialCamera(
-  azimuthDeg: number,
-  elevationDeg: number,
-  outer: number,
-  frame: CelestialCameraFrame = {},
-) {
-  const view = celestialView(azimuthDeg, elevationDeg, outer, frame)
-  return { ...view, position: orbitPosition(view) }
-}
-
-export function celestialCameraPosition(
-  azimuthDeg: number,
-  elevationDeg: number,
-  outer: number,
-  frame: CelestialCameraFrame = {},
-) {
-  return celestialCamera(azimuthDeg, elevationDeg, outer, frame).position
 }
 
 function direction(from: Vec3, to: Vec3): Vec3 {

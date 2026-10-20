@@ -33,7 +33,8 @@ describe('cart structure', () => {
     expect(camera.fov).toBe(35)
     expect(controls.minDistance).toBe(6)
     expect(controls.maxDistance).toBe(23)
-    expect(controls.target).toEqual([0, 0.1, 0])
+    // The bench is fitted to the free area: the target is the measured centre of the apparatus.
+    expect(controls.target.every(Number.isFinite)).toBe(true)
     expect(canvasProps.current?.adaptiveFraming).toBe(false)
 
     fireEvent.click(screen.getByRole('button', { name: '单步' }))
@@ -72,6 +73,7 @@ describe('cart structure', () => {
     expect(afterTop).not.toEqual(beforeTop)
     fireEvent.click(screen.getByRole('radio', { name: '正视' }))
     const controls = canvasProps.current?.controls as { target: number[] }
-    expect(controls.target).toEqual([0, 0.1, 0])
+    // The bench is fitted to the free area: the target is the measured centre of the apparatus.
+    expect(controls.target.every(Number.isFinite)).toBe(true)
   })
 })

@@ -5,11 +5,13 @@ import type { ReactNode } from 'react'
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({
     camera,
+    cameraUp,
     controls,
     syncCamera,
     children,
   }: {
-    camera: { position?: [number, number, number]; up?: [number, number, number] }
+    camera: { position?: [number, number, number] }
+    cameraUp?: [number, number, number]
     controls?: { minPolarAngle?: number; maxPolarAngle?: number }
     syncCamera?: boolean
     children: ReactNode
@@ -17,7 +19,7 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
     <div
       data-testid="interactive-canvas"
       data-camera-position={camera.position?.join(',') ?? ''}
-      data-camera-up={camera.up?.join(',') ?? ''}
+      data-camera-up={cameraUp?.join(',') ?? ''}
       data-min-polar={String(controls?.minPolarAngle ?? '')}
       data-max-polar={String(controls?.maxPolarAngle ?? '')}
       data-sync-camera={String(syncCamera ?? false)}

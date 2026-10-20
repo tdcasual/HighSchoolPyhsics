@@ -1,6 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { InductionCurrentControls } from './InductionCurrentControls'
 import { InductionCurrentRig3D } from './InductionCurrentRig3D'
@@ -13,10 +12,8 @@ import './induction-current.css'
 
 export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
-  // Desktop looks a little higher to keep the full magnet travel (y 0…21) in view.
-  const cameraTarget: [number, number, number] = isMobile ? [7.5, 1, 0] : [7.5, 3, 0]
-  const cameraPosition: [number, number, number] = isMobile ? [12.5, 10, 65] : [12.5, 12, 64]
+  // While the magnet moves, the camera eases toward the coil.
+  const cameraTarget: [number, number, number] = [7.5, 3, 0]
   const presentationFocus = state.motionDirection || state.lastOutcome
     ? { mode: 'focus' as const, primary: cameraTarget }
     : { mode: 'overview' as const }
@@ -64,11 +61,13 @@ export function InductionCurrentScene() {
         />
       }
       viewport={
-        <InteractiveCanvas
-          camera={{ position: cameraPosition, fov: 40 }}
-          controls={{ target: cameraTarget, minDistance: 24, maxDistance: 120 }}
+        <FittedCanvas
+          shot={{ from: [12.5, 12, 64], to: cameraTarget }}
+          fov={40}
+          minDistance={24}
+          maxDistance={120}
+          far={400}
           presentationFocus={presentationFocus}
-          adaptiveFraming={false}
           frameloop={state.motionDirection ? 'always' : 'demand'}
         >
           <InductionCurrentRig3D
@@ -78,7 +77,7 @@ export function InductionCurrentScene() {
             coilCurrentSign={state.coilCurrentSign}
             needleAngleRad={state.needleAngleRad}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

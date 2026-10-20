@@ -1,7 +1,8 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useMemo, useState } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
+import type { Vec3 } from '../../scene3d/orbitFraming'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MotionalEmfControls } from './MotionalEmfControls'
 import { MotionalEmfRig3D } from './MotionalEmfRig3D'
@@ -10,49 +11,11 @@ import './motional-emf.css'
 
 type CameraViewPreset = 'default' | 'top' | 'bottom'
 
-const CAMERA_PRESETS: Record<
-  CameraViewPreset,
-  {
-    camera: { position: [number, number, number]; fov: number; up?: [number, number, number] }
-    controls: {
-      target: [number, number, number]
-      minDistance: number
-      maxDistance: number
-      minPolarAngle: number
-      maxPolarAngle: number
-    }
-  }
-> = {
-  default: {
-    camera: { position: [3.65, 2.55, 10.8], fov: 38 },
-    controls: {
-      target: [1.5, 0.25, 0.7],
-      minDistance: 6,
-      maxDistance: 22,
-      minPolarAngle: 0,
-      maxPolarAngle: Math.PI,
-    },
-  },
-  top: {
-    camera: { position: [2, 14.75, -0.999], up: [0, 0, -1], fov: 40 },
-    controls: {
-      target: [2, -0.25, -1],
-      minDistance: 6,
-      maxDistance: 22,
-      minPolarAngle: 0,
-      maxPolarAngle: Math.PI,
-    },
-  },
-  bottom: {
-    camera: { position: [2, -15.25, -0.999], up: [0, 0, 1], fov: 40 },
-    controls: {
-      target: [2, -0.25, -1],
-      minDistance: 6,
-      maxDistance: 22,
-      minPolarAngle: 0,
-      maxPolarAngle: Math.PI,
-    },
-  },
+/** Viewing directions (camera position → point looked at); the distance is fitted to the free area. */
+const CAMERA_PRESETS: Record<CameraViewPreset, { from: Vec3; to: Vec3; up: Vec3; fov: number }> = {
+  default: { from: [3.65, 2.55, 10.8], to: [1.5, 0.25, 0.7], up: [0, 1, 0], fov: 38 },
+  top: { from: [2, 14.75, -0.999], to: [2, -0.25, -1], up: [0, 0, -1], fov: 40 },
+  bottom: { from: [2, -15.25, -0.999], to: [2, -0.25, -1], up: [0, 0, 1], fov: 40 },
 }
 
 export function MotionalEmfScene() {
@@ -129,10 +92,13 @@ export function MotionalEmfScene() {
         />
       }
       viewport={
-        <InteractiveCanvas
-          camera={activeCameraPreset.camera}
-          controls={activeCameraPreset.controls}
-          syncCamera
+        <FittedCanvas
+          shot={{ from: activeCameraPreset.from, to: activeCameraPreset.to }}
+          refitKey={cameraView}
+          fov={activeCameraPreset.fov}
+          cameraUp={activeCameraPreset.up}
+          minDistance={6}
+          maxDistance={22}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <MotionalEmfRig3D
@@ -148,7 +114,7 @@ export function MotionalEmfScene() {
             currentActive={state.running && Math.abs(state.signedVoltageV) > 1e-9}
             needleAngleRad={state.needleAngleRad}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

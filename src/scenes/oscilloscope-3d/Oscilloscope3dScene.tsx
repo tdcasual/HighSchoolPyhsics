@@ -1,10 +1,9 @@
 import { useMemo } from 'react'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { Oscilloscope3dChart } from './Oscilloscope3dChart'
 import { Oscilloscope3dControls } from './Oscilloscope3dControls'
 import { buildNormalTrace, buildXYTrace, deriveBeamProgress } from './model'
@@ -29,10 +28,7 @@ const PART_LABELS: Record<string, string> = {
 
 export function Oscilloscope3dScene() {
   const theme = useAppStore((state) => state.theme)
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const state = useOscilloscope3dSceneState()
-  const cameraPosition: [number, number, number] = isMobile ? [11.8, 7.2, 15.2] : [14.1, 8.8, 18.4]
-  const cameraTarget: [number, number, number] = [0.2, 0, 0]
   const effectiveTrigger = state.mode === 'scan' ? state.trigger : true
   const trace = useMemo(
     () => state.mode === 'xy'
@@ -58,9 +54,12 @@ export function Oscilloscope3dScene() {
     <SceneLayout
       controls={<Oscilloscope3dControls state={state} />}
       viewport={(
-        <InteractiveCanvas
-          camera={{ position: cameraPosition, fov: 40 }}
-          controls={{ target: cameraTarget, minDistance: 8, maxDistance: 30, maxPolarAngle: Math.PI * 0.82 }}
+        <FittedCanvas
+          shot={{ from: [14.1, 8.8, 18.4], to: [0.2, 0, 0] }}
+          fov={40}
+          minDistance={8}
+          maxDistance={30}
+          maxPolarAngle={Math.PI * 0.82}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <Oscilloscope3dRig3D
@@ -79,7 +78,7 @@ export function Oscilloscope3dScene() {
             xy={state.xy}
             trace={trace}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       )}
       dataOverlay={(
         <DataRows

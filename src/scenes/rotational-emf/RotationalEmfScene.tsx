@@ -1,7 +1,9 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
+import type { Vec3 } from '../../scene3d/orbitFraming'
+import { boxAround } from '../../scene3d/useAutoFittedCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { RotationalEmfControls } from './RotationalEmfControls'
 import {
@@ -14,44 +16,20 @@ import { useRotationalEmfSceneState } from './useRotationalEmfSceneState'
 
 export function RotationalEmfScene() {
   const state = useRotationalEmfSceneState()
-  const activeCameraPreset = useMemo(() => {
+  // The rod or frame sweeps a full turn, so frame the box it sweeps rather than one pose.
+  const shot = useMemo(() => {
     const length = state.effectiveLengthM
     const visualLength = ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length
-    const maxDimension = state.scenario === 'rod'
-      ? Math.max(
-          2 * visualLength,
-          2 * Math.hypot(
-            0.55 * visualLength,
-            0.55 * visualLength,
-            (ROD_FIELD_SHAFT_LENGTH / 2 + 0.34) * length,
-          ),
-        )
-      : 2 * Math.hypot(
+    const sweep = state.scenario === 'rod'
+      ? Math.max(visualLength, Math.hypot(0.55 * visualLength, 0.55 * visualLength, (ROD_FIELD_SHAFT_LENGTH / 2 + 0.34) * length))
+      : Math.hypot(
           (FRAME_FIELD_SHAFT_LENGTH / 2 + 0.16) * length,
           0.75 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length,
           0.65 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * length,
         )
-
-    if (state.viewMode === 'top') {
-      const fov = 30
-      const distance = Math.max(4, maxDimension / (2 * Math.tan((fov * Math.PI) / 360)) * 1.12)
-      return {
-        camera: { position: [0, distance, 0.001] as [number, number, number], fov },
-        cameraUp: [0, 0, -1] as [number, number, number],
-        controls: { target: [0, 0, 0] as [number, number, number], minDistance: Math.max(2.5, distance * 0.45), maxDistance: distance * 2 },
-      }
-    }
-
-    const fov = 38
-    const distance = Math.max(4, maxDimension / (2 * Math.tan((fov * Math.PI) / 360)) * 1.12)
-    const basePosition = state.scenario === 'frame' ? [2.5, 3.6, 9] : [5.5, 4.8, 7.2]
-    const baseDistance = Math.hypot(...basePosition)
-    const scale = distance / baseDistance
-    return {
-      camera: { position: basePosition.map((value) => value * scale) as [number, number, number], fov },
-      cameraUp: [0, 1, 0] as [number, number, number],
-      controls: { target: [0, 0, 0] as [number, number, number], minDistance: Math.max(2.5, distance * 0.45), maxDistance: distance * 2 },
-    }
+    const bounds = boxAround([0, 0, 0], [sweep, sweep, sweep])
+    if (state.viewMode === 'top') return { from: [0, 1, 0.001] as Vec3, to: [0, 0, 0] as Vec3, bounds, margin: 1.1 }
+    return { from: (state.scenario === 'frame' ? [2.5, 3.6, 9] : [5.5, 4.8, 7.2]) as Vec3, to: [0, 0, 0] as Vec3, bounds, margin: 1.1 }
   }, [state.effectiveLengthM, state.scenario, state.viewMode])
 
   return (
@@ -86,16 +64,17 @@ export function RotationalEmfScene() {
         { stepLabel: '单步 15°', onReset: state.reset },
       )}
       viewport={
-        <InteractiveCanvas
-          camera={activeCameraPreset.camera}
-          cameraUp={activeCameraPreset.cameraUp}
-          controls={activeCameraPreset.controls}
-          syncCamera
-          adaptiveFraming={false}
+        <FittedCanvas
+          shot={shot}
+          refitKey={`${state.scenario}:${state.viewMode}:${state.effectiveLengthM}`}
+          fov={state.viewMode === 'top' ? 30 : 38}
+          cameraUp={state.viewMode === 'top' ? [0, 0, -1] : [0, 1, 0]}
+          minDistance={2.5}
+          maxDistance={40}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <RotationalEmfRig3D scenario={state.scenario} angleRad={state.angleRad} effectiveLengthM={state.effectiveLengthM} />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

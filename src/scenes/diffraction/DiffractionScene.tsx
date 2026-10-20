@@ -1,7 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
-import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DiffractionControls } from './DiffractionControls'
 import { DiffractionRig3D } from './DiffractionRig3D'
@@ -21,34 +20,9 @@ import {
 
 export function DiffractionScene() {
   const state = useDiffractionSceneState()
-  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)')
 
   const screenWidthM = 1.2
   const screenHeightM = 0.9
-  const cameraTargetZ = (state.params.screenDistance - 0.2) / 2
-  const cameraTargetX = isTablet ? 1.0 : 0
-  const cameraDistanceScale = isTablet ? 1.55 : 1
-  const camera = useMemo(
-    () => ({
-      position: [
-        cameraTargetX + 1.6 * cameraDistanceScale,
-        0.8 * cameraDistanceScale,
-        cameraTargetZ - 1.35 * cameraDistanceScale,
-      ] as [number, number, number],
-      fov: 50,
-    }),
-    [cameraTargetX, cameraDistanceScale, cameraTargetZ],
-  )
-  const cameraControls = useMemo(
-    () => ({
-      target: [cameraTargetX, 0, cameraTargetZ] as [number, number, number],
-      minDistance: 0.35,
-      maxDistance: 6,
-      enablePan: true,
-    }),
-    [cameraTargetX, cameraTargetZ],
-  )
-
   const featureLabel = useMemo(() => formatFeatureLabel(state.mode), [state.mode])
   const featureValue = useMemo(() => {
     if (state.isWhiteLight) {
@@ -97,7 +71,15 @@ export function DiffractionScene() {
       chartVisible={state.showProfile}
       chartInitiallyCollapsed={false}
       viewport={
-        <InteractiveCanvas camera={camera} controls={cameraControls} frameloop="demand" adaptiveFraming={false}>
+        <FittedCanvas
+          shot={{ from: [1.6, 0.8, -1.35], to: [0, 0, 0] }}
+          refitKey={String(state.params.screenDistance)}
+          fov={50}
+          near={0.01}
+          minDistance={0.35}
+          maxDistance={6}
+          frameloop="demand"
+        >
           <DiffractionRig3D
             mode={state.mode}
             params={state.params}
@@ -109,7 +91,7 @@ export function DiffractionScene() {
             screenWidthM={screenWidthM}
             screenHeightM={screenHeightM}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

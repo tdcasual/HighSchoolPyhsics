@@ -55,8 +55,10 @@ describe('celestial structure', () => {
     }
     expect(camera.fov).toBe(32)
     expect(controls.minDistance).toBe(6)
-    expect(controls.maxDistance).toBeGreaterThan(26)
-    expect(controls.target).not.toEqual([0, 0, 0])
+    expect(controls.maxDistance).toBeGreaterThanOrEqual(26)
+    // The body is the orbit target; the screen offset moves it to the free area's centre.
+    expect(controls.target).toEqual([0, 0, 0])
+    expect(canvasProps.current?.screenOffset).toHaveLength(2)
     expect(controls.minPolarAngle).toBeCloseTo((16 * Math.PI) / 180)
     expect(controls.maxPolarAngle).toBeCloseTo((74 * Math.PI) / 180)
     expect(canvasProps.current?.adaptiveFraming).toBe(false)

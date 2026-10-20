@@ -21,9 +21,9 @@ const isTest = (file) => file.includes('__tests__') || /\.test\.tsx?$/.test(file
 /** Each check answers "does this scene use the shared piece?" from its source text. */
 const CHECKS = {
   clock: (text) => /useSimulationClock|useAnimatedState|useAnimationLoop/.test(text),
-  playback: (text) => /clockActions\(|stateActions\(/.test(text),
+  playback: (text) => /clockActions\(/.test(text),
   charts: (text, files) => !files.some((file) => /Chart\.tsx$/.test(file)) || /ui\/charts\//.test(text),
-  framing: (text) => /useFittedOrbitCamera|useBoundsFraming/.test(text) && !/camera=\{\{\s*position/.test(text),
+  framing: (text) => /<FittedCanvas\b|useFittedOrbitCamera|useBoundsFraming/.test(text) && !/camera=\{\{\s*position/.test(text),
   layered: (_text, files) => ['SceneState.ts', 'Controls.tsx', 'Scene.tsx'].every((suffix) => files.some((file) => path.basename(file).endsWith(suffix))),
   dataRows: (text) => /<DataRows/.test(text),
 }

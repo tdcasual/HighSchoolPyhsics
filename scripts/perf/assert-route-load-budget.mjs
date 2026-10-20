@@ -41,7 +41,7 @@ async function measureRouteLoad(page, demo) {
 
   const startTime = performance.now()
   // All scenes are visible directly on the whiteboard overview
-  await page.getByText(demo.label).click()
+  await page.getByText(demo.label, { exact: true }).first().click()
   await page.waitForURL(`${BASE_URL}${demo.path}`, { timeout: 15000 })
   await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
   return performance.now() - startTime
@@ -65,7 +65,7 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({
+        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
         })

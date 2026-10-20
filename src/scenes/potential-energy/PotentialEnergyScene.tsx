@@ -1,7 +1,7 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -101,10 +101,11 @@ export function PotentialEnergyScene() {
         { key: 'reset', label: '重置', onClick: resetScene, disabled: !surfaceVisible },
       ]}
       viewport={
-        <InteractiveCanvas
-          camera={{ position: [18, 24, 38], fov: 58 }}
-          controls={{ target: [0, 0, 0], minDistance: 8, maxDistance: 60 }}
-          adaptiveFraming={false}
+        <FittedCanvas
+          shot={{ from: [18, 24, 38], to: [0, 0, 0] }}
+          fov={58}
+          minDistance={8}
+          maxDistance={60}
           frameloop={rotationInProgress ? 'always' : 'demand'}
         >
           <PotentialEnergyRig3D
@@ -119,7 +120,7 @@ export function PotentialEnergyScene() {
             onChargeClick={toggleChargeSign}
             slicePoints={slicePoints}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

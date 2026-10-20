@@ -1,6 +1,6 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { useMemo } from 'react'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { buildBeamFlightTrailPoints, buildBeamPathPoints, deriveBeamPhase } from './beamPath'
 import { buildCrtScreenGridSegments, mapDisplayPointToCrtScreen } from './screenGeometry'
 import { BEAM_VISUAL_STYLE } from './beamVisual'
@@ -14,7 +14,6 @@ type OscilloscopeCrt3DProps = {
 }
 
 const CRT_FOV_DEG = 34
-const CRT_HORIZONTAL_BOUNDS = 11.5
 const CRT_SCREEN_GRID = buildCrtScreenGridSegments()
 const CRT_CAMERA_TARGET: [number, number, number] = [-1, 0, -0.42]
 
@@ -162,42 +161,15 @@ function CtrModel({ beamX, beamY, timeCursor, traceSegments, running }: Oscillos
 }
 
 export function OscilloscopeCrt3D({ beamX, beamY, timeCursor, traceSegments, running }: OscilloscopeCrt3DProps) {
-  const frameRef = useRef<HTMLDivElement>(null)
-  const [aspect, setAspect] = useState(16 / 9)
-  const distance = Math.max(
-    7.2,
-    (CRT_HORIZONTAL_BOUNDS / (2 * Math.tan((CRT_FOV_DEG * Math.PI) / 360) * Math.max(0.35, aspect))) * 1.1,
-  )
-
-  useEffect(() => {
-    const surface = frameRef.current?.querySelector('.interactive-canvas-surface')
-    if (!surface) return
-
-    const updateAspect = () => {
-      const { width, height } = surface.getBoundingClientRect()
-      if (width > 0 && height > 0) setAspect(width / height)
-    }
-    updateAspect()
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', updateAspect)
-      return () => window.removeEventListener('resize', updateAspect)
-    }
-    const observer = new ResizeObserver(updateAspect)
-    observer.observe(surface)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <div ref={frameRef} className="h-full w-full">
-      <InteractiveCanvas
-        camera={{ position: [CRT_CAMERA_TARGET[0] - distance * 0.42, distance * 0.17, CRT_CAMERA_TARGET[2] + distance], fov: CRT_FOV_DEG }}
-        controls={{ target: CRT_CAMERA_TARGET, minDistance: 3, maxDistance: Math.max(24, distance * 1.35) }}
-        syncCamera
-        adaptiveFraming={false}
-        frameloop={running ? 'always' : 'demand'}
-      >
-        <CtrModel beamX={beamX} beamY={beamY} timeCursor={timeCursor} traceSegments={traceSegments} running={running} />
-      </InteractiveCanvas>
-    </div>
+    <FittedCanvas
+      shot={{ from: [CRT_CAMERA_TARGET[0] - 0.42, 0.17, CRT_CAMERA_TARGET[2] + 1], to: CRT_CAMERA_TARGET }}
+      fov={CRT_FOV_DEG}
+      minDistance={3}
+      maxDistance={24}
+      frameloop={running ? 'always' : 'demand'}
+    >
+      <CtrModel beamX={beamX} beamY={beamY} timeCursor={timeCursor} traceSegments={traceSegments} running={running} />
+    </FittedCanvas>
   )
 }

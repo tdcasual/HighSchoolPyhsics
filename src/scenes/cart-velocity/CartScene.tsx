@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
+import { boxAround } from '../../scene3d/useAutoFittedCamera'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { orbitPosition } from '../../scene3d/orbitFraming'
 import { CartChart } from './CartChart'
 import { CartControls } from './CartControls'
 import { CartRig3D } from './CartRig3D'
@@ -23,16 +22,12 @@ function conditionLine(hooks: number, dh: number, x: number, v0: number): string
 export function CartScene() {
   const theme = useAppStore((store) => store.theme)
   const state = useCartVelocitySceneState()
-  const [compactViewport, setCompactViewport] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth <= 767,
-  )
-  useEffect(() => {
-    const updateViewport = () => setCompactViewport(window.innerWidth <= 767)
-    window.addEventListener('resize', updateViewport)
-    updateViewport()
-    return () => window.removeEventListener('resize', updateViewport)
-  }, [])
-  const view = cartView(state.view, state.focusPart, compactViewport)
+  // Presets give the direction; the track (or the focused part's surroundings) is fitted to the free area.
+  const view = cartView(state.view, state.focusPart)
+  const closeUp = state.focusPart !== null || state.view === 'focus'
+  const shot = closeUp
+    ? { azimuth: view.azimuth, elevation: view.elevation, anchor: view.target, bounds: boxAround(view.target, [view.radius * 0.22, view.radius * 0.14, view.radius * 0.18]) }
+    : { azimuth: view.azimuth, elevation: view.elevation }
   const pose = cartPose(state)
   const locked = state.stage === 'assemble'
   const graphFit = fit(state.points)
@@ -94,21 +89,14 @@ export function CartScene() {
         },
       )}
       viewport={
-        <InteractiveCanvas
-          camera={{ position: orbitPosition(view), fov: CART_CAMERA.fov, near: CART_CAMERA.near, far: CART_CAMERA.far }}
-          adaptiveFraming={false}
-          syncCamera
-          controls={{
-            target: view.target,
-            minDistance: CART_CAMERA.minDistance,
-            maxDistance: CART_CAMERA.maxDistance,
-            minPolarAngle: CART_CAMERA.minPolarAngle,
-            maxPolarAngle: CART_CAMERA.maxPolarAngle,
-          }}
+        <FittedCanvas
+          shot={shot}
+          refitKey={`${state.view}:${state.focusPart ?? ''}`}
+          {...CART_CAMERA}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <CartRig3D pose={pose} skin={state.skin} night={theme === 'night'} />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

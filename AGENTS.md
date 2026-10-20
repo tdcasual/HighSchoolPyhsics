@@ -30,7 +30,7 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 2. `dataOverlay` is a `<DataRows rows={[{ label, value, answer?, when? }]} />` (`ui/panels/DataRows`) with 3-5 key readings shown at a time (results, not echoes of sidebar parameters). Mark conclusions `answer: true` so prediction mode masks them; use `when` for mode-dependent rows.
 3. Model caveats, formulas and sign conventions go in `notes` (or `<ModelNote>` inside controls), which render in the sidebar's collapsed 教师备注; the sidebar body keeps controls, how-to hints and legends.
 4. Play/step/reset belong in `playbackActions`, built with `clockActions(transport, { stepLabel, onReset, playLabel?, pauseLabel?, finished?, disabled?, extra? })` from `simulation/clockActions` — the transport is the clock or any `{ running, toggle, step }`. It gives the keys Space = `toggle-running`, `.`/→ = `step`, `,`/← = `step-back` (arrows held repeat). Only scenes without play/pause (instrument nudges, 通电/释放, 接近/远离) list actions by hand, each with a reason in the convention test's `HAND_PLAYBACK`.
-5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that. A scene that computes its camera from the apparatus bounds uses `useFittedOrbitCamera` (`scene3d/`, built on `useBoundsFraming` + `fitOrbitView`): it fits the bounds into the largest uncovered area once (on open and on a view preset), never per panel change, and holds still while a part is dragged. Do not copy viewport or framing helpers into a scene (a convention test checks).
+5. Compose the camera centered on the apparatus, with one view for every screen size (no phone/tablet camera branches; a convention test checks). Render 3D through `scene3d/FittedCanvas`: give the viewing direction (`shot={{ from, to }}` or `{ azimuth, elevation }`) and limits; it measures the apparatus (`FitBounds`, settling over the first second) and fits it into the largest area the panels leave free, once on open and on `refitKey` (a view preset), never per panel change. Mark floors, grids and backdrops `userData={NO_FIT}`; pass `shot.bounds` for parts that sweep (a rotating rod) or for a close-up. Scenes that compute bounds themselves (instruments, celestial orbits) use `useFittedOrbitCamera` (`useBoundsFraming` + `fitOrbitView`), which also holds still while a part is dragged. Never pass a literal `camera` to `InteractiveCanvas`, and do not copy viewport or framing helpers into a scene.
 6. Open in a state that can be taught immediately (no mandatory "step 1" click).
 7. Mark conclusion readings `answer: true` in `DataRows` (or wrap other conclusions in `<Answer>`; prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate. If the chart is what students read from (not the outcome), pass `chartMaskable={false}` and hide its answer marks with `usePredictionMasked()`.
 8. Advance simulated time only through `src/simulation/`: `useSimulationClock` (play / pause / 单步 / slow motion / fixed sub-steps; the scene supplies `advance(dt)`, returning false when the process ends) with `clockActions` for the playback zone, or `useAnimatedState` / `useAnimationLoop` when a pure state machine owns its own `running` flag. Never hand-write a requestAnimationFrame time loop (a convention test enforces it). Pass `timeControl` when the clock honours the shell's slow motion; import `Line` from `scene3d/ClassroomLine`.
@@ -51,7 +51,7 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 ## Scene Structure Template
 
 ```tsx
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
@@ -80,9 +80,9 @@ export function NewDemoScene() {
       chartVisible={state.showChart}
       playbackActions={clockActions(clock, { stepLabel: '单步 T/4', onReset: state.reset })}
       viewport={
-        <InteractiveCanvas frameloop={clock.frameloop}>
+        <FittedCanvas shot={{ from: [4, 3, 6], to: [0, 0, 0] }} fov={42} frameloop={clock.frameloop}>
           <NewDemoRig3D intensity={state.intensity} />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

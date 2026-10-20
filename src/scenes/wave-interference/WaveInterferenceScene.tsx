@@ -1,7 +1,7 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { WaveInterferenceControls } from './WaveInterferenceControls'
 import { WaveInterferenceRig3D } from './WaveInterferenceRig3D'
@@ -19,14 +19,6 @@ import {
   type Vec2,
 } from './model'
 import './wave-interference.css'
-
-const CAMERA = { position: [0, 6, 6] as const, fov: 50 }
-const CAMERA_CONTROLS = {
-  target: [0, 0, 0] as const,
-  minDistance: 3,
-  maxDistance: 20,
-  maxPolarAngle: Math.PI / 2,
-}
 
 export function WaveInterferenceScene() {
   const state = useWaveInterferenceSceneState()
@@ -86,9 +78,9 @@ export function WaveInterferenceScene() {
       chartVisible={state.showChart}
       chartInitiallyCollapsed
       viewport={
-        <InteractiveCanvas
-          camera={CAMERA}
-          controls={CAMERA_CONTROLS}
+        <FittedCanvas
+          shot={{ from: [0, 6, 6], to: [0, 0, 0] }}
+          fov={50} minDistance={3} maxDistance={20} maxPolarAngle={Math.PI / 2}
           frameloop={state.isPlaying ? 'always' : 'demand'}
         >
           <WaveInterferenceRig3D
@@ -111,7 +103,7 @@ export function WaveInterferenceScene() {
             showDestructive={state.showDestructive}
             _tickSyncRef={state._tickSyncRef}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

@@ -4,6 +4,7 @@ import { CatmullRomCurve3, DoubleSide, Vector3 } from "three";
 import { EM_LAYOUT, SPARK_LAYOUT, TAPE, sparkDiscRotationRad, tapeWorldX } from "./layout";
 import type { PrintQuality, TapeDot, TimerKind } from "./model";
 import { TICKER_CANDY as C } from "./palette";
+import { NO_FIT } from "../../scene3d/FitBounds";
 
 type TickerTimerRig3DProps = {
   kind: TimerKind;
@@ -627,6 +628,7 @@ export function TickerTimerRig3D({
         position={[0, -0.085, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
+        userData={NO_FIT}
       >
         <planeGeometry args={[24, 24]} />
         <shadowMaterial transparent opacity={0.14} />

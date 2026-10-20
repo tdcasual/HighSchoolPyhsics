@@ -1,20 +1,12 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { WedgeInterferenceChart } from './WedgeInterferenceChart'
 import { WedgeInterferenceControls } from './WedgeInterferenceControls'
 import { WedgeInterferenceRig3D } from './WedgeInterferenceRig3D'
 import { useWedgeInterferenceSceneState } from './useWedgeInterferenceSceneState'
 import './wedge-interference.css'
-
-const CAMERA = { position: [0, 18, 30] as const, fov: 45 }
-const CAMERA_CONTROLS = {
-  target: [0, 3, 0] as const,
-  minDistance: 10,
-  maxDistance: 60,
-  maxPolarAngle: Math.PI / 2 + 0.1,
-}
 
 export function WedgeInterferenceScene() {
   const state = useWedgeInterferenceSceneState()
@@ -54,11 +46,10 @@ export function WedgeInterferenceScene() {
       chartVisible={state.showChart}
       chartInitiallyCollapsed
       viewport={
-        <InteractiveCanvas
-          camera={CAMERA}
-          controls={CAMERA_CONTROLS}
+        <FittedCanvas
+          shot={{ from: [0, 18, 30], to: [0, 3, 0] }}
+          fov={45} minDistance={10} maxDistance={60} maxPolarAngle={Math.PI / 2 + 0.1}
           frameloop={state.isScanning ? 'always' : 'demand'}
-          adaptiveFraming={false}
         >
           <WedgeInterferenceRig3D
             params={chartParams}
@@ -66,7 +57,7 @@ export function WedgeInterferenceScene() {
             lightColorHex={state.lightColorHex}
             isScanning={state.isScanning}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

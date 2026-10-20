@@ -2,7 +2,7 @@ import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
-import { useViewportSize } from '../../scene3d/useViewportSize'
+import { useFittedOrbitCamera } from '../../scene3d/useFittedOrbitCamera'
 import { useAppStore } from '../../store/useAppStore'
 import { formatScientific } from '../../core/formatNumber'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -19,7 +19,7 @@ import {
   transferRadius,
   transferSpeed,
 } from './model'
-import { CELESTIAL_CAMERA, celestialCamera, celestialPose, outerRadius } from './pose'
+import { CELESTIAL_CAMERA, celestialPose, celestialView, outerRadius } from './pose'
 import { useCelestialMotionSceneState } from './useCelestialMotionSceneState'
 import './celestial-motion.css'
 
@@ -47,7 +47,6 @@ export function CelestialScene() {
   const theme = useAppStore((store) => store.theme)
   const state = useCelestialMotionSceneState()
   const viewportRef = useRef<HTMLDivElement>(null)
-  const viewportSize = useViewportSize(viewportRef)
   const scenario = state.scenario
   const pose = celestialPose({
     scenario,
@@ -57,14 +56,13 @@ export function CelestialScene() {
     corotate: state.corotate,
   })
   const outer = outerRadius(scenario)
-  // Fit the orbits to the whole canvas; InteractiveCanvas's safe area moves the result clear
-  // of the panel column once, so collapsing the sidebar no longer re-frames the view.
-  const cameraFrame = celestialCamera(state.azimuthDeg, state.elevationDeg, outer, {
-    aspect: viewportSize.width / Math.max(1, viewportSize.height),
-    centerOffsetPixels: 0,
-    viewportHeight: viewportSize.height,
-  })
-  const maxCameraDistance = Math.max(32, Math.ceil(cameraFrame.radius * 1.5))
+  // Fit the orbits into the largest free area once per view or scenario; panel changes only cover it.
+  const camera = useFittedOrbitCamera(
+    viewportRef,
+    `${state.azimuthDeg}:${state.elevationDeg}:${scenario.mode}:${outer.toFixed(3)}`,
+    CELESTIAL_CAMERA,
+    (area) => celestialView(state.azimuthDeg, state.elevationDeg, outer, area),
+  )
   const currentRadius = scenario.mode === 'transfer' ? transferRadius(scenario) : scenario.r1
   const currentSpeed = scenario.mode === 'transfer' ? transferSpeed(scenario) : scenario.o1.v
   const currentOmega = scenario.mode === 'transfer' ? transferAngularSpeed(scenario) : scenario.o1.omega
@@ -130,21 +128,7 @@ export function CelestialScene() {
       viewport={
         <div ref={viewportRef} className="celestial-viewport">
         <InteractiveCanvas
-          camera={{
-            position: cameraFrame.position,
-            fov: CELESTIAL_CAMERA.fov,
-            near: CELESTIAL_CAMERA.near,
-            far: CELESTIAL_CAMERA.far,
-          }}
-          syncCamera
-          adaptiveFraming={false}
-          controls={{
-            target: cameraFrame.target,
-            minDistance: CELESTIAL_CAMERA.minDistance,
-            maxDistance: maxCameraDistance,
-            minPolarAngle: CELESTIAL_CAMERA.minPolarAngle,
-            maxPolarAngle: CELESTIAL_CAMERA.maxPolarAngle,
-          }}
+          {...camera.canvasProps}
           frameloop={state.running ? 'always' : 'demand'}
         >
           <CelestialRig3D pose={pose} night={theme === 'night'} />

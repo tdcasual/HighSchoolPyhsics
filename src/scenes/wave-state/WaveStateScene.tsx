@@ -1,7 +1,7 @@
 import { Answer } from '../../ui/notes/Answer'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { WaveStateChart } from './WaveStateChart'
@@ -19,7 +19,7 @@ export function WaveStateScene() {
   const probeStatus = r.probeReached ? '已起振' : '尚未起振 · 预计 t=' + r.probeArrivalTime.toFixed(2) + ' s 到达'
   return <SceneLayout
     controls={<WaveStateControls state={state}/>}
-    viewport={<InteractiveCanvas camera={{position:[0,0,14],fov:42}} controls={{target:[0,0,0],minDistance:7,maxDistance:20,maxPolarAngle:Math.PI*0.9}} frameloop={state.running?'always':'demand'}><WaveStateRig3D {...state} theme={theme}/></InteractiveCanvas>}
+    viewport={<FittedCanvas shot={{ azimuth: 0, elevation: 0 }} fov={42} minDistance={7} maxDistance={20} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><WaveStateRig3D {...state} theme={theme} /></FittedCanvas>}
     dataOverlay={<DataRows
           className="wave-state-telemetry"
           rows={[

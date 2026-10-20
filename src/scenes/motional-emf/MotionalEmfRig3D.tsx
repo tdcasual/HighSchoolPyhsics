@@ -2,6 +2,7 @@ import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { CatmullRomCurve3, Euler, Quaternion, TubeGeometry, Vector3 } from 'three'
 import { MOTIONAL_EMF_LAYOUT, type Vec3 } from './layout'
+import { NO_FIT } from '../../scene3d/FitBounds'
 import {
   resolveInducedCurrentDirection,
   resolveRodContactOffsets,
@@ -180,7 +181,7 @@ export function MotionalEmfRig3D({
       <pointLight position={[0, 6, 4]} intensity={0.35} color="#c8e6ff" />
       <color attach="background" args={['#0f1620']} />
 
-      <gridHelper args={[18, 18, '#9aa7b5', '#d5dce4']} position={[0, -1.4, 0]} />
+      <gridHelper args={[18, 18, '#9aa7b5', '#d5dce4']} position={[0, -1.4, 0]} userData={NO_FIT} />
 
       {MOTIONAL_EMF_LAYOUT.field.lineZs.map((z) => (
         <group key={`field-line-${z}`} position={[MOTIONAL_EMF_LAYOUT.field.center[0], MOTIONAL_EMF_LAYOUT.field.center[1], z]}>

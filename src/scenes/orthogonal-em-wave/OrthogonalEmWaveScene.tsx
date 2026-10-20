@@ -1,6 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -17,15 +17,15 @@ export function OrthogonalEmWaveScene() {
   const isCompactDesktop = useMediaQuery('(min-width: 768px) and (max-width: 1100px)')
   const r = state.readings
   const directionLabel = state.direction === 'right' ? '向右' : '向左'
+  // Directions only; the distance fits the wave into the free area for every view.
   const cameraByView = {
     '3d': [9, 7, 14],
     xy: [0, 0, 15],
     xz: [0, 15, 0],
     yz: [14, 0, 0],
-  } as const
-  const cameraPosition = cameraByView[state.viewMode]
+  } as const satisfies Record<string, [number, number, number]>
   const cameraUp: [number, number, number] = state.viewMode === 'xz' ? [0, 0, -1] : [0, 1, 0]
-  return <SceneLayout controls={<OrthogonalEmWaveControls state={state} />} viewport={<InteractiveCanvas camera={{ position: cameraPosition, fov: 42 }} cameraUp={cameraUp} syncCamera controls={{ target: [0, 0, 0], minDistance: 7, maxDistance: 22, maxPolarAngle: Math.PI * 0.9 }} frameloop={state.running ? 'always' : 'demand'}><OrthogonalEmWaveRig3D {...state} theme={theme} compactDesktop={isCompactDesktop} /></InteractiveCanvas>} dataOverlay={<DataRows
+  return <SceneLayout controls={<OrthogonalEmWaveControls state={state} />} viewport={<FittedCanvas shot={{ from: [...cameraByView[state.viewMode]], to: [0, 0, 0] }} refitKey={state.viewMode} fov={42} cameraUp={cameraUp} minDistance={7} maxDistance={22} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><OrthogonalEmWaveRig3D {...state} theme={theme} compactDesktop={isCompactDesktop} /></FittedCanvas>} dataOverlay={<DataRows
           className="orthogonal-em-wave-telemetry"
           rows={[
             { label: '传播方向', value: <>{directionLabel}（x 轴）</> },

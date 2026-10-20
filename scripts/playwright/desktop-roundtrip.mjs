@@ -53,12 +53,12 @@ async function run() {
             'Runtime capability gate blocked desktop-roundtrip in headless browser; verify WebGL2 flags are enabled for Playwright Chromium.',
           )
         }
-        await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
+        await page.getByRole('heading', { name: '高中物理 3D 课堂' }).waitFor({ state: 'visible', timeout: 15000 })
 
         for (const demo of DEMO_CATALOG) {
-          await page.getByRole('button', { name: demo.enterButton }).click()
+          await page.locator('.scene-card').filter({ has: page.locator('.scene-card-name').getByText(demo.label, { exact: true }) }).click()
           await page.waitForURL(`${baseUrl}${demo.path}`, { timeout: 15000 })
-          await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
+          await page.getByText(demo.readyText).filter({ visible: true }).first().waitFor({ state: 'visible', timeout: 15000 })
           await page.getByRole('button', { name: '返回导航' }).waitFor({ state: 'visible', timeout: 15000 })
 
           await page.screenshot({
@@ -68,7 +68,7 @@ async function run() {
 
           await page.getByRole('button', { name: '返回导航' }).click()
           await page.waitForURL(baseUrl, { timeout: 15000 })
-          await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
+          await page.getByRole('heading', { name: '高中物理 3D 课堂' }).waitFor({ state: 'visible', timeout: 15000 })
         }
 
         console.log(`Desktop roundtrip completed. Artifacts: ${OUTPUT_DIR}`)

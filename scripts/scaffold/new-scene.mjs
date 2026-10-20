@@ -138,7 +138,7 @@ export function ${base}Rig3D({ timeS, intensity }: { timeS: number; intensity: n
 }
 
 export function buildSceneTemplate({ base }) {
-  return `import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+  return `import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { clockActions } from '../../simulation/clockActions'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { DataRows } from '../../ui/panels/DataRows'
@@ -166,9 +166,9 @@ export function ${base}Scene() {
       notes={<p>模型假设与公式写在这里，默认折叠在侧栏末尾。</p>}
       playbackActions={clockActions(clock, { stepLabel: '单步 0.1 s', onReset: state.reset })}
       viewport={
-        <InteractiveCanvas camera={{ position: [0, 1.8, 5.2], fov: 42 }} frameloop={clock.frameloop}>
+        <FittedCanvas shot={{ from: [0, 1.8, 5.2], to: [0, 0, 0] }} fov={42} frameloop={clock.frameloop}>
           <${base}Rig3D timeS={state.timeS} intensity={state.intensity} />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )

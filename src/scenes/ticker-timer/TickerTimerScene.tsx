@@ -1,5 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
-import { InteractiveCanvas } from "../../scene3d/InteractiveCanvas";
+import { FittedCanvas } from "../../scene3d/FittedCanvas";
 import { RangeField } from "../../ui/controls/RangeField";
 import { SceneLayout } from "../../ui/layout/SceneLayout";
 import { TickerTimerChart } from "./TickerTimerChart";
@@ -85,9 +85,11 @@ export function TickerTimerScene() {
         },
       ]}
       viewport={
-        <InteractiveCanvas
-          camera={{ position: [6.8, 5.2, 7.3], fov: 38 }}
-          controls={{ target: [0, 0.75, 0], minDistance: 4.5, maxDistance: 18 }}
+        <FittedCanvas
+          shot={{ from: [6.8, 5.2, 7.3], to: [0, 0.75, 0] }}
+          fov={38}
+          minDistance={4.5}
+          maxDistance={18}
           frameloop={animating ? "always" : "demand"}
         >
           <TickerTimerRig3D
@@ -99,7 +101,7 @@ export function TickerTimerScene() {
             dots={state.dots}
             showLabels={state.showLabels}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   );

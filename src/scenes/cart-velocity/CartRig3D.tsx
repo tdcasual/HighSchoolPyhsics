@@ -3,6 +3,7 @@ import { CatmullRomCurve3, DoubleSide, Quaternion, Vector3 } from 'three'
 import type { CartSkin } from './pose'
 import { HOOK, PULLEY_RADIUS, PULLEY_X, TIMER_STRIKER_X, TIMER_X, type CartPose } from './pose'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
+import { NO_FIT } from '../../scene3d/FitBounds'
 
 function stringSegment(a: [number, number, number], b: [number, number, number], color: string) {
   const direction = new Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
@@ -99,7 +100,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
         shadow-bias={-0.0004}
       />
       <directionalLight position={[6, 5, -5]} intensity={1.3} color="#e9f5ff" />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6, 0]} receiveShadow userData={NO_FIT}>
         <planeGeometry args={[80, 80]} />
         <meshStandardMaterial color={night ? '#262d34' : '#e9eee8'} />
       </mesh>

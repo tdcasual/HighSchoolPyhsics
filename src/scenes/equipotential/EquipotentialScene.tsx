@@ -1,9 +1,8 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
-import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { EquipotentialControls } from './EquipotentialControls'
 import { EquipotentialRig3D } from './EquipotentialRig3D'
 import { buildEquipotentialSurfaces, type EquipotentialCharge } from './model'
@@ -45,7 +44,6 @@ function nextChargeId(charges: ReadonlyArray<EquipotentialCharge>): string {
 }
 
 export function EquipotentialScene() {
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const [charges, setCharges] = useState<EquipotentialCharge[]>(() => recall('equipotential.charges', () => createDipolePreset()))
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
   const [shellCount, setShellCount] = useState(() => recall('equipotential.shellCount', 4))
@@ -171,16 +169,7 @@ export function EquipotentialScene() {
         />
       }
       viewport={
-        <InteractiveCanvas
-          camera={{ position: isMobile ? [10, 7.5, 10] : [8, 6, 8], fov: isMobile ? 46 : 44 }}
-          controls={{
-            target: [0, 0, 0],
-            minDistance: 4,
-            maxDistance: 28,
-          }}
-          adaptiveFraming={false}
-          frameloop="demand"
-        >
+        <FittedCanvas shot={{ from: [8, 6, 8], to: [0, 0, 0] }} fov={44} minDistance={4} maxDistance={28} frameloop="demand">
           <EquipotentialRig3D
             bounds={SCENE_BOUNDS}
             charges={charges}
@@ -188,7 +177,7 @@ export function EquipotentialScene() {
             positiveSurfaces={cloudResult.positiveSurfaces}
             negativeSurfaces={cloudResult.negativeSurfaces}
           />
-        </InteractiveCanvas>
+        </FittedCanvas>
       }
     />
   )
