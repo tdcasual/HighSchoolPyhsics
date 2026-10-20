@@ -28,10 +28,15 @@ export type NavigationView = {
 
 /** Fills each group with its scenes from `SCENE_NAVIGATION`. */
 function withScenes(view: 'topic' | 'lesson', groups: Omit<NavigationGroup, 'scenePageIds'>[]): NavigationGroup[] {
-  return groups.map((group) => ({ ...group, scenePageIds: scenesIn(view, group.id) }))
+  return groups.map((group) => ({ ...group, scenePageIds: scenesIn(view, group.id) })).filter(hasScenes)
 }
 
-const TEXTBOOK_GROUPS: NavigationGroup[] = PHYSICS_REGIONS.map((region) => {
+/** Groups without scenes (e.g. a chapter not covered yet) stay defined but are not shown. */
+function hasScenes(group: { scenePageIds: string[] }): boolean {
+  return group.scenePageIds.length > 0
+}
+
+const TEXTBOOK_GROUPS: NavigationGroup[] = PHYSICS_REGIONS.filter(hasScenes).map((region) => {
   const volume = TEXTBOOK_VOLUMES.find((v) => v.id === region.volumeId)!
   return {
     id: region.id,
@@ -55,7 +60,7 @@ const TOPIC_GROUPS = withScenes('topic', [
   {
     id: 'electric-field',
     title: '静电场',
-    description: '电场线、电势、等势面与带电粒子的偏转',
+    description: '电势、等势面与带电粒子的偏转',
     color: '#6366f1',
   },
   {
@@ -67,7 +72,7 @@ const TOPIC_GROUPS = withScenes('topic', [
   {
     id: 'magnetic-field',
     title: '磁场与带电粒子',
-    description: '电流的磁效应、洛伦兹力的应用',
+    description: '洛伦兹力的应用：回旋加速器与磁流体发电机',
     color: '#f59e0b',
   },
   {
@@ -78,14 +83,14 @@ const TOPIC_GROUPS = withScenes('topic', [
   },
   {
     id: 'waves',
-    title: '振动与波',
-    description: '单摆、波的传播与干涉，电磁波的正交关系',
+    title: '波',
+    description: '波的传播与干涉，电磁波的正交关系',
     color: '#14b8a6',
   },
   {
     id: 'optics',
     title: '光学',
-    description: '折射与全反射、双缝与薄膜干涉、光的衍射',
+    description: '双缝与薄膜干涉、光的衍射',
     color: '#7c3aed',
   },
   {

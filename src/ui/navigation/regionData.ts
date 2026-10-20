@@ -105,7 +105,7 @@ const CHAPTERS: Omit<PhysicsRegion, 'scenePageIds'>[] = [
     id: 'light',
     volumeId: 'elective-1',
     name: '第四章 光',
-    description: '光的折射与全反射、干涉与衍射',
+    description: '光的干涉与衍射',
   },
   {
     id: 'lorentz-force',

@@ -174,8 +174,7 @@
         "U-t / Ek-t 双曲线",
         "可切换加速时间模型"
       ],
-      "tone": "cyclotron",
-      "level": "进阶"
+      "tone": "cyclotron"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -217,33 +216,6 @@
     "playwright": {
       "readyText": "磁流体发电机控制",
       "screenshotName": "mhd"
-    }
-  },
-  {
-    "pageId": "oersted",
-    "label": "奥斯特实验",
-    "meta": {
-      "tag": "课堂观察",
-      "summary": "三磁针偏转与导线姿态联动",
-      "highlights": [
-        "拖拽磁针自由摆位",
-        "磁感线可显隐对比"
-      ],
-      "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "奥斯特实验控制",
-      "screenshotName": "oersted"
     }
   },
   {
@@ -466,34 +438,6 @@
     }
   },
   {
-    "pageId": "alternator",
-    "label": "交流发电机",
-    "meta": {
-      "tag": "电磁感应",
-      "summary": "旋转线圈、滑环与电流表联动展示交流发电过程",
-      "highlights": [
-        "转速可调且 V-t 波形实时同步",
-        "电流表指针按半周换向左右偏转"
-      ],
-      "tone": "mhd",
-      "level": "进阶"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "交流发电机控制",
-      "screenshotName": "alternator"
-    }
-  },
-  {
     "pageId": "oscilloscope-3d",
     "label": "3D 示波器与波形测量",
     "meta": {
@@ -531,8 +475,7 @@
         "N/S 磁极、线圈、法向量与速度矢量联动",
         "磁通量余弦与电动势正弦图像同步追踪"
       ],
-      "tone": "mhd",
-      "level": "入门"
+      "tone": "mhd"
     },
     "touchProfile": {
       "pageScroll": "vertical-outside-canvas",
@@ -547,34 +490,6 @@
     "playwright": {
       "readyText": "正弦式交变电流：发电机核心模型",
       "screenshotName": "generator-core"
-    }
-  },
-  {
-    "pageId": "cyclotron-core",
-    "label": "回旋加速器核心结构与原理",
-    "meta": {
-      "tag": "粒子加速",
-      "summary": "D 型盒、交变电场与磁场同步加速模型",
-      "highlights": [
-        "质子、氘核和 α 粒子注入选择",
-        "加速次数、动能、周期与最大动能实时联动"
-      ],
-      "tone": "cyclotron",
-      "level": "入门"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "回旋加速器核心结构与原理",
-      "screenshotName": "cyclotron-core"
     }
   },
   {
@@ -656,33 +571,6 @@
     "playwright": {
       "readyText": "理想气体等容变化（查理定律）",
       "screenshotName": "ideal-gas-isochoric"
-    }
-  },
-  {
-    "pageId": "equipotential-dipole",
-    "label": "等量异种电荷电场线与等势面模型",
-    "meta": {
-      "tag": "静电场",
-      "summary": "等量异种电荷的电场线、等势面和场强矢量合成",
-      "highlights": [
-        "正负电荷、电场线流动、等势剖面和探针读数同屏联动",
-        "探针位置与电荷间距改变时 E₁、E₂、合场强和电势实时更新"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "等量异种电荷模型",
-      "screenshotName": "equipotential-dipole"
     }
   },
   {
@@ -845,168 +733,6 @@
     "playwright": {
       "readyText": "天体运动控制",
       "screenshotName": "celestial-motion"
-    }
-  },
-  {
-    "pageId": "projectile-motion",
-    "label": "抛体运动",
-    "meta": {
-      "tag": "曲线运动",
-      "summary": "平抛与斜抛：速度分解、频闪轨迹与 v-t 图像",
-      "highlights": [
-        "水平匀速、竖直匀变速",
-        "落地时间只由高度决定"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "抛体运动控制",
-      "screenshotName": "projectile-motion"
-    }
-  },
-  {
-    "pageId": "circular-motion",
-    "label": "圆周运动",
-    "meta": {
-      "tag": "曲线运动",
-      "summary": "转盘上的物块与圆锥摆：向心力来源、离心运动与偏角",
-      "highlights": [
-        "静摩擦力提供向心力",
-        "cosθ = g/(ω²L)"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "圆周运动控制",
-      "screenshotName": "circular-motion"
-    }
-  },
-  {
-    "pageId": "mechanical-energy",
-    "label": "机械能守恒",
-    "meta": {
-      "tag": "能量",
-      "summary": "碗形轨道上的物块：动能、势能与机械能的转化，摩擦生热",
-      "highlights": [
-        "能量柱实时变化",
-        "光滑时回到原高度"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "机械能守恒控制",
-      "screenshotName": "mechanical-energy"
-    }
-  },
-  {
-    "pageId": "momentum-collision",
-    "label": "动量守恒",
-    "meta": {
-      "tag": "碰撞",
-      "summary": "气垫导轨上两滑块的弹性、非弹性与完全非弹性碰撞",
-      "highlights": [
-        "碰撞前后总动量不变",
-        "等质量弹性碰撞交换速度"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "动量守恒控制",
-      "screenshotName": "momentum-collision"
-    }
-  },
-  {
-    "pageId": "simple-pendulum",
-    "label": "单摆",
-    "meta": {
-      "tag": "机械振动",
-      "summary": "单摆的回复力、周期公式与大摆角修正，地球与月球对比",
-      "highlights": [
-        "T = 2π√(L/g) 与质量无关",
-        "实测周期与公式对照"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "单摆控制",
-      "screenshotName": "simple-pendulum"
-    }
-  },
-  {
-    "pageId": "light-refraction",
-    "label": "光的折射与全反射",
-    "meta": {
-      "tag": "几何光学",
-      "summary": "折射定律、临界角与全反射，反射光与折射光的能量分配",
-      "highlights": [
-        "入射角连续增大观察全反射",
-        "空气、水、玻璃、金刚石"
-      ],
-      "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
-    "playwright": {
-      "readyText": "光的折射控制",
-      "screenshotName": "light-refraction"
     }
   }
 ]

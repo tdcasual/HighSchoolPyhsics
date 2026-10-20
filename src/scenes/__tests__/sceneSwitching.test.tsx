@@ -51,12 +51,12 @@ describe('scene switching', () => {
     expandPanels()
     expect(await screen.findByRole('button', { name: '播放' }, asyncWait)).toBeInTheDocument()
 
-    navigateToScene('奥斯特实验')
-    expect(window.location.pathname).toBe('/oersted')
+    navigateToScene('导体棒切割磁感线')
+    expect(window.location.pathname).toBe('/motional-emf')
     await waitFor(() => expect(screen.queryByText('加载场景...')).not.toBeInTheDocument(), asyncWait)
-    expect(await screen.findByText('奥斯特实验控制', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByText('基本参数', {}, asyncWait)).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: '通电' }, asyncWait)).toBeInTheDocument()
+    expect(await screen.findByText('切割磁感线实验控制', {}, asyncWait)).toBeInTheDocument()
+    expandPanels()
+    expect(await screen.findByRole('button', { name: '单步 0.1 s' }, asyncWait)).toBeInTheDocument()
 
     navigateToScene('电磁驱动')
     expect(window.location.pathname).toBe('/electromagnetic-drive')

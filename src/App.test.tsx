@@ -86,7 +86,7 @@ describe('App shell', () => {
     render(<App />)
     const search = await screen.findByRole('searchbox', { name: '搜索场景' })
     fireEvent.change(search, { target: { value: '洛伦兹' } })
-    expect(screen.getByText(/回旋加速器核心结构与原理/)).toBeInTheDocument()
+    expect(screen.getAllByText('磁流体发电机').length).toBeGreaterThan(0)
     expect(screen.queryByText('打点计时器')).not.toBeInTheDocument()
     fireEvent.change(search, { target: { value: '不存在的场景' } })
     expect(screen.getByText(/没有找到/)).toBeInTheDocument()

@@ -30,7 +30,7 @@ describe('3d interaction policy', () => {
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
 
-    await navigateToScene('奥斯特实验')
+    await navigateToScene('导体棒切割磁感线')
     expect(await screen.findByText(/拖拽旋转/, {}, asyncWait)).toBeInTheDocument()
     expect(await screen.findByText(/滚轮缩放/, {}, asyncWait)).toBeInTheDocument()
   })

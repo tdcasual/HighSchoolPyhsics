@@ -18,10 +18,8 @@ for (const [path, text] of Object.entries(sources)) {
  * else with a play action must offer 单步 (key 'step') in a meaningful unit.
  */
 const NO_STEP: Record<string, string> = {
-  'equipotential-dipole': 'the flow along field lines only animates a static field',
   'ideal-gas-isochoric': 'molecular motion is statistical; readings are equilibrium values',
   mhd: 'readings are steady-state values; the animation only illustrates flow and charge build-up',
-  oersted: '播放 switches the current on; the needles then settle to equilibrium',
   'potential-energy': '播放 sweeps the potential surface into view; no physical time',
 }
 
@@ -33,7 +31,7 @@ const remembersParameters = (text: string) => /\b(recall|rememberFields)\(|\buse
 
 describe('scene conventions', () => {
   it('finds the scenes', () => {
-    expect(scenes.size).toBeGreaterThan(30)
+    expect(scenes.size).toBeGreaterThan(20)
   })
 
   it('offers 单步 wherever there is a play action', () => {
