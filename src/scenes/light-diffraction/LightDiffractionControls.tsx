@@ -3,8 +3,9 @@ import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
-import { formatScreenDistance, GRATING_ILLUMINATED_WIDTH_MM, getApertureRange, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing, type DiffractionMode, type FilterColor } from '../../domains/optics/diffraction'
+import { formatScreenDistance, GRATING_ILLUMINATED_WIDTH_MM, getApertureRange, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing, type DiffractionMode } from '../../domains/optics/diffraction'
 import type { LightDiffractionSceneState } from './useLightDiffractionSceneState'
+import { LightSourceSection } from '../../domains/optics/LightSourceSection'
 
 type LightDiffractionControlsProps = {
   state: Pick<
@@ -55,28 +56,12 @@ export function LightDiffractionControls({ state }: LightDiffractionControlsProp
         />
       </ControlSection>
 
-      <ControlSection title="光源">
-        <SegmentedControl
-          options={[
-            { key: 'mono', label: '单色光' },
-            { key: 'white', label: '白光' },
-          ]}
-          value={state.isWhiteLight ? 'white' : 'mono'}
-          onChange={() => state.toggleWhiteLight()}
-        />
-        {state.isWhiteLight && (
-          <SegmentedControl
-            options={[
-              { key: 'none', label: '无滤光片' },
-              { key: 'red', label: '红' },
-              { key: 'green', label: '绿' },
-              { key: 'blue', label: '蓝' },
-            ]}
-            value={state.filterColor}
-            onChange={(key) => state.setFilterColor(key as FilterColor)}
-          />
-        )}
-      </ControlSection>
+      <LightSourceSection
+        isWhiteLight={state.isWhiteLight}
+        onToggleWhiteLight={state.toggleWhiteLight}
+        filterColor={state.filterColor}
+        onFilterChange={state.setFilterColor}
+      />
 
       <ControlSection title="实验参数">
         {!state.isWhiteLight && (

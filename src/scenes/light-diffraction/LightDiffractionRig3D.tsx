@@ -2,7 +2,6 @@ import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useEffect, useMemo } from 'react'
 import { CanvasTexture, CylinderGeometry, DoubleSide, Path, Shape, ShapeGeometry, SRGBColorSpace } from 'three'
-import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import {
   FILTER_HEX,
   airyDiskRadius,
@@ -17,16 +16,9 @@ import {
   type DiffractionParams,
   type FilterColor,
 } from '../../domains/optics/diffraction'
+import { OpticalStageLighting, Stand } from '../../domains/optics/OpticalBench3D'
+import { MAT_BLACK_PLASTIC, MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
 
-function readSceneBackgroundColor(): string {
-  if (typeof window === 'undefined') return '#222222'
-  const shell = document.querySelector('.app-shell')
-  if (!shell) return '#222222'
-  return getComputedStyle(shell).getPropertyValue('--scene-optical-bg').trim() || '#222222'
-}
-
-const MAT_METAL = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
-const MAT_BLACK_PLASTIC = { color: 0x151515, metalness: 0.3, roughness: 0.7 }
 const MAT_WHITE_TUBE = { color: 0xe0e0e0, metalness: 0.1, roughness: 0.5 }
 const MAT_GLASS = {
   color: 0x88ccff,
@@ -47,25 +39,6 @@ type LightDiffractionRig3DProps = {
   isLightOn: boolean
   isWhiteLight: boolean
   filterColor: FilterColor
-}
-
-function Stand({ xPos, height = 3.5, radialSegments = 16 }: { xPos: number; height?: number; radialSegments?: number }) {
-  return (
-    <group position={[xPos, 0, 0]}>
-      <mesh position={[0, height / 2 + 0.5, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.15, 0.15, height, radialSegments]} />
-        <meshStandardMaterial {...MAT_METAL} />
-        <mesh position={[0, -height / 2 + 0.2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[1.5, 0.4, 2]} />
-          <meshStandardMaterial {...MAT_METAL} />
-        </mesh>
-        <mesh position={[0, -height / 2 + 0.5, 1]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 0.4, radialSegments]} />
-          <meshStandardMaterial {...MAT_BLACK_PLASTIC} />
-        </mesh>
-      </mesh>
-    </group>
-  )
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
@@ -125,14 +98,10 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
   const railLength = railEndX - railStartX
   const railCenterX = (railStartX + railEndX) / 2
 
-  const perf = useMemo(() => resolvePerformanceProfile(), [])
+  const stage = useOpticalStage()
+  const { perf, shadowsEnabled, shadowProps } = stage
   const geoDetail = useMemo(() => perf.geometry, [perf])
-  const bgColor = useMemo(() => readSceneBackgroundColor(), [])
-  const shadowsEnabled = perf.shadowMapSize !== null
 
-  const shadowProps = shadowsEnabled
-    ? { castShadow: true as const, receiveShadow: true as const }
-    : {}
 
   const tubeGeo = useMemo(() => {
     const geo = new CylinderGeometry(0.8, 0.8, 1, geoDetail.cylinderRadialSegments)
@@ -194,22 +163,7 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
   return (
     <group data-rig-scene="light-diffraction">
       {/* Background & fog */}
-      <color attach="background" args={[bgColor]} />
-      <fog attach="fog" args={[bgColor, 20, 80]} />
-
-      {/* Lights */}
-      <ambientLight intensity={shadowsEnabled ? 0.4 : 0.6} />
-      <directionalLight
-        position={[5, 20, 15]}
-        intensity={0.8}
-        castShadow={shadowsEnabled}
-        shadow-mapSize-width={perf.shadowMapSize ?? 1024}
-        shadow-mapSize-height={perf.shadowMapSize ?? 1024}
-        shadow-camera-left={-20}
-        shadow-camera-right={20}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
-      />
+      <OpticalStageLighting stage={stage} />
       <pointLight
         position={[-11, OPTICAL_AXIS_Y, 0]}
         intensity={isLightOn ? 1.5 : 0}

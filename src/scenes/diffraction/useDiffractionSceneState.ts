@@ -7,7 +7,8 @@ import {
   DEFAULT_PARAMS,
   DEFAULT_MODE,
   clampApertureSize,
-  getFarFieldMinimumScreenDistance,
+  constrainScreenDistance,
+  resolveMinimumScreenDistance,
 } from '../../domains/optics/diffraction'
 
 export type { DiffractionMode, DiffractionParams, FilterColor }
@@ -17,26 +18,6 @@ const MODE_DEFAULT_APERTURE: Record<DiffractionMode, number> = {
   'circular-aperture': 0.20,
   'circular-obstacle': 0.50,
   'diffraction-grating': 0.10,
-}
-
-function resolveMinimumScreenDistance(
-  mode: DiffractionMode,
-  params: DiffractionParams,
-  isWhiteLight: boolean,
-): number {
-  const shortestWavelength = isWhiteLight ? 400 : params.wavelength
-  return Math.max(0.5, getFarFieldMinimumScreenDistance(mode, params, shortestWavelength))
-}
-
-function constrainScreenDistance(
-  mode: DiffractionMode,
-  params: DiffractionParams,
-  isWhiteLight: boolean,
-): DiffractionParams {
-  return {
-    ...params,
-    screenDistance: Math.max(params.screenDistance, resolveMinimumScreenDistance(mode, params, isWhiteLight)),
-  }
 }
 
 export type DiffractionSceneState = {

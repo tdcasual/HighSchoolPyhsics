@@ -2,8 +2,8 @@ import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
-import type { FilterColor } from './model'
 import type { DoubleSlitSceneState } from './useDoubleSlitSceneState'
+import { LightSourceSection } from '../../domains/optics/LightSourceSection'
 
 type DoubleSlitControlsProps = {
   state: Pick<
@@ -59,31 +59,12 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
   return (
     <div className="grid gap-[0.8rem] content-start">
       <h2>双缝干涉控制</h2>
-      <ControlSection title="光源">
-        <SegmentedControl
-          options={[
-            { key: 'mono', label: '单色光' },
-            { key: 'white', label: '白光' },
-          ]}
-          value={state.isWhiteLight ? 'white' : 'mono'}
-          onChange={() => state.toggleWhiteLight()}
-        />
-        {state.isWhiteLight && (
-          <>
-            <SegmentedControl
-              options={[
-                { key: 'none', label: '无滤光片' },
-                { key: 'red', label: '红 650nm' },
-                { key: 'green', label: '绿 532nm' },
-                { key: 'blue', label: '蓝 460nm' },
-              ]}
-              value={state.filterColor}
-              onChange={(key) => state.setFilterColor(key as FilterColor)}
-            />
-            <p className="text-xs text-slate-500 dark:text-slate-400">白光是 400–700 nm 的连续光谱，滤光片用于选出近似单色波段。</p>
-          </>
-        )}
-      </ControlSection>
+      <LightSourceSection
+        isWhiteLight={state.isWhiteLight}
+        onToggleWhiteLight={state.toggleWhiteLight}
+        filterColor={state.filterColor}
+        onFilterChange={state.setFilterColor}
+      />
       <ControlSection title="实验参数">
         {!state.isWhiteLight && !state.isBlindMode && (
           <RangeField

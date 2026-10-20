@@ -113,6 +113,20 @@ export function getFarFieldMinimumScreenDistance(
   return (halfWidthM * halfWidthM) / (wavelengthM * MAX_FAR_FIELD_FRESNEL_NUMBER)
 }
 
+/** Shortest screen distance that keeps the pattern in the far field (white light: for 400 nm), never under 0.5 m. */
+export function resolveMinimumScreenDistance(mode: DiffractionMode, params: DiffractionParams, isWhiteLight: boolean): number {
+  const shortestWavelength = isWhiteLight ? 400 : params.wavelength
+  return Math.max(0.5, getFarFieldMinimumScreenDistance(mode, params, shortestWavelength))
+}
+
+/** `params` with the screen moved back to the far-field minimum if it is closer. */
+export function constrainScreenDistance(mode: DiffractionMode, params: DiffractionParams, isWhiteLight: boolean): DiffractionParams {
+  return {
+    ...params,
+    screenDistance: Math.max(params.screenDistance, resolveMinimumScreenDistance(mode, params, isWhiteLight)),
+  }
+}
+
 // ====== Bessel approximations ======
 
 function besselJ0(x: number): number {

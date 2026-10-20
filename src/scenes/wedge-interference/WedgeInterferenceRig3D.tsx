@@ -4,7 +4,6 @@ import { memo, useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, LinearFilter, type Mesh } from 'three'
 import { drawWedgePattern, type WedgeParams } from './model'
-import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
 import {
   WEDGE_PLATE_HEIGHT as PLATE_HEIGHT,
   WEDGE_PLATE_WIDTH as PLATE_WIDTH,
@@ -16,23 +15,15 @@ import {
   visualWedgeAngleDegrees,
   wedgeGapAtX,
 } from './geometry'
+import { OpticalStageLighting } from '../../domains/optics/OpticalBench3D'
+import { MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
 
-function readSceneBackgroundColor(): string {
-  if (typeof window === 'undefined') return '#222222'
-  const shell = document.querySelector('.app-shell')
-  if (!shell) return '#222222'
-  return getComputedStyle(shell).getPropertyValue('--scene-optical-bg').trim() || '#222222'
-}
-
-const MAT_METAL = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
 const MAT_DARK_METAL = { color: 0x333333, metalness: 0.6, roughness: 0.4 }
 const MAT_GLASS_BOTTOM = { color: 0x4488cc, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.6 }
 const MAT_GLASS_TOP = { color: 0xaaddff, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.4 }
 const MAT_TABLE_EXT = { color: 0x444444, metalness: 0.3, roughness: 0.6 }
 const MAT_PAPER = { color: 0xeeeedd, roughness: 0.9 }
 const MAT_LIGHT_HOUSING = { color: 0x333333, metalness: 0.4, roughness: 0.6 }
-const SHADOW_PROPS = { castShadow: true as const, receiveShadow: true as const }
-const NO_SHADOW_PROPS = {}
 const PLATE_DEPTH = 10
 const TEX_W = 512
 const TEX_H = 256
@@ -151,12 +142,10 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
   isScanning,
 }: WedgeInterferenceRig3DProps) {
   const { wedgeAngle, mode, bumpPosition } = params
-  const perf = useMemo(() => resolvePerformanceProfile(), [])
+  const stage = useOpticalStage()
+  const { perf, shadowsEnabled, shadowProps } = stage
   const geoDetail = useMemo(() => perf.geometry, [perf])
-  const bgColor = useMemo(() => readSceneBackgroundColor(), [])
-  const shadowsEnabled = perf.shadowMapSize !== null
 
-  const shadowProps = shadowsEnabled ? SHADOW_PROPS : NO_SHADOW_PROPS
 
   const visualAngle = useMemo(() => visualWedgeAngleDegrees(wedgeAngle), [wedgeAngle])
 
@@ -171,22 +160,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
 
   return (
     <group data-rig-scene="wedge-interference">
-      <color attach="background" args={[bgColor]} />
-      <fog attach="fog" args={[bgColor, 20, 80]} />
-
-      {/* Lights */}
-      <ambientLight intensity={shadowsEnabled ? 0.5 : 0.7} />
-      <directionalLight
-        position={[5, 20, 15]}
-        intensity={0.8}
-        castShadow={shadowsEnabled}
-        shadow-mapSize-width={perf.shadowMapSize ?? 1024}
-        shadow-mapSize-height={perf.shadowMapSize ?? 1024}
-        shadow-camera-left={-20}
-        shadow-camera-right={20}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
-      />
+      <OpticalStageLighting stage={stage} ambient={[0.5, 0.7]} />
 
       {/* ====== Table / Base ====== */}
       <mesh position={[0, 0, 0]} {...shadowProps}>

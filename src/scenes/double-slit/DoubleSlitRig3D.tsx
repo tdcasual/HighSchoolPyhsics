@@ -6,23 +6,15 @@ import { CanvasTexture, CylinderGeometry, DoubleSide, SRGBColorSpace } from 'thr
 import { buildSlitPlateLayout } from './apparatus'
 import { FILTER_HEX, drawInterferencePattern, drawWhiteLightPattern, PHYSICAL_VIEW_WIDTH, type DoubleSlitParams, type FilterColor } from './model'
 import { INITIAL_MEASUREMENT_READOUT_MM, micrometerWheelRotationRadians } from './measurement'
-import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
+import { OpticalStageLighting, Stand } from '../../domains/optics/OpticalBench3D'
+import { MAT_BLACK_PLASTIC, MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
 
 /** Canvas textures are imperative three.js objects; flag a re-upload after redrawing the canvas. */
 function markTextureDirty(texture: CanvasTexture) {
   texture.needsUpdate = true
 }
 
-function readSceneBackgroundColor(): string {
-  if (typeof window === 'undefined') return '#222222'
-  const shell = document.querySelector('.app-shell')
-  if (!shell) return '#222222'
-  return getComputedStyle(shell).getPropertyValue('--scene-optical-bg').trim() || '#222222'
-}
-
-const MAT_METAL = { color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }
 const MAT_DARK_METAL = { color: 0x222222, metalness: 0.5, roughness: 0.45 }
-const MAT_BLACK_PLASTIC = { color: 0x151515, metalness: 0.3, roughness: 0.7 }
 const MAT_TRANSPARENT_TUBE = { color: 0x738390, metalness: 0.2, roughness: 0.65, transparent: true, opacity: 0.22, depthWrite: false, side: DoubleSide }
 const MAT_GLASS = { color: 0x88ccff, transparent: true, opacity: 0.4, metalness: 0.2, roughness: 0.2, side: DoubleSide }
 
@@ -47,25 +39,6 @@ type DoubleSlitRig3DProps = {
   eyepieceAngle: number
   wheelReadoutMm: number
   showFringeOrders: boolean
-}
-
-function Stand({ xPos, height = 3.5, radialSegments = 16 }: { xPos: number; height?: number; radialSegments?: number }) {
-  return (
-    <group position={[xPos, 0, 0]}>
-      <mesh position={[0, height / 2 + 0.5, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.15, 0.15, height, radialSegments]} />
-        <meshStandardMaterial {...MAT_METAL} />
-        <mesh position={[0, -height / 2 + 0.2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[1.5, 0.4, 2]} />
-          <meshStandardMaterial {...MAT_METAL} />
-        </mesh>
-        <mesh position={[0, -height / 2 + 0.5, 1]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 0.4, radialSegments]} />
-          <meshStandardMaterial {...MAT_BLACK_PLASTIC} />
-        </mesh>
-      </mesh>
-    </group>
-  )
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
@@ -284,13 +257,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
   const halfSeparationY = -Math.sin(slitAngle) * slitSeparation / 2
   const halfSeparationZ = Math.cos(slitAngle) * slitSeparation / 2
 
-  const perf = useMemo(() => resolvePerformanceProfile(), [])
+  const stage = useOpticalStage()
+  const { perf, shadowsEnabled, shadowProps } = stage
   const geoDetail = useMemo(() => perf.geometry, [perf])
-  const bgColor = useMemo(() => readSceneBackgroundColor(), [])
-  const shadowsEnabled = perf.shadowMapSize !== null
-  const shadowProps = shadowsEnabled
-    ? { castShadow: true as const, receiveShadow: true as const }
-    : {}
 
   const tubeGeo = useMemo(() => {
     const geometry = new CylinderGeometry(0.8, 0.8, 1, geoDetail.cylinderRadialSegments)
@@ -309,21 +278,7 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
 
   return (
     <group data-rig-scene="double-slit">
-      <color attach="background" args={[bgColor]} />
-      <fog attach="fog" args={[bgColor, 20, 80]} />
-
-      <ambientLight intensity={shadowsEnabled ? 0.4 : 0.6} />
-      <directionalLight
-        position={[5, 20, 15]}
-        intensity={0.8}
-        castShadow={shadowsEnabled}
-        shadow-mapSize-width={perf.shadowMapSize ?? 1024}
-        shadow-mapSize-height={perf.shadowMapSize ?? 1024}
-        shadow-camera-left={-20}
-        shadow-camera-right={20}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
-      />
+      <OpticalStageLighting stage={stage} />
       <pointLight position={[-11, OPTICAL_AXIS_Y, 0]} intensity={isLightOn ? 1.5 : 0} distance={25} color={outgoingColor} />
 
       {isLightOn && (

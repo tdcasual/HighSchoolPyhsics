@@ -4,7 +4,8 @@ import {
   DEFAULT_MODE,
   DEFAULT_PARAMS,
   clampApertureSize,
-  getFarFieldMinimumScreenDistance,
+  constrainScreenDistance,
+  resolveMinimumScreenDistance,
   formatFeatureLabel,
   formatFeatureValue,
   waveLengthToHex,
@@ -37,26 +38,6 @@ export type LightDiffractionSceneState = DiffractionParams & {
   setFilterColor: (value: FilterColor) => void
   setEyepieceAngle: (value: number) => void
   reset: () => void
-}
-
-function resolveMinimumScreenDistance(
-  mode: DiffractionMode,
-  params: DiffractionParams,
-  isWhiteLight: boolean,
-): number {
-  const shortestWavelength = isWhiteLight ? 400 : params.wavelength
-  return Math.max(0.5, getFarFieldMinimumScreenDistance(mode, params, shortestWavelength))
-}
-
-function constrainScreenDistance(
-  mode: DiffractionMode,
-  params: DiffractionParams,
-  isWhiteLight: boolean,
-): DiffractionParams {
-  return {
-    ...params,
-    screenDistance: Math.max(params.screenDistance, resolveMinimumScreenDistance(mode, params, isWhiteLight)),
-  }
 }
 
 export function useLightDiffractionSceneState(): LightDiffractionSceneState {
