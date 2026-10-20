@@ -1,6 +1,4 @@
 import { Answer } from '../../ui/notes/Answer'
-// readyText: 衍射演示控制
-
 import { useMemo } from 'react'
 import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'

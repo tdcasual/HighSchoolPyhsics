@@ -11,7 +11,7 @@ import {
 export type ElectromagneticDriveSceneState = ElectromagneticDriveState & {
   start: () => void
   pause: () => void
-  /** Advance 0.1 s and hold that instant; cranking (if on) stays on for when it resumes. */
+  /** Advance 0.1 s and hold that instant; cranking (if on, or from rest) continues on resume. */
   step: () => void
   /** Time is held after 单步 until it resumes, stops or resets. */
   frozen: boolean
@@ -136,7 +136,8 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   const step = useCallback(() => {
     setFrozen(true)
     commitSimulation((previous) => {
-      let next = previous
+      // From rest there is nothing to step through, so 单步 starts cranking like 开始摇动.
+      let next = isElectromagneticDriveActive(previous) ? previous : { ...previous, isRunning: true }
       for (let tick = 0; tick < SINGLE_STEP_TICKS; tick++) next = stepElectromagneticDriveState(next)
       return next
     })

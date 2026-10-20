@@ -10,7 +10,7 @@ To refresh baselines after intentional UI changes:
 npm run test:visual-smoke:update
 ```
 
-The script captures these pages at `1440x900` with reduced motion and WebGL disabled for deterministic layout snapshots:
+The script captures these pages at `1920x1080` (stored at half scale) with reduced motion and SwiftShader WebGL, after the first frames have drawn (set `CHROME_PATH` to use a system Chrome):
 
 - `overview`
 - all demo routes from `config/demo-scenes.json`

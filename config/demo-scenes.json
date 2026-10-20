@@ -160,7 +160,7 @@
       }
     },
     "playwright": {
-      "readyText": "衍射演示控制",
+      "readyText": "衍射模式",
       "screenshotName": "diffraction"
     }
   },

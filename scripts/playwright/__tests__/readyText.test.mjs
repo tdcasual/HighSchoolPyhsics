@@ -13,7 +13,8 @@ function readSceneSourceFiles(pageId) {
   const sceneDir = path.join(SCENES_DIR, pageId)
   try {
     const files = readdirSync(sceneDir).filter((f) => f.endsWith('.tsx') && !f.includes('__tests__'))
-    return files.map((f) => readFileSync(path.join(sceneDir, f), 'utf8')).join('\n')
+    // Comments do not render, so a "// readyText: …" note must not satisfy the check.
+    return files.map((f) => readFileSync(path.join(sceneDir, f), 'utf8').replace(/\/\/.*$/gm, '')).join('\n')
   } catch {
     return ''
   }

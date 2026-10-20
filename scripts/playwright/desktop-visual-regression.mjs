@@ -36,7 +36,9 @@ const SCENARIOS = [
     id: 'overview',
     path: '/',
     ready: async (page) => {
-      await page.getByRole('heading', { name: '演示导航' }).waitFor({ state: 'visible', timeout: 15000 })
+      await page.locator('.scene-card').first().waitFor({ state: 'visible', timeout: 15000 })
+      // Thumbnails load lazily; give the visible ones time to decode.
+      await page.waitForTimeout(1500)
     },
   },
   ...DEMO_CATALOG.map((demo) => ({
@@ -44,6 +46,15 @@ const SCENARIOS = [
     path: demo.path,
     ready: async (page) => {
       await page.getByText(demo.readyText).first().waitFor({ state: 'visible', timeout: 15000 })
+      await page.locator('canvas').first().waitFor({ state: 'visible', timeout: 15000 })
+      // Let WebGL draw its first frames (and fonts settle) before the snapshot.
+      await page.waitForTimeout(1500)
+      // Scenes that play on open (暂停 / 暂停传播 / 暂停扫描 …) are paused so the frame is repeatable.
+      const pause = page.getByRole('region', { name: '播放控制' }).getByRole('button', { name: /^暂停/ })
+      if (await pause.count()) {
+        await pause.first().click()
+        await page.waitForTimeout(500)
+      }
     },
   })),
 ]
@@ -64,7 +75,9 @@ function parsePng(buffer) {
 }
 
 async function compareScreenshot(id, actualPath, baselinePath, diffPath) {
-  const [actualBuffer, baselineBuffer] = await Promise.all([readFile(actualPath), readFile(baselinePath)])
+  const baselineBuffer = await readFile(baselinePath).catch(() => null)
+  if (!baselineBuffer) throw new Error(`${id}: no baseline yet; run npm run test:visual-smoke:update`)
+  const actualBuffer = await readFile(actualPath)
   const actualPng = parsePng(actualBuffer)
   const baselinePng = parsePng(baselineBuffer)
 
@@ -121,6 +134,7 @@ async function run() {
       try {
         browser = await chromium.launch({
           headless: true,
+          executablePath: process.env.CHROME_PATH || undefined,
           args: [
             '--use-angle=swiftshader',
             '--use-gl=angle',
@@ -130,8 +144,10 @@ async function run() {
             '--disable-gpu-sandbox',
           ],
         })
+        // Classroom 1080p layout, stored at half scale to keep the baselines small.
         const context = await browser.newContext({
-          viewport: { width: 1440, height: 900 },
+          viewport: { width: 1920, height: 1080 },
+          deviceScaleFactor: 0.5,
           reducedMotion: 'reduce',
         })
 
@@ -140,6 +156,12 @@ async function run() {
         for (const scenario of SCENARIOS) {
           const url = `${baseUrl}${scenario.path === '/' ? '' : scenario.path}`
           await page.goto(url, { waitUntil: 'domcontentloaded' })
+          // Opening state, not whatever the previous run remembered.
+          await page.evaluate(() => {
+            sessionStorage.clear()
+            localStorage.clear()
+          })
+          await page.reload({ waitUntil: 'domcontentloaded' })
           await scenario.ready(page)
           await stabilizePage(page)
 
