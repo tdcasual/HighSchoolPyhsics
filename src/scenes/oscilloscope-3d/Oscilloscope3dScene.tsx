@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
@@ -102,11 +103,10 @@ export function Oscilloscope3dScene() {
       chart={<Oscilloscope3dChart trace={trace} beam={beam} running={state.running} mode={state.mode === 'xy' ? 'X-Y 轨迹' : 'Y(t)'} />}
       chartVisible
       chartInitiallyCollapsed
-      playbackActions={[
-        { key: 'toggle-running', label: state.running ? '暂停扫描' : '继续扫描', onClick: state.toggleRunning },
-        { key: 'step', label: '单步 1 格', onClick: state.step },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        { running: state.running, toggle: state.toggleRunning, step: state.step },
+        { playLabel: '继续扫描', pauseLabel: '暂停扫描', stepLabel: '单步 1 格', onReset: state.reset },
+      )}
     />
   )
 }

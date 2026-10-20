@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
@@ -31,7 +32,7 @@ export function GeneratorCoreScene() {
         />}
     notes={<><p>{state.description}</p><p>切割比例 v⊥/v = |sinθ| = {Math.abs(state.readings.emfNormalized).toFixed(2)}，与 e/Eₘ 相等。</p></>}
     chart={<GeneratorCoreChart angleRad={state.angleRad} running={state.running} />}
-    playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停旋转' : '继续旋转', onClick: state.toggleRunning }, { key: 'step', label: '单步 15°', onClick: state.step }, { key: 'reset', label: '重置相位', onClick: state.reset }]}
+    playbackActions={clockActions({ running: state.running, toggle: state.toggleRunning, step: state.step }, { playLabel: '继续旋转', pauseLabel: '暂停旋转', stepLabel: '单步 15°', resetLabel: '重置相位', onReset: state.reset })}
     chartVisible={true}
     chartInitiallyCollapsed
   />

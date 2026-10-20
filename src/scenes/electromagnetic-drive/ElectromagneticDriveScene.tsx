@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectromagneticDriveChart } from './ElectromagneticDriveChart'
@@ -22,13 +23,14 @@ export function ElectromagneticDriveScene() {
   return (
     <SceneLayout timeControl
       controls={<ElectromagneticDriveControls />}
-      playbackActions={[
-        state.frozen
-          ? { key: 'toggle-running', label: '继续', onClick: state.resume }
-          : { key: 'toggle-running', label: state.isRunning ? '停止摇动' : '开始摇动', onClick: state.isRunning ? state.pause : state.start },
-        { key: 'step', label: '单步 0.1 s', onClick: state.step },
-        { key: 'reset', label: '重置实验', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        {
+          running: state.isRunning && !state.frozen,
+          toggle: state.frozen ? state.resume : state.isRunning ? state.pause : state.start,
+          step: state.step,
+        },
+        { playLabel: state.frozen ? '继续' : '开始摇动', pauseLabel: '停止摇动', stepLabel: '单步 0.1 s', resetLabel: '重置实验', onReset: state.reset },
+      )}
       dataOverlay={
         <DataRows
           rows={[

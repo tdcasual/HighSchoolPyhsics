@@ -26,6 +26,10 @@ describe('oscilloscope-3d structure', () => {
     // Only the chart starts collapsed; playback is open so play is one click away.
     fireEvent.click(screen.getByRole('button', { name: '展开' }))
     expect(screen.getByText('荧光屏波形')).toBeInTheDocument()
+    // 结构认知 is about the parts, so the sweep waits; 扫描原理 starts it.
+    expect(screen.getByRole('button', { name: '继续扫描' })).toBeInTheDocument()
+    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
+    fireEvent.click(screen.getByRole('radio', { name: '扫描原理' }))
     expect(screen.getByRole('button', { name: '暂停扫描' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
     expect(screen.getByTestId('oscilloscope-3d-rig')).toBeInTheDocument()

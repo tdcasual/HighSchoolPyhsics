@@ -51,7 +51,8 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
   // The 扫描速度 control scales the sweep; 单步 = one horizontal division (deriveBeamProgress
   // sweeps 10 per period: timeDiv ms each, or 1 s per X-Y cycle).
   const clock = useSimulationClock({
-    initiallyRunning: true,
+    // 结构认知 is about the parts; the sweep runs from 扫描原理 on.
+    initiallyRunning: simulation.mode !== 'structure',
     timeScale: simulation.beamSpeed,
     stepSeconds: simulation.mode === 'xy' ? 0.1 : simulation.timeDiv / 1000,
     advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
@@ -61,7 +62,11 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
   const xyConclusion = useMemo(() => deriveXYConclusion(simulation.xy), [simulation.xy])
   return {
     ...simulation, measurement, xyConclusion,
-    setMode: (mode) => commit({ mode, selectedPart: null }),
+    setMode: (mode) => {
+      commit({ mode, selectedPart: null })
+      if (mode === 'structure') clock.pause()
+      else clock.play()
+    },
     setSelectedPart: (selectedPart) => commit({ selectedPart }),
     setWave: (wave) => commit({ wave }),
     setAmplitudeV: (amplitudeV) => commit({ amplitudeV }),
@@ -77,7 +82,7 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
     step: clock.step,
     reset: () => {
       setSimulation({ ...INITIAL_SIMULATION, xy: { ...DEFAULT_XY_SETTINGS } })
-      clock.play()
+      clock.pause()
     },
   }
 }

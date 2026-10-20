@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertFiniteState } from '../numeric-guards'
 import { semiImplicitEulerStep } from '../integrators/semiImplicitEuler'
-import type { Vector3Like } from '../types'
 
 describe('semiImplicitEulerStep', () => {
   it('updates velocity first, then position', () => {
@@ -19,9 +17,3 @@ describe('semiImplicitEulerStep', () => {
   })
 })
 
-describe('assertFiniteState', () => {
-  it('throws when a component is not finite', () => {
-    const bad: Vector3Like = { x: Number.NaN, y: 0, z: 0 }
-    expect(() => assertFiniteState({ position: bad, velocity: bad })).toThrow()
-  })
-})

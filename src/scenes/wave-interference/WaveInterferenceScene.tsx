@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -71,11 +72,10 @@ export function WaveInterferenceScene() {
     <SceneLayout
       controls={<WaveInterferenceControls state={state} />}
       dataOverlay={dataOverlay}
-      playbackActions={[
-        { key: 'play', label: state.isPlaying ? '暂停' : '播放', onClick: state.togglePlay },
-        { key: 'step', label: '单步 T/4', onClick: state.step },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        { running: state.isPlaying, toggle: state.togglePlay, step: state.step },
+        { stepLabel: '单步 T/4', onReset: state.reset },
+      )}
       chart={state.showChart ? (
         <WaveInterferenceChart
           observer={state.observer}

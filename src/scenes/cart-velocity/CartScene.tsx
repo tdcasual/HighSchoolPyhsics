@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -34,7 +35,6 @@ export function CartScene() {
   const view = cartView(state.view, state.focusPart, compactViewport)
   const pose = cartPose(state)
   const locked = state.stage === 'assemble'
-  const playLabel = state.running ? '暂停' : state.time >= DURATION ? '再做一次' : '开始实验'
   const graphFit = fit(state.points)
 
   return (
@@ -82,11 +82,17 @@ export function CartScene() {
         }}
       />}
       chartVisible
-      playbackActions={[
-        { key: 'play', label: playLabel, onClick: state.toggleRunning, disabled: locked },
-        { key: 'step', label: '单步', onClick: state.step, disabled: locked },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        { running: state.running, toggle: state.toggleRunning, step: state.step },
+        {
+          playLabel: '开始实验',
+          finished: state.time >= DURATION,
+          finishedLabel: '再做一次',
+          stepLabel: '单步',
+          disabled: locked,
+          onReset: state.reset,
+        },
+      )}
       viewport={
         <InteractiveCanvas
           camera={{ position: orbitPosition(view), fov: CART_CAMERA.fov, near: CART_CAMERA.near, far: CART_CAMERA.far }}

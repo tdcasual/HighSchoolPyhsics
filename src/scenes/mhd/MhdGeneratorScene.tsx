@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MhdControls } from './MhdControls'
@@ -64,18 +65,7 @@ export function MhdGeneratorScene() {
           ]}
         />
       }
-      playbackActions={[
-        {
-          key: 'toggle-running',
-          label: state.running ? '暂停' : '播放',
-          onClick: state.toggleRunning,
-        },
-        {
-          key: 'reset',
-          label: '重置',
-          onClick: state.reset,
-        },
-      ]}
+      playbackActions={clockActions({ running: state.running, toggle: state.toggleRunning }, { onReset: state.reset })}
     />
   )
 }

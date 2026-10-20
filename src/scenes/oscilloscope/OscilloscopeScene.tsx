@@ -1,7 +1,8 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { useMemo, useState } from 'react'
-import { deriveDeflectionFromVoltage, deriveTimeCursor } from './runtime'
+import { deriveDeflectionFromVoltage } from './runtime'
 import { compileVoltageExpression } from './expression'
 import { OscilloscopeCrt3D } from './OscilloscopeCrt3D'
 import { OscilloscopeDisplay } from './OscilloscopeDisplay'
@@ -26,14 +27,9 @@ export function OscilloscopeScene() {
   const [yExpression, setYExpression] = useState(() => recall('oscilloscope.yExpression', '6*sin(2*pi*2*t)'))
   useRemember('oscilloscope', { timeRate, xExpression, yExpression })
 
-  const simulation = useOscilloscopeSimulation(1 / 240, timeRate)
-  // Steps add to the simulated clock; the trace is a pure function of the time cursor.
-  const [stepOffsetS, setStepOffsetS] = useState(0)
-  const timeCursor = deriveTimeCursor(simulation.state) + stepOffsetS
-  const step = () => {
-    if (simulation.running) simulation.toggleRunning()
-    setStepOffsetS((value) => value + STEP_S)
-  }
+  // The trace is a pure function of the time cursor.
+  const simulation = useOscilloscopeSimulation(timeRate, STEP_S)
+  const timeCursor = simulation.timeS
 
   const compiledX = useMemo(() => compileVoltageExpression(xExpression), [xExpression])
   const compiledY = useMemo(() => compileVoltageExpression(yExpression), [yExpression])
@@ -145,14 +141,13 @@ export function OscilloscopeScene() {
             Ux(t)、Uy(t) 的结果单位为 V，t 以 s 计；支持 + - * / ^、括号、pi/π、e 和 sin/cos/tan、asin/acos/atan、abs/sqrt/log/exp、floor/ceil/round、min/max、clamp、square/triangle/sawtooth。三角函数使用弧度。屏幕坐标归一化到 ±1（±1 为边缘）；超量程时光点限幅。
           </div>
 
-          {simulation.error ? <p className="formula-error">仿真错误: {simulation.error}</p> : null}
         </div>
       }
       dataOverlay={
         <DataRows
           className="scope-telemetry"
           rows={[
-            { label: '状态', value: simulation.running ? '运行中' : '已暂停' },
+            { label: '状态', value: simulation.clock.running ? '运行中' : '已暂停' },
             { label: '时刻', value: <>t = {timeCursor.toFixed(3)} s</> },
             { label: 'Ux / Uy', value: <>{ux.toFixed(2)} V / {uy.toFixed(2)} V</> },
             { label: '屏幕坐标（±1）', value: <>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</>, answer: true },
@@ -169,25 +164,10 @@ export function OscilloscopeScene() {
           beamX={beamX}
           beamY={beamY}
           traceSegments={traceSegments}
-          running={simulation.running}
+          running={simulation.clock.running}
         />
       }
-      playbackActions={[
-        {
-          key: 'toggle-running',
-          label: simulation.running ? '暂停' : '播放',
-          onClick: simulation.toggleRunning,
-        },
-        { key: 'step', label: '单步 0.05 s', onClick: step },
-        {
-          key: 'reset',
-          label: '重置',
-          onClick: () => {
-            setStepOffsetS(0)
-            simulation.reset()
-          },
-        },
-      ]}
+      playbackActions={clockActions(simulation.clock, { stepLabel: '单步 0.05 s', onReset: simulation.reset })}
       chartVisible={true}
       chartInitiallyCollapsed
       viewport={
@@ -196,7 +176,7 @@ export function OscilloscopeScene() {
           beamY={beamY}
           timeCursor={timeCursor}
           traceSegments={traceSegments}
-          running={simulation.running}
+          running={simulation.clock.running}
         />
       }
     />

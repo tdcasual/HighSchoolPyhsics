@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -44,10 +45,10 @@ export function IdealGasIsochoricScene() {
       </>
     }
     chart={<IdealGasIsochoricChart state={state} />}
-    playbackActions={[
-      { key: 'toggle-running', label: state.running ? '暂停热运动' : '继续热运动', onClick: state.toggleRunning },
-      { key: 'reset', label: '重置状态', onClick: state.reset },
-    ]}
+    playbackActions={clockActions(
+      { running: state.running, toggle: state.toggleRunning },
+      { playLabel: '继续热运动', pauseLabel: '暂停热运动', resetLabel: '重置状态', onReset: state.reset },
+    )}
     chartVisible
     chartInitiallyCollapsed
   />

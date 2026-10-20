@@ -33,8 +33,21 @@ const RAW_FRAME_LOOPS: Record<string, string> = {
   'light-diffraction': 'schedules a chart redraw at a new adaptive resolution',
 }
 
-const hasPlayAction = (text: string) => /key:\s*'(play|toggle-running)'/.test(text)
-const hasStepAction = (text: string) => /key:\s*'step'/.test(text)
+/**
+ * Scenes whose playback zone is not play / 单步 / reset, so they list their actions by hand.
+ * Everything else builds it with clockActions (simulation/clockActions).
+ */
+const HAND_PLAYBACK: Record<string, string> = {
+  'vernier-caliper': 'nudge the jaw ± one division, explode and lock; there is no time',
+  micrometer: 'turn the thimble ± one division, explode and lock; there is no time',
+  'ticker-timer': 'the experiment is 通电 then 释放纸带, as in the lab',
+  'induction-current': 'the teacher moves the magnet 接近 / 远离 the coil',
+  'potential-energy': '播放 is a one-shot sweep that builds the potential surface',
+}
+
+const hasPlayAction = (text: string) => /clockActions\(|key:\s*'(play|toggle-running)'/.test(text)
+const hasStepAction = (text: string) => /\bstepLabel:|key:\s*'step'/.test(text)
+const hasHandPlayback = (text: string) => /playbackActions=\{\[/.test(text)
 const hasTeacherParameters = (text: string) => /<(RangeField|SegmentedControl|TextField)\b/.test(text)
 // usePracticeState (shared by the measuring instruments) remembers through rememberFields.
 const remembersParameters = (text: string) => /\b(recall|rememberFields)\(|\busePracticeState\b/.test(text)
@@ -53,6 +66,14 @@ describe('scene conventions', () => {
     for (const scene of Object.keys(NO_STEP)) {
       expect(scenes.has(scene), scene).toBe(true)
       expect(hasStepAction(scenes.get(scene)!), `${scene} has 单步 now; drop the exemption`).toBe(false)
+    }
+  })
+
+  it('builds the playback zone with clockActions', () => {
+    const hand = [...scenes].filter(([scene, text]) => hasHandPlayback(text) && !(scene in HAND_PLAYBACK))
+    expect(hand.map(([scene]) => scene)).toEqual([])
+    for (const scene of Object.keys(HAND_PLAYBACK)) {
+      expect(hasHandPlayback(scenes.get(scene) ?? ''), `${scene} uses clockActions now; drop the exemption`).toBe(true)
     }
   })
 

@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
@@ -31,7 +32,7 @@ export function OrthogonalEmWaveScene() {
             { label: '探针相位 φ（模 2π）', value: <>{(wrapPhase(r.phase) / Math.PI).toFixed(2)}π</> },
             { label: '探针 E、B（相对值）', value: <>{r.probe.e.toFixed(2)} / {r.probe.b.toFixed(2)}</>, answer: true, testId: 'orthogonal-em-wave-fields' },
           ]}
-        />} notes={<><p>仿真频率 fₛᵢₘ = vₛᵢₘ/λ = {r.frequency.toFixed(2)} Hz，波数 k = 2π/λ = {r.waveNumber.toFixed(2)} rad/m。</p><p>E ⟂ B，且 E×B 指向传播方向；左行时 B 分量反号。场强以峰值归一化为相对值，调速用于教学演示；真空电磁波满足 v=c、E₀=cB₀。</p></>} chart={<OrthogonalEmWaveChart state={state} />} playbackActions={[{ key: 'toggle-running', label: state.running ? '暂停传播' : state.elapsed === 0 ? '开始传播' : '继续传播', onClick: state.toggleRunning }, { key: 'step', label: '单步 T/4', onClick: state.step }, { key: 'reset', label: '重置相位', onClick: state.reset }]} chartVisible chartInitiallyCollapsed />
+        />} notes={<><p>仿真频率 fₛᵢₘ = vₛᵢₘ/λ = {r.frequency.toFixed(2)} Hz，波数 k = 2π/λ = {r.waveNumber.toFixed(2)} rad/m。</p><p>E ⟂ B，且 E×B 指向传播方向；左行时 B 分量反号。场强以峰值归一化为相对值，调速用于教学演示；真空电磁波满足 v=c、E₀=cB₀。</p></>} chart={<OrthogonalEmWaveChart state={state} />} playbackActions={clockActions({ running: state.running, toggle: state.toggleRunning, step: state.step }, { playLabel: state.elapsed === 0 ? '开始传播' : '继续传播', pauseLabel: '暂停传播', stepLabel: '单步 T/4', resetLabel: '重置相位', onReset: state.reset })} chartVisible chartInitiallyCollapsed />
 }
 
 export default OrthogonalEmWaveScene

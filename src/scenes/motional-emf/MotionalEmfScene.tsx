@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -112,11 +113,10 @@ export function MotionalEmfScene() {
           </section>
         </>
       }
-      playbackActions={[
-        { key: 'toggle-running', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
-        { key: 'step', label: '单步 0.1 s', onClick: state.step },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        { running: state.running, toggle: state.toggleRunning, step: state.step },
+        { stepLabel: '单步 0.1 s', onReset: state.reset },
+      )}
       dataOverlay={
         <DataRows
           rows={[

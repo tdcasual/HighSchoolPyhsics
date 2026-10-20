@@ -1,4 +1,5 @@
 import { DataRows } from '../../ui/panels/DataRows'
+import { clockActions } from '../../simulation/clockActions'
 import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useViewportSize } from '../../scene3d/useViewportSize'
@@ -71,7 +72,6 @@ export function CelestialScene() {
   const currentAcceleration = scenario.mode === 'transfer' ? scenario.mu / currentRadius ** 2 : scenario.o1.a
   const transferProgress = Math.min(100, (scenario.time / scenario.transT) * 100)
   const ground = scenario.mode === 'synchronous' ? groundPoint(scenario.inclination, scenario.phase, scenario.time) : null
-  const playLabel = state.running ? '暂停' : state.finished ? '再演示' : '开始'
 
   return (
     <SceneLayout
@@ -123,11 +123,10 @@ export function CelestialScene() {
       chart={<CelestialChart scenario={scenario} />}
       chartVisible
       chartInitiallyCollapsed
-      playbackActions={[
-        { key: 'play', label: playLabel, onClick: state.toggleRunning },
-        { key: 'step', label: '单步', onClick: state.step },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(
+        { running: state.running, toggle: state.toggleRunning, step: state.step },
+        { playLabel: '开始', finished: state.finished, stepLabel: '单步', onReset: state.reset },
+      )}
       viewport={
         <div ref={viewportRef} className="celestial-viewport">
         <InteractiveCanvas

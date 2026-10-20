@@ -1,4 +1,5 @@
 import { Answer } from '../../ui/notes/Answer'
+import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
@@ -31,7 +32,7 @@ export function WaveStateScene() {
         />}
     notes={<><p>{directionLabel}：波速 v = λ/T = {r.waveSpeed.toFixed(2)} m/s，频率 f = 1/T = {r.frequency.toFixed(2)} Hz。</p><p>波前以 v = λ/T 传播；到达 P 点后，质点才按起振方向做简谐振动，质点不随波迁移。</p></>}
     chart={<WaveStateChart state={state}/>}
-    playbackActions={[{key:'toggle-running',label:state.running?'暂停传播':state.elapsed===0?'开始传播':'继续传播',onClick:state.toggleRunning},{key:'step',label:'单步 T/4',onClick:state.step},{key:'reset',label:'重置相位',onClick:state.reset}]}
+    playbackActions={clockActions({ running: state.running, toggle: state.toggleRunning, step: state.step }, { playLabel: state.elapsed === 0 ? '开始传播' : '继续传播', pauseLabel: '暂停传播', stepLabel: '单步 T/4', resetLabel: '重置相位', onReset: state.reset })}
     chartVisible
     chartInitiallyCollapsed
   />
