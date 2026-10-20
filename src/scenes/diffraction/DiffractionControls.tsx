@@ -10,7 +10,7 @@ import {
   getApertureRange,
   type DiffractionMode,
   type FilterColor,
-} from '../light-diffraction/model'
+} from '../../domains/optics/diffraction'
 import type { DiffractionSceneState } from './useDiffractionSceneState'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'

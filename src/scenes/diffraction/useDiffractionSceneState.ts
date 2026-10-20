@@ -8,7 +8,7 @@ import {
   DEFAULT_MODE,
   clampApertureSize,
   getFarFieldMinimumScreenDistance,
-} from '../light-diffraction/model'
+} from '../../domains/optics/diffraction'
 
 export type { DiffractionMode, DiffractionParams, FilterColor }
 

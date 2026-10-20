@@ -4,7 +4,7 @@ import {
   type DiffractionMode,
   type DiffractionParams,
   type FilterColor,
-} from '../light-diffraction/model'
+} from '../../domains/optics/diffraction'
 
 type DiffractionProfileProps = {
   mode: DiffractionMode

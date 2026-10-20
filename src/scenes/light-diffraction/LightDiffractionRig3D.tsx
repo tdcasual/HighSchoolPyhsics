@@ -16,7 +16,7 @@ import {
   type DiffractionMode,
   type DiffractionParams,
   type FilterColor,
-} from './model'
+} from '../../domains/optics/diffraction'
 
 function readSceneBackgroundColor(): string {
   if (typeof window === 'undefined') return '#222222'

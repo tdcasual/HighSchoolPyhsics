@@ -122,6 +122,13 @@ describe('scene conventions', () => {
     expect(missing).toEqual([])
   })
 
+  it('shares code between scenes through domains/ or instruments/, never by importing another scene', () => {
+    const crossImports = [...scenes].flatMap(([scene, text]) =>
+      [...text.matchAll(/from '\.\.\/([a-z][a-z0-9-]*)\//g)].map((match) => `${scene} → ${match[1]}`),
+    )
+    expect(crossImports).toEqual([])
+  })
+
   it('shares viewport measuring and framing helpers instead of copying them', () => {
     const copies = [...scenes].filter(([, text]) => /function (useViewportSize|freeRects|fitCameraDistance)\b/.test(text))
     expect(copies.map(([scene]) => scene)).toEqual([])

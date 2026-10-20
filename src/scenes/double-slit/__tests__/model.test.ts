@@ -332,7 +332,8 @@ describe('drawInterferencePattern pixel output', () => {
 
 describe('white-light measurement display and cache limit', () => {
   it('reports the pass-band fringe range for a selected filter', () => {
-    expect(formatWhiteLightFringeRange(DEFAULT_PARAMS, 'red')).toBe('3.150–3.350 mm')
+    // The shared red filter (domains/optics) passes 650 ± 30 nm.
+    expect(formatWhiteLightFringeRange(DEFAULT_PARAMS, 'red')).toBe('3.100–3.400 mm')
     expect(formatWhiteLightFringeRange(DEFAULT_PARAMS, 'none')).toBe('2.000–3.500 mm')
   })
 

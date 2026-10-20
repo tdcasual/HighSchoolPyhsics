@@ -3,7 +3,7 @@ import { RangeField } from '../../ui/controls/RangeField'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { SceneActions } from '../../ui/controls/SceneActions'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
-import { formatScreenDistance, GRATING_ILLUMINATED_WIDTH_MM, getApertureRange, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing, type DiffractionMode, type FilterColor } from './model'
+import { formatScreenDistance, GRATING_ILLUMINATED_WIDTH_MM, getApertureRange, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing, type DiffractionMode, type FilterColor } from '../../domains/optics/diffraction'
 import type { LightDiffractionSceneState } from './useLightDiffractionSceneState'
 
 type LightDiffractionControlsProps = {

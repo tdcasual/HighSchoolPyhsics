@@ -15,7 +15,7 @@ import {
   type DiffractionMode,
   type DiffractionParams,
   type FilterColor,
-} from './model'
+} from '../../domains/optics/diffraction'
 
 type LightDiffractionChartProps = {
   params: DiffractionParams

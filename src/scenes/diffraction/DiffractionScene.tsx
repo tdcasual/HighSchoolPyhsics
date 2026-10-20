@@ -15,7 +15,7 @@ import {
   GRATING_ILLUMINATED_WIDTH_MM,
   formatFeatureValue,
   formatWhiteLightFeatureValue,
-} from '../light-diffraction/model'
+} from '../../domains/optics/diffraction'
 
 
 export function DiffractionScene() {

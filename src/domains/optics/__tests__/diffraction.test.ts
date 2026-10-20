@@ -26,7 +26,8 @@ import {
   singleSlitIntensity,
   waveLengthToHex,
   waveLengthToRGB,
-} from '../model'
+} from '../diffraction'
+import { FILTER_PROFILES } from '../filters'
 
 
 function createPixelContext(width: number, height: number) {
@@ -291,7 +292,7 @@ describe('radial pattern screen mapping', () => {
 
 describe('white light and filters', () => {
   it('blocks wavelengths outside a selected filter band', () => {
-    expect(filterTransmission(620, 'red')).toBe(1)
+    expect(filterTransmission(FILTER_PROFILES.red.center, 'red')).toBe(1)
     expect(filterTransmission(540, 'red')).toBe(0)
   })
 
@@ -316,8 +317,9 @@ describe('formatFeatureValue', () => {
 describe('filter-aware white-light feature readout', () => {
   it('limits the reported feature range to the selected filter passband', () => {
     const redRange = formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'single-slit', 'red')
-    const redMinimum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: 590 }, 'single-slit').replace(/ mm$/, '')
-    const redMaximum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: 650 }, 'single-slit')
+    const { center, halfWidth } = FILTER_PROFILES.red
+    const redMinimum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: center - halfWidth }, 'single-slit').replace(/ mm$/, '')
+    const redMaximum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: center + halfWidth }, 'single-slit')
 
     expect(redRange).toBe(`${redMinimum}–${redMaximum}`)
     expect(redRange).not.toBe(formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'single-slit'))

@@ -11,7 +11,7 @@ import {
   type DiffractionMode,
   type DiffractionParams,
   type FilterColor,
-} from './model'
+} from '../../domains/optics/diffraction'
 
 export type LightDiffractionSceneState = DiffractionParams & {
   mode: DiffractionMode

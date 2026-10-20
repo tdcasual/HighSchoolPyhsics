@@ -1,4 +1,5 @@
-import { waveLengthToRGB, fastPow08, waveLengthToHex } from '../double-slit/model'
+import { fastPow08 } from '../../domains/optics/patternCanvas'
+import { waveLengthToHex, waveLengthToRGB } from '../../domains/optics/spectrum'
 
 export type WedgeMode = 'flat' | 'bump'
 

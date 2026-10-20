@@ -7,7 +7,7 @@ import {
   type DiffractionMode,
   type DiffractionParams,
   type FilterColor,
-} from '../light-diffraction/model'
+} from '../../domains/optics/diffraction'
 
 const SCREEN_WIDTH_PX = 512
 const SCREEN_HEIGHT_PX = 384

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei/web/Html'
-import { getApertureRange, type DiffractionMode, type DiffractionParams, type FilterColor } from '../light-diffraction/model'
+import { getApertureRange, type DiffractionMode, type DiffractionParams, type FilterColor } from '../../domains/optics/diffraction'
 import { DiffractionScreen } from './DiffractionScreen'
 
 const SOURCE_DISTANCE = 0.2 // m, distance from source to obstacle

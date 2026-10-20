@@ -1,4 +1,11 @@
 import { formatScientific } from '../../core/formatNumber'
+import { FILTER_PROFILES, FILTER_RGB, filterTransmission, type FilterColor } from './filters'
+import { createBufferPool, createPatternCache, drawEyepieceBorder, fastPow08, getCircleMask } from './patternCanvas'
+import { waveLengthToRGB } from './spectrum'
+
+export { FILTER_HEX, FILTER_LABEL, FILTER_PROFILES, FILTER_RGB, filterTransmission, type FilterColor } from './filters'
+export { fastPow08 } from './patternCanvas'
+export { waveLengthToHex, waveLengthToRGB } from './spectrum'
 /**
  * Light diffraction simulation model
  * Pure physics — no React dependencies
@@ -11,42 +18,6 @@ import { formatScientific } from '../../core/formatNumber'
  */
 
 export type DiffractionMode = 'single-slit' | 'circular-aperture' | 'circular-obstacle' | 'diffraction-grating'
-
-export type FilterColor = 'none' | 'red' | 'green' | 'blue'
-
-export const FILTER_HEX: Record<Exclude<FilterColor, 'none'>, number> = {
-  red: 0xff4444,
-  green: 0x44cc44,
-  blue: 0x4488ff,
-}
-
-export const FILTER_RGB: Record<Exclude<FilterColor, 'none'>, [number, number, number]> = {
-  red: [0xff, 0x44, 0x44],
-  green: [0x44, 0xcc, 0x44],
-  blue: [0x44, 0x88, 0xff],
-}
-
-export const FILTER_LABEL: Record<FilterColor, string> = {
-  none: '',
-  red: '红',
-  green: '绿',
-  blue: '蓝',
-}
-
-export const FILTER_PROFILES: Record<Exclude<FilterColor, 'none'>, { center: number; halfWidth: number }> = {
-  red: { center: 620, halfWidth: 30 },
-  green: { center: 540, halfWidth: 25 },
-  blue: { center: 460, halfWidth: 25 },
-}
-
-/** Raised-cosine pass band; wavelengths outside the filter band are blocked. */
-export function filterTransmission(wavelength: number, filterColor: FilterColor): number {
-  if (filterColor === 'none') return 1
-  const { center, halfWidth } = FILTER_PROFILES[filterColor]
-  const normalizedDistance = Math.abs(wavelength - center) / halfWidth
-  if (normalizedDistance >= 1) return 0
-  return 0.5 * (1 + Math.cos(Math.PI * normalizedDistance))
-}
 
 export const MODE_LABEL: Record<DiffractionMode, string> = {
   'single-slit': '单缝衍射',
@@ -142,53 +113,6 @@ export function getFarFieldMinimumScreenDistance(
   return (halfWidthM * halfWidthM) / (wavelengthM * MAX_FAR_FIELD_FRESNEL_NUMBER)
 }
 
-// ====== Wavelength utilities (shared with double-slit) ======
-
-export function waveLengthToRGB(wl: number): [number, number, number] {
-  let r = 0
-  let g = 0
-  let b = 0
-  let alpha = 0
-
-  if (wl >= 380 && wl < 440) {
-    r = -(wl - 440) / (440 - 380)
-    b = 1.0
-  } else if (wl >= 440 && wl < 490) {
-    g = (wl - 440) / (490 - 440)
-    b = 1.0
-  } else if (wl >= 490 && wl < 510) {
-    g = 1.0
-    b = -(wl - 510) / (510 - 490)
-  } else if (wl >= 510 && wl < 580) {
-    r = (wl - 510) / (580 - 510)
-    g = 1.0
-  } else if (wl >= 580 && wl < 645) {
-    r = 1.0
-    g = -(wl - 645) / (645 - 580)
-  } else if (wl >= 645 && wl <= 780) {
-    r = 1.0
-  }
-
-  if (wl >= 380 && wl < 420) {
-    alpha = 0.3 + 0.7 * (wl - 380) / (420 - 380)
-  } else if (wl >= 420 && wl <= 700) {
-    alpha = 1.0
-  } else if (wl > 700 && wl <= 780) {
-    alpha = 0.3 + 0.7 * (780 - wl) / (780 - 700)
-  }
-
-  return [
-    Math.round(r * alpha * 255),
-    Math.round(g * alpha * 255),
-    Math.round(b * alpha * 255),
-  ]
-}
-
-export function waveLengthToHex(wl: number): number {
-  const [r, g, b] = waveLengthToRGB(wl)
-  return (r << 16) | (g << 8) | b
-}
-
 // ====== Bessel approximations ======
 
 function besselJ0(x: number): number {
@@ -226,13 +150,6 @@ function besselJ1(x: number): number {
 }
 
 // ====== Intensity functions ======
-
-export function fastPow08(x: number): number {
-  if (x <= 0) return 0
-  if (x >= 1) return 1
-  const x2 = x * x
-  return x * (1.0 + 0.21875 * (1 - x) + 0.3125 * x * (1 - x) + 0.0625 * x2 * (1 - x))
-}
 
 /**
  * Single-slit diffraction intensity (Fraunhofer)
@@ -463,80 +380,11 @@ export function clampApertureSize(mode: DiffractionMode, value: number): number 
   return Math.max(range.min, Math.min(range.max, value))
 }
 
-// ====== Drawing utilities ======
+const ensureBuffers = createBufferPool()
+const patternCache = createPatternCache()
 
-function drawEyepieceBorder(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-
-  const edgeGradient = ctx.createRadialGradient(cx, cy, radius * 0.9, cx, cy, radius)
-  edgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
-  edgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
-  ctx.fillStyle = edgeGradient
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.fill()
-}
-
-// Reusable buffers
-let _imgData: ImageData | null = null
-let _imgDataU32: Uint32Array | null = null
-let _accR: Float32Array | null = null
-let _accG: Float32Array | null = null
-let _accB: Float32Array | null = null
-let _bufCapacity = 0
-
-function ensureBuffers(ctx: CanvasRenderingContext2D, n: number): { imgData: ImageData; imgDataU32: Uint32Array; accR: Float32Array; accG: Float32Array; accB: Float32Array } {
-  if (n > _bufCapacity) {
-    _accR = new Float32Array(n)
-    _accG = new Float32Array(n)
-    _accB = new Float32Array(n)
-    _bufCapacity = n
-    _imgData = null
-  }
-  if (!_imgData || _imgData.width !== ctx.canvas.width || _imgData.height !== ctx.canvas.height) {
-    _imgData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height)
-    _imgDataU32 = new Uint32Array(_imgData.data.buffer)
-  }
-  return { imgData: _imgData!, imgDataU32: _imgDataU32!, accR: _accR!, accG: _accG!, accB: _accB! }
-}
-
-// Circle mask cache
-const circleMaskCache = new Map<string, { rowMinX: Int32Array; rowMaxX: Int32Array }>()
-const CIRCLE_MASK_CACHE_MAX = 8
-
-function getCircleMask(w: number, h: number, cx: number, cy: number, radius: number) {
-  const key = `${w}_${h}_${cx}_${cy}_${radius}`
-  let cached = circleMaskCache.get(key)
-  if (cached) return cached
-
-  const rowMinX = new Int32Array(h)
-  const rowMaxX = new Int32Array(h)
-  const rSq = radius * radius
-
-  for (let y = 0; y < h; y++) {
-    const dy = y - cy
-    const dySq = dy * dy
-    if (dySq > rSq) {
-      rowMinX[y] = 0
-      rowMaxX[y] = -1
-      continue
-    }
-    const dxMax = Math.sqrt(rSq - dySq)
-    rowMinX[y] = Math.max(0, Math.ceil(cx - dxMax))
-    rowMaxX[y] = Math.min(w - 1, Math.floor(cx + dxMax))
-  }
-
-  cached = { rowMinX, rowMaxX }
-  circleMaskCache.set(key, cached)
-  if (circleMaskCache.size > CIRCLE_MASK_CACHE_MAX) {
-    const oldest = circleMaskCache.keys().next().value
-    if (oldest !== undefined) circleMaskCache.delete(oldest)
-  }
-  return cached
+export function setPatternCacheMax(maxEntries: number): void {
+  patternCache.setMax(maxEntries)
 }
 
 // ====== Pattern drawing ======
@@ -637,59 +485,6 @@ export function drawDiffractionPattern(
 }
 
 // White light cache (same pattern as double-slit)
-interface CachedPattern {
-  key: string
-  accR: Float32Array
-  accG: Float32Array
-  accB: Float32Array
-}
-
-const PATTERN_CACHE_BUDGET = 30 * 1024 * 1024
-let _patternCacheBytes = 0
-const patternCache: CachedPattern[] = []
-
-function entryBytes(entry: CachedPattern): number {
-  return entry.accR.byteLength + entry.accG.byteLength + entry.accB.byteLength
-}
-
-function getCachedPattern(key: string, n: number): CachedPattern | null {
-  const idx = patternCache.findIndex((c) => c.key === key)
-  if (idx === -1) return null
-  if (patternCache[idx].accR.length < n) {
-    _patternCacheBytes -= entryBytes(patternCache[idx])
-    patternCache.splice(idx, 1)
-    return null
-  }
-  if (idx > 0) {
-    const [entry] = patternCache.splice(idx, 1)
-    patternCache.unshift(entry)
-  }
-  return patternCache[0]
-}
-
-function storeCachedPattern(key: string, accR: Float32Array, accG: Float32Array, accB: Float32Array): void {
-  const newEntry: CachedPattern = {
-    key,
-    accR: new Float32Array(accR),
-    accG: new Float32Array(accG),
-    accB: new Float32Array(accB),
-  }
-  const newBytes = entryBytes(newEntry)
-  while (_patternCacheBytes + newBytes > PATTERN_CACHE_BUDGET && patternCache.length > 0) {
-    const evicted = patternCache.pop()!
-    _patternCacheBytes -= entryBytes(evicted)
-  }
-  patternCache.unshift(newEntry)
-  _patternCacheBytes += newBytes
-}
-
-export function setPatternCacheMax(maxEntries: number): void {
-  while (patternCache.length > maxEntries) {
-    const evicted = patternCache.pop()!
-    _patternCacheBytes -= entryBytes(evicted)
-  }
-}
-
 function buildPatternCacheKey(
   mode: DiffractionMode,
   params: DiffractionParams,
@@ -722,7 +517,7 @@ export function drawWhiteLightPattern(
   const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, Math.min(width, height) / 2 - 2)
   const { imgData } = ensureBuffers(ctx, n)
 
-  const cached = getCachedPattern(cacheKey, n)
+  const cached = patternCache.get(cacheKey, n)
   if (cached) {
     // For 1D modes, we don't use circle mask; normalize differently
     if (mode === 'circular-aperture' || mode === 'circular-obstacle') {
@@ -812,7 +607,7 @@ export function drawWhiteLightPattern(
     }
   }
 
-  storeCachedPattern(cacheKey, accR, accG, accB)
+  patternCache.store(cacheKey, accR, accG, accB)
   if (is2D) {
     normalizeToImageData(imgData, accR, accG, accB, width, height, rowMinX, rowMaxX)
     ctx.putImageData(imgData, 0, 0)

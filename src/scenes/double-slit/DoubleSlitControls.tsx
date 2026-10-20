@@ -75,7 +75,7 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
                 { key: 'none', label: '无滤光片' },
                 { key: 'red', label: '红 650nm' },
                 { key: 'green', label: '绿 532nm' },
-                { key: 'blue', label: '蓝 450nm' },
+                { key: 'blue', label: '蓝 460nm' },
               ]}
               value={state.filterColor}
               onChange={(key) => state.setFilterColor(key as FilterColor)}
