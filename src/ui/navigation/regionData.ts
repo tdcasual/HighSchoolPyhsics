@@ -41,6 +41,13 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     scenePageIds: ['projectile-motion'],
   },
   {
+    id: 'circular',
+    volumeId: 'required-2',
+    name: '第六章 圆周运动',
+    description: '向心力、向心加速度与离心现象',
+    scenePageIds: ['circular-motion'],
+  },
+  {
     id: 'gravitation',
     volumeId: 'required-2',
     name: '第七章 万有引力与宇宙航行',

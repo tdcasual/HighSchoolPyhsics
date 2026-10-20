@@ -846,5 +846,32 @@
       "readyText": "抛体运动控制",
       "screenshotName": "projectile-motion"
     }
+  },
+  {
+    "pageId": "circular-motion",
+    "label": "圆周运动",
+    "meta": {
+      "tag": "曲线运动",
+      "summary": "转盘上的物块与圆锥摆：向心力来源、离心运动与偏角",
+      "highlights": [
+        "静摩擦力提供向心力",
+        "cosθ = g/(ω²L)"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "圆周运动控制",
+      "screenshotName": "circular-motion"
+    }
   }
 ]

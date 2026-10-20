@@ -45,7 +45,7 @@ const TOPIC_GROUPS: NavigationGroup[] = [
     title: '力学',
     description: '直线运动的测量与天体运动',
     color: '#65a30d',
-    scenePageIds: ['ticker-timer', 'cart-velocity', 'projectile-motion', 'celestial-motion'],
+    scenePageIds: ['ticker-timer', 'cart-velocity', 'projectile-motion', 'circular-motion', 'celestial-motion'],
   },
   {
     id: 'electric-field',
@@ -112,7 +112,7 @@ const LESSON_GROUPS: NavigationGroup[] = [
     title: '原理与模型',
     description: '把看不见的量画出来：场、电势、相位与轨道',
     color: '#6366f1',
-    scenePageIds: ['equipotential-dipole', 'potential-energy', 'equipotential', 'electrostatic-lab', 'oscilloscope-3d', 'cyclotron-core', 'motional-emf', 'rotational-emf', 'generator-core', 'wave-state', 'orthogonal-em-wave', 'celestial-motion', 'projectile-motion'],
+    scenePageIds: ['equipotential-dipole', 'potential-energy', 'equipotential', 'electrostatic-lab', 'oscilloscope-3d', 'cyclotron-core', 'motional-emf', 'rotational-emf', 'generator-core', 'wave-state', 'orthogonal-em-wave', 'celestial-motion', 'projectile-motion', 'circular-motion'],
   },
   {
     id: 'phenomena',
