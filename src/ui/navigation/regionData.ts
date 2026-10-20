@@ -34,6 +34,13 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     scenePageIds: ['ticker-timer', 'cart-velocity'],
   },
   {
+    id: 'projectile',
+    volumeId: 'required-2',
+    name: '第五章 抛体运动',
+    description: '运动的合成与分解，平抛与斜抛',
+    scenePageIds: ['projectile-motion'],
+  },
+  {
     id: 'gravitation',
     volumeId: 'required-2',
     name: '第七章 万有引力与宇宙航行',

@@ -60,6 +60,7 @@ const SCENE_REGION_MAP = {
   'equipotential-dipole': '静电学',
   'cart-velocity': '力学',
   'celestial-motion': '力学',
+  'projectile-motion': '力学',
 }
 
 export function buildDemoCatalog(scenes) {

@@ -101,7 +101,7 @@ describe('NavigationPage Linear layout', () => {
 
   it('orders the textbook view by chapter teaching order', () => {
     const ordered = orderRoutesForView(findNavigationView('textbook'), sceneCatalog)
-    expect(ordered.map((entry) => entry.pageId).slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'celestial-motion'])
+    expect(ordered.map((entry) => entry.pageId).slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'projectile-motion'])
   })
 
   it('places every catalogued scene exactly once in every view', () => {

@@ -819,5 +819,32 @@
       "readyText": "天体运动控制",
       "screenshotName": "celestial-motion"
     }
+  },
+  {
+    "pageId": "projectile-motion",
+    "label": "抛体运动",
+    "meta": {
+      "tag": "曲线运动",
+      "summary": "平抛与斜抛：速度分解、频闪轨迹与 v-t 图像",
+      "highlights": [
+        "水平匀速、竖直匀变速",
+        "落地时间只由高度决定"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "抛体运动控制",
+      "screenshotName": "projectile-motion"
+    }
   }
 ]
