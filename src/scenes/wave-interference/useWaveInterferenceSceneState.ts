@@ -33,6 +33,11 @@ export type WaveInterferenceSceneState = WaveParams & {
   setObserverBuffer: (b: ObserverBuffer | null) => void
   toggleConstructive: () => void
   toggleDestructive: () => void
+  /** Pause and advance a quarter period of source S₁. */
+  step: () => void
+  /** Bumped by each 单步; the rig advances its clocks by `stepS` when it changes. */
+  stepVersion: number
+  stepS: number
   reset: () => void
   resetVersion: number
   _tickSyncRef: { current: () => void }
@@ -57,6 +62,7 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const [showDestructive, setShowDestructive] = useState(() => recall('wave-interference.showDestructive', true))
   useRemember('wave-interference', { params, showChart, playSpeed, showConstructive, showDestructive })
   const [resetVersion, setResetVersion] = useState(0)
+  const [stepVersion, setStepVersion] = useState(0)
 
   // Mutable ring buffer — animation loop writes here, no React state churn
   const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(
@@ -110,6 +116,11 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   const toggleConstructive = useCallback(() => setShowConstructive(p => !p), [])
   const toggleDestructive = useCallback(() => setShowDestructive(p => !p), [])
 
+  const step = useCallback(() => {
+    setIsPlaying(false)
+    setStepVersion((version) => version + 1)
+  }, [])
+
   const reset = useCallback(() => {
     setParams(DEFAULT_PARAMS)
     setResetVersion((version) => version + 1)
@@ -125,6 +136,9 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
 
   return {
     ...params,
+    step,
+    stepVersion,
+    stepS: params.wavelength1 / params.waveSpeed / 4,
     showChart,
     isPlaying,
     playSpeed,

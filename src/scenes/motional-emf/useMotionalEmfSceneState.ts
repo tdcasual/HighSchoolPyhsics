@@ -67,6 +67,9 @@ export type MotionalEmfSceneState = {
   motionDirectionLabel: string
   running: boolean
   toggleRunning: () => void
+  /** Pause and advance 0.1 s of travel, keeping the rod's velocity as a frozen instant. */
+  step: () => void
+  steppedInMotion: boolean
   reset: () => void
   phase: number
   motionOffset: MotionOffset
@@ -82,6 +85,43 @@ export type MotionalEmfSceneState = {
   needleAngleRad: number
   polarityText: string
   relationText: string
+}
+
+type MotionParams = {
+  speedMps: number
+  discussionMode: DiscussionMode
+  velocityPreset: VelocityPreset
+  magneticFieldDirection: MagneticFieldDirection
+  rodAngleDeg: number
+  rodVelocityAngleDeg: RodVelocityAnglePreset
+  motionDirection: MotionDirectionPreset
+}
+
+/** Single-step size: 0.1 s of travel. */
+const STEP_S = 0.1
+
+/** Moves the rod along its travel by `deltaS` seconds of motion. */
+function advanceTravel(current: { phase: number; offset: MotionOffset }, deltaS: number, params: MotionParams) {
+  const phase = advanceTravelProgress({
+    previous: current.phase,
+    deltaS,
+    speedMps: params.speedMps,
+    travelSpan: MOTIONAL_EMF_LAYOUT.motion.travelDistance,
+  })
+  const distanceDelta = (phase - current.phase) * MOTIONAL_EMF_LAYOUT.motion.travelDistance
+  if (distanceDelta <= 0) return { phase, offset: current.offset }
+  const offset = advanceMotionOffset({
+    previous: current.offset,
+    deltaS: 1,
+    speedMps: distanceDelta,
+    discussionMode: params.discussionMode,
+    velocityPreset: params.velocityPreset,
+    magneticFieldDirection: params.magneticFieldDirection,
+    rodAngleDeg: params.rodAngleDeg,
+    rodVelocityAngleDeg: params.rodVelocityAngleDeg,
+    motionDirection: params.motionDirection,
+  })
+  return { phase, offset }
 }
 
 export function useMotionalEmfSceneState(): MotionalEmfSceneState {
@@ -109,10 +149,16 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
     motionOffsetRef.current = motionOffset
   }, [motionOffset])
 
+  // After 单步 the rod is shown as a frozen instant of the motion, so it keeps its velocity
+  // (and its EMF) until it is played, reset or reaches the end.
+  const [steppedInMotion, setSteppedInMotion] = useState(false)
+  const motionParams: MotionParams = { speedMps, discussionMode, velocityPreset, magneticFieldDirection, rodAngleDeg, rodVelocityAngleDeg, motionDirection }
+
   useEffect(() => {
     if (!running) {
       return
     }
+    const motionParams: MotionParams = { speedMps, discussionMode, velocityPreset, magneticFieldDirection, rodAngleDeg, rodVelocityAngleDeg, motionDirection }
 
     let frameId = 0
     let previous = performance.now()
@@ -121,31 +167,10 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
       const deltaS = Math.min(0.05, (now - previous) / 1000) * getPlaybackRate()
       previous = now
 
-      const previousPhase = phaseRef.current
-      const nextPhase = advanceTravelProgress({
-        previous: previousPhase,
-        deltaS,
-        speedMps,
-        travelSpan: MOTIONAL_EMF_LAYOUT.motion.travelDistance,
-      })
-      const distanceDelta = (nextPhase - previousPhase) * MOTIONAL_EMF_LAYOUT.motion.travelDistance
-
-      if (distanceDelta > 0) {
-        const nextOffset = advanceMotionOffset({
-          previous: motionOffsetRef.current,
-          deltaS: 1,
-          speedMps: distanceDelta,
-          discussionMode,
-          velocityPreset,
-          magneticFieldDirection,
-          rodAngleDeg,
-          rodVelocityAngleDeg,
-          motionDirection,
-        })
-        motionOffsetRef.current = nextOffset
-        setMotionOffset(nextOffset)
-      }
-
+      const next = advanceTravel({ phase: phaseRef.current, offset: motionOffsetRef.current }, deltaS, motionParams)
+      motionOffsetRef.current = next.offset
+      setMotionOffset(next.offset)
+      const nextPhase = next.phase
       phaseRef.current = nextPhase
       setPhase(nextPhase)
 
@@ -161,7 +186,7 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
     return () => cancelAnimationFrame(frameId)
   }, [discussionMode, magneticFieldDirection, motionDirection, rodAngleDeg, rodVelocityAngleDeg, running, speedMps, velocityPreset])
 
-  const activeMotionSpeedMps = running && phase < 1 ? speedMps : 0
+  const activeMotionSpeedMps = (running || steppedInMotion) && phase < 1 ? speedMps : 0
 
   const readings = useMemo(
     () =>
@@ -182,6 +207,7 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
   const reset = () => {
     const restOffset = createRestOffset()
     setRunning(false)
+    setSteppedInMotion(false)
     phaseRef.current = 0
     motionOffsetRef.current = restOffset
     setPhase(0)
@@ -223,6 +249,7 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
     motionDirectionLabel: formatMotionDirection(motionDirection),
     running,
     toggleRunning: () => {
+      setSteppedInMotion(false)
       if (running) {
         setRunning(false)
         return
@@ -242,6 +269,18 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
 
       setRunning(true)
     },
+    step: () => {
+      setRunning(false)
+      if (speedMps <= 0) return
+      const start = phaseRef.current >= 1 ? { phase: 0, offset: createRestOffset() } : { phase: phaseRef.current, offset: motionOffsetRef.current }
+      const next = advanceTravel(start, STEP_S, motionParams)
+      phaseRef.current = next.phase
+      motionOffsetRef.current = next.offset
+      setPhase(next.phase)
+      setMotionOffset(next.offset)
+      setSteppedInMotion(next.phase < 1)
+    },
+    steppedInMotion,
     reset,
     phase,
     motionOffset,

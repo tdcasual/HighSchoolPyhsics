@@ -114,11 +114,12 @@ export function MotionalEmfScene() {
       }
       playbackActions={[
         { key: 'toggle-running', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
+        { key: 'step', label: '单步 0.1 s', onClick: state.step },
         { key: 'reset', label: '重置', onClick: state.reset },
       ]}
       dataOverlay={
         <div className="scene-core-summary-stack">
-          <p><span>运动状态</span><strong>{state.running ? '运动中' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
+          <p><span>运动状态</span><strong>{state.running ? '运动中' : state.steppedInMotion ? '运动中（定格）' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
           <p><span>行程</span><strong>{(state.phase * 100).toFixed(0)}%</strong></p>
           <p><span>电压 U<sub>AB</sub></span><strong><Answer>{state.signedVoltageV.toFixed(2)} V</Answer></strong></p>
           <p><span>极性</span><strong><Answer>{state.polarityText}</Answer></strong></p>

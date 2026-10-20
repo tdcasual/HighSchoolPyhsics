@@ -17,6 +17,8 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import './oscilloscope.css'
 
 const DISPLAY_FULL_SCALE_V = 10
+/** 单步: 0.05 s, a tenth of the default 2 Hz signal's period. */
+const STEP_S = 0.05
 
 export function OscilloscopeScene() {
   const [timeRate, setTimeRate] = useState(() => recall('oscilloscope.timeRate', 1))
@@ -25,7 +27,13 @@ export function OscilloscopeScene() {
   useRemember('oscilloscope', { timeRate, xExpression, yExpression })
 
   const simulation = useOscilloscopeSimulation(1 / 240, timeRate)
-  const timeCursor = deriveTimeCursor(simulation.state)
+  // Steps add to the simulated clock; the trace is a pure function of the time cursor.
+  const [stepOffsetS, setStepOffsetS] = useState(0)
+  const timeCursor = deriveTimeCursor(simulation.state) + stepOffsetS
+  const step = () => {
+    if (simulation.running) simulation.toggleRunning()
+    setStepOffsetS((value) => value + STEP_S)
+  }
 
   const compiledX = useMemo(() => compileVoltageExpression(xExpression), [xExpression])
   const compiledY = useMemo(() => compileVoltageExpression(yExpression), [yExpression])
@@ -166,10 +174,14 @@ export function OscilloscopeScene() {
           label: simulation.running ? '暂停' : '播放',
           onClick: simulation.toggleRunning,
         },
+        { key: 'step', label: '单步 0.05 s', onClick: step },
         {
           key: 'reset',
           label: '重置',
-          onClick: simulation.reset,
+          onClick: () => {
+            setStepOffsetS(0)
+            simulation.reset()
+          },
         },
       ]}
       chartVisible={true}

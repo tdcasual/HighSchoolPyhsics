@@ -29,6 +29,8 @@ export type Oscilloscope3dSceneState = {
   setXY: (patch: Partial<XYSettings>) => void
   applyXYPreset: (preset: XYSettings['preset']) => void
   toggleRunning: () => void
+  /** Pause and sweep the beam one horizontal division (a tenth of the X-Y cycle). */
+  step: () => void
   reset: () => void
 }
 
@@ -95,6 +97,12 @@ export function useOscilloscope3dSceneState(): Oscilloscope3dSceneState {
     setXY: (patch) => commit({ xy: { ...simulationRef.current.xy, ...patch } }),
     applyXYPreset: (preset) => commit({ xy: preset === 'custom' ? { ...simulationRef.current.xy, preset } : xyPresetSettings(preset) }),
     toggleRunning: () => { lastTimestampRef.current = null; commit({ running: !simulationRef.current.running }) },
+    step: () => {
+      const current = simulationRef.current
+      // deriveBeamProgress sweeps 10 divisions per period: timeDiv ms each, or 1 s per X-Y cycle.
+      const divisionS = current.mode === 'xy' ? 0.1 : current.timeDiv / 1000
+      commit({ running: false, elapsed: current.elapsed + divisionS })
+    },
     reset: () => {
       lastTimestampRef.current = null
       const next = { ...INITIAL_SIMULATION, xy: { ...DEFAULT_XY_SETTINGS } }

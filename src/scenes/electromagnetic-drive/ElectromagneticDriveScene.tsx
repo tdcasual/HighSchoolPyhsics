@@ -10,13 +10,13 @@ import './electromagnetic-drive.css'
 export function ElectromagneticDriveScene() {
   const state = useElectromagneticDriveSceneState()
   const isCoasting = state.magnetSpeed > 0.01 || state.frameSpeed > 0.01
-  const experimentStatus = state.isRunning ? '摇动中' : isCoasting ? '惯性滑行中' : '静止'
+  const experimentStatus = state.frozen ? '定格（单步）' : state.isRunning ? '摇动中' : isCoasting ? '惯性滑行中' : '静止'
   const magnetSpeedText = formatAngularSpeed(state.magnetSpeed)
   const frameSpeedText = formatAngularSpeed(state.frameSpeed)
   const lagRatioText = state.magnetSpeed > 0.001
     ? formatLagRatio(state.frameSpeed, state.magnetSpeed)
     : state.frameSpeed > 0.001 ? '磁铁近静止，铝框惯性滑行' : '0%'
-  const frameloop = state.isRunning || state.magnetSpeed > 0.01 || state.frameSpeed > 0.01
+  const frameloop = !state.frozen && (state.isRunning || state.magnetSpeed > 0.01 || state.frameSpeed > 0.01)
     ? 'always'
     : 'demand'
 
@@ -24,7 +24,10 @@ export function ElectromagneticDriveScene() {
     <SceneLayout timeControl
       controls={<ElectromagneticDriveControls />}
       playbackActions={[
-        { key: 'toggle-running', label: state.isRunning ? '停止摇动' : '开始摇动', onClick: state.isRunning ? state.pause : state.start },
+        state.frozen
+          ? { key: 'toggle-running', label: '继续', onClick: state.resume }
+          : { key: 'toggle-running', label: state.isRunning ? '停止摇动' : '开始摇动', onClick: state.isRunning ? state.pause : state.start },
+        { key: 'step', label: '单步 0.1 s', onClick: state.step },
         { key: 'reset', label: '重置实验', onClick: state.reset },
       ]}
       dataOverlay={

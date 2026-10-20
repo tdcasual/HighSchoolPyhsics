@@ -116,6 +116,7 @@ export function Oscilloscope3dScene() {
       chartInitiallyCollapsed
       playbackActions={[
         { key: 'toggle-running', label: state.running ? '暂停扫描' : '继续扫描', onClick: state.toggleRunning },
+        { key: 'step', label: '单步 1 格', onClick: state.step },
         { key: 'reset', label: '重置', onClick: state.reset },
       ]}
     />

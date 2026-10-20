@@ -25,4 +25,16 @@ describe('motional-emf structure', () => {
     fireEvent.click(screen.getByRole('button', { name: '播放' }))
     expect(await screen.findByText(/0\.50 V/)).toBeInTheDocument()
   })
+
+  it('单步 freezes an instant of the motion: the rod moves and keeps its EMF', async () => {
+    sessionStorage.clear()
+    render(<MotionalEmfScene />)
+    screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
+    fireEvent.click(screen.getByRole('button', { name: '单步 0.1 s' }))
+    expect(screen.getByText('运动中（定格）')).toBeInTheDocument()
+    expect(screen.getByText(/1\.00 V/)).toBeInTheDocument()
+    expect(screen.queryByText('0%')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '重置' }))
+    expect(screen.getByText('静止')).toBeInTheDocument()
+  })
 })

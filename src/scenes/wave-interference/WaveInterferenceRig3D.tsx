@@ -1,7 +1,7 @@
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'
 import type { Mesh, ShaderMaterial } from 'three'
@@ -32,6 +32,8 @@ type RigProps = WaveParams & {
   showConstructive: boolean
   showDestructive: boolean
   resetVersion: number
+  stepVersion: number
+  stepS: number
   _tickSyncRef: { current: () => void }
 }
 
@@ -48,13 +50,30 @@ const dragHitPoint = new Vector3()
 
 /* ─── Wave Surface (ShaderMaterial) ─── */
 
+/** Applies each 单步 request once: advances the clock by `stepS` and renders the new frame. */
+function useStepRequests(stepVersion: number, stepS: number, timeRef: { current: number }, onStep?: () => void) {
+  const invalidate = useThree((state) => state.invalidate)
+  const seenRef = useRef(stepVersion)
+  useEffect(() => {
+    if (stepVersion === seenRef.current) return
+    seenRef.current = stepVersion
+    timeRef.current += stepS
+    onStep?.()
+    invalidate()
+  }, [invalidate, onStep, stepS, stepVersion, timeRef])
+}
+
 const WaveSurface = memo(function WaveSurface({
   source1, source2, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, waveSpeed,
-  isPlaying, playSpeed, resetVersion,
-}: WaveParams & { isPlaying: boolean; playSpeed: number; resetVersion: number }) {
+  isPlaying, playSpeed, resetVersion, stepVersion, stepS,
+}: WaveParams & { isPlaying: boolean; playSpeed: number; resetVersion: number; stepVersion: number; stepS: number }) {
   const matRef = useRef<ShaderMaterial>(null)
   const timeRef = useRef(0)
+  useStepRequests(stepVersion, stepS, timeRef, useCallback(() => {
+    const mat = matRef.current
+    if (mat) mat.uniforms.uTime.value = timeRef.current
+  }, []))
   const isPlayingRef = useRef(isPlaying)
   const playSpeedRef = useRef(playSpeed)
   useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
@@ -208,7 +227,7 @@ const WaveSource = memo(function WaveSource({
 function ObserverPoint({
   observerBuffer, waveSpeed, wavelength1, wavelength2,
   amplitude1, amplitude2, phaseDiff, source1, source2,
-  isPlaying, playSpeed, resetVersion, setObserverBuffer, tickSyncRef,
+  isPlaying, playSpeed, resetVersion, stepVersion, stepS, setObserverBuffer, tickSyncRef,
 }: {
   observerBuffer: ObserverBuffer
   waveSpeed: number
@@ -222,10 +241,13 @@ function ObserverPoint({
   isPlaying: boolean
   playSpeed: number
   resetVersion: number
+  stepVersion: number
+  stepS: number
   setObserverBuffer: (b: ObserverBuffer | null) => void
   tickSyncRef: { current: () => void }
 }) {
   const timeRef = useRef(0)
+  useStepRequests(stepVersion, stepS, timeRef)
   const headMeshRef = useRef<Mesh>(null)
   const [dragging, setDragging] = useState(false)
   const isPlayingRef = useRef(isPlaying)
@@ -410,7 +432,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
     amplitude1, amplitude2, phaseDiff, waveSpeed,
     isPlaying, playSpeed, observerBuffer,
     setSource1, setSource2, setObserverBuffer,
-    showConstructive, showDestructive, resetVersion,
+    showConstructive, showDestructive, resetVersion, stepVersion, stepS,
     _tickSyncRef,
   } = props
 
@@ -426,7 +448,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
         wavelength1={wavelength1} wavelength2={wavelength2}
         amplitude1={amplitude1} amplitude2={amplitude2}
         phaseDiff={phaseDiff} waveSpeed={waveSpeed}
-        isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion}
+        isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion} stepVersion={stepVersion} stepS={stepS}
       />
 
       <WaveSource
@@ -446,7 +468,7 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
           amplitude1={amplitude1} amplitude2={amplitude2}
           phaseDiff={phaseDiff}
           source1={source1} source2={source2}
-          isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion}
+          isPlaying={isPlaying} playSpeed={playSpeed} resetVersion={resetVersion} stepVersion={stepVersion} stepS={stepS}
           setObserverBuffer={setObserverBuffer}
           tickSyncRef={_tickSyncRef}
         />

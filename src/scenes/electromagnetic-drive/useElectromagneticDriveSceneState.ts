@@ -11,6 +11,11 @@ import {
 export type ElectromagneticDriveSceneState = ElectromagneticDriveState & {
   start: () => void
   pause: () => void
+  /** Advance 0.1 s and hold that instant; cranking (if on) stays on for when it resumes. */
+  step: () => void
+  /** Time is held after 单步 until it resumes, stops or resets. */
+  frozen: boolean
+  resume: () => void
   reset: () => void
 }
 
@@ -21,6 +26,8 @@ type StateUpdater =
 const FIXED_STEP_MS = 1000 / 60
 const MAX_ACCUMULATED_MS = FIXED_STEP_MS * 15
 const STEP_EPSILON_MS = 0.001
+/** 单步: 0.1 s of fixed physics steps. */
+const SINGLE_STEP_TICKS = 6
 
 export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneState {
   const [simulation, setSimulation] = useState(() => createElectromagneticDriveState())
@@ -28,6 +35,7 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   const frameRef = useRef<number | null>(null)
   const lastTimestampRef = useRef<number | null>(null)
   const accumulatedMsRef = useRef(0)
+  const [frozen, setFrozen] = useState(false)
 
   const resetAnimationClock = useCallback(() => {
     lastTimestampRef.current = null
@@ -49,7 +57,7 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   }, [simulation])
 
   useEffect(() => {
-    if (!isElectromagneticDriveActive(simulation) || frameRef.current !== null) {
+    if (frozen || !isElectromagneticDriveActive(simulation) || frameRef.current !== null) {
       return
     }
 
@@ -88,7 +96,15 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
     }
 
     frameRef.current = requestAnimationFrame(tick)
-  }, [resetAnimationClock, simulation])
+  }, [frozen, resetAnimationClock, simulation])
+
+  // Freezing stops the loop already in flight.
+  useEffect(() => {
+    if (!frozen || frameRef.current === null) return
+    cancelAnimationFrame(frameRef.current)
+    frameRef.current = null
+    resetAnimationClock()
+  }, [frozen, resetAnimationClock])
 
   useEffect(() => {
     return () => {
@@ -101,6 +117,7 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   }, [resetAnimationClock])
 
   const start = useCallback(() => {
+    setFrozen(false)
     resetAnimationClock()
     commitSimulation((previous) => ({
       ...previous,
@@ -109,13 +126,29 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
   }, [commitSimulation, resetAnimationClock])
 
   const pause = useCallback(() => {
+    setFrozen(false)
     commitSimulation((previous) => ({
       ...previous,
       isRunning: false,
     }))
   }, [commitSimulation])
 
+  const step = useCallback(() => {
+    setFrozen(true)
+    commitSimulation((previous) => {
+      let next = previous
+      for (let tick = 0; tick < SINGLE_STEP_TICKS; tick++) next = stepElectromagneticDriveState(next)
+      return next
+    })
+  }, [commitSimulation])
+
+  const resume = useCallback(() => {
+    resetAnimationClock()
+    setFrozen(false)
+  }, [resetAnimationClock])
+
   const reset = useCallback(() => {
+    setFrozen(false)
     resetAnimationClock()
     commitSimulation((previous) => resetElectromagneticDriveState(previous))
   }, [commitSimulation, resetAnimationClock])
@@ -124,6 +157,9 @@ export function useElectromagneticDriveSceneState(): ElectromagneticDriveSceneSt
     ...simulation,
     start,
     pause,
+    step,
+    frozen,
+    resume,
     reset,
   }
 }

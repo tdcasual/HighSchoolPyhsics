@@ -86,6 +86,7 @@ export function WaveInterferenceScene() {
       dataOverlay={dataOverlay}
       playbackActions={[
         { key: 'play', label: state.isPlaying ? '暂停' : '播放', onClick: state.togglePlay },
+        { key: 'step', label: '单步 T/4', onClick: state.step },
         { key: 'reset', label: '重置', onClick: state.reset },
       ]}
       chart={state.showChart ? (
@@ -115,6 +116,8 @@ export function WaveInterferenceScene() {
             isPlaying={state.isPlaying}
             playSpeed={state.playSpeed}
             resetVersion={state.resetVersion}
+            stepVersion={state.stepVersion}
+            stepS={state.stepS}
             observerBuffer={state.observerBuffer}
             setSource1={state.setSource1}
             setSource2={state.setSource2}

@@ -67,4 +67,17 @@ describe('electromagnetic-drive structure', () => {
     expect(screen.getByRole('button', { name: /实验现象说明/ })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText(/异步跟随/)).not.toBeInTheDocument()
   })
+
+  it('单步 advances the cranked magnet 0.1 s and holds the instant', () => {
+    render(<ElectromagneticDriveScene />)
+    fireEvent.click(screen.getByRole('button', { name: '开始摇动' }))
+    fireEvent.click(screen.getByRole('button', { name: '单步 0.1 s' }))
+    expect(screen.getByText('定格（单步）')).toBeInTheDocument()
+    expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
+    const speed = screen.getByText('磁铁转速').nextElementSibling!.textContent
+    fireEvent.click(screen.getByRole('button', { name: '单步 0.1 s' }))
+    expect(screen.getByText('磁铁转速').nextElementSibling!.textContent).not.toBe(speed)
+    fireEvent.click(screen.getByRole('button', { name: '继续' }))
+    expect(screen.getByText('摇动中')).toBeInTheDocument()
+  })
 })
