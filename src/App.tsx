@@ -11,6 +11,7 @@ import { safePreload } from './app/safePreload'
 import { getRuntimeCapabilities } from './app/runtimeCapabilities'
 import { ENHANCED_TOUCH_PROFILE, resolveTouchProfile, resolveTouchTargetMinSize } from './app/touchProfile'
 import { useMediaQuery, MOBILE_BREAKPOINT } from './ui/hooks/useMediaQuery'
+import { useAppUpdateReady } from './app/offlineCache'
 
 const APP_BRAND_NAME = '教学动画演示'
 
@@ -45,6 +46,7 @@ function App() {
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
   const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
+  const updateReady = useAppUpdateReady()
   const [pathname, setPathname] = useState(() => {
     if (typeof window === 'undefined') {
       return '/'
@@ -193,6 +195,12 @@ function App() {
           {!isOverviewPage && activeRoute ? <span className="app-header-scene">{activeRoute.label}</span> : null}
         </div>
         <div className="app-controls">
+          {updateReady ? (
+            // Parameters survive the reload (scene memory), so refreshing mid-lesson is cheap.
+            <button type="button" className="touch-target app-update" onClick={() => window.location.reload()}>
+              {isMobile ? '更新' : '有新版本，点此刷新'}
+            </button>
+          ) : null}
           {!isOverviewPage ? (
             <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
               <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">

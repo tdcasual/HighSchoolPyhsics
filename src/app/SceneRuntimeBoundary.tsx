@@ -52,13 +52,16 @@ export class SceneRuntimeBoundary extends Component<
       return (
         <div className="scene-missing" role="alert">
           <h2>场景暂时不可用</h2>
-          <p>该演示发生异常，可重试当前场景或返回导航继续课堂演示。</p>
+          <p>该演示发生异常，可重试当前场景或返回导航继续课堂演示。若网站刚更新过，刷新页面即可。</p>
           <div className="scene-missing-links">
             <button className="touch-target" onClick={this.handleRetry}>
               重试场景
             </button>
             <button className="touch-target" onClick={this.props.onBackToOverview}>
               返回导航
+            </button>
+            <button className="touch-target" onClick={() => window.location.reload()}>
+              刷新页面
             </button>
           </div>
         </div>

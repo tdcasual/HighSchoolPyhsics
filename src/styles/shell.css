@@ -1920,3 +1920,11 @@ input[type="range"]::-moz-range-track {
   background: var(--day-btn-bg-strong);
   color: var(--shell-ink-day, #0f172a);
 }
+
+/* New build took over this tab: amber so it stands out from the day/night controls. */
+.app-controls .app-update {
+  background: #fbbf24;
+  border-color: #d97706;
+  color: #1f2937;
+  font-weight: 600;
+}
