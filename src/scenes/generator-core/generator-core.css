@@ -1,25 +1,5 @@
 .generator-core-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
 .generator-core-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
 .generator-core-help { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.generator-core-chart-shell { display: grid; gap: 0.58rem; min-width: 320px; }
-.generator-core-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-.generator-core-chart-heading h3 { margin: 0; font-size: 1.06rem; }
-.generator-core-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
 .generator-core-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
-.generator-core-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
-.generator-core-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
 .generator-core-chart text { fill: #8a7e72; font-size: 10px; }
-.generator-core-flux { fill: none; stroke: #457b9d; stroke-width: 2.2; stroke-dasharray: 5 4; }
-.generator-core-emf { fill: none; stroke: #e63946; stroke-width: 2.5; }
-.generator-core-tracker { stroke: rgba(42, 157, 143, 0.76); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.generator-core-flux-point { fill: #457b9d; stroke: #eef7fb; stroke-width: 1.2; }
-.generator-core-emf-point { fill: #e63946; stroke: #fff3f0; stroke-width: 1.2; }
-.generator-core-chart-legend { display: flex; gap: 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
-.generator-core-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
-.generator-core-legend-dot.flux { background: #457b9d; }
-.generator-core-legend-dot.emf { background: #e63946; }
-.app-shell.theme-night .generator-core-chart { background: rgba(18, 24, 36, 0.65); }
-.app-shell.theme-night .generator-core-chart text { fill: #b8b0a4; }
-.app-shell.theme-night .generator-core-grid line { stroke: rgba(184, 196, 216, 0.11); }
-.app-shell.theme-night .generator-core-axis { stroke: rgba(184, 196, 216, 0.25); }
-@media (max-width: 900px) { .generator-core-chart-heading { flex-direction: column; align-items: flex-start; } }

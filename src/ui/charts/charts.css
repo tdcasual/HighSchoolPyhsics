@@ -1,0 +1,228 @@
+/* ── Shared scene charts (ui/charts) ── loaded with the scene chunks, not the entry. */
+.chart-card,
+.line-chart {
+  --chart-1: #2563eb;
+  --chart-2: #c2410c;
+  --chart-3: #0f766e;
+  --chart-4: #9333ea;
+  --chart-5: #b45309;
+  --chart-6: #64748b;
+  --chart-point: #c2410c;
+  --chart-bg: var(--readout-bg, rgba(248, 250, 252, 0.9));
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--control-ink);
+}
+
+.theme-night .chart-card,
+.theme-night .line-chart {
+  --chart-1: #60a5fa;
+  --chart-2: #fb923c;
+  --chart-3: #2dd4bf;
+  --chart-4: #c084fc;
+  --chart-5: #fbbf24;
+  --chart-6: #94a3b8;
+  --chart-point: #fb923c;
+}
+
+.chart-card + .chart-card,
+.line-chart + .line-chart {
+  margin-top: 0.8rem;
+}
+
+.chart-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 0.8rem;
+}
+
+.chart-card-title,
+.line-chart-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--control-ink);
+}
+
+.chart-card-status {
+  font-size: 0.8rem;
+  color: var(--control-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-frame-block {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.chart-frame-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--control-ink-soft);
+}
+
+.chart-card svg,
+.line-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  background: var(--chart-bg);
+}
+
+.chart-grid,
+.line-chart-grid {
+  stroke: var(--readout-divider);
+  stroke-width: 1;
+}
+
+.chart-axis,
+.line-chart-axis {
+  stroke: var(--control-ink-muted);
+  stroke-width: 1.2;
+}
+
+.chart-cursor line,
+.line-chart-cursor {
+  stroke: var(--control-accent, #2563eb);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+}
+
+.chart-cursor text {
+  fill: var(--control-accent, #2563eb);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-tick,
+.chart-axis-label,
+.line-chart-tick,
+.line-chart-axis-label {
+  fill: var(--control-ink-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-axis-label,
+.line-chart-axis-label {
+  font-weight: 700;
+}
+
+.chart-label {
+  fill: var(--control-ink);
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--chart-bg);
+  stroke-width: 3px;
+}
+
+.chart-area {
+  opacity: 0.14;
+  stroke: none;
+}
+
+.chart-dot-ring {
+  stroke: var(--panel-glass-bg, #fff);
+  stroke-width: 2;
+}
+
+.chart-legend,
+.line-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.8rem;
+  color: var(--control-ink-muted);
+}
+
+.chart-legend i,
+.line-chart-legend i {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.25rem;
+  margin-right: 0.3rem;
+  border-radius: 2px;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.chart-legend i.chart-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.chart-legend i.chart-legend-dash {
+  background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px);
+}
+
+.chart-card-footer {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--control-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Points a teacher can click (e.g. a measured speed to see its calculation). */
+.chart-card circle[role='button'] {
+  cursor: pointer;
+}
+
+.chart-card circle[role='button']:focus-visible {
+  stroke: var(--control-ink);
+  stroke-width: 2px;
+  outline: none;
+}
+
+/* ── Optics field of view (ui/charts/useAdaptiveCanvas): a lit pattern on canvas, centred. ── */
+.chart-field {
+  position: relative;
+  width: min(360px, 100%);
+  margin: 0 auto;
+}
+
+.chart-field canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 0 0 6px rgba(255, 255, 255, 0.04);
+}
+
+/* Round eyepiece view: stacked layers (pattern, reticle) share one square. */
+.chart-field[data-shape='round'] {
+  aspect-ratio: 1 / 1;
+}
+
+.chart-field[data-shape='round'] canvas {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.04);
+}
+
+.chart-field[data-shape='round'] canvas + canvas {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* The profile strip under a field of view. */
+.chart-field + .chart-field {
+  margin-top: 0.4rem;
+}
+
+.chart-formula {
+  margin: 0;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--control-ink-muted);
+}

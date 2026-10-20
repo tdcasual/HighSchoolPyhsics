@@ -1,30 +1,16 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ElectromagneticDriveChart } from './ElectromagneticDriveChart'
 
-describe('ElectromagneticDriveChart theme tokens', () => {
-  it('uses CSS theme variables for day/night friendly line, fill, and axis colors', () => {
-    const { container } = render(
-      <ElectromagneticDriveChart
-        magnetSpeeds={[0, 1.2, 2.4, 3.2]}
-        frameSpeeds={[0, 0.3, 0.9, 1.7]}
-      />,
-    )
-
-    const lines = Array.from(container.querySelectorAll('line'))
-    const texts = Array.from(container.querySelectorAll('text'))
-    const paths = Array.from(container.querySelectorAll('path'))
-    const stops = Array.from(container.querySelectorAll('stop'))
-
-    expect(lines[0]?.getAttribute('stroke')).toBe('var(--electromagnetic-drive-chart-grid-line)')
-    expect(lines.at(-1)?.getAttribute('stroke')).toBe('var(--electromagnetic-drive-chart-axis-line)')
-    expect(texts[0]?.getAttribute('fill')).toBe('var(--electromagnetic-drive-chart-axis-text)')
-    expect(texts.at(-1)?.getAttribute('fill')).toBe('var(--electromagnetic-drive-chart-axis-subtext)')
-    expect(texts.map((text) => text.textContent)).toEqual(['5.0', '3.8', '2.5', '1.3', '0'])
+describe('ElectromagneticDriveChart', () => {
+  it('plots both speeds on a shared rad/s axis that starts at zero', () => {
+    const { container } = render(<ElectromagneticDriveChart magnetSpeeds={[0, 1.2, 2.4, 3.2]} frameSpeeds={[0, 0.3, 0.9, 1.7]} />)
+    const chart = screen.getByRole('img', { name: /角速度对比图/ })
+    expect(chart).toHaveTextContent('rad·s⁻¹')
+    expect([...container.querySelectorAll('.chart-tick')].map((tick) => tick.textContent)).toEqual(['0', '2', '4', '6'])
+    // Theme tokens, not fixed colours, so the chart follows day/night.
+    const strokes = [...container.querySelectorAll('path[stroke]')].map((path) => path.getAttribute('stroke'))
+    expect(strokes).toEqual(['var(--chart-2)', 'var(--chart-1)'])
     expect(container.textContent).toContain('横轴：采样先后')
-    expect(paths[2]?.getAttribute('stroke')).toBe('var(--electromagnetic-drive-chart-magnet-line)')
-    expect(paths[3]?.getAttribute('stroke')).toBe('var(--electromagnetic-drive-chart-frame-line)')
-    expect(stops[0]?.getAttribute('stop-color')).toBe('var(--electromagnetic-drive-chart-magnet-fill-top)')
-    expect(stops[2]?.getAttribute('stop-color')).toBe('var(--electromagnetic-drive-chart-frame-fill-top)')
   })
 })

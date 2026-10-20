@@ -83,7 +83,6 @@ const WaveSurface = memo(function WaveSurface({
   }
   })
 
-  /* eslint-disable react-hooks/immutability -- Three.js shader uniforms are updated imperatively through this material ref. */
   useEffect(() => {
     const u = matRef.current?.uniforms
     if (!u) return
@@ -98,7 +97,6 @@ const WaveSurface = memo(function WaveSurface({
     u.uPhaseDiff.value = phaseDiff
     u.uWaveSpeed.value = waveSpeed
   }, [source1, source2, wavelength1, wavelength2, amplitude1, amplitude2, phaseDiff, waveSpeed])
-  /* eslint-enable react-hooks/immutability */
 
   useFrame(() => {
     const mat = matRef.current

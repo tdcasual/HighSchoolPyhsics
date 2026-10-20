@@ -8,29 +8,3 @@
 .wave-state-toggle.acceleration { border-color: rgba(230, 57, 70, 0.55); }
 .wave-state-velocity-value { color: #2a9d8f !important; }
 .wave-state-acceleration-value { color: #e63946 !important; }
-.wave-state-chart-shell { display: grid; width: 300px; max-width: 100%; min-width: 0; gap: 0.58rem; }
-.wave-state-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-.wave-state-chart-heading h3 { margin: 0; font-size: 1.06rem; }
-.wave-state-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
-.wave-state-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
-.wave-state-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
-.wave-state-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
-.wave-state-chart text { fill: #8a7e72; font-size: 13px; }
-.wave-state-probe-curve { fill: none; stroke: #457b9d; stroke-width: 2.5; }
-.wave-state-arrival { stroke: #e76f51; stroke-width: 1.2; stroke-dasharray: 4 3; }
-.wave-state-arrival-label { fill: #e76f51 !important; }
-.wave-state-tracker { stroke: rgba(42, 157, 143, 0.8); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.wave-state-probe-point { fill: #ffd166; stroke: #fff4c6; stroke-width: 1.2; }
-.wave-state-current-label { fill: #2a9d8f !important; }
-.wave-state-chart-legend { display: flex; flex-wrap: wrap; gap: 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
-.wave-state-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
-.wave-state-legend-dot.probe { background: #457b9d; }
-.wave-state-legend-dot.tracker { background: #2a9d8f; }
-.wave-state-legend-dot.arrival { background: #e76f51; }
-.app-shell.theme-night .wave-state-chart { background: rgba(18, 24, 36, 0.65); }
-.app-shell.theme-night .wave-state-chart text { fill: #b8b0a4; }
-.app-shell.theme-night .wave-state-grid line { stroke: rgba(184, 196, 216, 0.11); }
-.app-shell.theme-night .wave-state-axis { stroke: rgba(184, 196, 216, 0.25); }
-@media (max-width: 900px) { .wave-state-chart-heading { flex-direction: column; align-items: flex-start; } }
-
-.app-shell.theme-night .wave-state-toggle[aria-pressed="true"] { color: #5fd3c3; }

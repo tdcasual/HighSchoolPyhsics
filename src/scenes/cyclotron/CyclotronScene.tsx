@@ -11,7 +11,6 @@ import { MAX_ORBIT_RADIUS_M } from './layout'
 import { STEPS_PER_TURN } from './run'
 import { useCyclotronSceneState } from './useCyclotronSceneState'
 import { CYCLOTRON_CAMERA, CYCLOTRON_CONTROLS } from './view'
-import './cyclotron.css'
 
 const MEV_J = 1.6e-13
 

@@ -1,11 +1,5 @@
-
-.multimeter-chart {
-  display: block;
-  width: min(520px, calc(100vw - 24px));
-  max-width: 520px;
-  height: auto;
-}
-
-.multimeter-reading-chart {
-  width: min(360px, calc(100vw - 24px));
+/* The enlarged meter face stays dial-sized inside the wider chart panel. */
+.chart-card svg.multimeter-reading-chart {
+  max-width: 360px;
+  margin: 0 auto;
 }

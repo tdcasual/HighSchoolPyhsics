@@ -257,7 +257,8 @@ export function SceneLayout({
       if (typeof ResizeObserver !== 'undefined') {
         const observer = new ResizeObserver(() => {
           // Stack by the rendered outer box; contentRect omits the header's border and padding.
-          const h = el.getBoundingClientRect().height
+          // Whole pixels keep the next panel's edges crisp over the blurred canvas.
+          const h = Math.ceil(el.getBoundingClientRect().height)
           if (h > 0) {
             setPanelHeights((prev) => {
               const next = [...prev]

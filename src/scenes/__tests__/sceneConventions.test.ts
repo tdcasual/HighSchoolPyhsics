@@ -8,9 +8,11 @@ const sources = import.meta.glob<string>(['../*/*.ts', '../*/*.tsx', '!../*/*.te
 })
 
 const scenes = new Map<string, string>()
+const chartFiles: Array<[string, string]> = []
 for (const [path, text] of Object.entries(sources)) {
   const scene = path.split('/')[1]
   scenes.set(scene, (scenes.get(scene) ?? '') + '\n' + text)
+  if (/Chart\.tsx$/.test(path)) chartFiles.push([path, text])
 }
 
 /**
@@ -29,8 +31,7 @@ const NO_STEP: Record<string, string> = {
  * useAnimatedState or useAnimationLoop, which apply slow motion and the frame cap).
  */
 const RAW_FRAME_LOOPS: Record<string, string> = {
-  'double-slit': 'redraws the chart and canvas once after a resize; no simulated time',
-  'light-diffraction': 'schedules a chart redraw at a new adaptive resolution',
+  'double-slit': 'the 3D rig invalidates once more on the next frame after mounting; no simulated time',
 }
 
 /**
@@ -80,6 +81,18 @@ describe('scene conventions', () => {
   it('advances simulated time only through the shared clock and loop', () => {
     const raw = [...scenes].filter(([scene, text]) => /requestAnimationFrame\(/.test(text) && !(scene in RAW_FRAME_LOOPS))
     expect(raw.map(([scene]) => scene)).toEqual([])
+  })
+
+  it('keeps the frame-loop exemptions current', () => {
+    for (const scene of Object.keys(RAW_FRAME_LOOPS)) {
+      expect(/requestAnimationFrame\(/.test(scenes.get(scene) ?? ''), `${scene} has no frame loop now; drop the exemption`).toBe(true)
+    }
+  })
+
+  it('draws charts with the shared kit (ui/charts): ChartCard/ChartFrame, or its canvas hooks for optics', () => {
+    expect(chartFiles.length).toBeGreaterThan(10)
+    const custom = chartFiles.filter(([, text]) => !/ui\/charts\//.test(text))
+    expect(custom.map(([path]) => path)).toEqual([])
   })
 
   it('shares viewport measuring and framing helpers instead of copying them', () => {

@@ -5,19 +5,4 @@
 .osc3d-check input { width: 18px; height: 18px; accent-color: var(--control-accent); }
 .osc3d-reset-view { min-height: 44px; border: 1px solid var(--control-section-border); border-radius: 10px; background: var(--control-section-bg); color: var(--control-ink); font-weight: 700; cursor: pointer; }
 .osc3d-reset-view:hover { background: var(--control-hover-bg); }
-.osc3d-chart-shell { display: grid; gap: 0.58rem; min-width: 300px; }
-.osc3d-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-.osc3d-chart-heading h3 { margin: 0; font-size: 1.06rem; }
-.osc3d-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
-.osc3d-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: #0e201e; }
-.osc3d-grid line { stroke: rgba(159, 241, 219, 0.19); stroke-width: 0.8; }
-.osc3d-axis { stroke: rgba(224, 255, 243, 0.45); stroke-width: 1.1; }
-.osc3d-trace-halo { fill: none; stroke: rgba(90, 255, 214, 0.42); stroke-width: 6; }
-.osc3d-trace { fill: none; stroke: #9bffe3; stroke-width: 1.9; }
-.osc3d-beam { fill: #efffbd; stroke: #b7ffe7; stroke-width: 1.2; }
-.osc3d-chart-legend { display: flex; gap: 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
-.osc3d-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
-.osc3d-dot.signal { background: #8cf9d7; }
-.osc3d-dot.time { background: #f5c35b; }
 .osc3d-telemetry .osc3d-warning { font-size: 0.75rem; font-weight: 600; color: #b45309; }
-.app-shell.theme-night .osc3d-telemetry .osc3d-warning { color: #fbbf24; }

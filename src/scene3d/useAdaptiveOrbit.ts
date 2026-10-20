@@ -203,7 +203,7 @@ export function useAdaptiveOrbit(options: {
       }
       orbit.update()
     },
-    [adaptiveFramingOptions, controlsOnChange, resolvedPresentationFocus],
+    [adaptiveFramingOptions, controlsOnChange, controlsRef, resolvedPresentationFocus],
   )
 
   return {

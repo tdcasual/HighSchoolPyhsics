@@ -1,15 +1,49 @@
+import { ChartCard } from '../../ui/charts/ChartCard'
+import { ChartFrame, Cursor, Dot, Label, Segment, Series } from '../../ui/charts/ChartFrame'
 import { buildProbeTrace } from './model'
 import type { WaveStateSceneState } from './useWaveStateSceneState'
-type Props={state:WaveStateSceneState}
-const WIDTH=420,HEIGHT=210,PAD={left:40,right:18,top:20,bottom:30}
-export function WaveStateChart({state}:Props) {
- const params={amplitude:state.amplitude,wavelength:state.wavelength,period:state.period,direction:state.direction,startDirection:state.startDirection}
- const trace=buildProbeTrace(params,97,state.probeX),endTime=trace[trace.length-1]?.[0]??state.period
- const innerWidth=WIDTH-PAD.left-PAD.right,innerHeight=HEIGHT-PAD.top-PAD.bottom
- const plotX=(time:number)=>PAD.left+time/Math.max(0.0001,endTime)*innerWidth
- const plotY=(value:number)=>PAD.top+(1-(value+state.amplitude)/Math.max(0.001,state.amplitude*2))*innerHeight
- const points=trace.map(([time,y])=>plotX(time)+','+plotY(y)).join(' ')
- const arrival=state.readings.probeArrivalTime,markerTime=state.elapsed<arrival?state.elapsed:arrival+((state.elapsed-arrival)%state.period)
- const currentY=state.readings.probe.y,currentX=plotX(markerTime),arrivalX=plotX(arrival)
- return <div className="wave-state-chart-shell"><div className="wave-state-chart-heading"><h3>P 点位移—时间图像</h3><span>波前到达后开始简谐振动 · tₐ={arrival.toFixed(2)} s</span></div><svg className="wave-state-chart" viewBox={'0 0 '+WIDTH+' '+HEIGHT} role="img" aria-label="简谐横波 P 点位移时间图"><g className="wave-state-grid">{Array.from({length:5},(_,i)=><line key={'h-'+i} x1={PAD.left} x2={WIDTH-PAD.right} y1={PAD.top+i*innerHeight/4} y2={PAD.top+i*innerHeight/4}/>)}{Array.from({length:5},(_,i)=><line key={'v-'+i} x1={PAD.left+i*innerWidth/4} x2={PAD.left+i*innerWidth/4} y1={PAD.top} y2={HEIGHT-PAD.bottom}/>)}</g><line className="wave-state-axis" x1={PAD.left} y1={plotY(0)} x2={WIDTH-PAD.right} y2={plotY(0)}/><line className="wave-state-axis" x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={HEIGHT-PAD.bottom}/><polyline className="wave-state-probe-curve" points={points}/>{arrival>0&&<><line className="wave-state-arrival" x1={arrivalX} x2={arrivalX} y1={PAD.top} y2={HEIGHT-PAD.bottom}/><text className="wave-state-arrival-label" x={arrivalX+3} y={PAD.top+11}>波前到达</text></>}<line className="wave-state-tracker" x1={currentX} x2={currentX} y1={PAD.top} y2={HEIGHT-PAD.bottom}/><circle className="wave-state-probe-point" cx={currentX} cy={plotY(currentY)} r="5"/><text x={PAD.left} y="13">yₚ / cm</text><text x={WIDTH-PAD.right} y={HEIGHT-8} textAnchor="end">t / s</text><text x={PAD.left-4} y={PAD.top+4} textAnchor="end">+A</text><text x={PAD.left-4} y={plotY(0)+4} textAnchor="end">0</text><text x={PAD.left-4} y={HEIGHT-PAD.bottom+4} textAnchor="end">−A</text><text x={WIDTH-PAD.right} y={plotY(currentY)-6} textAnchor="end" className="wave-state-current-label">P={currentY.toFixed(1)} cm</text></svg><div className="wave-state-chart-legend"><span><i className="wave-state-legend-dot probe"/>P 点简谐振动</span><span><i className="wave-state-legend-dot tracker"/>当前时刻</span><span><i className="wave-state-legend-dot arrival"/>波前到达</span></div></div>
+
+export function WaveStateChart({ state }: { state: WaveStateSceneState }) {
+  const params = { amplitude: state.amplitude, wavelength: state.wavelength, period: state.period, direction: state.direction, startDirection: state.startDirection }
+  const trace = buildProbeTrace(params, 97, state.probeX)
+  const endTime = trace[trace.length - 1]?.[0] ?? state.period
+  const arrival = state.readings.probeArrivalTime
+  const markerTime = state.elapsed < arrival ? state.elapsed : arrival + ((state.elapsed - arrival) % state.period)
+  const currentY = state.readings.probe.y
+  const a = state.amplitude
+  return (
+    <ChartCard
+      title="P 点位移—时间图像"
+      status={<>波前到达后开始简谐振动 · tₐ={arrival.toFixed(2)} s</>}
+      legend={[
+        { label: 'P 点简谐振动', color: 'var(--chart-1)' },
+        { label: '当前时刻', color: 'var(--control-accent)', shape: 'dash' },
+        { label: '波前到达', color: 'var(--chart-6)', shape: 'dash' },
+      ]}
+    >
+      <ChartFrame
+        ariaLabel="简谐横波 P 点位移时间图"
+        xDomain={[0, endTime]}
+        yDomain={[-a * 1.1, a * 1.1]}
+        yTicks={[{ value: a, label: '+A' }, { value: 0, label: '0' }, { value: -a, label: '−A' }]}
+        xLabel="t / s"
+        yLabel="yₚ / cm"
+      >
+        {(plot) => (
+          <>
+            <Series plot={plot} points={trace} color="var(--chart-1)" />
+            {arrival > 0 ? (
+              <>
+                <Segment plot={plot} from={[arrival, -a * 1.1]} to={[arrival, a * 1.1]} color="var(--chart-6)" dashed strokeWidth={1.4} />
+                <Label plot={plot} x={arrival} y={a * 1.1} dx={4} dy={14}>波前到达</Label>
+              </>
+            ) : null}
+            <Cursor plot={plot} x={markerTime} />
+            <Dot plot={plot} x={markerTime} y={currentY} color="var(--chart-point)" ring />
+            <Label plot={plot} x={endTime} y={currentY} dx={-4} dy={-8} anchor="end">P={currentY.toFixed(1)} cm</Label>
+          </>
+        )}
+      </ChartFrame>
+    </ChartCard>
+  )
 }

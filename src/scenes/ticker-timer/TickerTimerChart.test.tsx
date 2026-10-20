@@ -25,7 +25,7 @@ describe("ticker timer charts", () => {
     expect(Number(markers[1].getAttribute("cx"))).toBeGreaterThan(
       Number(markers[0].getAttribute("cx")),
     );
-    expect(chart).toHaveTextContent("v (m/s)");
-    expect(chart).toHaveTextContent("t (s)");
+    expect(chart).toHaveTextContent("v / (m·s⁻¹)");
+    expect(chart).toHaveTextContent("t / s");
   });
 });

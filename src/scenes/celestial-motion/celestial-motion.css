@@ -43,11 +43,3 @@
   font-size: 0.75rem;
   line-height: 1.45;
 }
-
-.celestial-chart {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: #f7fbfb;
-  border-radius: 12px;
-}

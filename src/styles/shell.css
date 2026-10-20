@@ -407,74 +407,7 @@ body {
   opacity: 1;
 }
 
-/* ── Shared scene chart (ui/charts/LineChart) and 3D vector labels ── */
-.line-chart {
-  display: grid;
-  gap: 0.4rem;
-  margin: 0;
-}
-
-.line-chart + .line-chart {
-  margin-top: 0.8rem;
-}
-
-.line-chart-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--control-ink);
-}
-
-.line-chart svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  background: var(--readout-bg, rgba(248, 250, 252, 0.9));
-}
-
-.line-chart-grid {
-  stroke: var(--readout-divider);
-  stroke-width: 1;
-}
-
-.line-chart-axis {
-  stroke: var(--control-ink-muted);
-  stroke-width: 1.2;
-}
-
-.line-chart-cursor {
-  stroke: var(--control-accent, #2563eb);
-  stroke-width: 1.4;
-  stroke-dasharray: 4 3;
-}
-
-.line-chart-tick,
-.line-chart-axis-label {
-  fill: var(--control-ink-muted);
-  font-size: 13px;
-}
-
-.line-chart-axis-label {
-  font-weight: 700;
-}
-
-.line-chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  font-size: 0.8rem;
-  color: var(--control-ink-muted);
-}
-
-.line-chart-legend i {
-  display: inline-block;
-  width: 0.7rem;
-  height: 0.25rem;
-  margin-right: 0.3rem;
-  border-radius: 2px;
-  vertical-align: middle;
-}
-
+/* ── 3D vector labels ── */
 .vector-arrow-label {
   font-size: 13px;
   font-weight: 800;

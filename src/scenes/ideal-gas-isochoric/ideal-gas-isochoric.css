@@ -3,54 +3,8 @@
 .ideal-gas-isochoric-help { margin: 0; padding-left: 1.1rem; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
 .ideal-gas-isochoric-help strong { color: var(--control-ink); }
 .ideal-gas-isochoric-help-note { margin: 0.35rem 0 0; color: var(--control-ink-muted); font-size: 0.72rem; line-height: 1.45; }
-.ideal-gas-isochoric-chart-shell { width: min(34rem, calc(100vw - 730px)); max-width: calc(100vw - 730px); box-sizing: border-box; display: grid; gap: 0.58rem; min-width: 320px; }
-.ideal-gas-isochoric-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-.ideal-gas-isochoric-chart-heading h3 { margin: 0; font-size: 1.06rem; }
-.ideal-gas-isochoric-chart-heading span { color: var(--control-ink-muted); font-size: 0.72rem; }
-.ideal-gas-isochoric-chart-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.7rem; }
-.ideal-gas-isochoric-chart-grid h4 { margin: 0 0 0.28rem; color: var(--control-ink-soft); font-size: 0.78rem; }
-.ideal-gas-isochoric-chart { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(250, 247, 242, 0.95); }
-.ideal-gas-isochoric-grid line { stroke: rgba(128, 108, 92, 0.16); stroke-width: 0.8; }
-.ideal-gas-isochoric-grid text { fill: #8a7e72; font-size: 11px; }
-.ideal-gas-isochoric-axis { stroke: rgba(83, 70, 60, 0.45); stroke-width: 1.1; }
-.ideal-gas-isochoric-chart text { fill: #8a7e72; font-size: 13px; }
-.ideal-gas-isochoric-curve { fill: none; stroke-width: 1.8; opacity: 0.62; }
-.ideal-gas-isochoric-curve.volume-small, .ideal-gas-isochoric-extrapolation.volume-small { stroke: #c96c77; }
-.ideal-gas-isochoric-curve.volume-medium, .ideal-gas-isochoric-extrapolation.volume-medium { stroke: #4f9b92; }
-.ideal-gas-isochoric-curve.volume-large, .ideal-gas-isochoric-extrapolation.volume-large { stroke: #457b9d; }
-.ideal-gas-isochoric-extrapolation { fill: none; stroke-width: 1.8; stroke-dasharray: 5 4; opacity: 0.76; }
-.ideal-gas-isochoric-extrapolation.selected { stroke-width: 2.4; opacity: 1; }
-.ideal-gas-isochoric-curve.selected { stroke-width: 3; opacity: 1; }
-.ideal-gas-isochoric-zero { stroke: rgba(239, 57, 72, 0.58); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.ideal-gas-isochoric-tracker { stroke: rgba(239, 57, 72, 0.76); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.ideal-gas-isochoric-point { fill: #ef3948; stroke: #fff3f0; stroke-width: 1.2; }
-.ideal-gas-isochoric-current-label { fill: #ef3948 !important; font-weight: 700; }
-.ideal-gas-isochoric-zero-label { fill: #ef3948 !important; font-size: 8px !important; font-weight: 700; }
-.ideal-gas-isochoric-line-label { fill: #918781 !important; font-weight: 700; }
-.ideal-gas-isochoric-line-label.volume-small { fill: #c96c77 !important; }
-.ideal-gas-isochoric-line-label.volume-medium { fill: #4f9b92 !important; }
-.ideal-gas-isochoric-line-label.volume-large { fill: #457b9d !important; }
-.ideal-gas-isochoric-line-label.selected { font-size: 11px !important; }
-.ideal-gas-isochoric-chart-legend { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; color: var(--control-ink-muted); font-size: 0.72rem; }
-.ideal-gas-isochoric-legend-dot { display: inline-block; width: 0.55rem; height: 0.55rem; margin-right: 0.25rem; border-radius: 50%; }
-.ideal-gas-isochoric-legend-dot.v1 { background: #c96c77; }
-.ideal-gas-isochoric-legend-dot.v2 { background: #4f9b92; }
-.ideal-gas-isochoric-legend-dot.v3 { background: #457b9d; }
-.ideal-gas-isochoric-legend-note { color: #ef3948; }
-.app-shell.theme-night .ideal-gas-isochoric-chart { background: rgba(18, 24, 36, 0.65); }
-.app-shell.theme-night .ideal-gas-isochoric-chart text { fill: #b8b0a4; }
-.app-shell.theme-night .ideal-gas-isochoric-grid text { fill: #b8b0a4; }
-.app-shell.theme-night .ideal-gas-isochoric-grid line { stroke: rgba(184, 196, 216, 0.11); }
-.app-shell.theme-night .ideal-gas-isochoric-axis { stroke: rgba(184, 196, 216, 0.25); }
 @media (max-width: 640px) {
   .mobile-data-strip .ideal-gas-isochoric-telemetry { display: flex; flex-wrap: wrap; gap: 0.25rem 0.65rem; padding: 0.45rem 0.55rem; }
   .mobile-data-strip .ideal-gas-isochoric-telemetry p { min-width: 0; max-width: calc(50% - 0.4rem); font-size: 0.68rem; }
-  .mobile-data-strip .ideal-gas-isochoric-telemetry .ideal-gas-isochoric-conclusion { display: none; }
-}
-@media (max-width: 900px) {
-  .ideal-gas-isochoric-chart-shell { width: 100%; max-width: 100%; min-width: 0; }
-  .ideal-gas-isochoric-chart-grid { grid-template-columns: 1fr; }
-  .ideal-gas-isochoric-chart-heading { flex-direction: column; align-items: flex-start; }
 }
 .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #dc2626; }
-.app-shell.theme-night .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #f87171; }

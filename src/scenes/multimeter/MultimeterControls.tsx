@@ -5,7 +5,6 @@ import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { SelectField } from '../../ui/controls/SelectField'
 import { RANGE, RANGES, type RangeKey } from './model'
 import type { MultimeterSceneState } from './useMultimeterSceneState'
-import './multimeter.css'
 
 const STAGES = [
   { key: 'use', label: '使用' },
