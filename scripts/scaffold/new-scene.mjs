@@ -258,12 +258,6 @@ async function main() {
       highlights: [args.get('highlight-a') ?? '核心现象可视化', args.get('highlight-b') ?? '参数联动观察'],
       tone,
     },
-    touchProfile: {
-      pageScroll: 'vertical-outside-canvas',
-      canvasGestureScope: 'interactive-canvas',
-      minTouchTargetPx: 44,
-      gestureMatrix: { singleFingerRotate: true, twoFingerZoom: true, twoFingerPan: true },
-    },
     playwright: { readyText: `${label}控制`, screenshotName: id },
   })
   await writeFile(catalogFile, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8')

@@ -189,7 +189,7 @@ export function CartControls({ state }: { state: CartVelocitySceneState }) {
       </details>
       <ControlSection title="播放">
         <SegmentedControl options={SPEEDS} value={String(state.speed)} onChange={(key) => state.setSpeed(Number(key))} />
-        <RangeField id="cart-time" label="回看时刻" min={0} max={DURATION} step={0.02} value={state.time} unit="s" displayValue={`${state.time.toFixed(2)} s`} onChange={state.setTime} />
+        <RangeField id="cart-time" transient label="回看时刻" min={0} max={DURATION} step={0.02} value={state.time} unit="s" displayValue={`${state.time.toFixed(2)} s`} onChange={state.setTime} />
       </ControlSection>
       <ControlSection title="外观与视角">
         <SegmentedControl options={SKINS} value={state.skin} onChange={(key) => state.setSkin(key as CartVelocitySceneState['skin'])} />

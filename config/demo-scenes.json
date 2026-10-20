@@ -12,16 +12,6 @@
       "tone": "scope",
       "level": "进阶"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "示波器控制",
       "screenshotName": "oscilloscope"
@@ -38,16 +28,6 @@
         "2D 干涉图样与 3D 仪器同步变化"
       ],
       "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "双缝干涉控制",
@@ -66,16 +46,6 @@
       ],
       "tone": "scope"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "劈尖干涉控制",
       "screenshotName": "wedge-interference"
@@ -92,16 +62,6 @@
         "观察点 X-t 振动图像同步绘制"
       ],
       "tone": "scope"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "波干涉控制",
@@ -121,16 +81,6 @@
       "tone": "scope",
       "level": "进阶"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "衍射实验控制",
       "screenshotName": "light-diffraction"
@@ -149,16 +99,6 @@
       "tone": "scope",
       "level": "入门"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "衍射模式",
       "screenshotName": "diffraction"
@@ -176,16 +116,6 @@
       ],
       "tone": "cyclotron"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "回旋加速器控制",
       "screenshotName": "cyclotron"
@@ -202,16 +132,6 @@
         "端电压、电流、功率实时读数"
       ],
       "tone": "mhd"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "磁流体发电机控制",
@@ -231,16 +151,6 @@
       "tone": "scope",
       "level": "进阶"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "电荷等势面控制",
       "screenshotName": "equipotential"
@@ -258,16 +168,6 @@
       ],
       "tone": "scope",
       "level": "入门"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "电势图控制",
@@ -287,16 +187,6 @@
       "tone": "scope",
       "level": "进阶"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "电势地形与电场线",
       "screenshotName": "electrostatic-lab"
@@ -313,16 +203,6 @@
         "实验记录表逐条累积便于课堂归纳"
       ],
       "tone": "mhd"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "感应电流实验控制",
@@ -341,16 +221,6 @@
       ],
       "tone": "mhd"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "切割磁感线实验控制",
       "screenshotName": "motional-emf"
@@ -367,16 +237,6 @@
         "青色高亮示意感应涡流随转差变化"
       ],
       "tone": "mhd"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "电磁驱动控制",
@@ -395,16 +255,6 @@
       ],
       "tone": "mhd"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "旋转切割磁感线控制",
       "screenshotName": "rotational-emf"
@@ -421,16 +271,6 @@
         "通电后振针/电火花按 0.02 s 在纸带上打点"
       ],
       "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "打点计时器控制",
@@ -450,16 +290,6 @@
       "tone": "scope",
       "level": "入门"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "3D 示波器与波形测量",
       "screenshotName": "oscilloscope-3d"
@@ -476,16 +306,6 @@
         "磁通量余弦与电动势正弦图像同步追踪"
       ],
       "tone": "mhd"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "正弦式交变电流：发电机核心模型",
@@ -504,16 +324,6 @@
       ],
       "tone": "scope"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "简谐横波传播状态模型",
       "screenshotName": "wave-state"
@@ -530,16 +340,6 @@
         "波长、速度和归一化场强改变时公式、波形与投影同步更新；标明 SI 关系 E₀=cB₀"
       ],
       "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "正交电磁波模型",
@@ -558,16 +358,6 @@
       ],
       "tone": "scope"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "理想气体等容变化（查理定律）",
       "screenshotName": "ideal-gas-isochoric"
@@ -584,16 +374,6 @@
         "读数练习与调节练习，按高考图例判读"
       ],
       "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "游标卡尺控制",
@@ -612,16 +392,6 @@
       ],
       "tone": "oersted"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "螺旋测微器控制",
       "screenshotName": "micrometer"
@@ -638,16 +408,6 @@
         "外接/内接、限流/分压和伏安特性曲线对照"
       ],
       "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "电阻率测量控制",
@@ -666,16 +426,6 @@
       ],
       "tone": "oersted"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "多用电表控制",
       "screenshotName": "multimeter"
@@ -693,16 +443,6 @@
       ],
       "tone": "oersted"
     },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
-    },
     "playwright": {
       "readyText": "小车速度控制",
       "screenshotName": "cart-velocity"
@@ -719,16 +459,6 @@
         "星下点轨迹和两次点火的变轨过程"
       ],
       "tone": "oersted"
-    },
-    "touchProfile": {
-      "pageScroll": "vertical-outside-canvas",
-      "canvasGestureScope": "interactive-canvas",
-      "minTouchTargetPx": 44,
-      "gestureMatrix": {
-        "singleFingerRotate": true,
-        "twoFingerZoom": true,
-        "twoFingerPan": true
-      }
     },
     "playwright": {
       "readyText": "天体运动控制",

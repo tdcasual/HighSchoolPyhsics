@@ -1,5 +1,6 @@
 // Only the shell fields: the overview's card text is in sceneCards.ts, loaded with the overview.
 import sceneCatalog from '../../config/demo-scenes.json?shell'
+import { ENHANCED_TOUCH_PROFILE } from './defaultTouchProfile'
 import type { TouchProfile } from './touchProfile'
 
 export type SceneCatalogEntry = {
@@ -52,7 +53,11 @@ export function buildSceneCatalog(rawCatalog: unknown): SceneCatalogEntry[] {
     }
 
     seenPageIds.add(entry.pageId)
-    return entry as SceneCatalogEntry
+    // Scenes list a touchProfile only when it differs from the classroom default.
+    const touchProfile = isRecord(entry.touchProfile)
+      ? entry.touchProfile
+      : { ...ENHANCED_TOUCH_PROFILE, gestureMatrix: { ...ENHANCED_TOUCH_PROFILE.gestureMatrix } }
+    return { ...entry, touchProfile } as SceneCatalogEntry
   })
 }
 

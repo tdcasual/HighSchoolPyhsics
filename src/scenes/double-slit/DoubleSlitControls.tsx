@@ -145,6 +145,7 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
         )}
         <RangeField
           id="double-slit-wheel"
+          transient
           label="测量头读数 a"
           unit="mm"
           min={0}

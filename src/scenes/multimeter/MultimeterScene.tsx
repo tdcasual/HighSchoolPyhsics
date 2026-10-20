@@ -77,22 +77,17 @@ export function MultimeterScene() {
           { label: '校准输入', value: <>{(state.convRange * state.convTest).toFixed(state.convKind === 'V' ? 2 : 3)} {state.convKind === 'V' ? 'V' : 'A'}</>, when: state.stage === 'convert' },
           { label: '接入状态', value: state.convResistance === null ? '尚未接入' : `已接入 ${state.convResistance.toFixed(2)} Ω`, when: state.stage === 'convert' },
           { label: '表头偏转', value: <>{state.fraction.toFixed(3)} / 1.000</>, when: state.stage === 'convert' },
-          { label: '待测电阻', value: <>{(10 ** state.lgRx).toFixed(1)} Ω</>, when: state.stage === 'va' },
-          { label: '当前接法', value: state.contactMethod === 'external' ? '外接法' : '内接法', when: state.stage === 'va' },
-          { label: '实际端电压 U', value: <>{selectedComparison.U.toFixed(3)} V</>, when: state.stage === 'va' },
-          { label: '电压表盘示值', value: <>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'va' },
+          // 伏安法: the givens, the two meter readings, then the conclusions to predict.
+          { label: '已知', value: <>Rx = {(10 ** state.lgRx).toFixed(1)} Ω · {state.contactMethod === 'external' ? '外接法' : '内接法'}</>, when: state.stage === 'va' },
+          { label: '电压 U', value: <>{selectedComparison.U.toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'va' },
           { label: '电流 I', value: <>{selectedComparison.I.toFixed(4)} A</>, when: state.stage === 'va' },
-          { label: '测得 R=U/I', value: <>{selectedComparison.R.toFixed(2)} Ω</>, when: state.stage === 'va' },
-          { label: '误差较小', value: comparison.better === 'external' ? '外接法' : '内接法', when: state.stage === 'va' },
-          { label: '电压表量程', value: <>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</>, when: state.stage === 'va' },
+          { label: '测得 R=U/I', value: <>{selectedComparison.R.toFixed(2)} Ω</>, answer: true, when: state.stage === 'va' },
+          { label: '误差较小', value: comparison.better === 'external' ? '外接法' : '内接法', answer: true, when: state.stage === 'va' },
+          // 滑动变阻器: the circuit, what the load gets, and how far each connection can adjust it.
           { label: '电路', value: <>{state.rheostatMode === 'limit' ? '限流式' : '分压式'} · {state.rheostatClosed ? '开关闭合' : '开关断开'}</>, when: state.stage === 'rheostat' },
-          { label: '滑片位置 s', value: state.slider.toFixed(2), when: state.stage === 'rheostat' },
-          { label: '实际负载电压', value: <>{activeRheostatOutput.U.toFixed(3)} V</>, when: state.stage === 'rheostat' },
-          { label: '电压表盘示值', value: <>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'rheostat' },
-          { label: '负载电流', value: <>{activeRheostatOutput.I.toFixed(4)} A</>, when: state.stage === 'rheostat' },
-          { label: '电压表量程', value: <>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</>, when: state.stage === 'rheostat' },
-          { label: '限流范围', value: <>{slide.limitRange[0].toFixed(2)}–{slide.limitRange[1].toFixed(2)} V</>, when: state.stage === 'rheostat' },
-          { label: '分压范围', value: <>0–{slide.dividerRange[1].toFixed(2)} V</>, when: state.stage === 'rheostat' },
+          { label: '负载电压 U', value: <>{activeRheostatOutput.U.toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'rheostat' },
+          { label: '负载电流 I', value: <>{activeRheostatOutput.I.toFixed(4)} A</>, when: state.stage === 'rheostat' },
+          { label: '调节范围', value: <>限流 {slide.limitRange[0].toFixed(2)}–{slide.limitRange[1].toFixed(2)} V · 分压 0–{slide.dividerRange[1].toFixed(2)} V</>, answer: true, when: state.stage === 'rheostat' },
         ]}
       />
   )

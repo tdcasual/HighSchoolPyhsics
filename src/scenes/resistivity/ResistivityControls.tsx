@@ -77,7 +77,7 @@ export function ResistivityControls({
               value={String(state.zero)}
               onChange={(key) => state.setZero(Number(key))}
             />
-            <RangeField id='resistivity-gap' label='螺杆间隙' min={0} max={25} step={0.001} value={state.gap} unit='mm' displayValue={state.gap.toFixed(3) + ' mm'} onChange={state.setGap} />
+            <RangeField id='resistivity-gap' transient label='螺杆间隙' min={0} max={25} step={0.001} value={state.gap} unit='mm' displayValue={state.gap.toFixed(3) + ' mm'} onChange={state.setGap} />
             <SceneActions actions={[
               { key: 'fine-out', label: '微调退回 0.01 mm', onClick: () => state.setGap(state.gap + 0.01) },
               { key: 'fine-in', label: '微调前进 0.01 mm', onClick: () => state.setGap(state.gap - 0.01) },

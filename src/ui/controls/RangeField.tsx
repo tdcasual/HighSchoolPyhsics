@@ -12,6 +12,11 @@ type RangeFieldProps = {
   unit?: string
   displayValue?: string
   showMinMax?: boolean
+  /**
+   * Run state rather than a teacher-set parameter (a phase, a time scrubber): not remembered
+   * across scene switches. Every other slider must be (scenes/__tests__/sceneContract).
+   */
+  transient?: boolean
 }
 
 export function RangeField({
@@ -25,6 +30,7 @@ export function RangeField({
   unit,
   displayValue,
   showMinMax = false,
+  transient = false,
 }: RangeFieldProps) {
   const rafRef = useRef(0)
   const latestRef = useRef(value)
@@ -84,6 +90,7 @@ export function RangeField({
         value={value}
         onChange={handleChange}
         onPointerUp={handlePointerUp}
+        data-transient={transient || undefined}
         className="w-full"
         style={{
           backgroundImage: `linear-gradient(90deg, var(--control-accent-soft) ${progress}%, var(--range-track-unfilled) ${progress}%)`,

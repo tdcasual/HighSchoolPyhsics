@@ -47,7 +47,7 @@ export function MultimeterControls({ state }: { state: MultimeterSceneState }) {
           {state.task === 'R' ? (
             <RangeField id="multimeter-resistance" label="定值电阻" min={10} max={100000} step={10} value={state.resistance} unit="Ω" displayValue={`${state.resistance.toFixed(0)} Ω`} onChange={state.setResistance} />
           ) : null}
-          <RangeField id="multimeter-mech" label="机械调零" min={-20} max={20} step={0.1} value={state.mechanical} displayValue={state.mechanicalOk ? '已对准 0' : state.mechanical.toFixed(1)} onChange={state.setMechanical} />
+          <RangeField id="multimeter-mech" transient label="机械调零" min={-20} max={20} step={0.1} value={state.mechanical} displayValue={state.mechanicalOk ? '已对准 0' : state.mechanical.toFixed(1)} onChange={state.setMechanical} />
           {RANGE[state.range].kind === 'ohm' ? (
             <RangeField id="multimeter-ohm" label="欧姆调零" min={-20} max={20} step={0.1} value={state.ohmKnob} displayValue={state.ohmOk ? '已调零' : state.ohmKnob.toFixed(1)} onChange={state.setOhmKnob} />
           ) : null}
