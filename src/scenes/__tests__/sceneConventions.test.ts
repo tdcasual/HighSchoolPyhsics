@@ -61,6 +61,11 @@ describe('scene conventions', () => {
     expect(raw.map(([scene]) => scene)).toEqual([])
   })
 
+  it('declares the data panel with DataRows', () => {
+    const custom = [...scenes].filter(([, text]) => /dataOverlay=/.test(text) && !/<DataRows\b/.test(text))
+    expect(custom.map(([scene]) => scene)).toEqual([])
+  })
+
   it('remembers teacher-set parameters across scene switches', () => {
     const missing = [...scenes].filter(([, text]) => hasTeacherParameters(text) && !remembersParameters(text))
     expect(missing.map(([scene]) => scene)).toEqual([])

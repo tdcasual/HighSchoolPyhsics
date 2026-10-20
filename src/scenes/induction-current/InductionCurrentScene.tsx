@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -53,13 +53,15 @@ export function InductionCurrentScene() {
         { key: 'reset', label: '↺ 重置', onClick: state.resetExperiment },
       ]}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p><span>磁铁状态</span><strong>{motionStatusText}</strong></p>
-          <p><span>最近一次感应电流方向</span><strong><Answer>{currentDirectionText}</Answer></strong></p>
-          <p><span>瞬时感应电流方向</span><strong><Answer>{instantaneousCurrentText}</Answer></strong></p>
-          <p><span>感应磁场轴向</span><strong><Answer>{latestInducedFieldDirection}</Answer></strong></p>
-          <p><span>实验记录</span><strong>{state.records.length} 条</strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '磁铁状态', value: motionStatusText },
+            { label: '最近一次感应电流方向', value: currentDirectionText, answer: true },
+            { label: '瞬时感应电流方向', value: instantaneousCurrentText, answer: true },
+            { label: '感应磁场轴向', value: latestInducedFieldDirection, answer: true },
+            { label: '实验记录', value: <>{state.records.length} 条</> },
+          ]}
+        />
       }
       viewport={
         <InteractiveCanvas

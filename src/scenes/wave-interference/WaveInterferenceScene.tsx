@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -52,28 +52,15 @@ export function WaveInterferenceScene() {
     const phaseLabel = info.label
 
     return (
-      <div className="scene-core-summary-stack">
-        <p>
-          <span>到 S₁ / S₂ 距离</span>
-          <strong>{r1.toFixed(3)} m / {r2.toFixed(3)} m</strong>
-        </p>
-        <p>
-          <span>波程差 Δr</span>
-          <strong>{dr.toFixed(4)} m</strong>
-        </p>
-        <p>
-          <span>相位差 Δφ</span>
-          <strong><Answer>{(wrapPhase(dphi) / Math.PI).toFixed(2)}π rad</Answer></strong>
-        </p>
-        <p>
-          <span>{sameFrequency ? '合振幅（包络）' : '瞬时合位移 y'}</span>
-          <strong><Answer>{(sameFrequency ? envelopeAmplitude : instantaneousDisplacement).toFixed(3)} m</Answer></strong>
-        </p>
-        <p>
-          <span>{sameFrequency ? '干涉关系' : '当前相位关系'}</span>
-          <strong><Answer>{phaseLabel}{sameFrequency ? '' : '（频率不同，无固定干涉线）'}</Answer></strong>
-        </p>
-      </div>
+      <DataRows
+          rows={[
+            { label: '到 S₁ / S₂ 距离', value: <>{r1.toFixed(3)} m / {r2.toFixed(3)} m</> },
+            { label: '波程差 Δr', value: <>{dr.toFixed(4)} m</> },
+            { label: '相位差 Δφ', value: <>{(wrapPhase(dphi) / Math.PI).toFixed(2)}π rad</>, answer: true },
+            { label: sameFrequency ? '合振幅（包络）' : '瞬时合位移 y', value: <>{(sameFrequency ? envelopeAmplitude : instantaneousDisplacement).toFixed(3)} m</>, answer: true },
+            { label: sameFrequency ? '干涉关系' : '当前相位关系', value: <>{phaseLabel}{sameFrequency ? '' : '（频率不同，无固定干涉线）'}</>, answer: true },
+          ]}
+        />
     )
   }, [state.observer, state.source1, state.source2, state.wavelength1, state.wavelength2,
       state.amplitude1, state.amplitude2, state.phaseDiff, state.waveSpeed])

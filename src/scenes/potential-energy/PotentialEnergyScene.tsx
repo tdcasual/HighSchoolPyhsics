@@ -1,4 +1,5 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
@@ -73,12 +74,14 @@ export function PotentialEnergyScene() {
         </div>
       }
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p><span>当前电荷</span><strong>{chargeTypeLabel}</strong></p>
-          <p><span>相对电势显示范围</span><strong>{sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</strong></p>
-          <p><span>旋转</span><strong>{surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始'}</strong></p>
-          <p><span>切片</span><strong>{sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '当前电荷', value: chargeTypeLabel },
+            { label: '相对电势显示范围', value: <>{sliceStats.minPotential.toFixed(2)} ~ {sliceStats.maxPotential.toFixed(2)}</> },
+            { label: '旋转', value: surfaceVisible ? `${sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}` : '未开始' },
+            { label: '切片', value: <>{sliceStats.sampleCount} 点 · 展开角 {surfaceVisible ? sweepAngle.toFixed(2) + ' rad' : '未开始'}</> },
+          ]}
+        />
       }
       notes={
         <>

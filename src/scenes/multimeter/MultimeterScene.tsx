@@ -1,3 +1,4 @@
+import { DataRows } from '../../ui/panels/DataRows'
 import { Answer } from '../../ui/notes/Answer'
 import { useRef } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
@@ -64,46 +65,41 @@ export function MultimeterScene() {
     contactMethod: state.contactMethod,
   })
   const dataOverlay = (
-    <div className="multimeter-telemetry scene-core-summary-stack">
-      {state.stage === 'use' ? <>
-        <p><span>挡位</span><strong>{state.rangeLabel}</strong></p>
-        <p><span>指针</span><strong>{state.fraction.toFixed(3)}</strong></p>
-        <p><span>表盘读数</span><strong>{state.reading.warning || <Answer>{formatReading(state.reading.indicated, state.reading.unit)}</Answer>}</strong></p>
-        <p><span>调零</span><strong>{state.mechanicalOk ? '机械已对准' : '机械未对准'} · {RANGE[state.range].kind === 'ohm' ? (state.ohmOk ? '欧姆已调零' : '欧姆未调零') : '非欧姆挡'}</strong></p>
-        <p><span>表笔</span><strong>{RANGE[state.range].kind === 'ohm'
+    <DataRows
+        className="multimeter-telemetry"
+        rows={[
+          { label: '挡位', value: state.rangeLabel, when: state.stage === 'use' },
+          { label: '指针', value: state.fraction.toFixed(3), when: state.stage === 'use' },
+          { label: '表盘读数', value: state.reading.warning || <Answer>{formatReading(state.reading.indicated, state.reading.unit)}</Answer>, when: state.stage === 'use' },
+          { label: '调零', value: <>{state.mechanicalOk ? '机械已对准' : '机械未对准'} · {RANGE[state.range].kind === 'ohm' ? (state.ohmOk ? '欧姆已调零' : '欧姆未调零') : '非欧姆挡'}</>, when: state.stage === 'use' },
+          { label: '表笔', value: RANGE[state.range].kind === 'ohm'
           ? state.task === 'D'
             ? state.swapped ? '反向：黑笔接 N 区' : '正向：黑笔接 P 区'
             : '欧姆挡内黑笔为正，测量前断电'
-          : state.swapped ? '红黑已对调，指针反偏' : state.task === 'I' ? '红表笔接入电流正向' : '红笔接高电势'}</strong></p>
-      </> : null}
-      {state.stage === 'convert' ? <>
-        <p><span>改装目标</span><strong>{state.convKind === 'V' ? `电压表 · ${state.convRange.toFixed(1)} V` : `电流表 · ${state.convRange.toFixed(2)} A`}</strong></p>
-        <p><span>所需电阻</span><strong><Answer>{state.requiredResistance.toFixed(2)} Ω · {state.convKind === 'V' ? '串联' : '并联'}</Answer></strong></p>
-        <p><span>校准输入</span><strong>{(state.convRange * state.convTest).toFixed(state.convKind === 'V' ? 2 : 3)} {state.convKind === 'V' ? 'V' : 'A'}</strong></p>
-        <p><span>接入状态</span><strong>{state.convResistance === null ? '尚未接入' : `已接入 ${state.convResistance.toFixed(2)} Ω`}</strong></p>
-        <p><span>表头偏转</span><strong>{state.fraction.toFixed(3)} / 1.000</strong></p>
-      </> : null}
-      {state.stage === 'va' ? <>
-        <p><span>待测电阻</span><strong>{(10 ** state.lgRx).toFixed(1)} Ω</strong></p>
-        <p><span>当前接法</span><strong>{state.contactMethod === 'external' ? '外接法' : '内接法'}</strong></p>
-        <p><span>实际端电压 U</span><strong>{selectedComparison.U.toFixed(3)} V</strong></p>
-        <p><span>电压表盘示值</span><strong>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</strong></p>
-        <p><span>电流 I</span><strong>{selectedComparison.I.toFixed(4)} A</strong></p>
-        <p><span>测得 R=U/I</span><strong>{selectedComparison.R.toFixed(2)} Ω</strong></p>
-        <p><span>误差较小</span><strong>{comparison.better === 'external' ? '外接法' : '内接法'}</strong></p>
-        <p><span>电压表量程</span><strong>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</strong></p>
-      </> : null}
-      {state.stage === 'rheostat' ? <>
-        <p><span>电路</span><strong>{state.rheostatMode === 'limit' ? '限流式' : '分压式'} · {state.rheostatClosed ? '开关闭合' : '开关断开'}</strong></p>
-        <p><span>滑片位置 s</span><strong>{state.slider.toFixed(2)}</strong></p>
-        <p><span>实际负载电压</span><strong>{activeRheostatOutput.U.toFixed(3)} V</strong></p>
-        <p><span>电压表盘示值</span><strong>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</strong></p>
-        <p><span>负载电流</span><strong>{activeRheostatOutput.I.toFixed(4)} A</strong></p>
-        <p><span>电压表量程</span><strong>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</strong></p>
-        <p><span>限流范围</span><strong>{slide.limitRange[0].toFixed(2)}–{slide.limitRange[1].toFixed(2)} V</strong></p>
-        <p><span>分压范围</span><strong>0–{slide.dividerRange[1].toFixed(2)} V</strong></p>
-      </> : null}
-    </div>
+          : state.swapped ? '红黑已对调，指针反偏' : state.task === 'I' ? '红表笔接入电流正向' : '红笔接高电势', when: state.stage === 'use' },
+          { label: '改装目标', value: state.convKind === 'V' ? `电压表 · ${state.convRange.toFixed(1)} V` : `电流表 · ${state.convRange.toFixed(2)} A`, when: state.stage === 'convert' },
+          { label: '所需电阻', value: <>{state.requiredResistance.toFixed(2)} Ω · {state.convKind === 'V' ? '串联' : '并联'}</>, answer: true, when: state.stage === 'convert' },
+          { label: '校准输入', value: <>{(state.convRange * state.convTest).toFixed(state.convKind === 'V' ? 2 : 3)} {state.convKind === 'V' ? 'V' : 'A'}</>, when: state.stage === 'convert' },
+          { label: '接入状态', value: state.convResistance === null ? '尚未接入' : `已接入 ${state.convResistance.toFixed(2)} Ω`, when: state.stage === 'convert' },
+          { label: '表头偏转', value: <>{state.fraction.toFixed(3)} / 1.000</>, when: state.stage === 'convert' },
+          { label: '待测电阻', value: <>{(10 ** state.lgRx).toFixed(1)} Ω</>, when: state.stage === 'va' },
+          { label: '当前接法', value: state.contactMethod === 'external' ? '外接法' : '内接法', when: state.stage === 'va' },
+          { label: '实际端电压 U', value: <>{selectedComparison.U.toFixed(3)} V</>, when: state.stage === 'va' },
+          { label: '电压表盘示值', value: <>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'va' },
+          { label: '电流 I', value: <>{selectedComparison.I.toFixed(4)} A</>, when: state.stage === 'va' },
+          { label: '测得 R=U/I', value: <>{selectedComparison.R.toFixed(2)} Ω</>, when: state.stage === 'va' },
+          { label: '误差较小', value: comparison.better === 'external' ? '外接法' : '内接法', when: state.stage === 'va' },
+          { label: '电压表量程', value: <>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</>, when: state.stage === 'va' },
+          { label: '电路', value: <>{state.rheostatMode === 'limit' ? '限流式' : '分压式'} · {state.rheostatClosed ? '开关闭合' : '开关断开'}</>, when: state.stage === 'rheostat' },
+          { label: '滑片位置 s', value: state.slider.toFixed(2), when: state.stage === 'rheostat' },
+          { label: '实际负载电压', value: <>{activeRheostatOutput.U.toFixed(3)} V</>, when: state.stage === 'rheostat' },
+          { label: '电压表盘示值', value: <>{(state.fraction * (RANGE[state.range].full ?? 10)).toFixed(3)} V{state.fraction > 1 ? ' · 超量程' : ''}</>, when: state.stage === 'rheostat' },
+          { label: '负载电流', value: <>{activeRheostatOutput.I.toFixed(4)} A</>, when: state.stage === 'rheostat' },
+          { label: '电压表量程', value: <>{state.rangeLabel} · 指针 {state.fraction.toFixed(3)}</>, when: state.stage === 'rheostat' },
+          { label: '限流范围', value: <>{slide.limitRange[0].toFixed(2)}–{slide.limitRange[1].toFixed(2)} V</>, when: state.stage === 'rheostat' },
+          { label: '分压范围', value: <>0–{slide.dividerRange[1].toFixed(2)} V</>, when: state.stage === 'rheostat' },
+        ]}
+      />
   )
   const chart = state.stage === 'va' ? (
     <VoltAmmeterChart lgRx={state.lgRx} ammeterResistance={state.ammeterResistance} voltmeterResistance={state.voltmeterResistance} method={state.contactMethod} />

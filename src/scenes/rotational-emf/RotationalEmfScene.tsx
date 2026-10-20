@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -70,13 +70,15 @@ export function RotationalEmfScene() {
         />
       }
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p><span>实验类型</span><strong>{state.scenarioLabel}</strong></p>
-          <p><span>当前视图</span><strong>{state.viewLabel}</strong></p>
-          <p><span>当前转角</span><strong>{state.angleLabel}</strong></p>
-          <p><span>已知 B · ω · L</span><strong>{state.magneticFieldT.toFixed(1)} T · {state.angularSpeed.toFixed(1)} rad/s · {state.effectiveLengthM.toFixed(1)} m</strong></p>
-          <p><span>感应电动势</span><strong><Answer>{state.emfMagnitudeLabel}</Answer></strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '实验类型', value: state.scenarioLabel },
+            { label: '当前视图', value: state.viewLabel },
+            { label: '当前转角', value: state.angleLabel },
+            { label: '已知 B · ω · L', value: <>{state.magneticFieldT.toFixed(1)} T · {state.angularSpeed.toFixed(1)} rad/s · {state.effectiveLengthM.toFixed(1)} m</> },
+            { label: '感应电动势', value: state.emfMagnitudeLabel, answer: true },
+          ]}
+        />
       }
       playbackActions={[
         {

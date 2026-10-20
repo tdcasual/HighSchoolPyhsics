@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { DataRows } from '../../ui/panels/DataRows'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectrostaticLabControls } from './ElectrostaticLabControls'
 import { ElectrostaticLabRig3D } from './ElectrostaticLabRig3D'
@@ -25,25 +26,16 @@ export function ElectrostaticLabScene() {
     <SceneLayout
       controls={<ElectrostaticLabControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>
-            <span>电荷方案</span>
-            <strong>{state.presetLabel}（+{state.chargeSummary.positiveCount} / −{state.chargeSummary.negativeCount}）</strong>
-          </p>
-          <p>
-            <span>相对电势范围</span>
-            <strong>{state.terrain.stats.minPotential.toFixed(2)} ~ {state.terrain.stats.maxPotential.toFixed(2)}</strong>
-          </p>
-          <p><span>当前模式</span><strong>{state.modeLabel}</strong></p>
-          <p>
-            <span>探针读数（相对）</span>
-            <strong>
-              {state.probeReadout
+        <DataRows
+          rows={[
+            { label: '电荷方案', value: <>{state.presetLabel}（+{state.chargeSummary.positiveCount} / −{state.chargeSummary.negativeCount}）</> },
+            { label: '相对电势范围', value: <>{state.terrain.stats.minPotential.toFixed(2)} ~ {state.terrain.stats.maxPotential.toFixed(2)}</> },
+            { label: '当前模式', value: state.modeLabel },
+            { label: '探针读数（相对）', value: state.probeReadout
                 ? `φ = ${state.probeReadout.potential.toFixed(2)}，|E| = ${state.probeReadout.field.magnitude.toFixed(2)}`
-                : '未放置'}
-            </strong>
-          </p>
-        </div>
+                : '未放置' },
+          ]}
+        />
       }
       viewport={
         <InteractiveCanvas

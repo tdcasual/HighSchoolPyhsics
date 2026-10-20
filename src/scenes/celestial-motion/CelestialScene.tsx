@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
@@ -107,25 +107,40 @@ export function CelestialScene() {
       timeControl
       controls={<CelestialControls state={state} scenario={scenario} />}
       dataOverlay={
-        <div className="celestial-telemetry scene-core-summary-stack">
-          <p><span>轨道半径 r</span><strong>{(currentRadius / 1000).toFixed(0)} km · {(currentRadius / scenario.body.R).toFixed(2)} R</strong></p>
-          <p><span>速度 v</span><strong><Answer>{formatSpeed(currentSpeed)}</Answer></strong></p>
-          <p><span>{scenario.mode === 'transfer' ? '转移时间' : '周期'}</span><strong><Answer>{formatDuration(currentPeriod)}</Answer></strong></p>
-          {scenario.mode === 'rendezvous' ? (
-            <p><span>会合周期</span><strong><Answer>{formatDuration(scenario.synodic)}</Answer></strong></p>
-          ) : (
-            <p><span>向心加速度</span><strong><Answer>{currentAcceleration.toFixed(3)} m/s²</Answer></strong></p>
-          )}
-          {scenario.mode === 'circular' ? (
-            <p><span>表面 v₁ / 逃逸 v₂</span><strong><Answer>{formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v1)} / {formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v2)}</Answer></strong></p>
-          ) : scenario.mode === 'transfer' ? (
-            <p><span>进度 · 点火 Δv</span><strong>{transferProgress.toFixed(0)}% · {scenario.dv1.toFixed(0)} / {scenario.dv2.toFixed(0)} m/s</strong></p>
-          ) : scenario.mode === 'synchronous' && ground ? (
-            <p><span>星下点经 / 纬</span><strong>{(ground.longitude * 180 / Math.PI).toFixed(1)}° / {(ground.latitude * 180 / Math.PI).toFixed(1)}°{isStationary(scenario) ? ' · 静止卫星' : ''}</strong></p>
-          ) : (
-            <p><span>结论</span><strong>{conclusion(scenario)}</strong></p>
-          )}
-        </div>
+        <DataRows
+          className="celestial-telemetry"
+          rows={[
+            { label: '轨道半径 r', value: <>{(currentRadius / 1000).toFixed(0)} km · {(currentRadius / scenario.body.R).toFixed(2)} R</> },
+            { label: '速度 v', value: formatSpeed(currentSpeed), answer: true },
+            { label: scenario.mode === 'transfer' ? '转移时间' : '周期', value: formatDuration(currentPeriod), answer: true },
+            scenario.mode === 'rendezvous'
+              ? { label: '会合周期', value: formatDuration(scenario.synodic), answer: true }
+              : { label: '向心加速度', value: <>{currentAcceleration.toFixed(3)} m/s²</>, answer: true },
+            {
+              label: '表面 v₁ / 逃逸 v₂',
+              value: <>{formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v1)} / {formatSpeed(surfaceSpeeds(scenario.mu, scenario.body.R).v2)}</>,
+              answer: true,
+              when: scenario.mode === 'circular',
+            },
+            {
+              label: '进度 · 点火 Δv',
+              value: <>{transferProgress.toFixed(0)}% · {scenario.dv1.toFixed(0)} / {scenario.dv2.toFixed(0)} m/s</>,
+              when: scenario.mode === 'transfer',
+            },
+            {
+              label: '星下点经 / 纬',
+              value: ground
+                ? <>{(ground.longitude * 180 / Math.PI).toFixed(1)}° / {(ground.latitude * 180 / Math.PI).toFixed(1)}°{isStationary(scenario) ? ' · 静止卫星' : ''}</>
+                : null,
+              when: scenario.mode === 'synchronous' && Boolean(ground),
+            },
+            {
+              label: '结论',
+              value: conclusion(scenario),
+              when: !['circular', 'transfer'].includes(scenario.mode) && !(scenario.mode === 'synchronous' && ground),
+            },
+          ]}
+        />
       }
       notes={
         <>

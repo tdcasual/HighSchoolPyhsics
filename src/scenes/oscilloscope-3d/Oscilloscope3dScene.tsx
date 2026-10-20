@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -23,14 +24,6 @@ const PART_LABELS: Record<string, string> = {
   'x-plates': 'X 偏转板',
   screen: '荧光屏',
   beam: '电子束',
-}
-const WAVE_LABELS: Record<string, string> = {
-  sine: '正弦波',
-  square: '方波',
-  triangle: '三角波',
-  sawtooth: '锯齿波',
-  dc: '直流',
-  zero: '零输入',
 }
 
 export function Oscilloscope3dScene() {
@@ -57,6 +50,8 @@ export function Oscilloscope3dScene() {
   const beamProgress = deriveBeamProgress(state.mode, state.elapsed, state.timeDiv)
   const beam = trace[Math.floor(beamProgress * (trace.length - 1))] ?? [0, 0]
   const selectedLabel = state.selectedPart ? PART_LABELS[state.selectedPart] ?? state.selectedPart : '未选择部件'
+
+  const isMeasuring = state.mode !== 'xy' && state.mode !== 'structure'
 
   return (
     <SceneLayout
@@ -86,30 +81,23 @@ export function Oscilloscope3dScene() {
         </InteractiveCanvas>
       )}
       dataOverlay={(
-        <div className="osc3d-telemetry scene-core-summary-stack">
-          <p><span>工作模式</span><strong>{MODE_LABELS[state.mode]}</strong></p>
-          <p><span>选中部件</span><strong>{selectedLabel}</strong></p>
-          {state.mode === 'xy' ? (
-            <>
-              <p><span>X 通道</span><strong>{WAVE_LABELS[state.xy.xWave]}</strong></p>
-              <p><span>Y 通道</span><strong>{WAVE_LABELS[state.xy.yWave]}</strong></p>
-              <p><span>频率比 X:Y</span><strong>{state.xy.xRate}:{state.xy.yRate}</strong></p>
-              <p><span>相位差</span><strong>{state.xy.phaseDeg}°</strong></p>
-              <p><span>峰值偏转</span><strong>{state.xy.xAmplitude} × {state.xy.yAmplitude} div</strong></p>
-              <p className="osc3d-conclusion"><span>轨迹关系</span><strong>{state.xyConclusion}</strong></p>
-            </>
-          ) : state.mode === 'structure' ? (
-            <p className="osc3d-conclusion"><span>信号路径</span><strong>电子枪 → Y 偏转板 → X 偏转板 → 荧光屏</strong></p>
-          ) : (
-            <>
-              <p><span>Uₚₚ</span><strong>{state.measurement.peakToPeakV.toFixed(1)} V</strong></p>
-              <p><span>周期 T</span><strong>{state.measurement.periodMs.toFixed(2)} ms</strong></p>
-              <p><span>屏幕刻度</span><strong>{state.measurement.verticalDivisions.toFixed(1)} × {state.measurement.horizontalDivisions.toFixed(1)}</strong></p>
-              {state.mode === 'scan' && <p><span>触发</span><strong>{state.trigger ? '同步锁定' : '自由漂移'}</strong></p>}
-              {state.measurement.warnings.map((warning) => <p className="osc3d-warning" key={warning}>{warning}</p>)}
-            </>
-          )}
-        </div>
+        <DataRows
+          className="osc3d-telemetry"
+          // Results only: the X/Y waveforms and amplitudes are already in the sidebar.
+          rows={[
+            { label: '工作模式', value: MODE_LABELS[state.mode] },
+            { label: '选中部件', value: selectedLabel, when: state.mode === 'structure' },
+            { label: '信号路径', value: '电子枪 → Y 偏转板 → X 偏转板 → 荧光屏', className: 'osc3d-conclusion', when: state.mode === 'structure' },
+            { label: '频率比 X:Y', value: <>{state.xy.xRate}:{state.xy.yRate}</>, when: state.mode === 'xy' },
+            { label: '相位差', value: <>{state.xy.phaseDeg}°</>, when: state.mode === 'xy' },
+            { label: '轨迹关系', value: state.xyConclusion, answer: true, className: 'osc3d-conclusion', when: state.mode === 'xy' },
+            { label: 'Uₚₚ', value: <>{state.measurement.peakToPeakV.toFixed(1)} V</>, answer: true, when: isMeasuring },
+            { label: '周期 T', value: <>{state.measurement.periodMs.toFixed(2)} ms</>, answer: true, when: isMeasuring },
+            { label: '屏幕刻度', value: <>{state.measurement.verticalDivisions.toFixed(1)} × {state.measurement.horizontalDivisions.toFixed(1)}</>, when: isMeasuring },
+            { label: '触发', value: state.trigger ? '同步锁定' : '自由漂移', when: state.mode === 'scan' },
+          ]}
+          note={isMeasuring ? state.measurement.warnings.map((warning) => <p className="osc3d-warning" key={warning}>{warning}</p>) : null}
+        />
       )}
       chart={<Oscilloscope3dChart trace={trace} beam={beam} running={state.running} mode={state.mode === 'xy' ? 'X-Y 轨迹' : 'Y(t)'} />}
       chartVisible

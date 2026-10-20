@@ -1,4 +1,5 @@
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
+import { DataRows } from '../../ui/panels/DataRows'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectromagneticDriveChart } from './ElectromagneticDriveChart'
 import { ElectromagneticDriveControls } from './ElectromagneticDriveControls'
@@ -29,13 +30,15 @@ export function ElectromagneticDriveScene() {
         { key: 'reset', label: '重置实验', onClick: state.reset },
       ]}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p><span>实验状态</span><strong>{experimentStatus}</strong></p>
-          <p><span>磁铁转速</span><strong>{magnetSpeedText}</strong></p>
-          <p><span>铝框转速</span><strong>{frameSpeedText}</strong></p>
-          <p><span>转差 Δω</span><strong>{formatAngularSpeed(state.magnetSpeed - state.frameSpeed)}</strong></p>
-          <p><span>跟随比</span><strong>{lagRatioText}</strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '实验状态', value: experimentStatus },
+            { label: '磁铁转速', value: magnetSpeedText },
+            { label: '铝框转速', value: frameSpeedText },
+            { label: '转差 Δω', value: formatAngularSpeed(state.magnetSpeed - state.frameSpeed) },
+            { label: '跟随比', value: lagRatioText },
+          ]}
+        />
       }
       chart={
         <ElectromagneticDriveChart

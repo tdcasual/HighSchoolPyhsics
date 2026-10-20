@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from "../../scene3d/InteractiveCanvas";
 import { RangeField } from "../../ui/controls/RangeField";
 import { SceneLayout } from "../../ui/layout/SceneLayout";
@@ -21,38 +21,22 @@ export function TickerTimerScene() {
       controls={<TickerTimerControls state={state} />}
       chartInitiallyCollapsed
       dataOverlay={
-        <div className="ticker-telemetry scene-core-summary-stack">
-          <p>
-            <span>状态</span>
-            <strong>
-              {state.finished
+        <DataRows
+          className="ticker-telemetry"
+          rows={[
+            { label: '状态', value: state.finished
                 ? "记录已结束 · 请重置"
                 : state.released
                   ? "纸带运动中"
                   : state.powered
                     ? "已通电 · 待释放"
-                    : "待通电"}
-            </strong>
-          </p>
-          <p>
-            <span>点迹</span>
-            <strong>
-              {state.dotCount} 个 · {state.qualityLabel}
-            </strong>
-          </p>
-          <p>
-            <span>纸带位移</span>
-            <strong>{state.displacementLabel}</strong>
-          </p>
-          <p>
-            <span>瞬时速度</span>
-            <strong>{state.speedLabel}</strong>
-          </p>
-          <p>
-            <span>逐差法加速度</span>
-            <strong><Answer>{state.measuredAccelerationLabel}</Answer></strong>
-          </p>
-        </div>
+                    : "待通电" },
+            { label: '点迹', value: <>{state.dotCount} 个 · {state.qualityLabel}</> },
+            { label: '纸带位移', value: state.displacementLabel },
+            { label: '瞬时速度', value: state.speedLabel },
+            { label: '逐差法加速度', value: state.measuredAccelerationLabel, answer: true },
+          ]}
+        />
       }
       notes={
         <p>

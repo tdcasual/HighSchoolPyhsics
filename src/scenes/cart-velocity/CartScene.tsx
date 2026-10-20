@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { orbitPosition } from '../../scene3d/orbitFraming'
@@ -41,13 +42,16 @@ export function CartScene() {
       timeControl
       controls={<CartControls state={state} />}
       dataOverlay={
-        <div className="cart-telemetry scene-core-summary-stack">
-          <p><span>时间</span><strong>{state.time.toFixed(2)} s</strong></p>
-          <p><span>位移</span><strong>{(pose.x * 100).toFixed(2)} cm</strong></p>
-          <p><span>速度</span><strong>{pose.v.toFixed(3)} m/s</strong></p>
-          <p><span>打点</span><strong>{pose.dots.length}</strong></p>
-          <p><span>钩码</span><strong>{conditionLine(state.hooks, state.dh, pose.x, state.v0)}</strong></p>
-          {state.selected ? (
+        <DataRows
+          className="cart-telemetry"
+          rows={[
+            { label: '时间', value: <>{state.time.toFixed(2)} s</> },
+            { label: '位移', value: <>{(pose.x * 100).toFixed(2)} cm</> },
+            { label: '速度', value: <>{pose.v.toFixed(3)} m/s</> },
+            { label: '打点', value: pose.dots.length },
+            { label: '钩码', value: conditionLine(state.hooks, state.dh, pose.x, state.v0) },
+          ]}
+          note={<>{state.selected ? (
             <div className="cart-measurement-readout">
               <strong>{state.selected.label} 点速度测量</strong>
               <p><span>中间时刻 t</span><strong>{state.selected.t.toFixed(2)} s</strong></p>
@@ -56,15 +60,14 @@ export function CartScene() {
               <p><span>时间 Δt</span><strong>{state.selected.dt.toFixed(2)} s</strong></p>
               <p><span>速度 v</span><strong>{state.selected.v.toFixed(3)} m/s</strong></p>
             </div>
-          ) : null}
-          {state.stage === 'graph' && graphFit ? (
+          ) : null}{state.stage === 'graph' && graphFit ? (
             <div className="cart-measurement-readout">
               <strong>v–t 线性拟合</strong>
               <p><span>斜率 a</span><strong>{graphFit.a.toFixed(3)} m/s²</strong></p>
               <p><span>截距 v₀</span><strong>{graphFit.v0.toFixed(3)} m/s</strong></p>
             </div>
-          ) : null}
-        </div>
+          ) : null}</>}
+        />
       }
       chart={<CartChart
         points={state.points}

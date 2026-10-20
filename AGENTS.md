@@ -27,12 +27,12 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 ## Required Implementation Rules
 
 1. Every new scene must provide `controls`, `dataOverlay`, `chart` (if applicable), and `playbackActions` to `SceneLayout`.
-2. `dataOverlay` should contain 3-5 lines of key readings (results, not echoes of sidebar parameters).
+2. `dataOverlay` is a `<DataRows rows={[{ label, value, answer?, when? }]} />` (`ui/panels/DataRows`) with 3-5 key readings shown at a time (results, not echoes of sidebar parameters). Mark conclusions `answer: true` so prediction mode masks them; use `when` for mode-dependent rows.
 3. Model caveats, formulas and sign conventions go in `notes` (or `<ModelNote>` inside controls), which render in the sidebar's collapsed 教师备注; the sidebar body keeps controls, how-to hints and legends.
 4. Play/step/reset belong in `playbackActions`; give the main play action the key `play` or `toggle-running` so Space triggers it. Keys: Space = primary, `.`/→ = `step`, `,`/← = `step-back` (arrows held repeat).
 5. Compose the camera centered on the apparatus. Do not shift it per desktop/mobile or per `sidebarCollapsed` to dodge panels; the shared safe area does that. A scene that computes its camera from the apparatus bounds uses `useBoundsFraming` (`scene3d/`) with `fitOrbitView`: it fits the bounds into the largest uncovered area once (on open and on a view preset), never per panel change.
 6. Open in a state that can be taught immediately (no mandatory "step 1" click).
-7. Wrap conclusion readings in `<Answer>` (prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate. If the chart is what students read from (not the outcome), pass `chartMaskable={false}` and hide its answer marks with `usePredictionMasked()`.
+7. Mark conclusion readings `answer: true` in `DataRows` (or wrap other conclusions in `<Answer>`; prediction mode masks them); add one 「已知 …」 row with the givens when the class is expected to calculate. If the chart is what students read from (not the outcome), pass `chartMaskable={false}` and hide its answer marks with `usePredictionMasked()`.
 8. Advance simulated time only through `src/simulation/`: `useSimulationClock` (play / pause / 单步 / slow motion / fixed sub-steps; the scene supplies `advance(dt)`, returning false when the process ends) with `clockActions` for the playback zone, or `useAnimatedState` / `useAnimationLoop` when a pure state machine owns its own `running` flag. Never hand-write a requestAnimationFrame time loop (a convention test enforces it). Pass `timeControl` when the clock honours the shell's slow motion; import `Line` from `scene3d/ClassroomLine`.
 9. Use textbook notation on screen (`U<sub>AB</sub>`, not `U_AB`; no "a.u."); label reduced model scales 示意 and convert to textbook magnitude in notes.
 10. Remember teacher-set parameters with `recall` + `useRemember` (or `rememberFields` / `useRememberFields`) from `app/sceneMemory`; offer 单步 in a meaningful unit (15°, T/4, 0.1 s) as a `step` playback action. `scenes/__tests__/sceneConventions.test.ts` enforces both: any scene with a `play`/`toggle-running` action needs `step` (or a reasoned entry in `NO_STEP`), and any scene with sliders/segmented controls/text fields must remember them. Prefer `ui/charts/LineChart` and `scene3d/VectorArrow` for charts and vectors.
@@ -52,32 +52,35 @@ Mobile (≤767px): viewport + fixed 30vh bottom panel with tabbed controls.
 ```tsx
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { clockActions } from '../../simulation/clockActions'
+import { DataRows } from '../../ui/panels/DataRows'
 import { NewDemoControls } from './NewDemoControls'
 import { NewDemoRig3D } from './NewDemoRig3D'
 import { useNewDemoSceneState } from './useNewDemoSceneState'
 
 export function NewDemoScene() {
+  // The state hook owns `useSimulationClock({ advance, stepSeconds })` and returns it as `clock`.
   const state = useNewDemoSceneState()
+  const { clock } = state
 
   return (
     <SceneLayout
       controls={<NewDemoControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>状态: {state.running ? '运行中' : '已暂停'}</p>
-          <p>核心量: {state.intensity.toFixed(1)}</p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '状态', value: clock.running ? '运行中' : '已暂停' },
+            { label: '核心量', value: `${state.intensity.toFixed(1)} V`, answer: true },
+          ]}
+        />
       }
       notes={<p>模型假设与公式写在这里，默认折叠在侧栏末尾。</p>}
       chart={state.showChart ? <NewDemoChart data={state.chartData} /> : undefined}
       chartVisible={state.showChart}
-      playbackActions={[
-        { key: 'toggle-running', label: state.running ? '暂停' : '播放', onClick: state.toggleRunning },
-        { key: 'reset', label: '重置', onClick: state.reset },
-      ]}
+      playbackActions={clockActions(clock, { stepLabel: '单步 T/4', onReset: state.reset })}
       viewport={
-        <InteractiveCanvas frameloop={state.running ? 'always' : 'demand'}>
-          <NewDemoRig3D running={state.running} intensity={state.intensity} />
+        <InteractiveCanvas frameloop={clock.frameloop}>
+          <NewDemoRig3D intensity={state.intensity} />
         </InteractiveCanvas>
       }
     />

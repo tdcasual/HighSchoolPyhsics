@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { MhdControls } from './MhdControls'
@@ -54,28 +54,15 @@ export function MhdGeneratorScene() {
         </InteractiveCanvas>
       }
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>
-            <span>已知 B · v · d</span>
-            <strong>{state.magneticFieldT.toFixed(1)} T · {state.plasmaVelocityMps.toFixed(0)} m/s · {state.electrodeGapM.toFixed(2)} m</strong>
-          </p>
-          <p>
-            <span>开路电动势 |ε|</span>
-            <strong><Answer>{formatQuantity(Math.abs(state.readings.openCircuitVoltageV), 'V')}</Answer></strong>
-          </p>
-          <p>
-            <span>负载端电压 U<sub>AB</sub></span>
-            <strong data-testid="mhd-voltage-display"><Answer>{formatSignedVoltage(state.readings.outputVoltageV)}</Answer></strong>
-          </p>
-          <p>
-            <span>负载电流 I<sub>L</sub></span>
-            <strong><Answer>{formatQuantity(state.readings.outputCurrentA, 'A')}</Answer></strong>
-          </p>
-          <p>
-            <span>负载功率 P<sub>L</sub></span>
-            <strong><Answer>{formatQuantity(state.readings.outputPowerW, 'W')}</Answer></strong>
-          </p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '已知 B · v · d', value: <>{state.magneticFieldT.toFixed(1)} T · {state.plasmaVelocityMps.toFixed(0)} m/s · {state.electrodeGapM.toFixed(2)} m</> },
+            { label: '开路电动势 |ε|', value: formatQuantity(Math.abs(state.readings.openCircuitVoltageV), 'V'), answer: true },
+            { label: <>负载端电压 U<sub>AB</sub></>, value: formatSignedVoltage(state.readings.outputVoltageV), answer: true, testId: 'mhd-voltage-display' },
+            { label: <>负载电流 I<sub>L</sub></>, value: formatQuantity(state.readings.outputCurrentA, 'A'), answer: true },
+            { label: <>负载功率 P<sub>L</sub></>, value: formatQuantity(state.readings.outputPowerW, 'W'), answer: true },
+          ]}
+        />
       }
       playbackActions={[
         {

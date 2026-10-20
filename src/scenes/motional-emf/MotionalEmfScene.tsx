@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -118,13 +118,15 @@ export function MotionalEmfScene() {
         { key: 'reset', label: '重置', onClick: state.reset },
       ]}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p><span>运动状态</span><strong>{state.running ? '运动中' : state.steppedInMotion ? '运动中（定格）' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止'}</strong></p>
-          <p><span>行程</span><strong>{(state.phase * 100).toFixed(0)}%</strong></p>
-          <p><span>电压 U<sub>AB</sub></span><strong><Answer>{state.signedVoltageV.toFixed(2)} V</Answer></strong></p>
-          <p><span>极性</span><strong><Answer>{state.polarityText}</Answer></strong></p>
-          <p><span>∠(B,L) / ∠(L,v) / ∠(B,v)</span><strong>{state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}</strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '运动状态', value: state.running ? '运动中' : state.steppedInMotion ? '运动中（定格）' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止' },
+            { label: '行程', value: <>{(state.phase * 100).toFixed(0)}%</> },
+            { label: <>电压 U<sub>AB</sub></>, value: <>{state.signedVoltageV.toFixed(2)} V</>, answer: true },
+            { label: '极性', value: state.polarityText, answer: true },
+            { label: '∠(B,L) / ∠(L,v) / ∠(B,v)', value: <>{state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}</> },
+          ]}
+        />
       }
       viewport={
         <InteractiveCanvas

@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -27,12 +27,15 @@ export function IdealGasIsochoricScene() {
       </InteractiveCanvas>
     }
     dataOverlay={
-      <div className="ideal-gas-isochoric-telemetry scene-core-summary-stack">
-        <p><span>压强 p</span><strong><Answer>{readings.pressureAtm.toFixed(2)} atm</Answer></strong></p>
-        <p><span>热力学温度 T / 摄氏温度 t</span><strong>{state.temperatureK.toFixed(0)} K / {readings.celsius.toFixed(0)} °C</strong></p>
-        <p><span>分子平均速率 v̄ / 220 K 基准</span><strong>{readings.molecularSpeed.toFixed(2)}×</strong></p>
-        <p><span>等容关系式</span><strong>p/T = {readings.slopeAtmPerK.toFixed(4)} atm/K</strong></p>
-      </div>
+      <DataRows
+          className="ideal-gas-isochoric-telemetry"
+          rows={[
+            { label: '压强 p', value: <>{readings.pressureAtm.toFixed(2)} atm</>, answer: true },
+            { label: '热力学温度 T / 摄氏温度 t', value: <>{state.temperatureK.toFixed(0)} K / {readings.celsius.toFixed(0)} °C</> },
+            { label: '分子平均速率 v̄ / 220 K 基准', value: <>{readings.molecularSpeed.toFixed(2)}×</> },
+            { label: '等容关系式', value: <>p/T = {readings.slopeAtmPerK.toFixed(4)} atm/K</> },
+          ]}
+        />
     }
     notes={
       <>

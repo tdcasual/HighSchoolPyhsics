@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { DataRows } from '../../ui/panels/DataRows'
 import { VERNIER_SPANS } from '../../instruments/measuring/model'
 import { cameraLimits, instrumentView } from '../../instruments/measuring/pose'
 import { shouldShowSpecimen, specimenSize } from '../../instruments/measuring/practice'
@@ -42,13 +43,16 @@ export function CaliperScene() {
       chartContentClassName="measure-chart-content"
       controls={<CaliperControls state={state} />}
       dataOverlay={
-        <div className="measure-telemetry scene-core-summary-stack">
-          <p><span>仪器</span><strong>游标卡尺 · {state.divisions} 分度</strong></p>
-          <p><span>示数</span><strong>{state.reveal ? <Answer>{state.readingText}</Answer> : '判定后显示'}</strong></p>
-          <p><span>分解</span><strong>{state.reveal ? <Answer>{state.breakdownText}</Answer> : '先观察刻度'}</strong></p>
-          <p><span>锁紧</span><strong>{practiceLocked ? '已固定（读数题）' : state.locked ? '螺钉已拧紧' : '可以移动尺框'}</strong></p>
-          <p><span>部位</span><strong>{MEASURE_LABELS[state.measure]}</strong></p>
-        </div>
+        <DataRows
+          className="measure-telemetry"
+          rows={[
+            { label: '仪器', value: <>游标卡尺 · {state.divisions} 分度</> },
+            { label: '示数', value: state.reveal ? <Answer>{state.readingText}</Answer> : '判定后显示' },
+            { label: '分解', value: state.reveal ? <Answer>{state.breakdownText}</Answer> : '先观察刻度' },
+            { label: '锁紧', value: practiceLocked ? '已固定（读数题）' : state.locked ? '螺钉已拧紧' : '可以移动尺框' },
+            { label: '部位', value: MEASURE_LABELS[state.measure] },
+          ]}
+        />
       }
       notes={
         <>

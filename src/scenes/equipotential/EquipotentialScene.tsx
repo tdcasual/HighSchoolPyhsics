@@ -1,4 +1,5 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -160,24 +161,14 @@ export function EquipotentialScene() {
         />
       }
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>
-            <span>电荷数</span>
-            <strong>{charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / −{cloudResult.stats.negativeChargeCount}）</strong>
-          </p>
-          <p>
-            <span>网格相对电势范围</span>
-            <strong>{cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}</strong>
-          </p>
-          <p>
-            <span>正势层值</span>
-            <strong>{cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无'}</strong>
-          </p>
-          <p>
-            <span>负势层值</span>
-            <strong>{cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无'}</strong>
-          </p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '电荷数', value: <>{charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / −{cloudResult.stats.negativeChargeCount}）</> },
+            { label: '网格相对电势范围', value: <>{cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}</> },
+            { label: '正势层值', value: cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无' },
+            { label: '负势层值', value: cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无' },
+          ]}
+        />
       }
       viewport={
         <InteractiveCanvas

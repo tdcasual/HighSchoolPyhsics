@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -54,41 +54,19 @@ export function LightDiffractionScene() {
     <SceneLayout
       controls={<LightDiffractionControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack w-[260px] max-w-full min-w-0">
-          <p>
-            <span>模式</span>
-            <strong>{MODE_LABEL[state.mode]}</strong>
-          </p>
-          <p>
-            <span>波长 λ</span>
-            <strong>
-              {state.isWhiteLight
+        <DataRows
+          className="w-[260px] max-w-full min-w-0"
+          rows={[
+            { label: '模式', value: MODE_LABEL[state.mode] },
+            { label: '波长 λ', value: state.isWhiteLight
                 ? `白光 400-700nm${state.filterColor !== 'none' ? ` (${FILTER_LABEL[state.filterColor]}滤光片)` : ''}`
-                : `${Math.round(state.wavelength)} nm`}
-            </strong>
-          </p>
-          {state.mode === 'diffraction-grating' ? (
-            <>
-              <p>
-                <span>光栅常数 d</span>
-                <strong>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm（{state.gratingLines.toFixed(0)} 线/mm）</strong>
-              </p>
-            </>
-          ) : (
-            <p>
-              <span>{state.mode === 'single-slit' ? '缝宽 a' : '孔径 D'}</span>
-              <strong>{state.apertureSize.toFixed(3)} mm</strong>
-            </p>
-          )}
-          <p>
-            <span>缝屏距 L</span>
-            <strong>{formatScreenDistance(state.screenDistance)}</strong>
-          </p>
-          <p>
-            <span>{state.featureLabel}</span>
-            <strong><Answer>{state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue}</Answer></strong>
-          </p>
-        </div>
+                : `${Math.round(state.wavelength)} nm` },
+            { label: '光栅常数 d', value: <>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm（{state.gratingLines.toFixed(0)} 线/mm）</>, when: state.mode === 'diffraction-grating' },
+            { label: state.mode === 'single-slit' ? '缝宽 a' : '孔径 D', value: <>{state.apertureSize.toFixed(3)} mm</>, when: !(state.mode === 'diffraction-grating') },
+            { label: '缝屏距 L', value: formatScreenDistance(state.screenDistance) },
+            { label: state.featureLabel, value: state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue, answer: true },
+          ]}
+        />
       }
       notes={
         <>

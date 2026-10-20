@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { DataRows } from '../../ui/panels/DataRows'
 import { cameraLimits, instrumentView } from '../../instruments/measuring/pose'
 import { shouldShowSpecimen, specimenSize } from '../../instruments/measuring/practice'
 import { MicrometerFigure } from '../../instruments/measuring/ReadingFigures'
@@ -39,13 +40,16 @@ export function MicrometerScene() {
       chartContentClassName="measure-chart-content"
       controls={<MicrometerControls state={state} />}
       dataOverlay={
-        <div className="measure-telemetry scene-core-summary-stack">
-          <p><span>仪器</span><strong>螺旋测微器 · 0.01 mm</strong></p>
-          <p><span>示数</span><strong>{state.reveal ? <Answer>{state.readingText}</Answer> : '判定后显示'}</strong></p>
-          <p><span>分解</span><strong>{state.reveal ? <Answer>{state.breakdownText}</Answer> : '先观察刻度'}</strong></p>
-          <p><span>锁紧</span><strong>{practiceLocked ? '已固定（读数题）' : state.locked ? '螺杆已锁紧' : '可以转动微分筒'}</strong></p>
-          <p><span>零点</span><strong>{formatZero(state.zero)}</strong></p>
-        </div>
+        <DataRows
+          className="measure-telemetry"
+          rows={[
+            { label: '仪器', value: '螺旋测微器 · 0.01 mm' },
+            { label: '示数', value: state.reveal ? <Answer>{state.readingText}</Answer> : '判定后显示' },
+            { label: '分解', value: state.reveal ? <Answer>{state.breakdownText}</Answer> : '先观察刻度' },
+            { label: '锁紧', value: practiceLocked ? '已固定（读数题）' : state.locked ? '螺杆已锁紧' : '可以转动微分筒' },
+            { label: '零点', value: formatZero(state.zero) },
+          ]}
+        />
       }
       notes={
         <>

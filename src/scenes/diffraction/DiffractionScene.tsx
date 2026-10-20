@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
@@ -61,23 +61,18 @@ export function DiffractionScene() {
     <SceneLayout
       controls={<DiffractionControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack w-[200px] max-w-full min-w-0" style={{ overflowWrap: 'anywhere' }}>
-          <p>
-            <span>光源</span>
-            <strong>
-              {!state.isLightOn ? '关闭' : state.isWhiteLight
+        <DataRows
+          className="w-[200px] max-w-full min-w-0"
+          rows={[
+            { label: '光源', value: !state.isLightOn ? '关闭' : state.isWhiteLight
                 ? '白光' + (state.filterColor !== 'none' ? `（${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片）` : '')
-                : `${state.params.wavelength} nm`}
-            </strong>
-          </p>
-          {state.mode === 'diffraction-grating' ? (
-            <p><span>光栅常数 d</span><strong>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm（{state.params.gratingLines} 条/mm）</strong></p>
-          ) : (
-            <p><span>{state.mode === 'single-slit' ? '缝宽 a' : state.mode === 'circular-aperture' ? '孔径 D' : '障碍物直径'}</span><strong>{state.params.apertureSize.toFixed(3)} mm</strong></p>
-          )}
-          <p><span>屏距 L</span><strong>{formatScreenDistance(state.params.screenDistance)}</strong></p>
-          <p><span>{featureLabel}</span><strong><Answer>{featureValue}</Answer></strong></p>
-        </div>
+                : `${state.params.wavelength} nm` },
+            { label: '光栅常数 d', value: <>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm（{state.params.gratingLines} 条/mm）</>, when: state.mode === 'diffraction-grating' },
+            { label: state.mode === 'single-slit' ? '缝宽 a' : state.mode === 'circular-aperture' ? '孔径 D' : '障碍物直径', value: <>{state.params.apertureSize.toFixed(3)} mm</>, when: !(state.mode === 'diffraction-grating') },
+            { label: '屏距 L', value: formatScreenDistance(state.params.screenDistance) },
+            { label: featureLabel, value: featureValue, answer: true },
+          ]}
+        />
       }
       notes={
         state.mode === 'diffraction-grating' ? (

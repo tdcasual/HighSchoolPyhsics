@@ -1,4 +1,5 @@
 import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -18,7 +19,16 @@ export function WaveStateScene() {
   return <SceneLayout
     controls={<WaveStateControls state={state}/>}
     viewport={<InteractiveCanvas camera={{position:[0,0,14],fov:42}} controls={{target:[0,0,0],minDistance:7,maxDistance:20,maxPolarAngle:Math.PI*0.9}} frameloop={state.running?'always':'demand'}><WaveStateRig3D {...state} theme={theme}/></InteractiveCanvas>}
-    dataOverlay={<div className="wave-state-telemetry scene-core-summary-stack"><p><span>当前时刻 t</span><strong data-testid="wave-state-sim-time">{state.elapsed.toFixed(2)} s</strong></p><p><span>波前位置</span><strong data-testid="wave-state-front-position">{r.wavefrontX.toFixed(2)} m</strong></p><p><span>P 点 x₀ / 状态</span><strong data-testid="wave-state-probe-status">{state.probeX.toFixed(1)} m · <Answer>{probeStatus}</Answer></strong></p><p><span>P 点瞬时速度</span><strong className="wave-state-velocity-value"><Answer>{velocityLabel}</Answer></strong></p><p><span>P 点加速度方向</span><strong className="wave-state-acceleration-value"><Answer>{accelerationLabel}</Answer></strong></p></div>}
+    dataOverlay={<DataRows
+          className="wave-state-telemetry"
+          rows={[
+            { label: '当前时刻 t', value: <>{state.elapsed.toFixed(2)} s</>, testId: 'wave-state-sim-time' },
+            { label: '波前位置', value: <>{r.wavefrontX.toFixed(2)} m</>, testId: 'wave-state-front-position' },
+            { label: 'P 点 x₀ / 状态', value: <>{state.probeX.toFixed(1)} m · <Answer>{probeStatus}</Answer></>, testId: 'wave-state-probe-status' },
+            { label: 'P 点瞬时速度', value: velocityLabel, answer: true, valueClassName: 'wave-state-velocity-value' },
+            { label: 'P 点加速度方向', value: accelerationLabel, answer: true, valueClassName: 'wave-state-acceleration-value' },
+          ]}
+        />}
     notes={<><p>{directionLabel}：波速 v = λ/T = {r.waveSpeed.toFixed(2)} m/s，频率 f = 1/T = {r.frequency.toFixed(2)} Hz。</p><p>波前以 v = λ/T 传播；到达 P 点后，质点才按起振方向做简谐振动，质点不随波迁移。</p></>}
     chart={<WaveStateChart state={state}/>}
     playbackActions={[{key:'toggle-running',label:state.running?'暂停传播':state.elapsed===0?'开始传播':'继续传播',onClick:state.toggleRunning},{key:'step',label:'单步 T/4',onClick:state.step},{key:'reset',label:'重置相位',onClick:state.reset}]}

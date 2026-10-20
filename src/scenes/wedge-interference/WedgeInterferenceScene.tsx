@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
@@ -34,30 +34,15 @@ export function WedgeInterferenceScene() {
     <SceneLayout
       controls={<WedgeInterferenceControls state={state} />}
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>
-            <span>已知 λ · θ</span>
-            <strong>{Math.round(state.wavelength)} nm · {(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad</strong>
-          </p>
-          <p>
-            <span>条纹间距 l</span>
-            <strong><Answer>{state.fringeSpacingLabel}</Answer></strong>
-          </p>
-          <p>
-            <span>视场最大间隙 hmax</span>
-            <strong>{state.maxThickness.toFixed(2)} μm</strong>
-          </p>
-          {state.mode === 'bump' && (
-            <p>
-              <span>表面凸起 h</span>
-              <strong>{state.bumpHeight.toFixed(1)} μm</strong>
-            </p>
-          )}
-          <p>
-            <span>可见条纹数</span>
-            <strong><Answer>~{state.fringeCount}</Answer></strong>
-          </p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '已知 λ · θ', value: <>{Math.round(state.wavelength)} nm · {(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad</> },
+            { label: '条纹间距 l', value: state.fringeSpacingLabel, answer: true },
+            { label: '视场最大间隙 hmax', value: <>{state.maxThickness.toFixed(2)} μm</> },
+            { label: '表面凸起 h', value: <>{state.bumpHeight.toFixed(1)} μm</>, when: state.mode === 'bump' },
+            { label: '可见条纹数', value: <>~{state.fringeCount}</>, answer: true },
+          ]}
+        />
       }
       notes={
         <>

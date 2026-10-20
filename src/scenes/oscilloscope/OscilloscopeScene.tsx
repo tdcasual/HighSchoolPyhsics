@@ -1,5 +1,5 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo, useState } from 'react'
 import { deriveDeflectionFromVoltage, deriveTimeCursor } from './runtime'
 import { compileVoltageExpression } from './expression'
@@ -149,16 +149,20 @@ export function OscilloscopeScene() {
         </div>
       }
       dataOverlay={
-        <div className="scene-core-summary-stack scope-telemetry">
-          <p><span>状态</span><strong>{simulation.running ? '运行中' : '已暂停'}</strong></p>
-          <p><span>时刻</span><strong>t = {timeCursor.toFixed(3)} s</strong></p>
-          <p><span>Ux / Uy</span><strong>{ux.toFixed(2)} V / {uy.toFixed(2)} V</strong></p>
-          <p><span>屏幕坐标（±1）</span><strong><Answer>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</Answer></strong></p>
-          <p className={clippingReasons.length ? 'scope-overrange' : undefined}>
-            <span>满偏 ±10 V</span>
-            <strong>{clippingReasons.length ? `已限幅：${clippingReasons.join('、')}` : '未超量程'}</strong>
-          </p>
-        </div>
+        <DataRows
+          className="scope-telemetry"
+          rows={[
+            { label: '状态', value: simulation.running ? '运行中' : '已暂停' },
+            { label: '时刻', value: <>t = {timeCursor.toFixed(3)} s</> },
+            { label: 'Ux / Uy', value: <>{ux.toFixed(2)} V / {uy.toFixed(2)} V</> },
+            { label: '屏幕坐标（±1）', value: <>x={beamX >= 0 ? '+' : ''}{beamX.toFixed(2)}，y={beamY >= 0 ? '+' : ''}{beamY.toFixed(2)}</>, answer: true },
+            {
+              label: '满偏 ±10 V',
+              value: clippingReasons.length ? `已限幅：${clippingReasons.join('、')}` : '未超量程',
+              className: clippingReasons.length ? 'scope-overrange' : undefined,
+            },
+          ]}
+        />
       }
       chart={
         <OscilloscopeDisplay

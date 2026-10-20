@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { InteractiveCanvas } from '../../scene3d/InteractiveCanvas'
 import type { PresentationFocus } from '../../scene3d/presentationCamera'
@@ -42,16 +42,15 @@ export function CyclotronScene() {
         />
       }
       dataOverlay={
-        <div className="scene-core-summary-stack">
-          <p>
-            <span>已知 B · U · R</span>
-            <strong>{state.magneticFieldT.toFixed(1)} T · {state.gapVoltageKv.toFixed(0)} kV · {MAX_ORBIT_RADIUS_M.toFixed(1)} m</strong>
-          </p>
-          <p><span>缝隙电压 u</span><strong>{(state.currentVoltageV / 1000).toFixed(0)} kV · {state.voltageDirectionText}</strong></p>
-          <p><span>动能 Eₖ · 过缝次数</span><strong>{(state.currentEnergyJ / MEV_J).toFixed(2)} MeV · {state.crossings}</strong></p>
-          <p><span>Eₖ,max = q²B²R²/(2m)</span><strong><Answer>{(state.maximumKineticEnergyJ / MEV_J).toFixed(1)} MeV</Answer></strong></p>
-          <p><span>回旋周期 T = 2πm/(qB)</span><strong><Answer>{(state.cyclotronPeriodS * 1e9).toFixed(1)} ns</Answer></strong></p>
-        </div>
+        <DataRows
+          rows={[
+            { label: '已知 B · U · R', value: <>{state.magneticFieldT.toFixed(1)} T · {state.gapVoltageKv.toFixed(0)} kV · {MAX_ORBIT_RADIUS_M.toFixed(1)} m</> },
+            { label: '缝隙电压 u', value: <>{(state.currentVoltageV / 1000).toFixed(0)} kV · {state.voltageDirectionText}</> },
+            { label: '动能 Eₖ · 过缝次数', value: <>{(state.currentEnergyJ / MEV_J).toFixed(2)} MeV · {state.crossings}</> },
+            { label: 'Eₖ,max = q²B²R²/(2m)', value: <>{(state.maximumKineticEnergyJ / MEV_J).toFixed(1)} MeV</>, answer: true },
+            { label: '回旋周期 T = 2πm/(qB)', value: <>{(state.cyclotronPeriodS * 1e9).toFixed(1)} ns</>, answer: true },
+          ]}
+        />
       }
       notes={
         <>

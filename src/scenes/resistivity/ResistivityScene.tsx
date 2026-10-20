@@ -1,4 +1,4 @@
-import { Answer } from '../../ui/notes/Answer'
+import { DataRows } from '../../ui/panels/DataRows'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { MicrometerFigure } from '../../instruments/measuring/ReadingFigures'
 import { useViewportSize } from '../../scene3d/useViewportSize'
@@ -117,44 +117,41 @@ export function ResistivityScene() {
       chartContentClassName="measure-chart-content"
       controls={<ResistivityControls state={state} showSecant={showSecant} showTangent={showTangent} onShowSecantChange={setShowSecant} onShowTangentChange={setShowTangent} />}
       dataOverlay={
-        <div className="resistivity-telemetry scene-core-summary-stack">
-          {diameterView ? (
-            <>
-              <p><span>样品 / 位置</span><strong>{state.wireName} · {state.position + 1}</strong></p>
-              <p><span>测微器示数</span><strong><Answer>{diameterReading.text} mm</Answer></strong></p>
-              <p><span>固定刻度</span><strong><Answer>{diameterReading.fixed.toFixed(1)} mm · 半线{diameterReading.halfLine ? '已露' : '未露'}</Answer></strong></p>
-              <p><span>可动刻度</span><strong><Answer>{diameterReading.divisions.toFixed(1)} 格 × 0.01 mm</Answer></strong></p>
-              <p><span>零点误差 / 接触</span><strong>{state.zero > 0 ? '+' : ''}{state.zero.toFixed(3)} mm · {isSeated(state) ? '已接触' : '未接触'}</strong></p>
-            </>
-          ) : state.stage === 'circuit' ? (
-            <>
-              <p><span>样品</span><strong>{state.wireName}</strong></p>
-              <p><span>接入长度 l</span><strong>{state.lengthCm.toFixed(1)} cm</strong></p>
-              <p><span>电压 U</span><strong>{state.voltmeterReading.text} V</strong></p>
-              <p><span>电流 I</span><strong>{state.ammeterReading.text} A</strong></p>
-              <p><span>电阻 R = U/I</span><strong>{measuredResistance === null ? '—' : measuredResistance.toFixed(2) + ' Ω'}</strong></p>
-            </>
-          ) : state.stage === 'analysis' ? (
-            <>
-              <p><span>直径测量</span><strong>{analysis.diameterCount}/3 处</strong></p>
-              <p><span>{state.graph === 'UI' ? 'U–I 斜率 = R' : 'R–l 斜率 = ρ/S'}</span><strong>{fittedSlopeLabel}</strong></p>
-              <p><span>电阻率 ρ</span><strong>{formatRho(analysis.rho)}</strong></p>
-              {state.mystery && analysis.nearest ? <p><span>最接近的材料</span><strong>{analysis.nearest.name}</strong></p> : null}
-              <p><span>拟合数据点</span><strong>{analysis.points.length}</strong></p>
-            </>
-          ) : (
-            <>
-              <p><span>研究元件</span><strong>{ELEMENTS[state.element].name}</strong></p>
-              <p><span>电压 U</span><strong>{state.elementNow.U.toFixed(2)} V</strong></p>
-              <p><span>电流 I</span><strong>{formatCurrent(state.elementNow.I)}</strong></p>
-              <p><span>静态电阻 R = U/I</span><strong>{formatElementResistance(state.elementNow.R)} Ω</strong></p>
-              {state.element === 'diode' && state.elementNow.U < 0 ? (
-                <p><span>表盘状态</span><strong>反向漏电远低于 {ammeterSpec.division} A 最小分度</strong></p>
-              ) : null}
-              <p><span>切线斜率 dI/dU</span><strong>{state.elementNow.slope.toFixed(3)} A/V</strong></p>
-            </>
-          )}
-        </div>
+        <DataRows
+        className="resistivity-telemetry"
+        rows={diameterView
+          ? [
+            { label: '样品 / 位置', value: <>{state.wireName} · {state.position + 1}</> },
+            { label: '测微器示数', value: <>{diameterReading.text} mm</>, answer: true },
+            { label: '固定刻度', value: <>{diameterReading.fixed.toFixed(1)} mm · 半线{diameterReading.halfLine ? '已露' : '未露'}</>, answer: true },
+            { label: '可动刻度', value: <>{diameterReading.divisions.toFixed(1)} 格 × 0.01 mm</>, answer: true },
+            { label: '零点误差 / 接触', value: <>{state.zero > 0 ? '+' : ''}{state.zero.toFixed(3)} mm · {isSeated(state) ? '已接触' : '未接触'}</> },
+          ]
+          : state.stage === 'circuit'
+          ? [
+            { label: '样品', value: state.wireName },
+            { label: '接入长度 l', value: <>{state.lengthCm.toFixed(1)} cm</> },
+            { label: '电压 U', value: <>{state.voltmeterReading.text} V</> },
+            { label: '电流 I', value: <>{state.ammeterReading.text} A</> },
+            { label: '电阻 R = U/I', value: measuredResistance === null ? '—' : measuredResistance.toFixed(2) + ' Ω' },
+          ]
+          : state.stage === 'analysis'
+          ? [
+            { label: '直径测量', value: <>{analysis.diameterCount}/3 处</> },
+            { label: state.graph === 'UI' ? 'U–I 斜率 = R' : 'R–l 斜率 = ρ/S', value: fittedSlopeLabel },
+            { label: '电阻率 ρ', value: formatRho(analysis.rho) },
+            { label: '最接近的材料', value: analysis.nearest?.name, when: Boolean(state.mystery && analysis.nearest) },
+            { label: '拟合数据点', value: analysis.points.length },
+          ]
+          : [
+            { label: '研究元件', value: ELEMENTS[state.element].name },
+            { label: '电压 U', value: <>{state.elementNow.U.toFixed(2)} V</> },
+            { label: '电流 I', value: formatCurrent(state.elementNow.I) },
+            { label: '静态电阻 R = U/I', value: <>{formatElementResistance(state.elementNow.R)} Ω</> },
+            { label: '表盘状态', value: <>反向漏电远低于 {ammeterSpec.division} A 最小分度</>, when: Boolean(state.element === 'diode' && state.elementNow.U < 0) },
+            { label: '切线斜率 dI/dU', value: <>{state.elementNow.slope.toFixed(3)} A/V</> },
+          ]}
+      />
       }
       chart={diameterView ? (
         <MicrometerFigure reveal reading={state.gap + state.zero} zero={state.zero} click={0} />
