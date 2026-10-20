@@ -32,10 +32,12 @@ export function VectorArrow({ from, vector, color, label, width = 2.6, dashed = 
     from[1] + direction.y * (length - head / 2),
     from[2] + direction.z * (length - head / 2),
   ]
+  // Centre the label beyond the tip by about half its width, so longer labels clear the arrowhead.
+  const labelGap = 0.25 + (label?.length ?? 0) * 0.07
   const labelAt: Vec3 = [
-    from[0] + direction.x * (length + 0.3),
-    from[1] + direction.y * (length + 0.3),
-    from[2] + direction.z * (length + 0.3),
+    from[0] + direction.x * (length + labelGap),
+    from[1] + direction.y * (length + labelGap),
+    from[2] + direction.z * (length + labelGap),
   ]
   return (
     <group>

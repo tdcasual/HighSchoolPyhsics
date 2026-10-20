@@ -45,7 +45,7 @@ const TOPIC_GROUPS: NavigationGroup[] = [
     title: '力学',
     description: '直线运动的测量与天体运动',
     color: '#65a30d',
-    scenePageIds: ['ticker-timer', 'cart-velocity', 'projectile-motion', 'circular-motion', 'celestial-motion', 'mechanical-energy'],
+    scenePageIds: ['ticker-timer', 'cart-velocity', 'projectile-motion', 'circular-motion', 'celestial-motion', 'mechanical-energy', 'momentum-collision'],
   },
   {
     id: 'electric-field',
@@ -105,7 +105,7 @@ const LESSON_GROUPS: NavigationGroup[] = [
     title: '学生实验',
     description: '教材要求的分组实验：仪器使用、读数与数据处理',
     color: '#0891b2',
-    scenePageIds: ['measuring-tools', 'ticker-timer', 'cart-velocity', 'resistivity', 'multimeter', 'double-slit'],
+    scenePageIds: ['measuring-tools', 'ticker-timer', 'cart-velocity', 'resistivity', 'multimeter', 'momentum-collision', 'double-slit'],
   },
   {
     id: 'models',

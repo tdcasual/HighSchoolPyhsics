@@ -90,6 +90,13 @@ export const PHYSICS_REGIONS: PhysicsRegion[] = [
     scenePageIds: ['oersted'],
   },
   {
+    id: 'momentum',
+    volumeId: 'elective-1',
+    name: '第一章 动量守恒定律',
+    description: '碰撞中的动量守恒与动能变化',
+    scenePageIds: ['momentum-collision'],
+  },
+  {
     id: 'mechanical-waves',
     volumeId: 'elective-1',
     name: '第三章 机械波',

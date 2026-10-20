@@ -900,5 +900,32 @@
       "readyText": "机械能守恒控制",
       "screenshotName": "mechanical-energy"
     }
+  },
+  {
+    "pageId": "momentum-collision",
+    "label": "动量守恒",
+    "meta": {
+      "tag": "碰撞",
+      "summary": "气垫导轨上两滑块的弹性、非弹性与完全非弹性碰撞",
+      "highlights": [
+        "碰撞前后总动量不变",
+        "等质量弹性碰撞交换速度"
+      ],
+      "tone": "scope"
+    },
+    "touchProfile": {
+      "pageScroll": "vertical-outside-canvas",
+      "canvasGestureScope": "interactive-canvas",
+      "minTouchTargetPx": 44,
+      "gestureMatrix": {
+        "singleFingerRotate": true,
+        "twoFingerZoom": true,
+        "twoFingerPan": true
+      }
+    },
+    "playwright": {
+      "readyText": "动量守恒控制",
+      "screenshotName": "momentum-collision"
+    }
   }
 ]
