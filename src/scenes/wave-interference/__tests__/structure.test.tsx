@@ -1,24 +1,5 @@
-import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    children,
-    frameloop,
-  }: {
-    children: ReactNode
-    frameloop?: string
-  }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
-      {children}
-    </div>
-  ),
-}))
-
-vi.mock('../WaveInterferenceRig3D', () => ({
-  WaveInterferenceRig3D: () => <div data-testid="wave-rig" />,
-}))
 
 vi.mock('../WaveInterferenceControls', () => ({
   WaveInterferenceControls: () => <div data-testid="wave-controls" />,
@@ -36,7 +17,6 @@ describe('wave-interference structure', () => {
 
     expect(screen.getByTestId('interactive-canvas')).toBeInTheDocument()
     expect(screen.getByTestId('wave-controls')).toBeInTheDocument()
-    expect(screen.getByTestId('wave-rig')).toBeInTheDocument()
   })
 
   it('uses always frameloop when playing by default', () => {

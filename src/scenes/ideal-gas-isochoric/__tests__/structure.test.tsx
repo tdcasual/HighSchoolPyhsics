@@ -1,9 +1,5 @@
-import type { ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({ InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div> }))
-vi.mock('../IdealGasIsochoricRig3D', () => ({ IdealGasIsochoricRig3D: () => <div data-testid="ideal-gas-isochoric-rig" /> }))
+import { describe, expect, it } from 'vitest'
 
 import { IdealGasIsochoricScene } from '../IdealGasIsochoricScene'
 
@@ -19,7 +15,6 @@ describe('ideal-gas-isochoric structure', () => {
     expect(screen.getByRole('img', { name: '压强与热力学温度图像' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: '压强与摄氏温度图像' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '暂停热运动' })).toBeInTheDocument()
-    expect(screen.getByTestId('ideal-gas-isochoric-rig')).toBeInTheDocument()
   })
 
   it('switches volume and pauses molecular motion', () => {

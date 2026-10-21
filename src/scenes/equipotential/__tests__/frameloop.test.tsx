@@ -1,24 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import type { ReactNode } from 'react'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    frameloop,
-    children,
-  }: {
-    frameloop?: 'always' | 'demand'
-    children: ReactNode
-  }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
-      {children}
-    </div>
-  ),
-}))
-
-vi.mock('../EquipotentialRig3D', () => ({
-  EquipotentialRig3D: () => <div data-testid="equipotential-rig" />,
-}))
+import { describe, expect, it } from 'vitest'
 
 import { EquipotentialScene } from '../EquipotentialScene'
 

@@ -87,6 +87,8 @@ export function InteractiveCanvas({
     return (
       <div
         className="canvas-fallback-stack"
+        data-testid="interactive-canvas"
+        data-frameloop={frameloop}
         data-presentation-focus-mode={orbit.focusMode}
         data-canvas-gesture-scope={touchProfile.canvasGestureScope}
       >

@@ -1,12 +1,5 @@
-import type { ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div>,
-}))
-
-vi.mock('../GeneratorCoreRig3D', () => ({ GeneratorCoreRig3D: () => <div data-testid="generator-core-rig" /> }))
+import { describe, expect, it } from 'vitest'
 
 import { GeneratorCoreScene } from '../GeneratorCoreScene'
 
@@ -22,7 +15,6 @@ describe('generator-core structure', () => {
     expect(screen.getByRole('img', { name: '发电机磁通量和感应电动势相位图' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '暂停旋转' })).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'always')
-    expect(screen.getByTestId('generator-core-rig')).toBeInTheDocument()
     expect(screen.getAllByText(/中性面|平行面|过渡位置/).length).toBeGreaterThan(0)
   })
 

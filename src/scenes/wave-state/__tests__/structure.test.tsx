@@ -1,9 +1,5 @@
-import type { ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({ InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div> }))
-vi.mock('../WaveStateRig3D', () => ({ WaveStateRig3D: () => <div data-testid="wave-state-rig" /> }))
+import { describe, expect, it } from 'vitest'
 
 import { WaveStateScene } from '../WaveStateScene'
 
@@ -25,7 +21,6 @@ describe('wave-state structure', () => {
     expect(screen.getByRole('button', { name: '继续传播' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '重置相位' }))
     expect(screen.getByTestId('wave-state-sim-time')).toHaveTextContent('0.00 s')
-    expect(screen.getByTestId('wave-state-rig')).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 

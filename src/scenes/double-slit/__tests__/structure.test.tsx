@@ -1,24 +1,5 @@
-import type { ReactNode } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    children,
-    frameloop,
-  }: {
-    children: ReactNode
-    frameloop?: string
-  }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
-      {children}
-    </div>
-  ),
-}))
-
-vi.mock('../DoubleSlitRig3D', () => ({
-  DoubleSlitRig3D: () => <div data-testid="double-slit-rig" />,
-}))
 
 vi.mock('../DoubleSlitControls', () => ({
   DoubleSlitControls: () => <div data-testid="double-slit-controls" />,
@@ -36,7 +17,6 @@ describe('double-slit structure', () => {
 
     expect(screen.getByTestId('interactive-canvas')).toBeInTheDocument()
     expect(screen.getByTestId('double-slit-controls')).toBeInTheDocument()
-    expect(screen.getByTestId('double-slit-rig')).toBeInTheDocument()
   })
 
   it('uses demand frameloop for static scene', () => {

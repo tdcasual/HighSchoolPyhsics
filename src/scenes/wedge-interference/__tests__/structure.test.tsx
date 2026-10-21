@@ -1,24 +1,5 @@
-import type { ReactNode } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    children,
-    frameloop,
-  }: {
-    children: ReactNode
-    frameloop?: string
-  }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
-      {children}
-    </div>
-  ),
-}))
-
-vi.mock('../WedgeInterferenceRig3D', () => ({
-  WedgeInterferenceRig3D: () => <div data-testid="wedge-rig" />,
-}))
 
 vi.mock('../WedgeInterferenceControls', () => ({
   WedgeInterferenceControls: () => <div data-testid="wedge-controls" />,
@@ -36,7 +17,6 @@ describe('wedge-interference structure', () => {
 
     expect(screen.getByTestId('interactive-canvas')).toBeInTheDocument()
     expect(screen.getByTestId('wedge-controls')).toBeInTheDocument()
-    expect(screen.getByTestId('wedge-rig')).toBeInTheDocument()
   })
 
   it('uses demand frameloop for static scene', () => {

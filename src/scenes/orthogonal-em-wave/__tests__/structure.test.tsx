@@ -1,9 +1,5 @@
-import type { ReactNode } from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({ InteractiveCanvas: ({ children, frameloop }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div> }))
-vi.mock('../OrthogonalEmWaveRig3D', () => ({ OrthogonalEmWaveRig3D: () => <div data-testid="orthogonal-em-wave-rig" /> }))
+import { describe, expect, it } from 'vitest'
 
 import { OrthogonalEmWaveScene } from '../OrthogonalEmWaveScene'
 
@@ -22,7 +18,6 @@ describe('orthogonal-em-wave structure', () => {
     const playbackPanel = screen.getByRole('region', { name: '播放控制' })
     expect(within(playbackPanel).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '开始传播' })).toBeInTheDocument()
-    expect(screen.getByTestId('orthogonal-em-wave-rig')).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 

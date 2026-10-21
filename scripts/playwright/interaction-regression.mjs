@@ -2,7 +2,8 @@
 // Classroom interaction regression at 1920×1080, the checks earlier audit rounds did by hand:
 //   - every scene opens without page errors, shows the data panel, and its
 //     单步 (button and "." key) changes the picture and then holds still;
-//   - overview: search and the 1–9 shortcuts;
+//   - overview: search and the 1–9 shortcuts; every scene opens from its card and returns,
+//     on a desktop and on a touch phone (gesture hint, no sideways scrolling);
 //   - measuring instruments: the legacy link, one-click and arrow-key fine steps, practice opens
 //     on the scale close-up, dragging the thimble turns it.
 //   npm run test:interaction              all checks
@@ -109,6 +110,40 @@ async function checkOverview(context, baseUrl) {
   }
 }
 
+/**
+ * Opens every scene from its overview card and comes back, as a teacher does: on a 1920×1080
+ * desktop, and on a 390×844 touch phone (touch-only gesture hint, no sideways scrolling).
+ */
+async function checkRoundTrip(context, baseUrl, phone) {
+  const device = phone ? 'phone' : 'desktop'
+  const { page, errors } = await freshPage(context, `${baseUrl}/`)
+  const overview = page.getByRole('heading', { name: '高中物理 3D 课堂' })
+  try {
+    await overview.waitFor({ timeout: 20000 })
+    for (const demo of DEMO_CATALOG) {
+      const card = page.locator('.scene-card').filter({ has: page.locator('.scene-card-name').getByText(demo.label, { exact: true }) })
+      await card.click(phone ? { force: true } : undefined)
+      await page.waitForURL(`${baseUrl}${demo.path}`, { timeout: 15000 })
+      // The overview stays mounted (hidden) and some card names equal a scene's ready text.
+      await page.getByText(demo.readyText).filter({ visible: true }).first().waitFor({ timeout: 15000 })
+      if (phone) {
+        await page.getByText(/单指旋转.*双指缩放\/平移/).first().waitFor({ timeout: 5000 })
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
+        if (overflow) check(false, `${demo.pageId}: no horizontal scrolling on a phone`)
+      }
+      await page.getByRole('button', { name: /^返回/ }).click()
+      await overview.waitFor({ timeout: 15000 })
+    }
+    check(true, `${device}: every scene opens from the overview and returns`)
+    check(errors.length === 0, `${device} round trip: no page errors${errors.length ? ` (${errors[0]})` : ''}`)
+  } catch (error) {
+    check(false, `${device} round trip: ${error instanceof Error ? error.message.split('\n')[0] : error}`)
+    await page.screenshot({ path: path.join(OUTPUT_DIR, `${device}-round-trip-failure.png`) })
+  } finally {
+    await page.close()
+  }
+}
+
 async function checkMeasuringInstruments(context, baseUrl) {
   // The old combined scene's URL still opens the caliper.
   let { page } = await freshPage(context, `${baseUrl}/measuring-tools`)
@@ -173,6 +208,10 @@ await runWithManagedViteServer({ rootDir: ROOT_DIR, baseUrl, devPort, logPath: p
     const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
     if (requested.length === 0) {
       await checkOverview(context, baseUrl)
+      await checkRoundTrip(context, baseUrl, false)
+      const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+      await checkRoundTrip(phone, baseUrl, true)
+      await phone.close()
       await checkMeasuringInstruments(context, baseUrl)
     }
     for (const demo of scenes) await checkScene(context, baseUrl, demo)

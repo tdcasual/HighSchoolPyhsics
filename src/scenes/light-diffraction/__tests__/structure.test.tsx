@@ -1,24 +1,5 @@
-import type { ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    children,
-    frameloop,
-  }: {
-    children: ReactNode
-    frameloop?: string
-  }) => (
-    <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
-      {children}
-    </div>
-  ),
-}))
-
-vi.mock('../LightDiffractionRig3D', () => ({
-  LightDiffractionRig3D: () => <div data-testid="light-diffraction-rig" />,
-}))
 
 vi.mock('../LightDiffractionControls', () => ({
   LightDiffractionControls: () => <div data-testid="light-diffraction-controls" />,
@@ -36,7 +17,6 @@ describe('light-diffraction structure', () => {
 
     expect(screen.getByTestId('interactive-canvas')).toBeInTheDocument()
     expect(screen.getByTestId('light-diffraction-controls')).toBeInTheDocument()
-    expect(screen.getByTestId('light-diffraction-rig')).toBeInTheDocument()
   })
 
   it('uses demand frameloop for static scene', () => {
