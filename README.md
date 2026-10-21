@@ -1,121 +1,73 @@
-# 高中电磁学 3D 课堂演示平台
+# 高中物理 3D 课堂
 
-这是一套面向课堂的 3D 物理演示工具。  
-核心目标很简单: 让老师在一块屏幕里，直观展示电磁学中的“结构 + 过程 + 结果”。
+面向课堂投影的 3D 物理演示工具：27 个场景，按人教版教材章节组织，覆盖运动学、天体运动、电场、电路与测量、磁场与电磁感应、交变电流、机械波、光学和热学。目标是让老师在一块屏幕里讲清“装置结构 + 物理过程 + 测量结果”。
 
-## 你能直接演示什么
+## 有哪些演示
 
-- 示波器: 电子束偏转、荧光屏轨迹、常见波形（正弦/方波/锯齿/三角）与自定义函数。
-- 回旋加速器: 带电粒子轨道、交变电场加速、`U-t` 和 `Ek-t` 曲线联动。
-- 磁流体发电机: 磁场中流体发电过程，参数变化与两端电压实时对应。
-- 奥斯特实验: 电流磁效应、导线姿态变化、三枚磁针偏转和磁感线观察。
+打点计时器、小车速度随时间变化、天体运动、电荷等势面、电势图生成、电势地形与电场线、示波器、3D 示波器与波形测量、游标卡尺、螺旋测微器、导体电阻率的测量、练习使用多用电表、回旋加速器、磁流体发电机、感应电流方向、导体棒切割磁感线、旋转切割磁感线、电磁驱动、正弦式交变电流（发电机核心模型）、简谐横波传播状态模型、电磁波空间正交传播模型、波干涉、双缝干涉、劈尖干涉、光的衍射、衍射演示、理想气体等容变化（查理定律）。
 
-## 课堂上手（3 分钟）
+首页可按教材章节、专题或课型浏览，也可以搜索。
 
-1. 安装 Node.js（建议 20+ 版本）。
-2. 在项目目录执行:
-```bash
-npm install
-npm run dev
-```
-3. 浏览器打开终端显示的本地地址（通常是 `http://localhost:5173`）。
-4. 进入“演示导航”，选择要讲的实验。
+## 课堂上手
 
-## 运行环境要求（硬门禁）
+1. 安装 Node.js 20 及以上。
+2. 在项目目录执行：
 
-- 推荐浏览器：现代 Chromium（教学机统一环境）。
-- 必需能力：`Worker`、`WebGL2`、`Pointer Events`。
-- 不满足时会显示“运行环境不支持”阻断页；项目不再提供弱环境软降级或 local fallback。
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-## 操作方式（全场景统一）
+3. 浏览器打开终端显示的地址（通常是 `http://localhost:5173`），在首页选择实验。
 
-- 左侧是参数面板，右侧是 3D 演示区。
-- 动画默认是暂停状态，点击“播放”开始演示。
-- 鼠标:
-  - 左键拖拽: 旋转
-  - 滚轮: 缩放
-  - 右键拖拽: 平移
-- 触控:
-  - 单指旋转
-  - 双指缩放/平移
-  - 双击重置视角
-  - 画布区域手势优先（画布外仍可纵向滚动页面）
-- 顶部可切换“白天模式 / 夜间模式”。
-- “课堂展示”支持混合布局:
-  - `自动`: 系统按左侧信息密度自动判断是否保留双核心布局
-  - `双核心`: 强制保留“信息区 + 3D 视口”并排
-  - `视口优先`: 强制 3D 视口优先，参数区可按需展开
-- 如果某个演示运行异常，会显示错误卡片，可直接“重试场景”或“返回导航”。
-- 常用快捷键:
-  - `1-4`: 从导航页快速进入对应实验
-  - `D / N`: 白天 / 夜间模式
-  - `M / E`: 夜间极简 / 夜间霓虹
-  - `P`: 开关课堂展示模式
-- 导航页把鼠标停留在卡片上会预加载场景，减少首次进入等待。
-- 主题风格会自动记忆，下次打开保持上次选择。
-- 动画暂停时会切到按需渲染，降低课堂待机功耗与风扇噪声。
+部署后的页面可离线使用：打开过一次后，断网也能继续上课；有新版本时页面会提示刷新。
 
-## 适合课堂的讲解节奏（建议）
+运行环境：现代 Chromium 浏览器，需要 `WebGL2`、`Worker`、`Pointer Events`；不满足时显示“运行环境不支持”。
 
-1. 先展示结构（静态暂停，旋转观察器件）。
-2. 再单独改一个参数，观察现象变化。
-3. 最后切换到典型函数或预设，对比不同结果。
+## 界面与操作（所有场景一致）
 
-## 给技术支持同事（可选）
+- 3D 演示占满全屏。左侧是参数面板（可收起），右侧依次是数据、图表、播放控制三个浮动面板；装置自动摆在面板留出的空白区域中央，投影仪、笔记本和手机上都完整可见。
+- 数据面板只放 3～5 个关键读数；推导与模型假设放在侧栏末尾的“教师备注”。
+- 鼠标：左键拖拽旋转，滚轮缩放，右键拖拽平移。触屏：单指旋转，双指缩放/平移。
+- 老师调过的参数在切换场景后保留；运行状态不保留。
+
+常用快捷键（按 `?` 查看全部）：
+
+| 按键 | 作用 |
+|---|---|
+| 空格 | 播放 / 暂停 |
+| `.` / `→` | 单步（转 15°、走 T/4 等），按住连续 |
+| `,` / `←` | 后退一步（游标卡尺、螺旋测微器） |
+| `H` | 预测模式：先遮住结论，点击「?」或「全部揭晓」 |
+| `P` | 讲解模式：只显示 3D 并全屏 |
+| `L` | 课堂大字 |
+| `D` / `N` | 白天 / 夜间 |
+| `1`～`9` | 首页快速进入第 1～9 个演示 |
+
+## 建议的讲解节奏
+
+1. 先看结构：暂停状态下旋转观察装置。
+2. 开预测模式，让学生先判断结论。
+3. 只改一个参数，单步或慢放观察变化，再揭晓读数。
+
+## 给开发与维护同事
 
 ```bash
-npm test        # 运行测试
-npm run test:roundtrip # 桌面端导航往返回归（进入各演示并返回）
-npm run test:touch # 触屏回归（输出到 output/playwright/touch-regression）
-npm run test:1080p-presentation # 1080P 课堂演示导演回归（布局 + focus + 摘要状态）
-npm run test:e2e # 一次执行桌面往返 + 触屏手势回归
-npm run test:e2e:ci # CI 推荐入口（默认 BASE_URL=http://127.0.0.1:4180）
-npm run test:perf # 构建并校验首页未预加载 three/r3f 重依赖
-npm run verify:ci # lint + 单测 + 构建 + 预加载预算 + clean-build + 全路由加载预算
-npm run verify:full # verify:ci + e2e
-npm run build   # 打包检查
-npm run preview # 本地预览打包结果
+npm test                 # 单元测试（含全部场景的课堂契约测试与约定测试）
+npm run verify:ci        # lint + 单测 + 构建 + 体积预算（CI 同款）
+npm run test:interaction # 浏览器交互回归：每个场景、首页往返（桌面与手机触屏）、WCAG A/AA 无障碍扫描（axe）
+npm run test:visual-smoke  # 视觉回归：白天、夜间、手机三套基线，数据面板单独严格比对（--profile=night 等只跑一套）
+npm run verify:full      # 以上全部 + 路由加载预算 + 专项回归
+npm run report:architecture # 各场景对共享架构的采用情况
 ```
 
-首次运行触屏回归前建议执行：
+浏览器回归用 Playwright；可设 `CHROME_PATH` 使用系统 Chrome，设 `PLAYWRIGHT_SERVER_MODE=preview` 针对构建产物运行。
+
+新增场景用脚手架生成（共享时钟、数据面板、取景、场景记忆都已接好，并登记到目录和导航）：
 
 ```bash
-npx playwright install chromium
+npm run scaffold:scene -- --id hall-effect --label 霍尔效应 \
+  --chapter lorentz-force --topic magnetic-field --lesson models
 ```
 
-
-新增的 1080P 导演能力包括：
-- sticky 核心摘要：在桌面课堂双核心布局下，把核心结论固定到首屏；
-- content focus：根据 3D 场景内容切换 focus/overview/compare；
-- staged layout：流程型场景可在课堂模式下按阶段偏向视口或双核心。
-
-新增演示页时可参考课堂展示接入模板：
-
-- `docs/presentation-signal-playbook.md`
-- `docs/classroom-presentation-principles.md`
-- `AGENTS.md`（仓库级课堂模式原则）
-
-也可以直接用脚手架命令快速生成新场景（默认分层结构，含课堂契约模板和路由定义）：
-
-```bash
-npm run scaffold:scene -- \
-  --id hall-effect \
-  --label 霍尔效应 \
-  --tone mhd \
-  --signals live-metric,interactive-readout \
-  --core-lines 4
-```
-
-该命令会自动创建：
-- `src/scenes/<id>/<PascalCase>Scene.tsx`
-- `src/scenes/<id>/use<PascalCase>SceneState.ts`
-- `src/scenes/<id>/<PascalCase>Controls.tsx`
-- `src/scenes/<id>/<PascalCase>Rig3D.tsx`
-- `src/scenes/<id>/<id>.css`
-- `src/scenes/<id>/<PascalCase>Scene.test.tsx`
-- 并把场景定义追加到 `config/demo-scenes.json`（路由会自动发现 `src/scenes/<id>/*Scene.tsx`）
-
----
-
-如果你是任课老师，只需要记住两件事:  
-先选实验，再改参数。其余交给 3D 场景本身去“说话”。
+场景约定、模板和共享模块见 [`AGENTS.md`](AGENTS.md)；布局原则见 `docs/classroom-presentation-principles.md`；架构演进与审计记录见 `docs/plans/` 与 `docs/audit/`；已完成或被取代的旧计划在 `docs/archive/`。

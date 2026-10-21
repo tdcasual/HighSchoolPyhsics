@@ -179,7 +179,8 @@ export function ResistivityControls({
 
 function DiameterTable({ state }: { state: ResistivitySceneState }) {
   return (
-    <div className='resistivity-table-wrap'>
+    // Scrolls sideways on narrow panels, so it must be reachable from the keyboard.
+    <div className='resistivity-table-wrap' tabIndex={0} role='region' aria-label='直径测量记录'>
       <table className='resistivity-table'>
         <thead><tr><th>位置</th><th>示数 / mm</th><th>零点 / mm</th><th>修正 d / mm</th><th>来源</th></tr></thead>
         <tbody>
@@ -202,7 +203,7 @@ function DiameterTable({ state }: { state: ResistivitySceneState }) {
 function RecordTable({ state }: { state: ResistivitySceneState }) {
   if (state.records.length === 0) return <p className='resistivity-hint'>还没有记录。可连接电路后手动采样，或插入标有“示例”的数据。</p>
   return (
-    <div className='resistivity-table-wrap'>
+    <div className='resistivity-table-wrap' tabIndex={0} role='region' aria-label='电压电流测量记录'>
       <table className='resistivity-table'>
         <thead><tr><th>#</th><th>l / cm</th><th>U / V</th><th>I / A</th><th>接法</th><th>控制</th><th>量程</th><th>来源</th></tr></thead>
         <tbody>

@@ -92,7 +92,8 @@ export function NewDemoScene() {
 ## References
 
 - `docs/classroom-presentation-principles.md` — layout principles and zone definitions
-- `docs/plans/2026-04-29-five-zone-layout-redesign.md` — architecture decision record
+- `docs/plans/2026-10-20-shared-architecture-plan.md` — the current shared architecture and how it got there; `docs/audit/2026-10-17-cross-scene-audit.md` — the audit log, round by round
+- `docs/archive/` — superseded plans (five-zone redesign and earlier), kept for history only
 - `src/ui/layout/SceneLayout.tsx` — layout implementation
 - `src/ui/panels/FloatingPanel.tsx` — floating panel component
 - `src/ui/panels/SidebarPanel.tsx` — sidebar panel component

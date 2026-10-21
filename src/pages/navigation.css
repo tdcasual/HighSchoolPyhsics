@@ -8,7 +8,8 @@
   --overview-bg: #f6f8fb;
   --overview-ink: #0f172a;
   --overview-ink-soft: #334155;
-  --overview-ink-muted: #64748b;
+  /* 5.1:1 on the page background (WCAG AA needs 4.5:1). */
+  --overview-ink-muted: #5b6779;
   --overview-border: rgba(15, 23, 42, 0.08);
   --overview-card-bg: #ffffff;
   --overview-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.05);
@@ -56,7 +57,7 @@
   padding: 0.1rem 0.6rem;
   border-radius: 999px;
   background: var(--control-accent-6);
-  color: var(--control-ink-muted);
+  color: var(--control-ink-soft);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -300,7 +301,8 @@
   align-items: center;
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: var(--scene-card-accent);
+  /* Darkened volume colour: white text stays above 4.5:1 for every volume (teal, lime, indigo …). */
+  background: color-mix(in srgb, var(--scene-card-accent) 60%, #0f172a);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
@@ -309,8 +311,9 @@
 .scene-overview-group-volume {
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
+  /* The volume colour marks the border; the text keeps body ink so it reads in both themes. */
   border: 1px solid var(--scene-card-accent);
-  color: var(--scene-card-accent);
+  color: var(--overview-ink-soft);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -380,6 +383,11 @@
 }
 
 /* ── Night Overview ── */
+.app-shell.theme-night .scene-overview-kicker {
+  /* The day accent is too dark on the night background. */
+  color: #7aa2ff;
+}
+
 .app-shell.theme-night .scene-overview {
   --overview-bg: #0b0d12;
   --overview-ink: #f1f5f9;

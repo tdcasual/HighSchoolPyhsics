@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Classroom interaction regression at 1920×1080, the checks earlier audit rounds did by hand:
-//   - every scene opens without page errors, shows the data panel, and its
+//   - every scene opens without page errors or WCAG A/AA violations (axe), shows the data panel, and its
 //     单步 (button and "." key) changes the picture and then holds still;
 //   - overview: search and the 1–9 shortcuts; every scene opens from its card and returns,
 //     on a desktop and on a touch phone (gesture hint, no sideways scrolling);
@@ -9,7 +9,8 @@
 //   npm run test:interaction              all checks
 //   npm run test:interaction -- mhd       scene checks for selected scenes only
 // Set CHROME_PATH to use a system Chrome instead of Playwright's bundled browser.
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
@@ -21,6 +22,17 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/interaction-regression
 const requested = process.argv.slice(2)
 const scenes = DEMO_CATALOG.filter((demo) => requested.length === 0 || requested.includes(demo.pageId))
 
+
+const AXE_SOURCE = await readFile(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8')
+
+/** WCAG 2.1 A/AA violations on the page as it stands (axe-core, injected past the page's CSP). */
+async function accessibilityViolations(page) {
+  await page.evaluate(AXE_SOURCE)
+  return page.evaluate(async () => {
+    const result = await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } })
+    return result.violations.map((violation) => `${violation.id} ×${violation.nodes.length} (${violation.nodes[0].target.join(' ')})`)
+  })
+}
 
 const failures = []
 function check(ok, message) {
@@ -58,6 +70,8 @@ async function checkScene(context, baseUrl, demo) {
     await page.waitForSelector('canvas', { timeout: 20000 })
     await page.waitForTimeout(1500)
     check(await page.getByRole('region', { name: '数据' }).isVisible(), `${demo.pageId}: data panel visible`)
+    const violations = await accessibilityViolations(page)
+    check(violations.length === 0, `${demo.pageId}: no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`)
     // Static scenes (fields, patterns, meters) have no playback panel; the rest must show it.
     const playback = page.getByRole('region', { name: '播放控制' })
 
@@ -95,6 +109,13 @@ async function checkOverview(context, baseUrl) {
   try {
     await page.waitForSelector('.scene-card', { timeout: 20000 })
     check((await page.locator('.scene-card').count()) === DEMO_CATALOG.length, 'overview: one card per catalog scene')
+    for (const theme of ['day', 'night']) {
+      if (theme === 'night') await page.getByRole('button', { name: '夜间模式' }).click()
+      await page.waitForTimeout(300)
+      const violations = await accessibilityViolations(page)
+      check(violations.length === 0, `overview (${theme}): no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`)
+    }
+    await page.getByRole('button', { name: '白天模式' }).click()
     await page.getByRole('searchbox').fill('李萨如')
     check((await page.locator('.scene-card-name').allInnerTexts()).join() === '示波器', 'overview: search matches card highlights')
     await page.getByRole('searchbox').fill('')
