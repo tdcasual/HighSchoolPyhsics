@@ -103,3 +103,8 @@ export function NewDemoScene() {
 - `src/ui/charts/` — chart kit (ChartCard, ChartFrame and marks, scales, optics canvas hooks)
 - `src/scene3d/orbitFraming.ts`, `src/scene3d/useBoundsFraming.ts` — bounds-based camera framing shared by apparatus scenes
 - `src/instruments/measuring/` — caliper/micrometer models, scales, 3D assemblies, reading figures and practice flow, shared by the 游标卡尺, 螺旋测微器 and 电阻率 scenes
+
+## Dependency Pins
+
+- `@react-three/fiber` stays on `~9.5.0`: 9.8 throws `removeChild … not a child of this node` when leaving the caliper, micrometer, multimeter and celestial scenes (caught by the interaction regression's round trips). Re-test the round trips before lifting the pin.
+- `react` / `react-dom` stay on `~19.2`: 19.3 grows the preloaded vendor-react chunk past its 210 kB budget.
