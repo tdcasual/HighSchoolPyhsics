@@ -1,12 +1,12 @@
 import { useFrame } from '@react-three/fiber'
 import { Line } from '../../scene3d/ClassroomLine'
-import { Html } from '@react-three/drei/web/Html'
 import { memo, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import type { Group, InstancedMesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Object3D } from 'three'
 import { deriveMhdLayout, MHD_LAYOUT } from './layout'
 import { deriveCarrierDeflectionAmplitudeY, deriveChannelVisibilityConfig, deriveMhdFlowAnimationScale } from './model'
 import { getGeometryDetail, resolvePerformanceProfile } from '../../scene3d/canvasQuality'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 type MhdGeneratorRig3DProps = {
   plasmaVelocityMps: number
@@ -19,34 +19,9 @@ type MhdGeneratorRig3DProps = {
 
 const channelVisibility = deriveChannelVisibilityConfig()
 
-function MhdWorldLabel({
-  position,
-  color,
-  fontSize,
-  children,
-}: {
-  position: [number, number, number]
-  color: string
-  fontSize: number
-  children: ReactNode
-}) {
-  return (
-    <Html position={position} center distanceFactor={8}>
-      <span
-        style={{
-          color,
-          fontSize: `${Math.max(10, Math.round(fontSize * 64))}px`,
-          fontWeight: 700,
-          lineHeight: 1,
-          pointerEvents: 'none',
-          textShadow: '0 1px 2px rgba(0, 0, 0, 0.45)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {children}
-      </span>
-    </Html>
-  )
+/** `fontSize` is in scene units (×64 px). */
+function MhdWorldLabel({ position, color, fontSize, children }: { position: [number, number, number]; color: string; fontSize: number; children: ReactNode }) {
+  return <SceneLabel position={position} variant="text" color={color} size={Math.max(10, Math.round(fontSize * 64))} halo="dark" distanceFactor={8}>{children}</SceneLabel>
 }
 
 const FlowMarkers = memo(function FlowMarkers({ running, flowRateScale }: { running: boolean; flowRateScale: number }) {

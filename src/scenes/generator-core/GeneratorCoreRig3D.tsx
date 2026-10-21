@@ -1,14 +1,15 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { Quaternion, Vector3 } from 'three'
-import type { ThemeMode } from '../../store/useAppStore'
 import { deriveGeneratorReadings } from './model'
+import { SceneLabel } from '../../scene3d/SceneLabel'
+import { LabStage } from '../../scene3d/LabStage'
+import { useSceneTheme } from '../../scene3d/useSceneTheme'
 
-type Props = { angleRad: number; running: boolean; theme: ThemeMode }
+type Props = { angleRad: number; running: boolean }
 
 function Label({ text, position, color }: { text: string; position: [number, number, number]; color: string }) {
-  return <Html position={position} center distanceFactor={8}><span style={{ color, fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', textShadow: '0 1px 2px rgba(0,0,0,0.38)' }}>{text}</span></Html>
+  return <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>{text}</SceneLabel>
 }
 
 function Arrow({ start, end, color, width = 2 }: { start: [number, number, number]; end: [number, number, number]; color: string; width?: number }) {
@@ -32,8 +33,8 @@ function FieldLines({ dark }: { dark: boolean }) {
   </group>
 }
 
-export function GeneratorCoreRig3D({ angleRad, running, theme }: Props) {
-  const dark = theme === 'night'
+export function GeneratorCoreRig3D({ angleRad, running }: Props) {
+  const { night: dark } = useSceneTheme()
   const textColor = dark ? '#e4edf4' : '#3b2e24'
   const readings = deriveGeneratorReadings(angleRad)
   const coilPoints: Array<[number, number, number]> = [[0, -1.55, -1.05], [0, 1.55, -1.05], [0, 1.55, 1.05], [0, -1.55, 1.05], [0, -1.55, -1.05]]
@@ -46,7 +47,7 @@ export function GeneratorCoreRig3D({ angleRad, running, theme }: Props) {
     velocityStart[2] + readings.velocityVector[2] * 0.9,
   ]
   return <group data-rig-scene="generator-core">
-    <ambientLight intensity={dark ? 0.7 : 0.9} /><directionalLight position={[6, 9, 8]} intensity={dark ? 1.1 : 0.85} /><color attach="background" args={[dark ? '#101823' : '#edf1ee']} />
+    <LabStage background={['#edf1ee', '#101823']} ambient={[0.9, 0.7]} keyLight={{ position: [6, 9, 8], intensity: [0.85, 1.1] }} />
     <mesh position={[-5, 0, 0]}><boxGeometry args={[1.25, 5.2, 4.8]} /><meshStandardMaterial color="#e63946" roughness={0.38} metalness={0.12} /></mesh>
     <mesh position={[5, 0, 0]}><boxGeometry args={[1.25, 5.2, 4.8]} /><meshStandardMaterial color="#2d6db5" roughness={0.38} metalness={0.12} /></mesh>
     <Label text="N" position={[-5, 0, 2.48]} color="#ffffff" /><Label text="S" position={[5, 0, 2.48]} color="#ffffff" />

@@ -8,3 +8,4 @@
 .wave-state-toggle.acceleration { border-color: rgba(230, 57, 70, 0.55); }
 .wave-state-velocity-value { color: #2a9d8f !important; }
 .wave-state-acceleration-value { color: #e63946 !important; }
+.app-shell.theme-night .wave-state-toggle[aria-pressed="true"] { color: #5fd3c3; }

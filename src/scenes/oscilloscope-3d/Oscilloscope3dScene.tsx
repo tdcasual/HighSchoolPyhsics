@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { Oscilloscope3dChart } from './Oscilloscope3dChart'
 import { Oscilloscope3dControls } from './Oscilloscope3dControls'
@@ -27,7 +26,6 @@ const PART_LABELS: Record<string, string> = {
 }
 
 export function Oscilloscope3dScene() {
-  const theme = useAppStore((state) => state.theme)
   const state = useOscilloscope3dSceneState()
   const effectiveTrigger = state.mode === 'scan' ? state.trigger : true
   const trace = useMemo(
@@ -68,7 +66,6 @@ export function Oscilloscope3dScene() {
             running={state.running}
             selectedPart={state.selectedPart}
             onSelectPart={state.setSelectedPart}
-            theme={theme}
             wave={state.wave}
             amplitudeV={state.amplitudeV}
             frequencyHz={state.frequencyHz}

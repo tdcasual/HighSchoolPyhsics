@@ -98,6 +98,8 @@ export function NewDemoScene() {
 - `src/ui/panels/SidebarPanel.tsx` — sidebar panel component
 - `src/domains/optics/` — spectrum colours, colour filters, diffraction model, pattern-canvas machinery, optical bench parts and the 光源 control section, shared by the interference and diffraction scenes
 - `src/scene3d/FittedCanvas.tsx` — the canvas every apparatus scene renders through (measured bounds fitted into the free area)
+- `src/scene3d/SceneLabel.tsx` — every text label in a 3D scene: `tag` (a part's name), `dark` (in the darkened optics lab) or `text` (a coloured annotation); no per-scene label CSS
+- `src/scene3d/useSceneTheme.ts`, `LabStage.tsx` — rigs read day/night themselves (`pick(day, night)`) instead of taking a `theme` prop; `LabStage` is the background and lights of a plain teaching model
 - `src/ui/charts/` — chart kit (ChartCard, ChartFrame and marks, scales, optics canvas hooks)
 - `src/scene3d/orbitFraming.ts`, `src/scene3d/useBoundsFraming.ts` — bounds-based camera framing shared by apparatus scenes
 - `src/instruments/measuring/` — caliper/micrometer models, scales, 3D assemblies, reading figures and practice flow, shared by the 游标卡尺, 螺旋测微器 and 电阻率 scenes

@@ -1,11 +1,11 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { Html } from '@react-three/drei/web/Html'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BufferAttribute, BufferGeometry, CanvasTexture, DoubleSide, Quaternion, SRGBColorSpace, Vector3 } from 'three'
 import type { Vec3 } from '../../scene3d/orbitFraming'
 import { diagramDepth, viewAngles, type CelestialPose, type SatellitePose } from './pose'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const LAND: Array<number[] | 'all'> = [
   [13, 14],
@@ -158,7 +158,7 @@ function satelliteMesh(satellite: SatellitePose) {
         <boxGeometry args={[0.28, 0.16, 0.02]} />
         <meshStandardMaterial color="#447caa" />
       </mesh>
-      <Html position={[0.35, 0.28, 0]} style={{ color: satellite.color, fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>{satellite.label}</Html>
+      <SceneLabel position={[0.35, 0.28, 0]} variant="text" color={satellite.color} center={false}>{satellite.label}</SceneLabel>
     </group>
   )
 }
@@ -230,10 +230,10 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
           <sphereGeometry args={[0.045, 12, 12]} />
           <meshBasicMaterial color={ink} />
         </mesh>
-        <Html position={[0.12, 1.5, 0]} style={{ color: ink, fontSize: '12px', fontWeight: 700 }}>N</Html>
-        <Html position={[0, -1.35, 0]} center style={{ color: ink, fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+        <SceneLabel position={[0.12, 1.5, 0]} variant="text" color={ink} center={false}>N</SceneLabel>
+        <SceneLabel position={[0, -1.35, 0]} variant="text" color={ink} size={14}>
           {pose.bodyId === 'moon' ? '月球' : pose.bodyId === 'sun' ? '太阳' : '地球'}
-        </Html>
+        </SceneLabel>
         <mesh>
           <cylinderGeometry args={[0.008, 0.008, 2.64, 8]} />
           <meshBasicMaterial color={ink} transparent opacity={0.45} />
@@ -265,7 +265,7 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#0d5c63" />
             </mesh>
-            <Html position={[0.16, -0.16, 0]} style={{ color: ink, fontSize: '11px', whiteSpace: 'nowrap' }}>① 加速点火</Html>
+            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>① 加速点火</SceneLabel>
           </group>
         ) : null}
         {pose.apoapsis ? (
@@ -274,7 +274,7 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#5dade2" />
             </mesh>
-            <Html position={[0.16, -0.16, 0]} style={{ color: ink, fontSize: '11px', whiteSpace: 'nowrap' }}>② 再加速圆化</Html>
+            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>② 再加速圆化</SceneLabel>
           </group>
         ) : null}
         {pose.subsatellite ? (

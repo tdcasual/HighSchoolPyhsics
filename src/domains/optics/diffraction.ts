@@ -1,4 +1,4 @@
-import { formatScientific } from '../../core/formatNumber'
+import { formatScientific } from '../../ui/formatNumber'
 import { FILTER_PROFILES, FILTER_RGB, filterTransmission, type FilterColor } from './filters'
 import { createBufferPool, createPatternCache, drawEyepieceBorder, fastPow08, getCircleMask } from './patternCanvas'
 import { waveLengthToRGB } from './spectrum'

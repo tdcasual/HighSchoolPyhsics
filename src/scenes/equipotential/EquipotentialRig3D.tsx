@@ -1,8 +1,8 @@
-import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry, DoubleSide } from 'three'
 import type { EquipotentialCharge, EquipotentialSurface } from './model'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 type EquipotentialRig3DProps = {
   bounds: number
@@ -30,35 +30,8 @@ function createSurfaceGeometries(surfaces: ReadonlyArray<EquipotentialSurface>):
   })
 }
 
-function WorldLabel({
-  position,
-  color,
-  children,
-}: {
-  position: [number, number, number]
-  color: string
-  children: string
-}) {
-  return (
-    <Html position={position} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-      <span
-        style={{
-          color,
-          fontFamily: 'system-ui, sans-serif',
-          fontSize: '12px',
-          fontWeight: 800,
-          lineHeight: 1,
-          padding: '2px 4px',
-          borderRadius: '5px',
-          background: 'rgba(255,255,255,0.88)',
-          textShadow: '0 1px 1px rgba(255,255,255,0.8)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {children}
-      </span>
-    </Html>
-  )
+function WorldLabel({ position, color, children }: { position: [number, number, number]; color: string; children: string }) {
+  return <SceneLabel position={position} color={color} size={12} weight={800} distanceFactor={8}>{children}</SceneLabel>
 }
 
 export function EquipotentialRig3D({

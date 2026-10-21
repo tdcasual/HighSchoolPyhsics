@@ -1,4 +1,3 @@
-import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useThree } from '@react-three/fiber'
 import { memo, useEffect, useMemo } from 'react'
@@ -8,6 +7,7 @@ import { FILTER_HEX, drawInterferencePattern, drawWhiteLightPattern, PHYSICAL_VI
 import { INITIAL_MEASUREMENT_READOUT_MM, micrometerWheelRotationRadians } from './measurement'
 import { OpticalStageLighting, Stand } from '../../domains/optics/OpticalBench3D'
 import { MAT_BLACK_PLASTIC, MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 /** Canvas textures are imperative three.js objects; flag a re-upload after redrawing the canvas. */
 function markTextureDirty(texture: CanvasTexture) {
@@ -42,11 +42,7 @@ type DoubleSlitRig3DProps = {
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <Html position={position} center>
-      <div className="double-slit-label">{text}</div>
-    </Html>
-  )
+  return <SceneLabel position={position} variant="dark">{text}</SceneLabel>
 }
 
 function SlitPlate({

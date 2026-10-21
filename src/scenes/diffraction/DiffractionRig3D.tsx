@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { Html } from '@react-three/drei/web/Html'
 import { getApertureRange, type DiffractionMode, type DiffractionParams, type FilterColor } from '../../domains/optics/diffraction'
 import { DiffractionScreen } from './DiffractionScreen'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const SOURCE_DISTANCE = 0.2 // m, distance from source to obstacle
 const SOURCE_LENGTH = 0.16 // m, schematic line source length
@@ -18,27 +18,7 @@ function enlargedAperture(sizeM: number, mode: DiffractionMode, minFraction: num
 }
 
 function RigLabel({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <Html position={position} center distanceFactor={2}>
-      <div
-        style={{
-          color: '#f8fafc',
-          background: 'rgba(15, 23, 42, 0.88)',
-          border: '1px solid rgba(255, 255, 255, 0.24)',
-          borderRadius: 5,
-          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.35)',
-          fontSize: 12,
-          fontWeight: 600,
-          padding: '2px 7px',
-          pointerEvents: 'none',
-          userSelect: 'none',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {text}
-      </div>
-    </Html>
-  )
+  return <SceneLabel position={position} variant="dark" size={12} distanceFactor={2}>{text}</SceneLabel>
 }
 
 function SlitObstacle({ slitWidthM }: { slitWidthM: number }) {

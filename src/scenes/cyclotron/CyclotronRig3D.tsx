@@ -1,8 +1,8 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { Html } from '@react-three/drei/web/Html'
 import { useMemo } from 'react'
 import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
 import { SAMPLES_PER_TURN } from './run'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const RECENT_TRAIL_POINTS = SAMPLES_PER_TURN
 import {
@@ -16,34 +16,9 @@ import {
 
 const GUIDE_RADII = [0.55, 0.95, 1.35, 1.75, 2.1]
 
-function CyclotronLabel({
-  position,
-  color,
-  fontSize,
-  children,
-}: {
-  position: Point3
-  color: string
-  fontSize: number
-  children: string
-}) {
-  return (
-    <Html position={position} center>
-      <span
-        style={{
-          color,
-          fontSize: `${Math.max(10, Math.round(fontSize * 64))}px`,
-          fontWeight: 700,
-          lineHeight: 1,
-          pointerEvents: 'none',
-          textShadow: '0 1px 2px rgba(255, 255, 255, 0.9)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {children}
-      </span>
-    </Html>
-  )
+/** `fontSize` is in scene units (×64 px), as the dee and gap labels were sized. */
+function CyclotronLabel({ position, color, fontSize, children }: { position: Point3; color: string; fontSize: number; children: string }) {
+  return <SceneLabel position={position} variant="text" color={color} size={Math.max(10, Math.round(fontSize * 64))}>{children}</SceneLabel>
 }
 function buildCircle(radius: number, y: number, segments = 120): Point3[] {
   const points: Point3[] = []

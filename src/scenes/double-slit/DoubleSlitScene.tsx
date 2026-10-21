@@ -8,7 +8,6 @@ import { DoubleSlitChart } from './DoubleSlitChart'
 import { DoubleSlitControls } from './DoubleSlitControls'
 import { DoubleSlitRig3D } from './DoubleSlitRig3D'
 import { useDoubleSlitSceneState } from './useDoubleSlitSceneState'
-import './double-slit.css'
 
 export function DoubleSlitScene() {
   const state = useDoubleSlitSceneState()

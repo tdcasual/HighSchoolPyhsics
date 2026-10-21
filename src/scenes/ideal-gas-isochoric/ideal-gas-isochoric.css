@@ -8,3 +8,4 @@
   .mobile-data-strip .ideal-gas-isochoric-telemetry p { min-width: 0; max-width: calc(50% - 0.4rem); font-size: 0.68rem; }
 }
 .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #dc2626; }
+.app-shell.theme-night .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #f87171; }

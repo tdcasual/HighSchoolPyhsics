@@ -1,4 +1,4 @@
-import { formatScientific } from '../../core/formatNumber'
+import { formatScientific } from '../../ui/formatNumber'
 import { ChartCard } from '../../ui/charts/ChartCard'
 import { ChartFrame, Series } from '../../ui/charts/ChartFrame'
 import { paddedExtent } from '../../ui/charts/scale'

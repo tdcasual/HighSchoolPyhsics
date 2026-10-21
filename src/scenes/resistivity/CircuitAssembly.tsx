@@ -4,6 +4,7 @@ import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { meterIntervals, terminalPosition, type CircuitPose, type WireLink } from './circuitPose'
 import type { ElementKind } from './model'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const WIRE_COLOR = { red: '#bb3f33', black: '#2c3336', orange: '#d68a2c', blue: '#2e6592' }
 
@@ -138,9 +139,7 @@ function Meter({
               <meshBasicMaterial color="#223238" />
             </mesh>
             {labeled ? (
-              <Html position={[x * 0.73, 1.35 + Math.cos(angle) * 2.75, 3.44]} center distanceFactor={90}>
-                <span style={{ color: '#293b40', fontSize: '10px', fontWeight: 700, whiteSpace: 'nowrap' }}>{label}</span>
-              </Html>
+              <SceneLabel position={[x * 0.73, 1.35 + Math.cos(angle) * 2.75, 3.44]} variant="text" color="#293b40" size={10} distanceFactor={90}>{label}</SceneLabel>
             ) : null}
           </group>
         )
@@ -244,13 +243,8 @@ function ElementModel({ kind, power, start, end }: { kind: ElementKind; power: n
   )
 }
 
-function SceneLabel({ children, position }: { children: string; position: [number, number, number] }) {
-  return (
-    <Html position={position} center distanceFactor={90}>
-      <span style={{ color: '#23393e', fontSize: '12px', fontWeight: 800, whiteSpace: 'nowrap', textShadow: '0 1px 3px white' }}>{children}</span>
-    </Html>
-  )
-}
+/** Component names on the circuit board. */
+const PART_LABEL = { variant: 'text', color: '#23393e', weight: 800, distanceFactor: 90 } as const
 
 export function CircuitAssembly({
   pose,
@@ -299,11 +293,9 @@ export function CircuitAssembly({
                 <boxGeometry args={[8.6, 0.18, 1.5]} />
                 <meshStandardMaterial color='#18292c' roughness={0.32} />
               </mesh>
-              <Html position={[0, 2.43, 0]} center distanceFactor={90}>
-                <span style={{ color: '#baf3ce', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>
+              <SceneLabel position={[0, 2.43, 0]} variant="text" color="#baf3ce" size={11} weight={800} distanceFactor={90}>
                   U = {elementVoltage < 0 ? '−' : '+'}{Math.abs(elementVoltage).toFixed(2)} V
-                </span>
-              </Html>
+                </SceneLabel>
             </>
           ) : (
             <>
@@ -364,9 +356,9 @@ export function CircuitAssembly({
         ) : null}
         {Meter({ name: 'ammeter-needle', position: [25, 0, -12.5], rotation: pose.ammeterRotation, unit: 'A', range: ammeterRange, division: ammeterDivision, centered: ivMode })}
         {Meter({ name: 'voltmeter-needle', position: [8, 0, -1.5], rotation: pose.voltmeterRotation, unit: 'V', range: voltmeterRange, division: voltmeterDivision, centered: ivMode })}
-        <SceneLabel position={ivMode ? [-29, 8, -14] : [-31, 8, -14]}>{ivMode ? '可调电源' : '电源'}</SceneLabel>
-        <SceneLabel position={[-5, 4.3, -12.5]}>开关</SceneLabel>
-        {!ivMode ? <SceneLabel position={[2, 11.5, -14]}>滑动变阻器</SceneLabel> : null}
+        <SceneLabel {...PART_LABEL} position={ivMode ? [-29, 8, -14] : [-31, 8, -14]}>{ivMode ? '可调电源' : '电源'}</SceneLabel>
+        <SceneLabel {...PART_LABEL} position={[-5, 4.3, -12.5]}>开关</SceneLabel>
+        {!ivMode ? <SceneLabel {...PART_LABEL} position={[2, 11.5, -14]}>滑动变阻器</SceneLabel> : null}
         <mesh position={[0, 0.7, 9.4]} receiveShadow>
           <boxGeometry args={[66, 1.4, 9.2]} />
           <meshStandardMaterial color="#e2d2b0" roughness={0.7} />
@@ -379,7 +371,7 @@ export function CircuitAssembly({
             <meshStandardMaterial color="#b9c0c2" metalness={0.9} roughness={0.3} emissive="#e07020" emissiveIntensity={pose.hot} />
           </mesh>
         )}
-        <SceneLabel position={[0, 6, 11.2]}>{ivMode ? elementKind === 'lamp' ? '小灯泡' : elementKind === 'diode' ? '硅二极管' : '定值电阻' : '待测金属丝'}</SceneLabel>
+        <SceneLabel {...PART_LABEL} position={[0, 6, 11.2]}>{ivMode ? elementKind === 'lamp' ? '小灯泡' : elementKind === 'diode' ? '硅二极管' : '定值电阻' : '待测金属丝'}</SceneLabel>
         <group name='circuit-fixed-clip' position={[-25, 0, 0]}>
           <mesh position={[0, 3.6, 11.2]} castShadow>
             <boxGeometry args={[1.3, 1.1, 1.8]} />
@@ -410,9 +402,7 @@ export function CircuitAssembly({
               <span style={{ color: '#554f46', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap' }}>{centimetre}</span>
             </Html>
           ))}
-          <Html position={[2, 1.58, 13.8]} center distanceFactor={90}>
-            <span style={{ color: '#554f46', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap' }}>cm</span>
-          </Html>
+          <SceneLabel position={[2, 1.58, 13.8]} variant="text" color="#554f46" size={9} distanceFactor={90}>cm</SceneLabel>
         </group>
         <CircuitWires pose={pose} wires={wires} />
       </group>

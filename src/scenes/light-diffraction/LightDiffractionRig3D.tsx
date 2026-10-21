@@ -1,4 +1,3 @@
-import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useEffect, useMemo } from 'react'
 import { CanvasTexture, CylinderGeometry, DoubleSide, Path, Shape, ShapeGeometry, SRGBColorSpace } from 'three'
@@ -18,6 +17,7 @@ import {
 } from '../../domains/optics/diffraction'
 import { OpticalStageLighting, Stand } from '../../domains/optics/OpticalBench3D'
 import { MAT_BLACK_PLASTIC, MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const MAT_WHITE_TUBE = { color: 0xe0e0e0, metalness: 0.1, roughness: 0.5 }
 const MAT_GLASS = {
@@ -42,11 +42,7 @@ type LightDiffractionRig3DProps = {
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <Html position={position} center>
-      <div className="light-diffraction-label">{text}</div>
-    </Html>
-  )
+  return <SceneLabel position={position} variant="dark">{text}</SceneLabel>
 }
 
 function apertureVisualSize(mode: DiffractionMode, params: DiffractionParams): number {

@@ -1,4 +1,4 @@
-import { formatScientific } from '../../core/formatNumber'
+import { formatScientific } from '../../ui/formatNumber'
 import { ChartCard } from '../../ui/charts/ChartCard'
 import { ChartFrame, Dot, Segment, Series } from '../../ui/charts/ChartFrame'
 import { niceMax } from '../../ui/charts/scale'

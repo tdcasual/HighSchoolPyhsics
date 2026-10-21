@@ -1,9 +1,9 @@
-import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, DoubleSide, Quaternion, Vector3 } from 'three'
 import type { CartSkin } from './pose'
 import { HOOK, PULLEY_RADIUS, PULLEY_X, TIMER_STRIKER_X, TIMER_X, type CartPose } from './pose'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
 import { NO_FIT } from '../../scene3d/FitBounds'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 function stringSegment(a: [number, number, number], b: [number, number, number], color: string) {
   const direction = new Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
@@ -124,7 +124,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
             {wheel([0.35, 0.15, 0.41], pose.wheelRotation)}
             {box({ size: [0.13, 0.13, 0.72], position: [0.53, 0.29, 0], color: '#a4b6ac', metalness: 0.4 })}
             {box({ size: [0.12, 0.12, 0.72], position: [-0.53, 0.29, 0], color: '#a4b6ac', metalness: 0.4 })}
-            <Html position={[0, 1.27, 0]} center><span className="cart-rig-label cart-rig-label--cart">实验小车</span></Html>
+            <SceneLabel position={[0, 1.27, 0]} className="cart-rig-label--cart">实验小车</SceneLabel>
             {skin === 'classic' ? (
               <group name="skin-classic">
                 {box({ size: [0.58, 0.22, 0.42], position: [0, 0.65, 0], color: '#a7bbb1', metalness: 0.7 })}
@@ -198,7 +198,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
                 <meshStandardMaterial color="#8d9c97" metalness={0.7} roughness={0.35} />
               </mesh>
             </group>
-            <Html position={[0, 0.9, -0.2]} center><span className="cart-rig-label cart-rig-label--timer">电磁打点计时器</span></Html>
+            <SceneLabel position={[0, 0.9, -0.2]} className="cart-rig-label--timer">电磁打点计时器</SceneLabel>
             <mesh name="striker" position={[TIMER_STRIKER_X - TIMER_X, pose.strikerY, 0]}>
               <cylinderGeometry args={[0.016, 0.016, 0.24, 10]} />
               <meshStandardMaterial color="#566c64" metalness={0.45} roughness={0.38} />
@@ -211,7 +211,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
               <boxGeometry args={[1, 0.014, 0.15]} />
               <meshStandardMaterial color="#f5edd0" />
             </mesh>
-            <Html position={[pose.tapeX, 0.62, -0.18]} center><span className="cart-rig-label cart-rig-label--tape">运动纸带</span></Html>
+            <SceneLabel position={[pose.tapeX, 0.62, -0.18]} className="cart-rig-label--tape">运动纸带</SceneLabel>
             {box({ size: [0.9, 0.014, 0.15], position: [TIMER_X - 0.45, 0.45, 0], color: '#eee4bd' })}
             {pose.dots.map((dot, index) => (
               <mesh key={index} name="tape-dot" position={[dot.x, 0.46, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={dot.count ? 1.4 : 1}>
@@ -244,11 +244,9 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
                 <meshStandardMaterial color="#71827b" metalness={0.72} roughness={0.36} />
               </mesh>
             </group>
-            <Html position={[PULLEY_X, pose.pulleyY + 0.45, 0]} center>
-              <span className="cart-rig-label cart-rig-label--pulley">
-                {pose.discCount > 0 ? '定滑轮与钩码' : '定滑轮'}
-              </span>
-            </Html>
+            <SceneLabel position={[PULLEY_X, pose.pulleyY + 0.45, 0]} className="cart-rig-label--pulley">
+              {pose.discCount > 0 ? '定滑轮与钩码' : '定滑轮'}
+            </SceneLabel>
             {pose.ropeVisible ? (
               <>
                 <group name="hook-weight" position={weight}>
@@ -291,7 +289,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
       {pose.powerVisible ? (
         <group name="power" position={[-3.25, -0.03, 1.58]}>
           {box({ size: [1.5, 0.55, 1.02], position: [0, 0, 0], color: '#94a995', metalness: 0.15 })}
-          <Html position={[0, 0.6, 0]} center><span className="cart-rig-label cart-rig-label--power">低压交流电源</span></Html>
+          <SceneLabel position={[0, 0.6, 0]} className="cart-rig-label--power">低压交流电源</SceneLabel>
         </group>
       ) : null}
       {pose.powerVisible && pose.timerVisible ? [-1, 1].map((side) => {

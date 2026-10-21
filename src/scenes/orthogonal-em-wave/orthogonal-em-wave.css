@@ -6,3 +6,5 @@
 .orthogonal-em-wave-toggle[aria-pressed="true"] { color: #b22e3b; background: rgba(230, 57, 70, 0.1); }
 .orthogonal-em-wave-toggle.projection { border-color: rgba(69, 123, 157, 0.55); }
 .orthogonal-em-wave-toggle.projection[aria-pressed="true"] { color: #2d6787; background: rgba(69, 123, 157, 0.1); }
+.app-shell.theme-night .orthogonal-em-wave-toggle[aria-pressed="true"] { color: #ff8a95; }
+.app-shell.theme-night .orthogonal-em-wave-toggle.projection[aria-pressed="true"] { color: #8cc4e6; }

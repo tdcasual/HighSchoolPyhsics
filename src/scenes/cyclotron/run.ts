@@ -1,4 +1,4 @@
-import type { ParticleState } from '../../core/types'
+import type { ParticleState } from './particle'
 import { stepCyclotronState, type CyclotronConfig } from './model'
 
 /** Integration resolution: Boris steps per cyclotron turn (accurate to <0.1% energy over the run). */

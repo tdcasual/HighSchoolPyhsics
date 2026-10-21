@@ -1,4 +1,3 @@
-import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
@@ -17,6 +16,7 @@ import {
 } from './geometry'
 import { OpticalStageLighting } from '../../domains/optics/OpticalBench3D'
 import { MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 const MAT_DARK_METAL = { color: 0x333333, metalness: 0.6, roughness: 0.4 }
 const MAT_GLASS_BOTTOM = { color: 0x4488cc, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.6 }
@@ -29,11 +29,7 @@ const TEX_W = 512
 const TEX_H = 256
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <Html position={position} center>
-      <div className="wedge-interference-label">{text}</div>
-    </Html>
-  )
+  return <SceneLabel position={position} variant="tag">{text}</SceneLabel>
 }
 
 /** Renders the interference fringe pattern as a texture on the top plate surface */

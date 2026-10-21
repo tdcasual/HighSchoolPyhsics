@@ -1,5 +1,5 @@
-import { semiImplicitEulerStep } from '../../core/integrators/semiImplicitEuler'
-import type { ParticleState } from '../../core/types'
+import { semiImplicitEulerStep } from './particle'
+import type { ParticleState } from './particle'
 import { computeCyclotronStepAcceleration } from './runtime'
 
 export type CyclotronConfig = {

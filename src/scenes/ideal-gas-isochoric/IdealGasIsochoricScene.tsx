@@ -1,7 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { IdealGasIsochoricChart } from './IdealGasIsochoricChart'
 import { IdealGasIsochoricControls } from './IdealGasIsochoricControls'
@@ -10,7 +9,6 @@ import { useIdealGasIsochoricSceneState } from './useIdealGasIsochoricSceneState
 import './ideal-gas-isochoric.css'
 
 export function IdealGasIsochoricScene() {
-  const theme = useAppStore((state) => state.theme)
   const state = useIdealGasIsochoricSceneState()
   const readings = state.readings
   return <SceneLayout
@@ -24,7 +22,7 @@ export function IdealGasIsochoricScene() {
         maxPolarAngle={Math.PI * 0.9}
         frameloop={state.running ? 'always' : 'demand'}
       >
-        <IdealGasIsochoricRig3D {...state} theme={theme} />
+        <IdealGasIsochoricRig3D {...state} />
       </FittedCanvas>
     }
     dataOverlay={

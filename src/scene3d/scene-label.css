@@ -1,0 +1,47 @@
+/* ── 3D scene labels (scene3d/SceneLabel) ── loaded with the scene chunks. */
+.scene-label {
+  display: inline-block;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* A part's name. The pill keeps its own ink, so it reads the same in both themes. */
+.scene-label--tag,
+.scene-label--dark {
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.scene-label--tag {
+  color: #15282e;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(27, 47, 45, 0.18);
+}
+
+.scene-label--dark {
+  color: #f3f4f6;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.scene-label--text {
+  font-size: 12px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.scene-label--dark-halo {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 767px) {
+  .scene-label--tag,
+  .scene-label--dark {
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+}

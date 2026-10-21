@@ -6,7 +6,6 @@ import { WedgeInterferenceChart } from './WedgeInterferenceChart'
 import { WedgeInterferenceControls } from './WedgeInterferenceControls'
 import { WedgeInterferenceRig3D } from './WedgeInterferenceRig3D'
 import { useWedgeInterferenceSceneState } from './useWedgeInterferenceSceneState'
-import './wedge-interference.css'
 
 export function WedgeInterferenceScene() {
   const state = useWedgeInterferenceSceneState()

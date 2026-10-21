@@ -1,15 +1,16 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { useEffect, useMemo } from 'react'
-import type { ThemeMode } from '../../store/useAppStore'
 import { buildElectronBeamPath, clamp, CRT_SCREEN_HALF_HEIGHT, CRT_SCREEN_HALF_WIDTH, type BasicWaveform, type OscilloscopeMode, type XYSettings } from './model'
+import { SceneLabel } from '../../scene3d/SceneLabel'
+import { LabStage } from '../../scene3d/LabStage'
+import { useSceneTheme } from '../../scene3d/useSceneTheme'
 
 type PartId = 'envelope' | 'electron-gun' | 'y-plates' | 'x-plates' | 'screen' | 'beam'
-type Props = { mode: OscilloscopeMode; elapsed: number; running: boolean; selectedPart: string | null; onSelectPart: (part: string) => void; theme: ThemeMode; wave: BasicWaveform; amplitudeV: number; frequencyHz: number; voltsDiv: number; timeDiv: number; trigger: boolean; xy: XYSettings; trace: Array<[number, number]> }
+type Props = { mode: OscilloscopeMode; elapsed: number; running: boolean; selectedPart: string | null; onSelectPart: (part: string) => void; wave: BasicWaveform; amplitudeV: number; frequencyHz: number; voltsDiv: number; timeDiv: number; trigger: boolean; xy: XYSettings; trace: Array<[number, number]> }
 const PART_LABELS: Record<PartId, string> = { envelope: '透明示波管', 'electron-gun': '电子枪', 'y-plates': 'Y 偏转板（信号）', 'x-plates': 'X 偏转板（时基）', screen: '荧光屏', beam: '电子束' }
 function PartLabel({ text, position, color }: { text: string; position: [number, number, number]; color: string }) {
-  return <Html position={position} center distanceFactor={8}><span style={{ color, fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', textShadow: '0 1px 2px rgba(0,0,0,0.35)' }}>{text}</span></Html>
+  return <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>{text}</SceneLabel>
 }
 function ScreenGrid({ color, phosphorColor, onSelect, selected, tracePoints }: { color: string; phosphorColor: string; onSelect: () => void; selected: boolean; tracePoints: Array<[number, number, number]> }) {
   const lines = useMemo(() => {
@@ -37,11 +38,11 @@ function ScreenGrid({ color, phosphorColor, onSelect, selected, tracePoints }: {
     {traceGeometry && <mesh name="phosphor-trace" geometry={traceGeometry} renderOrder={5}><meshBasicMaterial color={phosphorColor} transparent opacity={0.98} depthTest={false} toneMapped={false} /></mesh>}
   </group>
 }
-export function Oscilloscope3dRig3D({ mode, elapsed, running, selectedPart, onSelectPart, theme, wave, amplitudeV, frequencyHz, voltsDiv, timeDiv, trigger, xy, trace }: Props) {
+export function Oscilloscope3dRig3D({ mode, elapsed, running, selectedPart, onSelectPart, wave, amplitudeV, frequencyHz, voltsDiv, timeDiv, trigger, xy, trace }: Props) {
   const beamPath = useMemo(() => buildElectronBeamPath({ mode, elapsed, wave, amplitudeV, frequencyHz, voltsDiv, timeDiv, trigger, xy }), [mode, elapsed, wave, amplitudeV, frequencyHz, voltsDiv, timeDiv, trigger, xy])
   const beamPoint = beamPath[beamPath.length - 1] ?? [4.75, 0, 0]
   const phosphorPoints = useMemo(() => trace.map(([x, y]) => [4.78, clamp(y, -1, 1) * CRT_SCREEN_HALF_HEIGHT, clamp(x, -1, 1) * CRT_SCREEN_HALF_WIDTH] as [number, number, number]), [trace])
-  const dark = theme === 'night'
+  const { night: dark } = useSceneTheme()
   const textColor = dark ? '#d8e4ef' : '#3b2e24'
   const shellColor = dark ? '#7891a8' : '#91a8b2'
   const plateY = selectedPart === 'y-plates' ? '#70f4df' : '#2eb9ae'
@@ -49,7 +50,7 @@ export function Oscilloscope3dRig3D({ mode, elapsed, running, selectedPart, onSe
   const phosphorColor = dark ? (running ? '#72ffde' : '#8bc4b5') : (running ? '#00695c' : '#47635c')
   const beamColor = dark ? (running ? '#9bffe5' : '#83b8aa') : (running ? '#007b65' : '#4c6b61')
   return <group data-rig-scene="oscilloscope-3d">
-    <ambientLight intensity={dark ? 0.65 : 0.85} /><directionalLight position={[8, 10, 8]} intensity={dark ? 1.1 : 0.8} /><color attach="background" args={[dark ? '#101823' : '#e9f0ed']} />
+    <LabStage background={['#e9f0ed', '#101823']} ambient={[0.85, 0.65]} keyLight={{ position: [8, 10, 8], intensity: [0.8, 1.1] }} />
     <group onClick={(event) => { event.stopPropagation(); onSelectPart('envelope') }}>
       <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[2.15, 2.15, 10.4, 48, 1, true]} /><meshPhysicalMaterial color={shellColor} transparent opacity={selectedPart === 'envelope' ? 0.18 : 0.11} roughness={0.2} transmission={0.7} side={2} /></mesh>
       <mesh position={[-5.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}><ringGeometry args={[1.55, 2.15, 48]} /><meshBasicMaterial color={shellColor} transparent opacity={0.42} side={2} /></mesh>

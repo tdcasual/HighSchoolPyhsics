@@ -1,12 +1,13 @@
-import { Html } from '@react-three/drei/web/Html'
 import { Line } from '../../scene3d/ClassroomLine'
-import type { ThemeMode } from '../../store/useAppStore'
 import type { IdealGasIsochoricSceneState } from './useIdealGasIsochoricSceneState'
 import { chamberGasHeightForVolumeL, clamp } from './model'
 import { MOBILE_BREAKPOINT, useMediaQuery } from '../../ui/hooks/useMediaQuery'
+import { SceneLabel } from '../../scene3d/SceneLabel'
+import { LabStage } from '../../scene3d/LabStage'
+import { useSceneTheme } from '../../scene3d/useSceneTheme'
 
 type Point3 = [number, number, number]
-type Props = Pick<IdealGasIsochoricSceneState, 'temperatureK' | 'volumeL' | 'elapsed' | 'readings'> & { theme: ThemeMode }
+type Props = Pick<IdealGasIsochoricSceneState, 'temperatureK' | 'volumeL' | 'elapsed' | 'readings'> 
 
 const PARTICLES = Array.from({ length: 36 }, (_, index) => ({
   x: ((index * 37) % 100) / 100,
@@ -106,7 +107,7 @@ function Thermometer({ temperatureK, dark }: { temperatureK: number; dark: boole
       const y = tubeBottom + index * (tubeHeight / 4)
       return <Line key={index} points={[[-0.13, y, 0.08], [0.13, y, 0.08]]} color="#66727e" lineWidth={1} />
     })}
-    <Html position={[0.22, tubeBottom + tubeHeight + 0.14, 0]} center distanceFactor={8}><span style={{ color: labelColor, fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>T = {temperatureK.toFixed(0)} K</span></Html>
+    <SceneLabel position={[0.22, tubeBottom + tubeHeight + 0.14, 0]} variant="text" color={labelColor} size={11} weight={800} distanceFactor={8}>T = {temperatureK.toFixed(0)} K</SceneLabel>
   </group>
 }
 
@@ -121,12 +122,12 @@ function Gauge({ pressure, color, position, mobile }: { pressure: number; color:
       const labelValue = (index / 4 * maxPressure).toFixed(index === 0 ? 0 : 1)
       return <group key={index}>
         <Line points={[[Math.cos(tickAngle) * 0.4, Math.sin(tickAngle) * 0.4, 0.13], [Math.cos(tickAngle) * 0.47, Math.sin(tickAngle) * 0.47, 0.13]]} color="#596575" lineWidth={1} />
-        <Html position={[Math.cos(tickAngle) * 0.53, Math.sin(tickAngle) * 0.53, 0.14]} center distanceFactor={8}><span style={{ color: '#596575', fontSize: '8px', fontWeight: 700, whiteSpace: 'nowrap' }}>{labelValue}</span></Html>
+        <SceneLabel position={[Math.cos(tickAngle) * 0.53, Math.sin(tickAngle) * 0.53, 0.14]} variant="text" color="#596575" size={8} distanceFactor={8}>{labelValue}</SceneLabel>
       </group>
     })}
     <Line points={[[0, 0, 0.16], [Math.cos(angle) * 0.36, Math.sin(angle) * 0.36, 0.17]]} color={color} lineWidth={2.4} />
     <mesh position={[0, 0, 0.18]}><sphereGeometry args={[0.045, 12, 10]} /><meshBasicMaterial color={color} /></mesh>
-    <Html position={mobile ? [0.72, 0.06, 0.18] : [0, 0.82, 0.18]} center distanceFactor={8}><span style={{ color: '#374151', fontSize: '9px', fontWeight: 800, whiteSpace: 'nowrap' }}>{mobile ? 'p / atm' : 'p / atm · 0–4.2'}</span></Html>
+    <SceneLabel position={mobile ? [0.72, 0.06, 0.18] : [0, 0.82, 0.18]} variant="text" color="#374151" size={9} weight={800} distanceFactor={8}>{mobile ? 'p / atm' : 'p / atm · 0–4.2'}</SceneLabel>
   </group>
 }
 
@@ -147,10 +148,10 @@ function HeatingSource({ temperatureK, elapsed }: { temperatureK: number; elapse
   </group>
 }
 
-export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, readings, theme }: Props) {
+export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, readings }: Props) {
   // Phones get the short gauge caption; the camera itself fits every screen.
   const mobile = useMediaQuery(MOBILE_BREAKPOINT)
-  const dark = theme === 'night'
+  const { night: dark } = useSceneTheme()
   const frameColor = dark ? '#d8dee8' : '#343a40'
   const textColor = dark ? '#f0f4f8' : '#343a40'
   const pressureColor = '#ef3948'
@@ -162,8 +163,7 @@ export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, reading
   const supportX = lockX + 0.5
   const lockBarY = pistonY + 0.38
   return <group data-rig-scene="ideal-gas-isochoric">
-    <ambientLight intensity={dark ? 0.72 : 0.96} />
-    <color attach="background" args={[dark ? '#101823' : '#f8f9fa']} />
+    <LabStage ambient={[0.96, 0.72]} />
     <Cylinder volumeL={volumeL} color={frameColor} />
     {PARTICLES.map((particle, index) => <Particle key={index} {...particle} index={index} temperatureK={temperatureK} elapsed={elapsed} volumeL={volumeL} />)}
     <HeatingSource temperatureK={temperatureK} elapsed={elapsed} />
@@ -173,6 +173,6 @@ export function IdealGasIsochoricRig3D({ temperatureK, volumeL, elapsed, reading
     <Line points={[[CHAMBER_WIDTH / 2, midGasY, 0.78], [gaugeX - 0.62, midGasY, 0.78]]} color="#66727e" lineWidth={2.4} />
     <Thermometer temperatureK={temperatureK} dark={dark} />
     <Gauge pressure={readings.pressureAtm} color={pressureColor} position={[gaugeX, midGasY, 0.6]} mobile={mobile} />
-    <Html position={[0, BASE_Y + chamberGasHeightForVolumeL(6) + 1.14, 0]} center distanceFactor={8}><span style={{ color: textColor, fontSize: '16px', fontWeight: 900, whiteSpace: 'nowrap' }}>理想气体等容变化 · 查理定律</span></Html>
+    <SceneLabel position={[0, BASE_Y + chamberGasHeightForVolumeL(6) + 1.14, 0]} variant="text" color={textColor} size={16} weight={900} distanceFactor={8}>理想气体等容变化 · 查理定律</SceneLabel>
   </group>
 }

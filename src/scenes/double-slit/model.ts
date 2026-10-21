@@ -1,7 +1,7 @@
 import { FILTER_PROFILES, filterTransmission, type FilterColor } from '../../domains/optics/filters'
 import { createBufferPool, createPatternCache, drawEyepieceBorder, fastPow08, getCircleMask } from '../../domains/optics/patternCanvas'
 import { waveLengthToRGB } from '../../domains/optics/spectrum'
-import { formatScientific } from '../../core/formatNumber'
+import { formatScientific } from '../../ui/formatNumber'
 /**
  * Double-slit interference simulation model
  * Pure physics — no React dependencies

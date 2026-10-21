@@ -5,6 +5,7 @@ import { EM_LAYOUT, SPARK_LAYOUT, TAPE, sparkDiscRotationRad, tapeWorldX } from 
 import type { PrintQuality, TapeDot, TimerKind } from "./model";
 import { TICKER_CANDY as C } from "./palette";
 import { NO_FIT } from "../../scene3d/FitBounds";
+import { SceneLabel } from "../../scene3d/SceneLabel";
 
 type TickerTimerRig3DProps = {
   kind: TimerKind;
@@ -25,16 +26,7 @@ function PartLabel({
   children: string;
   visible: boolean;
 }) {
-  if (!visible) return null;
-  return (
-    <Html
-      position={position}
-      center
-      style={{ pointerEvents: "none", whiteSpace: "nowrap" }}
-    >
-      <span className="ticker-3d-label">{children}</span>
-    </Html>
-  );
+  return visible ? <SceneLabel position={position}>{children}</SceneLabel> : null;
 }
 
 function Wire({

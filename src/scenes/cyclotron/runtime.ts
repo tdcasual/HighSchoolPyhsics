@@ -1,4 +1,4 @@
-import type { Vector3Like } from '../../core/types'
+import type { Vector3Like } from './particle'
 import type { CyclotronConfig } from './model'
 import { evaluateGapVoltageAtTime } from './trace'
 

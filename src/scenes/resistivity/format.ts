@@ -1,4 +1,4 @@
-import { formatScientific } from '../../core/formatNumber'
+import { formatScientific } from '../../ui/formatNumber'
 
 export function formatRho(value: number | null): string {
   return value === null || !Number.isFinite(value) ? '—' : `${formatScientific(value)} Ω·m`

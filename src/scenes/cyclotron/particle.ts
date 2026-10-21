@@ -1,5 +1,16 @@
-import type { ParticleState, Vector3Like } from '../types'
+/** A point particle in the cyclotron, advanced with semi-implicit (symplectic) Euler. */
+export type Vector3Like = {
+  x: number
+  y: number
+  z: number
+}
 
+export type ParticleState = {
+  position: Vector3Like
+  velocity: Vector3Like
+}
+
+/** Velocity first, then position with the new velocity: keeps circular orbits from spiralling out. */
 export function semiImplicitEulerStep(
   state: ParticleState,
   acceleration: Vector3Like,

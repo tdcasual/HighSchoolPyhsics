@@ -15,20 +15,6 @@
   line-height: 1.45;
 }
 
-.ticker-3d-label {
-  display: inline-block;
-  padding: 0.22rem 0.52rem;
-  border: 1px solid #bdd8d1;
-  border-radius: 7px;
-  background: rgb(255 255 255 / 88%);
-  color: #24423d;
-  font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.01em;
-  box-shadow: 0 4px 12px rgb(36 66 61 / 10%);
-  backdrop-filter: blur(4px);
-}
-
 .ticker-pole-badge {
   display: inline-block;
   min-width: 0.9rem;

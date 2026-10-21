@@ -1,7 +1,6 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { clockActions } from '../../simulation/clockActions'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { useMediaQuery } from '../../ui/hooks/useMediaQuery'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { OrthogonalEmWaveChart } from './OrthogonalEmWaveChart'
@@ -12,7 +11,6 @@ import { wrapPhase } from './model'
 import './orthogonal-em-wave.css'
 
 export function OrthogonalEmWaveScene() {
-  const theme = useAppStore((state) => state.theme)
   const state = useOrthogonalEmWaveSceneState()
   const isCompactDesktop = useMediaQuery('(min-width: 768px) and (max-width: 1100px)')
   const r = state.readings
@@ -25,7 +23,7 @@ export function OrthogonalEmWaveScene() {
     yz: [14, 0, 0],
   } as const satisfies Record<string, [number, number, number]>
   const cameraUp: [number, number, number] = state.viewMode === 'xz' ? [0, 0, -1] : [0, 1, 0]
-  return <SceneLayout controls={<OrthogonalEmWaveControls state={state} />} viewport={<FittedCanvas shot={{ from: [...cameraByView[state.viewMode]], to: [0, 0, 0] }} refitKey={state.viewMode} fov={42} cameraUp={cameraUp} minDistance={7} maxDistance={22} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><OrthogonalEmWaveRig3D {...state} theme={theme} compactDesktop={isCompactDesktop} /></FittedCanvas>} dataOverlay={<DataRows
+  return <SceneLayout controls={<OrthogonalEmWaveControls state={state} />} viewport={<FittedCanvas shot={{ from: [...cameraByView[state.viewMode]], to: [0, 0, 0] }} refitKey={state.viewMode} fov={42} cameraUp={cameraUp} minDistance={7} maxDistance={22} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><OrthogonalEmWaveRig3D {...state} compactDesktop={isCompactDesktop} /></FittedCanvas>} dataOverlay={<DataRows
           className="orthogonal-em-wave-telemetry"
           rows={[
             { label: '传播方向', value: <>{directionLabel}（x 轴）</> },

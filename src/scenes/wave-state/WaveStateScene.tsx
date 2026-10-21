@@ -2,7 +2,6 @@ import { Answer } from '../../ui/notes/Answer'
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { useAppStore } from '../../store/useAppStore'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { WaveStateChart } from './WaveStateChart'
 import { WaveStateControls } from './WaveStateControls'
@@ -10,7 +9,6 @@ import { WaveStateRig3D } from './WaveStateRig3D'
 import { useWaveStateSceneState } from './useWaveStateSceneState'
 import './wave-state.css'
 export function WaveStateScene() {
-  const theme = useAppStore((state) => state.theme)
   const state = useWaveStateSceneState()
   const r = state.readings
   const directionLabel = state.direction === 'right' ? '向右传播' : '向左传播'
@@ -19,7 +17,7 @@ export function WaveStateScene() {
   const probeStatus = r.probeReached ? '已起振' : '尚未起振 · 预计 t=' + r.probeArrivalTime.toFixed(2) + ' s 到达'
   return <SceneLayout
     controls={<WaveStateControls state={state}/>}
-    viewport={<FittedCanvas shot={{ azimuth: 0, elevation: 0 }} fov={42} minDistance={7} maxDistance={20} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><WaveStateRig3D {...state} theme={theme} /></FittedCanvas>}
+    viewport={<FittedCanvas shot={{ azimuth: 0, elevation: 0 }} fov={42} minDistance={7} maxDistance={20} maxPolarAngle={Math.PI * 0.9} frameloop={state.running ? 'always' : 'demand'}><WaveStateRig3D {...state} /></FittedCanvas>}
     dataOverlay={<DataRows
           className="wave-state-telemetry"
           rows={[

@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { Html } from '@react-three/drei'
 import { Line } from '../../scene3d/ClassroomLine'
 import { CanvasTexture, CatmullRomCurve3, Euler, SRGBColorSpace, Vector3 } from 'three'
 import { ohmFraction } from './model'
 import { NEEDLE_LENGTH, NEEDLE_PIVOT_Y, NEEDLE_SPAN, type MeterPose } from './pose'
 import type { MeterStage } from './state'
 import { SceneBackdrop } from '../../scene3d/SceneBackdrop'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 type Point3 = [number, number, number]
 
@@ -214,9 +214,7 @@ function MiniAmmeter({ position, fraction }: { position: Point3; fraction: numbe
         <boxGeometry args={[0.07, 1.12, 0.04]} />
         <meshStandardMaterial color="#c0392b" />
       </mesh>
-      <Html position={[0, -1.2, 0.65]} center distanceFactor={26}>
-        <span style={{ color: '#25333a', fontSize: '12px', fontWeight: 800, whiteSpace: 'nowrap' }}>A</span>
-      </Html>
+      <SceneLabel position={[0, -1.2, 0.65]} variant="text" color="#25333a" weight={800} distanceFactor={26}>A</SceneLabel>
     </group>
   )
 }
@@ -327,8 +325,8 @@ function RheostatCircuit({ slider, mode, closed, currentFraction }: { slider: nu
     <TerminalPost position={loadBlack} color="#1d2327" />
     <TerminalPost position={pointA} color="#b8423a" />
     <TerminalPost position={pointB} color="#1d2327" />
-    <Html position={[-8, 4.1, 15.2]} center distanceFactor={25}><span style={{ color: '#34464d', fontSize: '11px', fontWeight: 800 }}>a</span></Html>
-    <Html position={[8, 4.1, 15.2]} center distanceFactor={25}><span style={{ color: '#34464d', fontSize: '11px', fontWeight: 800 }}>b</span></Html>
+    <SceneLabel position={[-8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>a</SceneLabel>
+    <SceneLabel position={[8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>b</SceneLabel>
     <TerminalPost position={[-7.85, 2.8, 15.2]} color="#b8423a" />
     <TerminalPost position={[-6.75, 2.8, 15.2]} color="#b8423a" />
     <BoardWire points={[[-5.6, 2.8, 15.2], [-6.75, 2.8, 15.2]]} color="#b8423a" />
@@ -369,18 +367,10 @@ function ConversionModule({ connected, kind }: { connected: boolean; kind: 'V' |
       <TerminalPost position={blackJack} color="#1d2327" />
       <BoardWire points={[blackJack, [-5, 2.8, 3], [-5, 2.8, 18.5], [14.2, 2.8, 18.5], [14.2, 2.8, 15.2]]} color={connected ? '#315d88' : '#9a9a91'} lineWidth={connected ? 3 : 1.2} />
     </>}
-    <Html position={[kind === 'A' ? 7.2 : 12.8, 5.8, 15.2]} center distanceFactor={26}>
-      <span style={{ color: connected ? '#354a52' : '#6b6f70', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>{kind === 'V' ? 'V+ 输入' : 'I+ 输入'}</span>
-    </Html>
-    {kind === 'V' && <Html position={[14.2, 3.3, 15.2]} center distanceFactor={26}>
-      <span style={{ color: '#6b6f70', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>COM</span>
-    </Html>}
-    {kind === 'A' && <Html position={[12.8, 3.3, 15.2]} center distanceFactor={26}>
-      <span style={{ color: '#6b6f70', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>I−</span>
-    </Html>}
-    <Html position={[10, 4.2, 15.2]} center distanceFactor={26}>
-      <span style={{ color: connected ? '#354a52' : '#6b6f70', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' }}>{kind === 'V' ? '串联电阻 Rs' : '分流电阻 Rsh'}</span>
-    </Html>
+    <SceneLabel position={[kind === 'A' ? 7.2 : 12.8, 5.8, 15.2]} variant="text" color={connected ? '#354a52' : '#6b6f70'} size={11} weight={800} distanceFactor={26}>{kind === 'V' ? 'V+ 输入' : 'I+ 输入'}</SceneLabel>
+    {kind === 'V' && <SceneLabel position={[14.2, 3.3, 15.2]} variant="text" color="#6b6f70" size={11} weight={800} distanceFactor={26}>COM</SceneLabel>}
+    {kind === 'A' && <SceneLabel position={[12.8, 3.3, 15.2]} variant="text" color="#6b6f70" size={11} weight={800} distanceFactor={26}>I−</SceneLabel>}
+    <SceneLabel position={[10, 4.2, 15.2]} variant="text" color={connected ? '#354a52' : '#6b6f70'} size={11} weight={800} distanceFactor={26}>{kind === 'V' ? '串联电阻 Rs' : '分流电阻 Rsh'}</SceneLabel>
   </>
 }
 
@@ -449,9 +439,7 @@ export function MeterAssembly({
             <meshStandardMaterial color="#c0392b" />
           </mesh>
         </group>
-        <Html position={[0, 7.25, 2.08]} center distanceFactor={28}>
-          <span style={{ color: '#27343a', background: 'rgba(250,250,244,0.88)', borderRadius: '3px', padding: '1px 4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>{rangeLabel}</span>
-        </Html>
+        <SceneLabel position={[0, 7.25, 2.08]} size={10} weight={800} distanceFactor={28}>{rangeLabel}</SceneLabel>
         <group name="meter-ohm" position={[3.9, 7.1, 2]} rotation={[0, 0, pose.ohmKnob]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.75, 0.75, 0.6, 16]} />

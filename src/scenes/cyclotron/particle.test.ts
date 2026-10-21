@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { semiImplicitEulerStep } from '../integrators/semiImplicitEuler'
+import { semiImplicitEulerStep } from './particle'
 
 describe('semiImplicitEulerStep', () => {
   it('updates velocity first, then position', () => {

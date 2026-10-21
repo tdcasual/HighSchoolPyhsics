@@ -6,3 +6,4 @@
 .osc3d-reset-view { min-height: 44px; border: 1px solid var(--control-section-border); border-radius: 10px; background: var(--control-section-bg); color: var(--control-ink); font-weight: 700; cursor: pointer; }
 .osc3d-reset-view:hover { background: var(--control-hover-bg); }
 .osc3d-telemetry .osc3d-warning { font-size: 0.75rem; font-weight: 600; color: #b45309; }
+.app-shell.theme-night .osc3d-telemetry .osc3d-warning { color: #fbbf24; }
