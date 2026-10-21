@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   deriveCyclotronLaunchState,
   deriveCyclotronMaximumKineticEnergyJ,
-  deriveCyclotronReadings,
   stepCyclotronState,
   type CyclotronConfig,
 } from './model'
@@ -41,27 +40,6 @@ describe('cyclotron model', () => {
     }
 
     expect(deriveCyclotronMaximumKineticEnergyJ(config, 0.675e-3)).toBeCloseTo(1.3969e-17, 21)
-  })
-
-  it('derives period by 2πm/(qB)', () => {
-    const config: CyclotronConfig = {
-      chargeC: 2,
-      massKg: 4,
-      magneticFieldT: 0.5,
-      electricFieldVPerM: 0,
-      gapHalfWidthM: 0.2,
-    }
-
-    const readings = deriveCyclotronReadings(
-      {
-        position: { x: 0, y: 0, z: 0 },
-        velocity: { x: 3, y: 4, z: 0 },
-      },
-      config,
-    )
-
-    expect(readings.speed).toBe(5)
-    expect(readings.periodS).toBeCloseTo(2 * Math.PI * 4 / (2 * 0.5))
   })
 
   it('launches from gap center line with adaptive y-offset so guiding center is at origin', () => {

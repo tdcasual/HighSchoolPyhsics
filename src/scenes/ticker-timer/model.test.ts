@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  COUNTING_INTERVALS,
   DEFAULT_PERIOD_S,
   FRICTION_FORCE_N,
   FIXED_STEP_S,
@@ -22,7 +21,7 @@ import {
 describe("ticker timer model", () => {
   it("uses the classroom 50 Hz / 0.02 s period and 5-interval 0.10 s counting time", () => {
     expect(derivePeriodS(50)).toBeCloseTo(DEFAULT_PERIOD_S, 8);
-    expect(COUNTING_INTERVALS * derivePeriodS(50)).toBeCloseTo(0.1, 8);
+    expect(5 * derivePeriodS(50)).toBeCloseTo(0.1, 8);
   });
 
   it("gives electromagnetic timers more tape drag than spark timers", () => {

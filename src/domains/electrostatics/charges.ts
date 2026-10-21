@@ -1,4 +1,4 @@
-import type { ElectrostaticCharge2D, ElectrostaticCharge3D } from './types'
+import type { ElectrostaticCharge2D } from './types'
 
 const CHARGE_ID_PATTERN = /^C(\d+)$/
 
@@ -49,6 +49,3 @@ export function cloneCharges2D(charges: ReadonlyArray<ElectrostaticCharge2D>): E
   return charges.map((charge) => ({ ...charge }))
 }
 
-export function cloneCharges3D(charges: ReadonlyArray<ElectrostaticCharge3D>): ElectrostaticCharge3D[] {
-  return charges.map((charge) => ({ ...charge }))
-}

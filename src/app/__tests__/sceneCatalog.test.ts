@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildSceneCatalog,
-  findRuntimeSceneCatalogEntry,
   findSceneCatalogEntryByPath,
 } from '../sceneCatalog'
 
@@ -42,11 +41,4 @@ describe('sceneCatalog classroom semantics', () => {
     expect(findSceneCatalogEntryByPath({ broken: 'path' } as unknown as string)).toBeNull()
   })
 
-  it('prefers current browser path over stale activeScenePath when resolving runtime contract', () => {
-    window.history.replaceState(null, '', '/oscilloscope')
-
-    const entry = findRuntimeSceneCatalogEntry('/')
-
-    expect(entry?.pageId).toBe('oscilloscope')
-  })
 })

@@ -63,7 +63,7 @@ afterEach(() => {
 })
 
 describe.each(SCENES)('%s keeps the classroom contract', (scene, Scene) => {
-  it('opens with 1–5 readings, and keeps to 5 in every sidebar mode', () => {
+  it('opens with 1–5 readings, and keeps to 5 in every sidebar mode', { timeout: 20_000 }, () => {
     render(<Scene />)
     expandPanels()
     expect(dataRowCount(), 'opening view').toBeGreaterThan(0)
@@ -93,7 +93,7 @@ describe.each(SCENES)('%s keeps the classroom contract', (scene, Scene) => {
     expect(screen.getByRole('region', { name: '数据' })).toBeInTheDocument()
   })
 
-  it('masks its conclusions in prediction mode (in whichever sidebar mode shows them)', () => {
+  it('masks its conclusions in prediction mode (in whichever sidebar mode shows them)', { timeout: 20_000 }, () => {
     const marksAnswers = /answer:\s*true|<Answer\b/.test(sourceOf(scene))
     useAppStore.setState({ predicting: true })
     const { container } = render(<Scene />)

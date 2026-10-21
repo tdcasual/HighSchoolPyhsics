@@ -74,9 +74,6 @@ export function surfaceSpeeds(mu: number, radius: number) {
   return { v1, v2: Math.SQRT2 * v1 }
 }
 
-export function estimatedMass(radius: number, period: number) {
-  return (4 * Math.PI ** 2 * radius ** 3) / (G * period ** 2)
-}
 
 export function synchronousRadius(body: BodyRecord) {
   const mu = G * body.M

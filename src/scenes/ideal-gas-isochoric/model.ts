@@ -61,17 +61,6 @@ export function deriveIdealGasReadings(params: IdealGasParams): IdealGasReadings
 
 export type IsochoricAxis = 'kelvin' | 'celsius'
 
-export function buildIsochoricTrace(volumeL: number, axis: IsochoricAxis, samples = 81): Array<[number, number]> {
-  const count = Math.max(2, Math.floor(samples))
-  const min = axis === 'kelvin' ? 0 : ABSOLUTE_ZERO_C
-  const max = axis === 'kelvin' ? ISOCHORIC_TEMPERATURE_RANGE.maxK : ISOCHORIC_TEMPERATURE_RANGE.maxK + ABSOLUTE_ZERO_C
-  return buildIsochoricTraceSegment(volumeL, axis, min, max, count)
-}
-
-export function volumeLabel(volumeL: number): string {
-  const preset = Object.values(VOLUME_PRESETS).find((item) => Math.abs(item.volumeL - volumeL) < 0.01)
-  return preset?.label ?? `V = ${volumeL.toFixed(1)} L`
-}
 
 export const IDEAL_GAS_CONSTANTS = Object.freeze({
   gasConstant: GAS_CONSTANT,

@@ -99,9 +99,6 @@ export function setPatternCacheMax(maxEntries: number): void {
   patternCache.setMax(maxEntries)
 }
 
-export function getPatternCacheEntryCount(): number {
-  return patternCache.size()
-}
 
 function buildPatternCacheKey(params: DoubleSlitParams, filterColor: FilterColor, doubleSlitAngle: number, singleSlitAngle: number, wavelengthStep: number, width: number, height: number): string {
   return `${width}_${height}_${params.slitDistance.toFixed(3)}_${params.screenDistance.toFixed(2)}_${params.slitWidth.toFixed(3)}_${filterColor}_${doubleSlitAngle.toFixed(1)}_${singleSlitAngle.toFixed(1)}_${wavelengthStep}`

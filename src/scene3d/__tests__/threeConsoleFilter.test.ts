@@ -41,42 +41,23 @@ describe('threeConsoleFilter', () => {
     expect(warnSpy).toHaveBeenCalledWith('test warning', 42)
   })
 
-  it('suppresses test-only warnings in test environment and reports stats', async () => {
+  it('suppresses test-only warnings in test environment', async () => {
     const originalConsole = vi.fn<ThreeConsoleHandler>()
-    const { module, handler } = await installFilter('test', originalConsole)
+    const { handler } = await installFilter('test', originalConsole)
 
     handler('warn', 'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.')
     handler('warn', 'WARNING: Multiple instances of Three.js being imported.')
 
     expect(originalConsole).not.toHaveBeenCalled()
-    expect(module.getThreeConsoleFilterPolicy()).toEqual({
-      environment: 'test',
-      suppressedPatterns: [
-        'WARNING: Multiple instances of Three.js being imported.',
-        'THREE.WebGLRenderer: Context Lost.',
-        'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
-      ],
-    })
-    expect(module.getThreeConsoleFilterStats()).toEqual({
-      environment: 'test',
-      suppressedTotal: 2,
-      suppressedByPattern: {
-        'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.': 1,
-        'WARNING: Multiple instances of Three.js being imported.': 1,
-      },
-    })
   })
 
   it('suppresses clock deprecation warnings in development environment', async () => {
     const originalConsole = vi.fn<ThreeConsoleHandler>()
-    const { module, handler } = await installFilter('development', originalConsole)
+    const { handler } = await installFilter('development', originalConsole)
 
     handler('warn', 'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.')
 
     expect(originalConsole).not.toHaveBeenCalled()
-    expect(module.getThreeConsoleFilterPolicy().suppressedPatterns).toContain(
-      'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
-    )
   })
 
   it('keeps deprecation warnings visible in production environment', async () => {
@@ -102,17 +83,9 @@ describe('threeConsoleFilter', () => {
 
   it('falls back to the active runtime policy when the requested environment is malformed', async () => {
     const originalConsole = vi.fn<ThreeConsoleHandler>()
-    const { module, handler } = await installFilter('staging' as unknown as ThreeConsoleFilterEnvironment, originalConsole)
+    const { handler } = await installFilter('staging' as unknown as ThreeConsoleFilterEnvironment, originalConsole)
 
     expect(() => handler('warn', 'ordinary warning')).not.toThrow()
     expect(originalConsole).toHaveBeenCalledWith('warn', 'ordinary warning')
-    expect(module.getThreeConsoleFilterPolicy()).toEqual({
-      environment: 'test',
-      suppressedPatterns: [
-        'WARNING: Multiple instances of Three.js being imported.',
-        'THREE.WebGLRenderer: Context Lost.',
-        'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
-      ],
-    })
   })
 })

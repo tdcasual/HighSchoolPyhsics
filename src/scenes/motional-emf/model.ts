@@ -85,7 +85,6 @@ export const MAGNETIC_FIELD_DIRECTION_LABELS: Record<MagneticFieldDirection, str
   down: '向下',
 }
 
-export const ROD_ANGLE_OPTIONS = [90, 60, 45, 30] as const
 export const ROD_VELOCITY_ANGLE_OPTIONS = [90, 60, 45, 30] as const
 export const VELOCITY_PRESET_ORDER: VelocityPreset[] = [
   'forward',

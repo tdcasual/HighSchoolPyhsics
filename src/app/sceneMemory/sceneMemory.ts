@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect } from 'react'
 
 /**
  * Remembers the parameters a teacher set in each scene, so switching scenes during a lesson (or
@@ -86,18 +86,6 @@ export function useRemember(pageId: string, values: Record<string, unknown>): vo
   }, [pageId, snapshot])
 }
 
-/** useState whose value survives leaving and re-entering the scene. */
-export function usePersistentState<T>(key: string, initial: T | (() => T)): [T, Dispatch<SetStateAction<T>>] {
-  const [value, setValue] = useState<T>(() => {
-    const remembered = readSceneMemory<T>(key)
-    if (remembered !== undefined) return remembered
-    return typeof initial === 'function' ? (initial as () => T)() : initial
-  })
-  useEffect(() => {
-    writeSceneMemory(key, value)
-  }, [key, value])
-  return [value, setValue]
-}
 
 /** `initial` with the listed fields replaced by their remembered values, for object-shaped state. */
 export function rememberFields<T extends object>(pageId: string, initial: T, fields: readonly (keyof T & string)[]): T {

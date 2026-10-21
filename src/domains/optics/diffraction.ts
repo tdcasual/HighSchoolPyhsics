@@ -297,14 +297,6 @@ export function poissonSpotFirstDarkRadius(params: DiffractionParams): number {
   return (2.4048255577 * lambda * effectiveDistance) / (Math.PI * D)
 }
 
-/**
- * First minimum angle (single-slit): θ₁ = λ/a
- */
-export function firstMinimumAngle(params: DiffractionParams): number {
-  const lambda = params.wavelength * 1e-9
-  const a = params.apertureSize * 1e-3
-  return Math.asin(lambda / a) * (180 / Math.PI)
-}
 
 /**
  * Grating first-order angle: θ₁ = arcsin(λ/d)

@@ -6,7 +6,6 @@ import {
   calcPhaseDiff,
   calcCombinedAmplitude,
   getInterferenceStatus,
-  buildHyperbolaPoints,
   buildInterferenceBranches,
   createObserverBuffer,
   ringPush,
@@ -15,7 +14,6 @@ import {
   worldToWavePlane,
   wrapPhase,
   DEFAULT_PARAMS,
-  GRID_SIZE,
   MAX_HISTORY,
 } from '../model'
 
@@ -122,32 +120,6 @@ describe('getInterferenceStatus', () => {
   })
 })
 
-describe('buildHyperbolaPoints', () => {
-  it('returns empty for degenerate case (same source)', () => {
-    const s = { x: 0, z: 0 }
-    expect(buildHyperbolaPoints(s, s, 0.1)).toEqual([])
-  })
-
-  it('returns empty when aVal >= half-distance', () => {
-    const s1 = { x: -1, z: 0 }
-    const s2 = { x: 1, z: 0 }
-    expect(buildHyperbolaPoints(s1, s2, 1)).toEqual([])
-    expect(buildHyperbolaPoints(s1, s2, 1.5)).toEqual([])
-  })
-
-  it('returns points within grid bounds', () => {
-    const s1 = { x: -0.8, z: 0 }
-    const s2 = { x: 0.8, z: 0 }
-    const pts = buildHyperbolaPoints(s1, s2, 0.3)
-    expect(pts.length).toBeGreaterThan(0)
-    const halfGrid = GRID_SIZE / 2
-    for (const [x, y, z] of pts) {
-      expect(Math.abs(x)).toBeLessThanOrEqual(halfGrid)
-      expect(Math.abs(z)).toBeLessThanOrEqual(halfGrid)
-      expect(y).toBeCloseTo(0.02, 5)
-    }
-  })
-})
 
 describe('calcCombinedDisplacement', () => {
   it('sums displacements from both sources', () => {

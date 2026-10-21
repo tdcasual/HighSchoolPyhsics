@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  resolvePresentationCameraDistanceHint,
-  resolvePresentationCameraTarget,
-} from '../presentationCamera'
+import { resolvePresentationCameraTarget } from '../presentationCamera'
 
 describe('presentationCamera', () => {
   it('keeps the base target in overview mode', () => {
@@ -35,10 +32,5 @@ describe('presentationCamera', () => {
     })
 
     expect(result).toEqual({ x: 1, y: 3, z: 0 })
-  })
-
-  it('returns tighter distance hints for focus mode and looser for compare mode', () => {
-    expect(resolvePresentationCameraDistanceHint({ baseDistance: 12, mode: 'focus' })).toBeCloseTo(10.2)
-    expect(resolvePresentationCameraDistanceHint({ baseDistance: 12, mode: 'compare' })).toBeCloseTo(12.6)
   })
 })

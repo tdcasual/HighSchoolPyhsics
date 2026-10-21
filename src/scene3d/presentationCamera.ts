@@ -1,8 +1,8 @@
-export type FocusPoint = [number, number, number]
-export type PresentationFocusMode = 'overview' | 'focus' | 'compare' | 'follow'
+type FocusPoint = [number, number, number]
 
+/** What the camera should favour: everything, one point (focus), or the midpoint of two (compare). */
 export type PresentationFocus = {
-  mode: PresentationFocusMode
+  mode: 'overview' | 'focus' | 'compare'
   primary?: FocusPoint
   secondary?: FocusPoint
 }
@@ -13,33 +13,22 @@ type FramingTarget = {
   z: number
 }
 
-type ResolvePresentationCameraTargetInput = {
-  baseTarget: FramingTarget
-  mode: PresentationFocusMode
-  primary?: FocusPoint
-  secondary?: FocusPoint
-}
-
-type ResolvePresentationCameraDistanceHintInput = {
-  baseDistance: number
-  mode: PresentationFocusMode
-}
-
 function lerp(start: number, end: number, alpha: number): number {
   return start + (end - start) * alpha
 }
 
+/** The orbit target for a focus: 60 % of the way to the primary point, or between primary and secondary. */
 export function resolvePresentationCameraTarget({
   baseTarget,
   mode,
   primary,
   secondary,
-}: ResolvePresentationCameraTargetInput): FramingTarget {
+}: PresentationFocus & { baseTarget: FramingTarget }): FramingTarget {
   if (mode === 'overview' || !primary) {
     return baseTarget
   }
 
-  if (mode === 'focus' || mode === 'follow') {
+  if (mode === 'focus') {
     return {
       x: lerp(baseTarget.x, primary[0], 0.6),
       y: lerp(baseTarget.y, primary[1], 0.6),
@@ -56,19 +45,4 @@ export function resolvePresentationCameraTarget({
   }
 
   return baseTarget
-}
-
-export function resolvePresentationCameraDistanceHint({
-  baseDistance,
-  mode,
-}: ResolvePresentationCameraDistanceHintInput): number {
-  if (mode === 'focus' || mode === 'follow') {
-    return baseDistance * 0.85
-  }
-
-  if (mode === 'compare') {
-    return baseDistance * 1.05
-  }
-
-  return baseDistance
 }

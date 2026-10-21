@@ -13,10 +13,6 @@ export function galvanometerCurrent(kind: 'V' | 'A', applied: number, resistance
   return applied * resistance / (galvanometer.Rg + resistance)
 }
 
-export function convertedMeter(kind: 'V' | 'A', resistance: number, galvanometer = GALVANOMETER) {
-  if (kind === 'V') return { range: galvanometer.Ig * (galvanometer.Rg + resistance), resistance: galvanometer.Rg + resistance }
-  return { range: galvanometer.Ig * (galvanometer.Rg + resistance) / resistance, resistance: galvanometer.Rg * resistance / (galvanometer.Rg + resistance) }
-}
 
 export function voltAmmeter(input: { Rx: number; RA: number; RV: number; E: number; Rs: number }) {
   const { Rx, RA, RV, E, Rs } = input

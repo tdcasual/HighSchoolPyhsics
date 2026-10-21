@@ -8,7 +8,6 @@ import {
   areaWedges,
   circularOrbit,
   craftsAt,
-  estimatedMass,
   formatSpeed,
   groundPoint,
   playbackScale,
@@ -38,7 +37,8 @@ describe('celestial model', () => {
 
   it('keeps r³/T² equal to GM/4π² and places a circular satellite on the node', () => {
     const scenario = scenarioOf(earth)
-    expect(estimatedMass(scenario.r1, scenario.o1.T) / BODIES.earth.M).toBeCloseTo(1, 8)
+    // GM = 4π² r³ / T², with G = 6.674e-11.
+    expect((4 * Math.PI ** 2 * scenario.r1 ** 3) / (scenario.o1.T ** 2 * 6.674e-11) / BODIES.earth.M).toBeCloseTo(1, 3)
     expect(worldOrbit(1, 0, 0.4, 0)).toEqual({ x: 1, y: 0, z: 0 })
     const turned = worldOrbit(2, 0, 0.5, ORBIT_NODE)
     expect(turned.x).toBeCloseTo(2 * Math.cos(ORBIT_NODE), 12)

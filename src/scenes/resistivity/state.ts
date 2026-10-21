@@ -16,7 +16,6 @@ import {
   type MaterialKey,
   type MeterKey,
 } from './model'
-import { circuitWires, type WireLink } from './circuitPose'
 
 export type ResistivityStage = 'diameter' | 'circuit' | 'analysis' | 'iv'
 export type GraphKind = 'UI' | 'Rl'
@@ -329,15 +328,6 @@ export function fillSamples(state: ResistivityState): ResistivityState {
   return { ...state, diameters, records: rows, notice: '已补上示例直径和几组 U、I，表格里标为示例。' }
 }
 
-export function wiresFor(state: ResistivityState): WireLink[] {
-  return circuitWires({
-    step: state.step,
-    control: state.control,
-    method: state.method,
-    ammeter: state.ammeter === 'A3' ? 'A3' : 'A06',
-    voltmeter: state.voltmeter === 'V15' ? 'V15' : 'V3',
-  })
-}
 
 export function liveElement(state: ResistivityState) {
   const value = element(state.element, state.voltage)

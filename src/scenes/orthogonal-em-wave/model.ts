@@ -46,16 +46,7 @@ export function phaseAt(x: number, time: number, params: EmWaveParams): number {
   return TWO_PI * (time * params.speed / wavelength - directionSign * x / wavelength)
 }
 
-export function electricFieldAt(x: number, time: number, params: EmWaveParams): number {
-  return params.amplitude * Math.sin(phaseAt(x, time, params))
-}
 
-export function magneticFieldAt(x: number, time: number, params: EmWaveParams): number {
-  // For propagation along +x, E_y × B_z points along +x. Reversing propagation
-  // must therefore reverse B_z while keeping E_y on its fixed y-axis.
-  const magneticDirection = params.direction === 'right' ? 1 : -1
-  return magneticDirection * params.amplitude * Math.sin(phaseAt(x, time, params))
-}
 
 export function buildFieldSamples(time: number, params: EmWaveParams, samples = 129): EmFieldSample[] {
   const count = Math.max(2, Math.floor(samples))

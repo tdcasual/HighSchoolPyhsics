@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
+import { type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
 import { RANGES, type MeasureTarget, type RangeKey } from './model'
 import type { ContactMethod } from './state'
 
@@ -74,9 +74,6 @@ export function meterView(preset: ViewPreset): OrbitView {
   return { target: [0, 6, 6], azimuth: 0.18, elevation: 0.5, radius: 62 }
 }
 
-export function meterCameraPosition(preset: ViewPreset): Vec3 {
-  return orbitPosition(meterView(preset))
-}
 
 export type MeterPose = {
   needle: number

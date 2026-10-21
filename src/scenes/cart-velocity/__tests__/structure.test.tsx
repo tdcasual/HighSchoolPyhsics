@@ -35,7 +35,6 @@ describe('cart structure', () => {
     expect(controls.maxDistance).toBe(23)
     // The bench is fitted to the free area: the target is the measured centre of the apparatus.
     expect(controls.target.every(Number.isFinite)).toBe(true)
-    expect(canvasProps.current?.adaptiveFraming).toBe(false)
 
     fireEvent.click(screen.getByRole('button', { name: '单步' }))
     expect(readout()).toHaveTextContent('0.02 s')

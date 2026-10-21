@@ -72,10 +72,3 @@ export function findSceneCatalogEntryByPath(pathname: unknown): SceneCatalogEntr
   return SCENE_CATALOG_BY_PATH.get(normalized) ?? null
 }
 
-export function findRuntimeSceneCatalogEntry(activeScenePath: string): SceneCatalogEntry | null {
-  if (typeof window !== 'undefined') {
-    return findSceneCatalogEntryByPath(window.location.pathname)
-  }
-
-  return findSceneCatalogEntryByPath(activeScenePath)
-}

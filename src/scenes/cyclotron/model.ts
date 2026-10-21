@@ -10,13 +10,6 @@ export type CyclotronConfig = {
   gapHalfWidthM: number
 }
 
-type CyclotronReadings = {
-  speed: number
-  periodS: number
-  radiusM: number
-  kineticEnergyJ: number
-}
-
 export function deriveCyclotronLaunchState(
   config: CyclotronConfig,
   launchSpeedMps: number,
@@ -58,19 +51,3 @@ export function deriveCyclotronMaximumKineticEnergyJ(
   return (maximumMomentum * maximumMomentum) / (2 * config.massKg)
 }
 
-export function deriveCyclotronReadings(
-  state: ParticleState,
-  config: CyclotronConfig,
-): CyclotronReadings {
-  const speed = Math.hypot(state.velocity.x, state.velocity.y, state.velocity.z)
-  const qAbs = Math.abs(config.chargeC)
-  const bAbs = Math.abs(config.magneticFieldT)
-  const denominator = qAbs * bAbs
-
-  return {
-    speed,
-    periodS: denominator === 0 ? Number.POSITIVE_INFINITY : (2 * Math.PI * config.massKg) / denominator,
-    radiusM: denominator === 0 ? Number.POSITIVE_INFINITY : (config.massKg * speed) / denominator,
-    kineticEnergyJ: 0.5 * config.massKg * speed * speed,
-  }
-}

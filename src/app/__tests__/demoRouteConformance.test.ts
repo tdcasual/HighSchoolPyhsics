@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { DEMO_ROUTES, DISCOVERED_SCENE_PAGE_IDS } from '../demoRoutes'
 import { SCENE_CATALOG, findSceneCatalogEntryByPath } from '../sceneCatalog'
-import { collectRouteConformanceIssues } from '../routeConformance'
 import { SCENE_CARDS } from '../sceneCards'
 import { useAppStore } from '../../store/useAppStore'
 
@@ -13,8 +12,16 @@ describe('demo route conformance', () => {
     })
   })
 
-  it('enforces complete navigation and touch profile metadata for every demo route', () => {
-    expect(collectRouteConformanceIssues(DEMO_ROUTES)).toEqual([])
+  it('gives every scene a label and complete overview card text', () => {
+    const blank = (value: unknown) => typeof value !== 'string' || value.trim() === ''
+    for (const route of DEMO_ROUTES) {
+      const card = SCENE_CARDS.get(route.pageId)
+      expect(blank(route.label), route.pageId).toBe(false)
+      expect(card, route.pageId).toBeDefined()
+      expect([card?.tag, card?.summary, ...(card?.highlights ?? [])].some(blank), route.pageId).toBe(false)
+      expect(card?.highlights.length, route.pageId).toBeGreaterThan(0)
+      expect(['scope', 'cyclotron', 'mhd', 'oersted'], route.pageId).toContain(card?.tone)
+    }
   })
 
   it('declares the enhanced touch gesture package with minimum 44px target', () => {
@@ -25,88 +32,6 @@ describe('demo route conformance', () => {
       expect(route.touchProfile.gestureMatrix.twoFingerZoom).toBe(true)
       expect(route.touchProfile.gestureMatrix.twoFingerPan).toBe(true)
     }
-  })
-
-  it('reports non-string route metadata as conformance issues instead of throwing', () => {
-    const invalidRoute = {
-      ...DEMO_ROUTES[0],
-      label: 42 as unknown as (typeof DEMO_ROUTES)[number]['label'],
-    }
-    const invalidCard = {
-      ...SCENE_CARDS.get(DEMO_ROUTES[0].pageId),
-      tag: false,
-      summary: { text: 'bad' },
-      highlights: [42, 'ok'],
-      tone: false,
-    }
-
-    expect(collectRouteConformanceIssues([invalidRoute], () => invalidCard)).toEqual(
-      expect.arrayContaining([
-        {
-          path: invalidRoute.path,
-          message: 'label must be a non-blank string',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'meta.tag must be a non-blank string',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'meta.summary must be a non-blank string',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'meta.highlights[0] must be a non-blank string',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'meta.tone must be one of scope|cyclotron|mhd|oersted',
-        },
-      ]),
-    )
-  })
-
-  it('reports missing route meta objects as conformance issues instead of throwing', () => {
-    const invalidRoute = DEMO_ROUTES[0]
-
-    expect(collectRouteConformanceIssues([invalidRoute], () => undefined)).toContainEqual({
-      path: invalidRoute.path,
-      message: 'meta must be an object with tag, summary, highlights, and tone',
-    })
-  })
-
-  it('reports malformed touch metadata as conformance issues instead of throwing', () => {
-    const invalidRoute = {
-      ...DEMO_ROUTES[0],
-      touchProfile: {
-        ...DEMO_ROUTES[0].touchProfile,
-        pageScroll: false as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['pageScroll'],
-        canvasGestureScope: 12 as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['canvasGestureScope'],
-        minTouchTargetPx: '44' as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['minTouchTargetPx'],
-        gestureMatrix: null as unknown as (typeof DEMO_ROUTES)[number]['touchProfile']['gestureMatrix'],
-      },
-    }
-
-    expect(collectRouteConformanceIssues([invalidRoute])).toEqual(
-      expect.arrayContaining([
-        {
-          path: invalidRoute.path,
-          message: 'touchProfile.pageScroll must be vertical-outside-canvas',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'touchProfile.canvasGestureScope must be interactive-canvas',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'touchProfile.minTouchTargetPx must be a number >= 44',
-        },
-        {
-          path: invalidRoute.path,
-          message: 'touchProfile.gestureMatrix must be an object with singleFingerRotate, twoFingerZoom, and twoFingerPan',
-        },
-      ]),
-    )
   })
 
   it('keeps route touch profiles aligned with the shared catalog source', () => {

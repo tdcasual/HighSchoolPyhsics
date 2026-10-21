@@ -304,13 +304,6 @@ export function buildHyperbolaBranches(
   return branches
 }
 
-export function buildHyperbolaPoints(
-  s1: Vec2,
-  s2: Vec2,
-  aVal: number,
-): [number, number, number][] {
-  return buildHyperbolaBranches(s1, s2, aVal).flat()
-}
 
 /** Build the fixed-phase loci that exist only for equal-frequency point sources. */
 export function buildInterferenceBranches(

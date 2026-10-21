@@ -5,18 +5,15 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile } from '../app/touchProfile'
 import { useAppStore } from '../store/useAppStore'
 import { useMediaQuery } from '../ui/hooks/useMediaQuery'
-import type { AdaptiveFramingOptions } from './adaptiveFraming'
 import { readVec3, type Vec3Tuple } from './cameraSync'
 import { CameraSynchronizer } from './CameraSynchronizer'
 import { DEMO_ORBIT_CONTROLS } from './cameraControls'
 import { resolveCanvasQualityProfile, resolvePerformanceProfile } from './canvasQuality'
 import type { PresentationFocus } from './presentationCamera'
 import { ProjectionOffset } from './ProjectionOffset'
-import { resolveSafeAreaTransform, type SafeAreaOptions } from './safeArea'
 import { isTestRuntime } from './testRuntime'
 import { installThreeConsoleFilter } from './threeConsoleFilter'
-import { useAdaptiveOrbit } from './useAdaptiveOrbit'
-import { useOverlayObstacles } from './useOverlayObstacles'
+import { usePresentationFocus } from './usePresentationFocus'
 
 installThreeConsoleFilter()
 
@@ -27,24 +24,21 @@ type InteractiveCanvasProps = PropsWithChildren<{
   controlsEnabled?: boolean
   /** Apply changing camera fit/preset inputs to the live Three.js camera. */
   syncCamera?: boolean
-  /** Shift the rendered image by [x, y] CSS px so the orbit target shows off-center. */
-  screenOffset?: [number, number]
   /**
-   * Fit the composition into the area right of the sidebar and panel column (sampled when the
-   * scene opens, so later panel changes only cover the view). Ignored when `screenOffset` is set.
+   * Shift the rendered image by [x, y] CSS px so the orbit target shows at the centre of the
+   * area the panels leave free (from useFittedOrbitCamera / FittedCanvas).
    */
-  safeArea?: boolean | SafeAreaOptions
+  screenOffset?: [number, number]
   controls?: Partial<Omit<ComponentProps<typeof OrbitControls>, 'makeDefault' | 'enabled'>>
-  adaptiveFraming?: boolean | Partial<AdaptiveFramingOptions>
   presentationFocus?: PresentationFocus
   presentationLockMs?: number
 }>
 
 /**
- * The animation zone every scene renders into: the R3F canvas, OrbitControls with adaptive
- * framing / presentation focus (useAdaptiveOrbit), camera sync for fitted views
- * (CameraSynchronizer), the projection shift that keeps the composition clear of the panel
- * column (screenOffset or the safe area), quality settings and the gesture hint.
+ * The animation zone every scene renders into: the R3F canvas, OrbitControls with presentation
+ * focus (usePresentationFocus), camera sync for fitted views (CameraSynchronizer), the
+ * projection shift that centres the composition in the free area (screenOffset), quality
+ * settings and the gesture hint. Scenes reach it through FittedCanvas or useFittedOrbitCamera.
  */
 export function InteractiveCanvas({
   camera,
@@ -53,22 +47,15 @@ export function InteractiveCanvas({
   controlsEnabled = true,
   syncCamera = false,
   screenOffset,
-  safeArea = true,
   controls,
-  adaptiveFraming = true,
   presentationFocus,
   presentationLockMs = 4500,
   children,
 }: InteractiveCanvasProps) {
   const activeScenePath = useAppStore((state) => state.activeScenePath)
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
-  const rootRef = useRef<HTMLDivElement | null>(null)
-  const overlays = useOverlayObstacles(rootRef)
   // Lecture mode hides every overlay, so the composition goes back to the canvas center.
   const presenting = useAppStore((state) => state.presenting)
-  const safeAreaTransform = presenting || screenOffset || safeArea === false
-    ? null
-    : resolveSafeAreaTransform({ width: overlays.width, obstacles: overlays.obstacles, options: safeArea === true ? undefined : safeArea })
   const { onChange: controlsOnChange, onStart: controlsOnStart, ...controlsProps } = controls ?? {}
   const targetProp = controls?.target
   const targetValues = readVec3(targetProp)
@@ -80,12 +67,10 @@ export function InteractiveCanvas({
   const cameraConfig = camera as unknown as { position?: unknown; fov?: number; near?: number; far?: number; zoom?: number }
   const cameraPosition = readVec3(cameraConfig.position)
   const cameraSyncKey = [cameraPosition?.join(',') ?? 'none', cameraUp?.join(',') ?? 'default-up', cameraConfig.fov, cameraConfig.near, cameraConfig.far, cameraConfig.zoom].join(':')
-  const orbit = useAdaptiveOrbit({
+  const orbit = usePresentationFocus({
     controlsRef,
-    adaptiveFraming,
     presentationFocus,
     presentationLockMs,
-    targetKey,
     controlsOnStart: controlsOnStart as ((event?: unknown) => void) | undefined,
     controlsOnChange: controlsOnChange as ((event?: unknown) => void) | undefined,
   })
@@ -113,7 +98,6 @@ export function InteractiveCanvas({
 
   return (
     <div
-      ref={rootRef}
       className="interactive-canvas"
       role="img"
       aria-label="3D 物理模拟场景，支持鼠标拖拽旋转、滚轮缩放"
@@ -135,7 +119,6 @@ export function InteractiveCanvas({
         >
           {children}
           {screenOffset && !presenting ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
-          {safeAreaTransform ? <ProjectionOffset {...safeAreaTransform} /> : null}
           {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
           <OrbitControls
             ref={controlsRef}

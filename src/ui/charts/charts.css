@@ -1,6 +1,5 @@
 /* ── Shared scene charts (ui/charts) ── loaded with the scene chunks, not the entry. */
-.chart-card,
-.line-chart {
+.chart-card {
   --chart-1: #2563eb;
   --chart-2: #c2410c;
   --chart-3: #0f766e;
@@ -15,8 +14,7 @@
   color: var(--control-ink);
 }
 
-.theme-night .chart-card,
-.theme-night .line-chart {
+.theme-night .chart-card {
   --chart-1: #60a5fa;
   --chart-2: #fb923c;
   --chart-3: #2dd4bf;
@@ -26,8 +24,7 @@
   --chart-point: #fb923c;
 }
 
-.chart-card + .chart-card,
-.line-chart + .line-chart {
+.chart-card + .chart-card {
   margin-top: 0.8rem;
 }
 
@@ -39,8 +36,7 @@
   gap: 0.2rem 0.8rem;
 }
 
-.chart-card-title,
-.line-chart-title {
+.chart-card-title {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--control-ink);
@@ -64,8 +60,7 @@
   color: var(--control-ink-soft);
 }
 
-.chart-card svg,
-.line-chart svg {
+.chart-card svg {
   display: block;
   width: 100%;
   height: auto;
@@ -73,20 +68,17 @@
   background: var(--chart-bg);
 }
 
-.chart-grid,
-.line-chart-grid {
+.chart-grid {
   stroke: var(--readout-divider);
   stroke-width: 1;
 }
 
-.chart-axis,
-.line-chart-axis {
+.chart-axis {
   stroke: var(--control-ink-muted);
   stroke-width: 1.2;
 }
 
-.chart-cursor line,
-.line-chart-cursor {
+.chart-cursor line {
   stroke: var(--control-accent, #2563eb);
   stroke-width: 1.4;
   stroke-dasharray: 4 3;
@@ -99,16 +91,13 @@
 }
 
 .chart-tick,
-.chart-axis-label,
-.line-chart-tick,
-.line-chart-axis-label {
+.chart-axis-label {
   fill: var(--control-ink-muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
-.chart-axis-label,
-.line-chart-axis-label {
+.chart-axis-label {
   font-weight: 700;
 }
 
@@ -131,8 +120,7 @@
   stroke-width: 2;
 }
 
-.chart-legend,
-.line-chart-legend {
+.chart-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
@@ -140,8 +128,7 @@
   color: var(--control-ink-muted);
 }
 
-.chart-legend i,
-.line-chart-legend i {
+.chart-legend i {
   display: inline-block;
   width: 0.8rem;
   height: 0.25rem;

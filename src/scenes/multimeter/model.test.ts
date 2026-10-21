@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   bestOhmRange,
-  convertedMeter,
   galvanometerCurrent,
   measure,
   ohmFraction,
@@ -19,7 +18,6 @@ describe('multimeter model', () => {
     expect(seriesResistor(3)).toBeCloseTo(2970, 8)
     expect(shuntResistor(0.6)).toBeCloseTo(0.03 / 0.599, 8)
     expect(galvanometerCurrent('V', 3, 2970)).toBeCloseTo(0.001, 8)
-    expect(convertedMeter('V', 2970).range).toBeCloseTo(3, 8)
   })
 
   it('makes the external reading low and the internal reading high', () => {

@@ -207,9 +207,6 @@ export function startQuestion<S extends PracticeState>(state: S, patch: Partial<
   })
 }
 
-export function resetPracticeFields<S extends PracticeState>(fresh: S): S {
-  return { ...fresh, notice: '已回到初始示数，并合拢仪器。' }
-}
 
 /** Step-button label: "+0.05", "−10". */
 export function signedStep(delta: number, digits: number) {

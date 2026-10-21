@@ -407,14 +407,6 @@ body {
   opacity: 1;
 }
 
-/* ── 3D vector labels ── */
-.vector-arrow-label {
-  font-size: 13px;
-  font-weight: 800;
-  white-space: nowrap;
-  text-shadow: 0 0 3px var(--panel-glass-bg), 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
 /* ── Prediction mode ── */
 .panel-header-actions {
   display: flex;

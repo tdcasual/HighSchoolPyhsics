@@ -6,7 +6,6 @@ export const VERNIER_SPANS = { 10: 9, 20: 19, 50: 49 } as const
 export type VernierDivisions = keyof typeof VERNIER_SPANS
 
 export const MICROMETER_PITCH_MM = 0.5
-export const MICROMETER_DIVISIONS = 50
 export const MICROMETER_LEAST_MM = 0.01
 export const MICROMETER_RANGE_MM = 25
 export const CALIPER_RANGE_MM = 150

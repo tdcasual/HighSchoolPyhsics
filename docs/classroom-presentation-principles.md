@@ -72,7 +72,7 @@
 4. 播放、步进、重置用 `playbackActions`；主播放动作的 `key` 用 `play` 或 `toggle-running`，以便空格键生效。
 4a. 结论读数包 `<Answer>`；计算类场景加「已知」行；快速过程传 `timeControl` 并在循环中使用 `getPlaybackRate()`。
 4b. 3D 线条从 `scene3d/ClassroomLine` 引入 `Line`（课堂大字时自动加粗）。
-4b2. 新场景的图表优先用 `ui/charts/LineChart`，3D 矢量用 `scene3d/VectorArrow`（标签自动避开箭头）。
+4b2. 新场景的图表用 `ui/charts`（`ChartCard` + `ChartFrame`），颜色取 `--chart-*` 主题变量。
 4c. 导航页有三种视图（按教材 / 按专题 / 按课型，记住上次选择）和搜索（快捷键 /）。新场景只需在 `config/demo-scenes.json` 加条目，并在 `ui/navigation/sceneNavigation.ts` 按教材教学顺序加一行（章节、专题、课型）；三个视图的分组都由这张表生成，组内统一按教学顺序（测试检查表与目录一致、分组存在），并运行 `npm run thumbnails -- <pageId>` 生成缩略图。卡片编号与 1–9 快捷键跟随当前视图。
 4d. 首页按需加载：导航页与快捷键帮助为懒加载，首页不预加载 three.js / R3F（`check:homepage-preload` 会拦截）；入口 JS 预算 35 kB。
 5. 相机居中构图即可，交给安全区避让面板；如场景自行计算避让（如测量工具按读数区缩放），传 `screenOffset`，安全区会自动让位。

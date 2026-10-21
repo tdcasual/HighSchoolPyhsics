@@ -1,4 +1,4 @@
-import { orbitPosition, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
+import { type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
 
 export type WireColor = 'red' | 'black' | 'orange' | 'blue'
 export type WireLink = [string, string, WireColor, number?]
@@ -99,9 +99,6 @@ export function circuitView(preset: ViewPreset): OrbitView {
   return { target: [0, 3, -1], azimuth: -0.02, elevation: 0.7, radius: 96 }
 }
 
-export function circuitCameraPosition(preset: ViewPreset): Vec3 {
-  return orbitPosition(circuitView(preset))
-}
 
 export function circuitWires(input: {
   step: number

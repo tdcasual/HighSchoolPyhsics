@@ -1,15 +1,17 @@
-import { act, renderHook } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { clearSceneMemory, rememberFields, useRememberFields, usePersistentState } from '../sceneMemory'
+import { clearSceneMemory, recall, rememberFields, useRemember, useRememberFields } from '../sceneMemory'
+
+/** What a scene does: useState(() => recall(key, default)) plus useRemember on change. */
+function remember(pageId: string, name: string, value: unknown) {
+  renderHook(() => useRemember(pageId, { [name]: value })).unmount()
+}
 
 describe('scene memory', () => {
   it('restores a parameter after the scene unmounts and mounts again', () => {
-    const first = renderHook(() => usePersistentState('mhd.magneticFieldT', 1.5))
-    act(() => first.result.current[1](2.4))
-    first.unmount()
-
-    const second = renderHook(() => usePersistentState('mhd.magneticFieldT', 1.5))
-    expect(second.result.current[0]).toBe(2.4)
+    expect(recall('mhd.magneticFieldT', 1.5)).toBe(1.5)
+    remember('mhd', 'magneticFieldT', 2.4)
+    expect(recall('mhd.magneticFieldT', 1.5)).toBe(2.4)
   })
 
   it('remembers only the listed fields of object state', () => {
@@ -24,15 +26,11 @@ describe('scene memory', () => {
   })
 
   it('forgets one scene without touching the others', () => {
-    const a = renderHook(() => usePersistentState('mhd.loadOhm', 0.3))
-    act(() => a.result.current[1](4))
-    const b = renderHook(() => usePersistentState('oersted.currentA', 4))
-    act(() => b.result.current[1](-2))
-    a.unmount()
-    b.unmount()
+    remember('mhd', 'loadOhm', 4)
+    remember('oersted', 'currentA', -2)
 
     clearSceneMemory('mhd')
-    expect(renderHook(() => usePersistentState('mhd.loadOhm', 0.3)).result.current[0]).toBe(0.3)
-    expect(renderHook(() => usePersistentState('oersted.currentA', 4)).result.current[0]).toBe(-2)
+    expect(recall('mhd.loadOhm', 0.3)).toBe(0.3)
+    expect(recall('oersted.currentA', 4)).toBe(-2)
   })
 })

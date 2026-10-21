@@ -106,9 +106,6 @@ export function createExperimentRecord(
   }
 }
 
-export function formatPoleSetting(poleSetting: PoleSetting): string {
-  return poleSetting === 's-top-n-down' ? 'S 极在上 (N 下)' : 'S 极在下 (N 上)'
-}
 
 export function formatVerticalDirection(direction: VerticalDirection): string {
   return direction === 'up' ? '向上 (↑)' : '向下 (↓)'

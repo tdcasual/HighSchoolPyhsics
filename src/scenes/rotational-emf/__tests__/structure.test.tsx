@@ -9,14 +9,12 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
     camera,
     cameraUp,
     syncCamera,
-    adaptiveFraming,
   }: {
     children: ReactNode
     frameloop?: 'always' | 'demand'
     camera: { position: number[]; fov: number }
     cameraUp: number[]
     syncCamera: boolean
-    adaptiveFraming: boolean
   }) => (
     <div
       data-testid="interactive-canvas"
@@ -24,7 +22,6 @@ vi.mock('../../../scene3d/InteractiveCanvas', () => ({
       data-camera-position={camera.position.join(',')}
       data-camera-up={cameraUp.join(',')}
       data-sync-camera={syncCamera}
-      data-adaptive-framing={adaptiveFraming}
     >
       {children}
     </div>
@@ -52,7 +49,6 @@ describe('rotational-emf structure', () => {
     const canvas = screen.getByTestId('interactive-canvas')
     expect(canvas).toHaveAttribute('data-frameloop', 'demand')
     expect(canvas).toHaveAttribute('data-sync-camera', 'true')
-    expect(canvas).toHaveAttribute('data-adaptive-framing', 'false')
     expect(canvas).toHaveAttribute('data-camera-up', '0,1,0')
     expect(within(screen.getByRole('region', { name: '数据' })).getByRole('button', { name: '折叠' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: '播放控制' }).querySelector('button')).toHaveAttribute('aria-label', '折叠')

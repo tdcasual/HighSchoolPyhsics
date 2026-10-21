@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildIsochoricTrace,
   buildIsochoricTraceSegment,
   chamberGasHeightForVolumeL,
   deriveIdealGasReadings,
@@ -34,8 +33,8 @@ describe('ideal-gas-isochoric model', () => {
   })
 
   it('builds finite traces without temperatures below absolute zero', () => {
-    const kelvin = buildIsochoricTrace(6, 'kelvin', 33)
-    const celsius = buildIsochoricTrace(6, 'celsius', 33)
+    const kelvin = buildIsochoricTraceSegment(6, 'kelvin', 0, ISOCHORIC_TEMPERATURE_RANGE.maxK, 33)
+    const celsius = buildIsochoricTraceSegment(6, 'celsius', IDEAL_GAS_CONSTANTS.absoluteZeroC, ISOCHORIC_TEMPERATURE_RANGE.maxK + IDEAL_GAS_CONSTANTS.absoluteZeroC, 33)
     const belowMeasured = buildIsochoricTraceSegment(6, 'kelvin', 0, ISOCHORIC_TEMPERATURE_RANGE.minK, 17)
     expect(kelvin).toHaveLength(33)
     expect(celsius).toHaveLength(33)

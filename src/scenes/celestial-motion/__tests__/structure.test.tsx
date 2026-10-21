@@ -61,7 +61,6 @@ describe('celestial structure', () => {
     expect(canvasProps.current?.screenOffset).toHaveLength(2)
     expect(controls.minPolarAngle).toBeCloseTo((16 * Math.PI) / 180)
     expect(controls.maxPolarAngle).toBeCloseTo((74 * Math.PI) / 180)
-    expect(canvasProps.current?.adaptiveFraming).toBe(false)
   })
 
   it('switches to a stationary satellite and advances a Hohmann transfer', () => {

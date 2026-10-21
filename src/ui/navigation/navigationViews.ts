@@ -133,13 +133,3 @@ export function findNavigationView(id: string): NavigationView {
   return NAVIGATION_VIEWS.find((view) => view.id === id) ?? NAVIGATION_VIEWS[0]
 }
 
-/** Routes in the view's display order; card numbers and the 1–9 shortcuts follow it. */
-export function orderRoutesForView<T extends { pageId: string }>(view: NavigationView, routes: T[]): T[] {
-  const byId = new Map(routes.map((route) => [route.pageId, route]))
-  return view.groups.flatMap((group) =>
-    group.scenePageIds.flatMap((pageId) => {
-      const route = byId.get(pageId)
-      return route ? [route] : []
-    }),
-  )
-}

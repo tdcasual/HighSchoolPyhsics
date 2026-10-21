@@ -141,14 +141,5 @@ const CHAPTERS: Omit<PhysicsRegion, 'scenePageIds'>[] = [
 
 export const PHYSICS_REGIONS: PhysicsRegion[] = CHAPTERS.map((chapter) => ({ ...chapter, scenePageIds: scenesIn('chapter', chapter.id) }))
 
-export function findRegionById(id: string): PhysicsRegion | undefined {
-  return PHYSICS_REGIONS.find((r) => r.id === id)
-}
 
-export function findVolumeById(id: string): TextbookVolume | undefined {
-  return TEXTBOOK_VOLUMES.find((v) => v.id === id)
-}
 
-export function getRegionSceneCount(region: PhysicsRegion): number {
-  return region.scenePageIds.length
-}

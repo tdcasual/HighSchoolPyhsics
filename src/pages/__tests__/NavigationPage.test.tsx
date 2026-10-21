@@ -5,7 +5,7 @@ import type { DemoRoute } from '../../app/demoRoutes'
 import { shouldWarmRouteOnOverview } from '../../app/routeWarmupPolicy'
 import sceneCatalog from '../../../config/demo-scenes.json'
 import { PHYSICS_REGIONS } from '../../ui/navigation/regionData'
-import { NAVIGATION_VIEWS, findNavigationView, orderRoutesForView } from '../../ui/navigation/navigationViews'
+import { NAVIGATION_VIEWS, findNavigationView } from '../../ui/navigation/navigationViews'
 
 vi.mock('../../app/routeWarmupPolicy', () => ({
   shouldWarmRouteOnOverview: vi.fn(() => true),
@@ -88,8 +88,8 @@ describe('NavigationPage Linear layout', () => {
   })
 
   it('orders the textbook view by chapter teaching order', () => {
-    const ordered = orderRoutesForView(findNavigationView('textbook'), sceneCatalog)
-    expect(ordered.map((entry) => entry.pageId).slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'celestial-motion'])
+    const ids = findNavigationView('textbook').groups.flatMap((group) => group.scenePageIds)
+    expect(ids.slice(0, 3)).toEqual(['ticker-timer', 'cart-velocity', 'celestial-motion'])
   })
 
   it('places every catalogued scene exactly once in every view', () => {

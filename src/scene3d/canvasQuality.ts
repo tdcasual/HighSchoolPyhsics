@@ -158,6 +158,3 @@ export function getGeometryDetail(): GeometryDetail {
   return resolvePerformanceProfile().geometry
 }
 
-export function getPerformanceLevel(): PerformanceLevel {
-  return resolvePerformanceProfile().level
-}

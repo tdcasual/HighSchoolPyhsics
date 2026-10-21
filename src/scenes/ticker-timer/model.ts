@@ -56,20 +56,11 @@ export type TapeAnalysis = {
 
 export const MAINS_FREQUENCY_HZ = 50;
 export const DEFAULT_PERIOD_S = 0.02;
-export const PAPER_WIDTH_M = 0.0175;
-export const CARBON_DIAMETER_M = 0.034;
-export const BASE_SIZE_M = {
-  length: 0.144,
-  width: 0.07,
-  height: 0.035,
-} as const;
 export const DEFAULT_MASS_KG = 0.2;
-export const HAMMER_MASS_KG = 0.3;
 /** A longer strip gives a readable 50–80 point run at the standard 50 Hz. */
 export const MAX_TAPE_M = 1.2;
 export const MAX_DOTS = 240;
 export const FIXED_STEP_S = 1 / 200;
-export const COUNTING_INTERVALS = 5;
 
 /** J0203 / JY38-84: working drag ≤ 3 gf. Spark discharge is contactless. */
 export const FRICTION_FORCE_N: Record<TimerKind, number> = {

@@ -1,135 +1,39 @@
 import { getConsoleFunction, setConsoleFunction } from 'three'
 
-let installed = false
-let activeEnvironment: ThreeConsoleFilterEnvironment = 'development'
-let activeSuppressedPatterns: readonly string[] = []
-const suppressedCounts = new Map<string, number>()
-
-type ConsoleMethodName = 'warn' | 'error' | 'log' | 'info' | 'debug'
 export type ThreeConsoleFilterEnvironment = 'development' | 'test' | 'production'
-type ThreeConsoleFilterPolicy = Record<ThreeConsoleFilterEnvironment, readonly string[]>
 
-const ALWAYS_SUPPRESSED_THREE_MESSAGES = [
-  'WARNING: Multiple instances of Three.js being imported.',
-] as const
-
-const DEVELOPMENT_AND_TEST_SUPPRESSED_THREE_MESSAGES = [
+/** Hidden everywhere: harmless with code-split chunks. */
+const ALWAYS = ['WARNING: Multiple instances of Three.js being imported.']
+/** Hidden while developing and testing (jsdom loses contexts; drei still uses THREE.Clock). */
+const DEV_AND_TEST = [
   'THREE.WebGLRenderer: Context Lost.',
   'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.',
-] as const
+]
 
-const SUPPRESSED_THREE_MESSAGE_POLICY: ThreeConsoleFilterPolicy = {
-  development: [...ALWAYS_SUPPRESSED_THREE_MESSAGES, ...DEVELOPMENT_AND_TEST_SUPPRESSED_THREE_MESSAGES],
-  test: [
-    ...ALWAYS_SUPPRESSED_THREE_MESSAGES,
-    ...DEVELOPMENT_AND_TEST_SUPPRESSED_THREE_MESSAGES,
-  ],
-  production: [...ALWAYS_SUPPRESSED_THREE_MESSAGES],
+let installed = false
+
+function currentEnvironment(requested?: unknown): ThreeConsoleFilterEnvironment {
+  const candidates = [requested, import.meta.env?.MODE, typeof process !== 'undefined' ? process.env.NODE_ENV : undefined]
+  const match = candidates.find((value) => value === 'development' || value === 'test' || value === 'production')
+  return (match as ThreeConsoleFilterEnvironment | undefined) ?? 'development'
 }
 
-function isThreeConsoleFilterEnvironment(value: unknown): value is ThreeConsoleFilterEnvironment {
-  return value === 'development' || value === 'test' || value === 'production'
-}
-
-function resolveFilterEnvironment(
-  requestedEnvironment?: ThreeConsoleFilterEnvironment,
-): ThreeConsoleFilterEnvironment {
-  if (isThreeConsoleFilterEnvironment(requestedEnvironment)) {
-    return requestedEnvironment
-  }
-
-  if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
-    const viteMode = import.meta.env.MODE
-    if (isThreeConsoleFilterEnvironment(viteMode)) {
-      return viteMode
-    }
-  }
-
-  if (typeof process !== 'undefined') {
-    const nodeEnvironment = process.env.NODE_ENV
-    if (isThreeConsoleFilterEnvironment(nodeEnvironment)) {
-      return nodeEnvironment
-    }
-  }
-
-  return 'development'
-}
-
-function resolveSuppressedPatterns(environment: ThreeConsoleFilterEnvironment): readonly string[] {
-  return SUPPRESSED_THREE_MESSAGE_POLICY[environment]
-}
-
-function findSuppressedPattern(messageText: string): string | null {
-  return activeSuppressedPatterns.find((pattern) => messageText.includes(pattern)) ?? null
-}
-
-function trackSuppressedPattern(pattern: string): void {
-  const currentCount = suppressedCounts.get(pattern) ?? 0
-  suppressedCounts.set(pattern, currentCount + 1)
-}
-
-function resolveConsoleMethod(type: string): ConsoleMethodName {
-  const method = type.toLowerCase()
-  if (method === 'warn' || method === 'error' || method === 'info' || method === 'debug') {
-    return method
-  }
-  return 'log'
-}
-
-export function getThreeConsoleFilterPolicy(): {
-  environment: ThreeConsoleFilterEnvironment
-  suppressedPatterns: string[]
-} {
-  return {
-    environment: activeEnvironment,
-    suppressedPatterns: [...activeSuppressedPatterns],
-  }
-}
-
-export function getThreeConsoleFilterStats(): {
-  environment: ThreeConsoleFilterEnvironment
-  suppressedTotal: number
-  suppressedByPattern: Record<string, number>
-} {
-  let suppressedTotal = 0
-  const suppressedByPattern = Array.from(suppressedCounts.entries()).reduce<Record<string, number>>((acc, entry) => {
-    const [pattern, count] = entry
-    acc[pattern] = count
-    suppressedTotal += count
-    return acc
-  }, {})
-
-  return {
-    environment: activeEnvironment,
-    suppressedTotal,
-    suppressedByPattern,
-  }
-}
-
+/** Routes three.js console output through a filter that drops known, harmless messages. */
 export function installThreeConsoleFilter(options: { environment?: ThreeConsoleFilterEnvironment } = {}): void {
-  if (installed) {
-    return
-  }
+  if (installed) return
   installed = true
-  activeEnvironment = resolveFilterEnvironment(options.environment)
-  activeSuppressedPatterns = resolveSuppressedPatterns(activeEnvironment)
-  suppressedCounts.clear()
-
+  const environment = currentEnvironment(options.environment)
+  const suppressed = environment === 'production' ? ALWAYS : [...ALWAYS, ...DEV_AND_TEST]
   const originalConsole = getConsoleFunction()
 
   setConsoleFunction((type, message, ...params) => {
-    const messageText = typeof message === 'string' ? message : String(message)
-    const suppressedPattern = findSuppressedPattern(messageText)
-    if (suppressedPattern) {
-      trackSuppressedPattern(suppressedPattern)
-      return
-    }
+    const text = typeof message === 'string' ? message : String(message)
+    if (suppressed.some((pattern) => text.includes(pattern))) return
     if (typeof originalConsole === 'function') {
-      originalConsole(type, messageText, ...params)
+      originalConsole(type, text, ...params)
       return
     }
-
-    const consoleMethod = resolveConsoleMethod(type)
-    console[consoleMethod](messageText, ...params)
+    const method = (['warn', 'error', 'info', 'debug'] as const).find((name) => name === type.toLowerCase()) ?? 'log'
+    console[method](text, ...params)
   })
 }

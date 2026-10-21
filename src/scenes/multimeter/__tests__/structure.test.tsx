@@ -32,7 +32,6 @@ describe('multimeter structure', () => {
     expect(controls.maxDistance).toBeGreaterThanOrEqual(140)
     expect(controls.target).toHaveLength(3)
     expect(controls.target.every(Number.isFinite)).toBe(true)
-    expect(canvasProps.current?.adaptiveFraming).toBe(false)
   })
 
   it('swaps the probe label and shows the connection-error chart', () => {

@@ -29,7 +29,6 @@ describe('resistivity structure', () => {
     expect(screen.getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
     const controls = canvasProps.current?.controls as { maxDistance: number }
     expect(controls.maxDistance).toBeGreaterThanOrEqual(420)
-    expect(canvasProps.current?.adaptiveFraming).toBe(false)
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 

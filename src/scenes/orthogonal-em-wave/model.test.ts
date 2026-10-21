@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildFieldTrace, deriveEmWaveReadings, electricFieldAt, magneticFieldAt, phaseAt } from './model'
+import { buildFieldTrace, deriveEmWaveReadings, phaseAt } from './model'
 
 describe('orthogonal-em-wave model', () => {
   const params = { amplitude: 1, wavelength: 4, speed: 4, direction: 'right' as const }
@@ -8,11 +8,9 @@ describe('orthogonal-em-wave model', () => {
     const readings = deriveEmWaveReadings(0, params)
     expect(readings.frequency).toBeCloseTo(1)
     expect(readings.waveNumber).toBeCloseTo(Math.PI / 2)
-    expect(electricFieldAt(1, 0.25, params)).toBeCloseTo(magneticFieldAt(1, 0.25, params))
-    const leftParams = { ...params, direction: 'left' as const }
-    const leftElectric = electricFieldAt(0, 0.25, leftParams)
-    expect(leftElectric).toBeCloseTo(1)
-    expect(magneticFieldAt(0, 0.25, leftParams)).toBeCloseTo(-leftElectric)
+    // E and B in phase for a right-going wave, opposite in sign for a left-going one.
+    for (const [, e, b] of buildFieldTrace(0.25, params, 9)) expect(e).toBeCloseTo(b)
+    for (const [, e, b] of buildFieldTrace(0.25, { ...params, direction: 'left' as const }, 9)) expect(b).toBeCloseTo(-e)
     expect(readings.orthogonality).toBe(0)
   })
 
