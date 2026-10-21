@@ -1,6 +1,7 @@
 import { formatScientific } from '../../ui/formatNumber'
 import { FILTER_PROFILES, FILTER_RGB, filterTransmission, type FilterColor } from './filters'
-import { createBufferPool, createPatternCache, drawEyepieceBorder, fastPow08, getCircleMask } from './patternCanvas'
+import { fastPow08 } from './patternCanvas'
+import { createPatternRenderer, type Profile } from './patternRenderer'
 import { waveLengthToRGB } from './spectrum'
 
 export { FILTER_HEX, FILTER_LABEL, FILTER_PROFILES, FILTER_RGB, filterTransmission, type FilterColor } from './filters'
@@ -386,123 +387,46 @@ export function clampApertureSize(mode: DiffractionMode, value: number): number 
   return Math.max(range.min, Math.min(range.max, value))
 }
 
-const ensureBuffers = createBufferPool()
-const patternCache = createPatternCache()
+const renderer = createPatternRenderer()
 
 export function setPatternCacheMax(maxEntries: number): void {
-  patternCache.setMax(maxEntries)
+  renderer.setCacheMax(maxEntries)
 }
 
 // ====== Pattern drawing ======
 
-export function drawDiffractionPattern(
-  ctx: CanvasRenderingContext2D,
-  params: DiffractionParams,
-  mode: DiffractionMode,
-): void {
-  const width = ctx.canvas.width
-  const height = ctx.canvas.height
-  const cx = width / 2
-  const cy = height / 2
+const isRound = (mode: DiffractionMode) => mode === 'circular-aperture' || mode === 'circular-obstacle'
 
-  const n = width * height
-  const rgb = waveLengthToRGB(params.wavelength)
-  const physicalViewWidth = getPhysicalViewWidth(mode, params)
-
-  const { imgData, imgDataU32 } = ensureBuffers(ctx, n)
-  const data = imgData.data
-
-  const intensityFn = getIntensityFunction(mode)
-
-  imgDataU32.fill(0)
-
-  if (mode === 'circular-aperture' || mode === 'circular-obstacle') {
-    // 2D radial pattern — use radial LUT to avoid per-pixel intensityFn calls
-    const radius = Math.min(width, height) / 2 - 2
-    const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, radius)
-    const scalePhys = physicalViewWidth / Math.min(width, height)
-    const maxPxRadius = Math.ceil(radius)
-    const radialLut = new Float32Array(maxPxRadius + 1)
-    for (let rPx = 0; rPx <= maxPxRadius; rPx++) {
-      radialLut[rPx] = fastPow08(intensityFn(rPx * scalePhys, params))
-    }
-
-    for (let py = 0; py < height; py++) {
-      const minX = rowMinX[py]
-      const maxX = rowMaxX[py]
-      if (minX > maxX) continue
-      const dyPx = py - cy
-      const rowOffset = py * width * 4
-      for (let px = minX; px <= maxX; px++) {
-        const dxPx = px - cx
-        const rPx = Math.round(Math.sqrt(dxPx * dxPx + dyPx * dyPx))
-        const intensity = radialLut[Math.min(rPx, maxPxRadius)]
-        const p4 = rowOffset + px * 4
-        data[p4] = rgb[0] * intensity
-        data[p4 + 1] = rgb[1] * intensity
-        data[p4 + 2] = rgb[2] * intensity
-        data[p4 + 3] = 255
-      }
-    }
-    ctx.putImageData(imgData, 0, 0)
-    drawEyepieceBorder(ctx, cx, cy, radius)
-  } else {
-    // 1D horizontal pattern (single-slit or grating)
-    // Compute intensity for each column, then replicate vertically
-    const colInt = new Float32Array(width)
-    const subSamples = mode === 'diffraction-grating' ? 16 : 1
-    for (let px = 0; px < width; px++) {
-      let sampledIntensity = 0
-      for (let sample = 0; sample < subSamples; sample++) {
-        const normalizedX = (px + (sample + 0.5) / subSamples) / width
-        const screenX = (normalizedX - 0.5) * physicalViewWidth
-        sampledIntensity += intensityFn(screenX, params)
-      }
-      colInt[px] = fastPow08(sampledIntensity / subSamples)
-    }
-
-    // For single-slit and grating, draw a rectangular strip with vertical fringes
-    // Fill the full canvas but darken outside a central band
-    const stripHalfHeight = height * 0.35
-    const stripTop = Math.round(cy - stripHalfHeight)
-    const stripBottom = Math.round(cy + stripHalfHeight)
-
-    for (let py = 0; py < height; py++) {
-      const rowOffset = py * width * 4
-      const inStrip = py >= stripTop && py <= stripBottom
-      const dimFactor = inStrip ? 1.0 : 0.08
-      for (let px = 0; px < width; px++) {
-        const intensity = colInt[px] * dimFactor
-        const p4 = rowOffset + px * 4
-        data[p4] = rgb[0] * intensity
-        data[p4 + 1] = rgb[1] * intensity
-        data[p4 + 2] = rgb[2] * intensity
-        data[p4 + 3] = 255
-      }
-    }
-
-    ctx.putImageData(imgData, 0, 0)
-
-    // Draw border around the strip
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
-    ctx.lineWidth = 1.5
-    ctx.strokeRect(0, stripTop, width, stripBottom - stripTop)
+/**
+ * The screen at one wavelength: apertures and the Poisson spot as a radial profile in the
+ * eyepiece; slits and gratings as a column profile on a strip (gratings averaged over 16
+ * samples per pixel so their narrow orders are not missed).
+ */
+function patternProfile(mode: DiffractionMode, params: DiffractionParams, viewWidth: number, width: number, height: number): Profile {
+  const intensity = getIntensityFunction(mode)
+  if (isRound(mode)) {
+    const pxToScreen = viewWidth / Math.min(width, height)
+    const values = new Float32Array(Math.ceil(Math.min(width, height) / 2 - 2) + 1)
+    for (let r = 0; r < values.length; r++) values[r] = fastPow08(intensity(r * pxToScreen, params))
+    return { kind: 'radial', values }
   }
+  const samples = mode === 'diffraction-grating' ? 16 : 1
+  const values = new Float32Array(width)
+  for (let px = 0; px < width; px++) {
+    let sum = 0
+    for (let sample = 0; sample < samples; sample++) sum += intensity(((px + (sample + 0.5) / samples) / width - 0.5) * viewWidth, params)
+    values[px] = fastPow08(sum / samples)
+  }
+  return { kind: 'columns', values }
 }
 
-// White light cache (same pattern as double-slit)
-function buildPatternCacheKey(
-  mode: DiffractionMode,
-  params: DiffractionParams,
-  filterColor: FilterColor,
-  width: number,
-  height: number,
-  wavelengthStep: number,
-): string {
-  // Include spectral sampling density because it changes the rendered mixture.
-  return [mode, width, height, params.apertureSize.toFixed(3), params.screenDistance.toFixed(2), params.gratingLines, filterColor, wavelengthStep].join('_')
+export function drawDiffractionPattern(ctx: CanvasRenderingContext2D, params: DiffractionParams, mode: DiffractionMode): void {
+  const { width, height } = ctx.canvas
+  const profile = patternProfile(mode, params, getPhysicalViewWidth(mode, params), width, height)
+  renderer.drawMonochrome(ctx, isRound(mode) ? 'round' : 'strip', params.wavelength, profile)
 }
 
+/** White light (optionally filtered); the field is sized for the reddest, widest pattern. */
 export function drawWhiteLightPattern(
   ctx: CanvasRenderingContext2D,
   mode: DiffractionMode,
@@ -510,213 +434,14 @@ export function drawWhiteLightPattern(
   filterColor: FilterColor,
   wavelengthStep = 5,
 ): void {
-  const width = ctx.canvas.width
-  const height = ctx.canvas.height
-  const cx = width / 2
-  const cy = height / 2
-  const n = width * height
-
-  const viewParams = { ...params, wavelength: 700 }
-  const physicalViewWidth = getPhysicalViewWidth(mode, viewParams)
-  const cacheKey = buildPatternCacheKey(mode, params, filterColor, width, height, wavelengthStep)
-
-  const { rowMinX, rowMaxX } = getCircleMask(width, height, cx, cy, Math.min(width, height) / 2 - 2)
-  const { imgData } = ensureBuffers(ctx, n)
-
-  const cached = patternCache.get(cacheKey, n)
-  if (cached) {
-    // For 1D modes, we don't use circle mask; normalize differently
-    if (mode === 'circular-aperture' || mode === 'circular-obstacle') {
-      normalizeToImageData(imgData, cached.accR, cached.accG, cached.accB, width, height, rowMinX, rowMaxX)
-    } else {
-      normalizeToRectImageData(imgData, cached.accR, cached.accG, cached.accB, width, height)
-    }
-    ctx.putImageData(imgData, 0, 0)
-    if (mode === 'circular-aperture' || mode === 'circular-obstacle') {
-      drawEyepieceBorder(ctx, cx, cy, Math.min(width, height) / 2 - 2)
-    }
-    return
-  }
-
-  const { accR, accG, accB } = ensureBuffers(ctx, n)
-  accR.fill(0)
-  accG.fill(0)
-  accB.fill(0)
-
-  const is2D = mode === 'circular-aperture' || mode === 'circular-obstacle'
-  const intensityFn = getIntensityFunction(mode)
-
-  // Pre-compute radial LUT for 2D modes to avoid per-pixel intensityFn calls
-  const scalePhys = physicalViewWidth / Math.min(width, height)
-  const maxPxRadius = is2D ? Math.ceil(Math.min(width, height) / 2 - 2) : 0
-  const radialLut = is2D ? new Float32Array(maxPxRadius + 1) : null
-
-  for (let wl = 400; wl <= 700; wl += wavelengthStep) {
-    const filterWeight = filterTransmission(wl, filterColor)
-
-    const rgb = waveLengthToRGB(wl)
-    if (rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) continue
-
-    const pR = rgb[0] * filterWeight
-    const pG = rgb[1] * filterWeight
-    const pB = rgb[2] * filterWeight
-
-    if (is2D) {
-      for (let rPx = 0; rPx <= maxPxRadius; rPx++) {
-        radialLut![rPx] = fastPow08(intensityFn(rPx * scalePhys, { ...params, wavelength: wl }))
-      }
-      for (let py = 0; py < height; py++) {
-        const minX = rowMinX[py]
-        const maxX = rowMaxX[py]
-        if (minX > maxX) continue
-        const dyPx = py - cy
-        const rowBase = py * width
-        for (let px = minX; px <= maxX; px++) {
-          const dxPx = px - cx
-          const rPx = Math.round(Math.sqrt(dxPx * dxPx + dyPx * dyPx))
-          const intensity = radialLut![Math.min(rPx, maxPxRadius)]
-          const idx = rowBase + px
-          accR[idx] += pR * intensity
-          accG[idx] += pG * intensity
-          accB[idx] += pB * intensity
-        }
-      }
-    } else {
-      // 1D: accumulate column intensities, then replicate
-      const colInt = new Float32Array(width)
-      const wavelengthParams = { ...params, wavelength: wl }
-      const subSamples = mode === 'diffraction-grating' ? 16 : 1
-      for (let px = 0; px < width; px++) {
-        let sampledIntensity = 0
-        for (let sample = 0; sample < subSamples; sample++) {
-          const normalizedX = (px + (sample + 0.5) / subSamples) / width
-          const screenX = (normalizedX - 0.5) * physicalViewWidth
-          sampledIntensity += intensityFn(screenX, wavelengthParams)
-        }
-        colInt[px] = fastPow08(sampledIntensity / subSamples)
-      }
-      const stripHalfHeight = height * 0.35
-      const stripTop = Math.round(cy - stripHalfHeight)
-      const stripBottom = Math.round(cy + stripHalfHeight)
-      for (let py = 0; py < height; py++) {
-        const inStrip = py >= stripTop && py <= stripBottom
-        const dimFactor = inStrip ? 1.0 : 0.08
-        const rowBase = py * width
-        for (let px = 0; px < width; px++) {
-          const intensity = colInt[px] * dimFactor
-          const idx = rowBase + px
-          accR[idx] += pR * intensity
-          accG[idx] += pG * intensity
-          accB[idx] += pB * intensity
-        }
-      }
-    }
-  }
-
-  patternCache.store(cacheKey, accR, accG, accB)
-  if (is2D) {
-    normalizeToImageData(imgData, accR, accG, accB, width, height, rowMinX, rowMaxX)
-    ctx.putImageData(imgData, 0, 0)
-    drawEyepieceBorder(ctx, cx, cy, Math.min(width, height) / 2 - 2)
-  } else {
-    normalizeToRectImageData(imgData, accR, accG, accB, width, height)
-    ctx.putImageData(imgData, 0, 0)
-  }
-}
-
-function normalizeToImageData(
-  imgData: ImageData,
-  srcR: Float32Array,
-  srcG: Float32Array,
-  srcB: Float32Array,
-  width: number,
-  height: number,
-  rowMinX: Int32Array,
-  rowMaxX: Int32Array,
-): void {
-  // Global max for brightness reference
-  let maxVal = 0
-  for (let y = 0; y < height; y++) {
-    const minX = rowMinX[y]
-    const maxX = rowMaxX[y]
-    if (minX > maxX) continue
-    const rowBase = y * width
-    for (let px = minX; px <= maxX; px++) {
-      const i = rowBase + px
-      const v = srcR[i] > srcG[i] ? (srcR[i] > srcB[i] ? srcR[i] : srcB[i]) : (srcG[i] > srcB[i] ? srcG[i] : srcB[i])
-      if (v > maxVal) maxVal = v
-    }
-  }
-
-  const data = imgData.data
-  const noiseThreshold = maxVal * 0.0005
-
-  for (let y = 0; y < height; y++) {
-    const minX = rowMinX[y]
-    const maxX = rowMaxX[y]
-    if (minX > maxX) continue
-    const rowBase = y * width
-    const rowOffset = rowBase * 4
-    for (let px = minX; px <= maxX; px++) {
-      const idx = rowBase + px
-      const rAcc = srcR[idx]
-      const gAcc = srcG[idx]
-      const bAcc = srcB[idx]
-      const localMax = Math.max(rAcc, gAcc, bAcc)
-
-      if (localMax > noiseThreshold) {
-        // Local hue normalization preserves color regardless of brightness
-        const nr = (rAcc / localMax) * 255
-        const ng = (gAcc / localMax) * 255
-        const nb = (bAcc / localMax) * 255
-        // Global brightness with gamma so dim fringes remain visible
-        const brightness = Math.max(0.15, Math.pow(localMax / maxVal, 0.3))
-        const pi = rowOffset + px * 4
-        data[pi] = Math.min(255, nr * brightness)
-        data[pi + 1] = Math.min(255, ng * brightness)
-        data[pi + 2] = Math.min(255, nb * brightness)
-        data[pi + 3] = 255
-      }
-    }
-  }
-}
-
-function normalizeToRectImageData(
-  imgData: ImageData,
-  srcR: Float32Array,
-  srcG: Float32Array,
-  srcB: Float32Array,
-  width: number,
-  height: number,
-): void {
-  let maxVal = 0
-  const n = width * height
-  for (let i = 0; i < n; i++) {
-    const v = srcR[i] > srcG[i] ? (srcR[i] > srcB[i] ? srcR[i] : srcB[i]) : (srcG[i] > srcB[i] ? srcG[i] : srcB[i])
-    if (v > maxVal) maxVal = v
-  }
-
-  const data = imgData.data
-  const noiseThreshold = maxVal * 0.0005
-
-  for (let i = 0; i < n; i++) {
-    const rAcc = srcR[i]
-    const gAcc = srcG[i]
-    const bAcc = srcB[i]
-    const localMax = Math.max(rAcc, gAcc, bAcc)
-
-    if (localMax > noiseThreshold) {
-      const nr = (rAcc / localMax) * 255
-      const ng = (gAcc / localMax) * 255
-      const nb = (bAcc / localMax) * 255
-      const brightness = Math.max(0.15, Math.pow(localMax / maxVal, 0.3))
-      const pi = i * 4
-      data[pi] = Math.min(255, nr * brightness)
-      data[pi + 1] = Math.min(255, ng * brightness)
-      data[pi + 2] = Math.min(255, nb * brightness)
-      data[pi + 3] = 255
-    }
-  }
+  const { width, height } = ctx.canvas
+  const viewWidth = getPhysicalViewWidth(mode, { ...params, wavelength: 700 })
+  renderer.drawWhiteLight(ctx, isRound(mode) ? 'round' : 'strip', {
+    key: `${mode}_${params.apertureSize.toFixed(3)}_${params.screenDistance.toFixed(2)}_${params.gratingLines}`,
+    filterColor,
+    step: wavelengthStep,
+    profileAt: (wl) => patternProfile(mode, { ...params, wavelength: wl }, viewWidth, width, height),
+  })
 }
 
 // ====== Profile drawing for chart ======
