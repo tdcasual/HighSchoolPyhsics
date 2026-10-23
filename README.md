@@ -54,7 +54,8 @@
 
 ```bash
 npm test                 # 单元测试（含全部场景的课堂契约测试与约定测试）
-npm run verify:ci        # lint + 单测 + 构建 + 体积预算（CI 同款）
+npm run format           # Prettier 统一格式（verify:ci 会检查）
+npm run verify:ci        # lint + 格式 + 单测 + 构建 + 体积预算（CI 同款）
 npm run test:interaction # 浏览器交互回归：每个场景、首页往返（桌面与手机触屏）、WCAG A/AA 无障碍扫描（axe）
 npm run test:visual-smoke  # 视觉回归：白天、夜间、手机三套基线，数据面板单独严格比对（--profile=night 等只跑一套）
 npm run verify:full      # 以上全部 + 路由加载预算 + 专项回归
