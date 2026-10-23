@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { runFixedSteps } from './fixedSteps'
 import { useAnimationLoop } from './useAnimationLoop'
 
 export type SimulationClockOptions = {
@@ -47,15 +48,9 @@ export function useSimulationClock(options: SimulationClockOptions): SimulationC
   const run = useCallback((seconds: number): boolean => {
     const { advance, fixedStepSeconds } = optionsRef.current
     if (!fixedStepSeconds) return advance(seconds) !== false
-    carryRef.current += seconds
-    while (carryRef.current + 1e-9 >= fixedStepSeconds) {
-      carryRef.current -= fixedStepSeconds
-      if (advance(fixedStepSeconds) === false) {
-        carryRef.current = 0
-        return false
-      }
-    }
-    return true
+    const result = runFixedSteps(carryRef.current, seconds, fixedStepSeconds, advance)
+    carryRef.current = result.carry
+    return !result.ended
   }, [])
 
   useAnimationLoop(

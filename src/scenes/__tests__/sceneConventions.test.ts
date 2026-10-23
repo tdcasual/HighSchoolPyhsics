@@ -47,6 +47,17 @@ const RAW_FRAME_LOOPS: Record<string, string> = {
 }
 
 /**
+ * useFrame is for per-frame drawing that reads state, never for advancing what the class reads
+ * (that ignores pause, slow motion and 单步). Each scene that uses it says what it draws.
+ */
+const FRAME_CALLBACKS: Record<string, string> = {
+  'wave-interference': 'writes the clock time into the wave shader and samples the observer trace from it',
+  'celestial-motion': 'splits the orbit into front and back halves as the camera moves',
+  mhd: 'drifts the flow markers and carriers; the readings are steady-state values',
+  'wedge-interference': 'sweeps the light curtain across the plate while 扫描 is on; nothing is read from it',
+}
+
+/**
  * Scenes whose playback zone is not play / 单步 / reset, so they list their actions by hand.
  * Everything else builds it with clockActions (simulation/clockActions).
  */
@@ -177,5 +188,10 @@ describe('scene conventions', () => {
         .map((chunk) => `${path}: ${chunk.match(/function (\w+)/)?.[1]}`),
     )
     expect(handBuilt).toEqual([])
+  })
+
+  it('keeps useFrame to drawing (each use listed with what it draws)', () => {
+    const uses = [...scenes].filter(([, text]) => /\buseFrame\(/.test(text)).map(([scene]) => scene)
+    expect(uses.sort()).toEqual(Object.keys(FRAME_CALLBACKS).sort())
   })
 })

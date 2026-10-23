@@ -2,7 +2,6 @@ import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMe
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useMemo, useState } from 'react'
 import { useAnimatedState } from '../../simulation/useAnimatedState'
-import { useFixedStepper } from '../../simulation/useFixedStepper'
 import {
   FIXED_STEP_S,
   createTickerTimerState,
@@ -77,15 +76,22 @@ export function useTickerTimerSceneState(): TickerTimerSceneState {
   const [showLabels, setShowLabels] = useState(() => recall('ticker-timer.showLabels', true))
   useRemember('ticker-timer', { playbackRate, showLabels })
   // The tape is punched in fixed steps; this scene has its own 播放速度 instead of the shell's.
-  const { stepper, resetCarry } = useFixedStepper(stepTickerTimerState, FIXED_STEP_S)
-  const { state: simulation, commit: commitSimulation } = useAnimatedState<TickerTimerState>(
+  const {
+    state: simulation,
+    commit: commitSimulation,
+    resetCarry: resetAnimationClock,
+  } = useAnimatedState<TickerTimerState>(
     () => rememberFields('ticker-timer', createTickerTimerState(), REMEMBERED_FIELDS),
-    stepper,
+    stepTickerTimerState,
     (state) => state.powered && !state.finished,
-    { honourPlaybackRate: false, timeScale: playbackRate, maxFrameSeconds: MAX_FRAME_S },
+    {
+      honourPlaybackRate: false,
+      timeScale: playbackRate,
+      maxFrameSeconds: MAX_FRAME_S,
+      fixedStepSeconds: FIXED_STEP_S,
+    },
   )
   useRememberFields('ticker-timer', simulation, REMEMBERED_FIELDS)
-  const resetAnimationClock = resetCarry
 
   const analysis = useMemo(() => deriveTapeAnalysis(simulation), [simulation])
 
