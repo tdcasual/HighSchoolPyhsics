@@ -62,8 +62,6 @@ npm run verify:full      # 以上全部 + 路由加载预算 + 专项回归
 npm run report:architecture # 各场景对共享架构的采用情况
 ```
 
-部署：`scripts/deploy/deploy.sh` 构建已提交的 HEAD 并发布到 https://pet.lvlove.wang（ssh 主机 `aliyun-bj2`，每次一个 `releases/<提交>` 目录，`current` 原子切换，保留最近 5 个可回滚；nginx 配置见同目录）。
-
 浏览器回归用 Playwright；可设 `CHROME_PATH` 使用系统 Chrome，设 `PLAYWRIGHT_SERVER_MODE=preview` 针对构建产物运行。
 
 新增场景用脚手架生成（共享时钟、数据面板、取景、场景记忆都已接好，并登记到目录和导航）：
