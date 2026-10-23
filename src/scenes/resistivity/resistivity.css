@@ -19,7 +19,7 @@
 .resistivity-table-wrap {
   max-width: min(76vw, 620px);
   overflow-x: auto;
-  border: 1px solid rgba(87, 111, 118, 0.22);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
 }
 
@@ -34,7 +34,7 @@
 .resistivity-table th,
 .resistivity-table td {
   padding: 0.38rem 0.46rem;
-  border-bottom: 1px solid rgba(87, 111, 118, 0.16);
+  border-bottom: 1px solid var(--readout-divider);
   text-align: right;
   white-space: nowrap;
 }
@@ -46,7 +46,7 @@
 
 .resistivity-table thead,
 .resistivity-table tfoot {
-  background: rgba(57, 102, 111, 0.08);
+  background: var(--readout-bg);
   color: var(--control-ink);
 }
 

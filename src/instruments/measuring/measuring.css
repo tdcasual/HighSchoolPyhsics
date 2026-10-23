@@ -1,3 +1,8 @@
+/* Reading figures are drawn on light paper in both themes, like the printed scale they copy. */
+:root {
+  --measure-figure-paper: #f7fbfb;
+}
+
 .measure-controls {
   display: grid;
   gap: 0.85rem;
@@ -23,18 +28,18 @@
 }
 
 .measure-feedback.ok {
-  color: #1f7a4a;
+  color: var(--readout-ok);
 }
 
 .measure-feedback.bad {
-  color: #a84f27;
+  color: var(--readout-warn);
 }
 
 .measure-chart {
   display: block;
   width: 100%;
   height: auto;
-  background: #f7fbfb;
+  background: var(--measure-figure-paper);
   border-radius: 12px;
 }
 

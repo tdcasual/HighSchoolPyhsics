@@ -1,3 +1,18 @@
+/* Velocity (teal) and acceleration (red), matching the arrows in the 3D view. */
+:root {
+  --wave-state-toggle-border: rgba(69, 123, 157, 0.55);
+  --wave-state-active-ink: #2a7f73;
+  --wave-state-active-tint: rgba(42, 157, 143, 0.12);
+  --wave-state-velocity: #2a9d8f;
+  --wave-state-velocity-border: rgba(42, 157, 143, 0.55);
+  --wave-state-acceleration: #e63946;
+  --wave-state-acceleration-border: rgba(230, 57, 70, 0.55);
+}
+
+.app-shell.theme-night {
+  --wave-state-active-ink: #5fd3c3;
+}
+
 .wave-state-controls h2 {
   margin: 0;
   font-size: 1.04rem;
@@ -22,7 +37,7 @@
 }
 .wave-state-toggle {
   min-height: 44px;
-  border: 1px solid rgba(69, 123, 157, 0.55);
+  border: 1px solid var(--wave-state-toggle-border);
   border-radius: 10px;
   padding: 0.35rem 0.45rem;
   color: var(--control-ink-soft);
@@ -32,21 +47,18 @@
   cursor: pointer;
 }
 .wave-state-toggle[aria-pressed='true'] {
-  color: #2a7f73;
-  background: rgba(42, 157, 143, 0.12);
+  color: var(--wave-state-active-ink);
+  background: var(--wave-state-active-tint);
 }
 .wave-state-toggle.velocity {
-  border-color: rgba(42, 157, 143, 0.55);
+  border-color: var(--wave-state-velocity-border);
 }
 .wave-state-toggle.acceleration {
-  border-color: rgba(230, 57, 70, 0.55);
+  border-color: var(--wave-state-acceleration-border);
 }
 .wave-state-velocity-value {
-  color: #2a9d8f !important;
+  color: var(--wave-state-velocity) !important;
 }
 .wave-state-acceleration-value {
-  color: #e63946 !important;
-}
-.app-shell.theme-night .wave-state-toggle[aria-pressed='true'] {
-  color: #5fd3c3;
+  color: var(--wave-state-acceleration) !important;
 }

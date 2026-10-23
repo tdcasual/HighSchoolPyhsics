@@ -24,10 +24,10 @@
 }
 
 .celestial-lesson {
-  border: 1px solid rgba(64, 99, 105, 0.18);
+  border: 1px solid var(--control-border);
   border-radius: 0.65rem;
   padding: 0.55rem 0.7rem;
-  background: rgba(247, 251, 251, 0.72);
+  background: var(--control-section-bg);
 }
 
 .celestial-lesson summary {

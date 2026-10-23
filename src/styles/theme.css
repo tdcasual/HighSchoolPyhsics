@@ -49,6 +49,8 @@
   --readout-ink-soft: #cbd5e1;
   --readout-value: #60a5fa;
   --readout-divider: rgba(255, 255, 255, 0.08);
+  --readout-ok: #6ee7a7;
+  --readout-warn: #fbbf24;
 }
 
 /* ── Night Glass Panels ── */

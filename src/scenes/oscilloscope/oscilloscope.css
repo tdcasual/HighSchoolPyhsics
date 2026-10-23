@@ -81,7 +81,7 @@
 }
 
 .scope-telemetry .scope-overrange > strong {
-  color: #b44931;
+  color: var(--readout-warn);
 }
 
 .app-shell.theme-night .scope-card {

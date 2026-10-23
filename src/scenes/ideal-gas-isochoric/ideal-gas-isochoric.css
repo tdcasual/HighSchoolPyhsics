@@ -1,3 +1,12 @@
+/* The pressure reading is red, like the pressure gauge in the 3D view. */
+:root {
+  --ideal-gas-pressure: #dc2626;
+}
+
+.app-shell.theme-night {
+  --ideal-gas-pressure: #f87171;
+}
+
 .ideal-gas-isochoric-controls h2 {
   margin: 0;
   font-size: 1.04rem;
@@ -39,8 +48,5 @@
   }
 }
 .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong {
-  color: #dc2626;
-}
-.app-shell.theme-night .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong {
-  color: #f87171;
+  color: var(--ideal-gas-pressure);
 }

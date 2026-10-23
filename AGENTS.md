@@ -102,7 +102,8 @@ export function NewDemoScene() {
 - `docs/classroom-presentation-principles.md` — layout principles and zone definitions
 - `docs/plans/2026-10-20-shared-architecture-plan.md` — the current shared architecture and how it got there; `docs/audit/2026-10-17-cross-scene-audit.md` — the audit log, round by round
 - `docs/archive/` — superseded plans (five-zone redesign and earlier), kept for history only
-- `src/ui/layout/SceneLayout.tsx` — layout implementation
+- `src/ui/layout/SceneLayout.tsx` — layout implementation (`DesktopSceneLayout` / `MobileSceneLayout`, with `usePlaybackShortcuts`, `usePredictionRound`, `usePanelStack`); on phones the playback buttons portal into the app header
+- `src/styles/shell/` — shell styles by area (base, app, scene, modes, readouts, forms, responsive, panels, controls), imported in order by `styles/shell.css`. Scene CSS takes colours from the shell tokens (`--control-*`, `--readout-*` incl. `--readout-ok` / `--readout-warn`) or names its own as custom properties with a night value; a convention test rejects colour literals anywhere else
 - `src/ui/panels/FloatingPanel.tsx` — floating panel component
 - `src/ui/panels/SidebarPanel.tsx` — sidebar panel component
 - `src/domains/electromagnetism/` — `UniformField` (a B or E field as parallel `Arrow3D`s through `fieldGrid` points), shared by motional-emf, rotational-emf, cyclotron, generator-core and mhd

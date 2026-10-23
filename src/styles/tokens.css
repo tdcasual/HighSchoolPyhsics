@@ -61,6 +61,9 @@
   --readout-ink: #1e293b;
   --readout-value: #2563eb;
   --readout-divider: rgba(203, 213, 225, 0.4);
+  /* A reading that is fine / needs attention (over range, a warning, a wrong answer). */
+  --readout-ok: #1f7a4a;
+  --readout-warn: #b45309;
 
   /* ── Accessibility ── */
   --skip-link-bg-night: #0c1826;

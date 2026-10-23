@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 // Source text of every scene file (tests excluded), grouped by scene directory.
@@ -14,6 +16,14 @@ const sources = import.meta.glob<string>(
 const sharedParts = import.meta.glob<string>(
   ['../../instruments/**/*.tsx', '../../domains/**/*.tsx', '!../../**/*.test.tsx', '!../../**/__tests__/**'],
   { query: '?raw', import: 'default', eager: true },
+)
+
+// Scene stylesheets (and the shared instrument and domain ones), read from disk: Vitest serves
+// CSS imports as empty strings, even with ?raw.
+const stylesheets: Array<[string, string]> = ['src/scenes', 'src/instruments', 'src/domains'].flatMap((dir) =>
+  readdirSync(dir, { recursive: true, encoding: 'utf8' })
+    .filter((file) => file.endsWith('.css'))
+    .map((file): [string, string] => [join(dir, file), readFileSync(join(dir, file), 'utf8')]),
 )
 
 const scenes = new Map<string, string>()
@@ -193,5 +203,17 @@ describe('scene conventions', () => {
   it('keeps useFrame to drawing (each use listed with what it draws)', () => {
     const uses = [...scenes].filter(([, text]) => /\buseFrame\(/.test(text)).map(([scene]) => scene)
     expect(uses.sort()).toEqual(Object.keys(FRAME_CALLBACKS).sort())
+  })
+
+  it('names every colour in scene CSS (a custom property with a night value where it needs one)', () => {
+    const literal = /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/
+    const unnamed = stylesheets.flatMap(([path, text]) =>
+      text
+        .split('\n')
+        .map((line, index) => ({ line: line.trim(), number: index + 1 }))
+        .filter(({ line }) => literal.test(line) && !/^--[\w-]+\s*:/.test(line))
+        .map(({ line, number }) => `${path}:${number} ${line}`),
+    )
+    expect(unnamed).toEqual([])
   })
 })

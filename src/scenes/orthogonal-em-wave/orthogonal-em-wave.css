@@ -1,3 +1,18 @@
+/* E (red) and B (blue) toggles, matching the field colours in the 3D view. */
+:root {
+  --em-wave-e-border: rgba(230, 57, 70, 0.5);
+  --em-wave-e-ink: #b22e3b;
+  --em-wave-e-tint: rgba(230, 57, 70, 0.1);
+  --em-wave-b-border: rgba(69, 123, 157, 0.55);
+  --em-wave-b-ink: #2d6787;
+  --em-wave-b-tint: rgba(69, 123, 157, 0.1);
+}
+
+.app-shell.theme-night {
+  --em-wave-e-ink: #ff8a95;
+  --em-wave-b-ink: #8cc4e6;
+}
+
 .orthogonal-em-wave-controls h2 {
   margin: 0;
   font-size: 1.04rem;
@@ -22,7 +37,7 @@
 }
 .orthogonal-em-wave-toggle {
   min-height: 44px;
-  border: 1px solid rgba(230, 57, 70, 0.5);
+  border: 1px solid var(--em-wave-e-border);
   border-radius: 10px;
   padding: 0.35rem 0.45rem;
   color: var(--control-ink-soft);
@@ -32,19 +47,13 @@
   cursor: pointer;
 }
 .orthogonal-em-wave-toggle[aria-pressed='true'] {
-  color: #b22e3b;
-  background: rgba(230, 57, 70, 0.1);
+  color: var(--em-wave-e-ink);
+  background: var(--em-wave-e-tint);
 }
 .orthogonal-em-wave-toggle.projection {
-  border-color: rgba(69, 123, 157, 0.55);
+  border-color: var(--em-wave-b-border);
 }
 .orthogonal-em-wave-toggle.projection[aria-pressed='true'] {
-  color: #2d6787;
-  background: rgba(69, 123, 157, 0.1);
-}
-.app-shell.theme-night .orthogonal-em-wave-toggle[aria-pressed='true'] {
-  color: #ff8a95;
-}
-.app-shell.theme-night .orthogonal-em-wave-toggle.projection[aria-pressed='true'] {
-  color: #8cc4e6;
+  color: var(--em-wave-b-ink);
+  background: var(--em-wave-b-tint);
 }
