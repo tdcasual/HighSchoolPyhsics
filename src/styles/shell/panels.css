@@ -1,0 +1,275 @@
+/* Floating panels, the sidebar and sidebar typography. */
+
+/* ── Floating Panel & Sidebar Panel (Glass) ── */
+.floating-panel {
+  background: var(--panel-glass-bg);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--glass-border-outer-day);
+  box-shadow: var(--glass-highlight-day), var(--glass-shadow-day);
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+  .floating-panel {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+.floating-panel .panel-header,
+.sidebar-panel .panel-header {
+  min-height: 46px;
+  color: var(--control-ink);
+  border-bottom: 1px solid var(--glass-border-outer-day);
+}
+
+.floating-panel[data-collapsed] .panel-header {
+  border-bottom-color: transparent;
+}
+
+.panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--control-ink-soft);
+  white-space: nowrap;
+}
+
+.panel-title::before {
+  content: '';
+  width: 3px;
+  height: 0.85rem;
+  border-radius: 2px;
+  background: var(--control-accent-soft);
+}
+
+.panel-icon-button {
+  min-width: var(--touch-target-min-size, 44px);
+  min-height: var(--touch-target-min-size, 44px);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--control-ink-muted);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.panel-icon-button:hover {
+  color: var(--control-ink);
+  background: var(--control-hover-bg);
+}
+
+.panel-close-button:hover {
+  color: var(--error-color, #e11d48);
+}
+
+.panel-chevron {
+  transition: transform 200ms ease;
+}
+
+.floating-panel[data-collapsed] .panel-chevron {
+  transform: rotate(180deg);
+}
+
+.panel-body {
+  padding: 0.7rem 0.95rem 0.9rem;
+}
+
+.panel-resize-handle {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  color: var(--control-ink-muted);
+  background: linear-gradient(
+    135deg,
+    transparent 0 52%,
+    currentColor 52% 60%,
+    transparent 60% 72%,
+    currentColor 72% 80%,
+    transparent 80%
+  );
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.panel-resize-handle:hover,
+.panel-resize-handle:focus-visible {
+  opacity: 1;
+}
+
+.sidebar-panel {
+  background: var(--panel-glass-bg);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border-right: 1px solid var(--glass-border-outer-day);
+  box-shadow:
+    var(--glass-highlight-day),
+    4px 0 24px var(--day-shadow-softer);
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+  .sidebar-panel {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+.sidebar-rail-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: var(--touch-target-min-size, 44px);
+  margin-top: 0.25rem;
+  padding: 0.75rem 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--control-ink-muted);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.sidebar-rail-button:hover {
+  color: var(--control-ink);
+  background: var(--control-hover-bg);
+}
+
+.sidebar-rail-title {
+  writing-mode: vertical-rl;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+/* ── Sidebar content typography ──
+   Scene controls open with a bare <h2> (and sometimes a subtitle <p>), and SelectField /
+   TextField render bare <label>s; give them one consistent hierarchy here instead of
+   leaving them at the browser-reset defaults. */
+.sidebar-body h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--control-ink);
+}
+
+.sidebar-body h2 + p,
+.sidebar-body div:has(> h2) > p {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--control-ink-muted);
+}
+
+.sidebar-body p:not([class]) {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--control-ink-muted);
+}
+
+/* Fallbacks at zero specificity: scene-specific hint/notes classes still win when defined. */
+:where(.sidebar-body) :where(p[class$='-hint'], p[class*='-hint '], p[class$='-note']) {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--control-ink-muted);
+}
+
+:where(.sidebar-body) :where(h3:not([class])) {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--control-ink);
+}
+
+:where(.sidebar-body) :where(ul, ol) {
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--control-ink-soft);
+}
+
+:where(.sidebar-body) :where(ul) {
+  list-style: disc;
+}
+
+:where(.sidebar-body) :where(ol) {
+  list-style: decimal;
+}
+
+.sidebar-body label:not([class]) {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--control-ink-soft);
+}
+
+.sidebar-body select:not([class]),
+.sidebar-body input[type='text']:not([class]),
+.sidebar-body input[type='number']:not([class]) {
+  width: 100%;
+  min-height: var(--touch-target-min-size, 44px);
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--formula-input-border);
+  border-radius: 10px;
+  background-color: var(--formula-input-bg);
+  color: var(--control-ink);
+  font-size: 0.88rem;
+  box-shadow: inset 0 1px 2px var(--day-shadow-softer);
+}
+
+.sidebar-body select:not([class]):focus-visible,
+.sidebar-body input[type='text']:not([class]):focus-visible,
+.sidebar-body input[type='number']:not([class]):focus-visible {
+  outline: none;
+  border-color: var(--formula-input-focus);
+  box-shadow: 0 0 0 3px var(--control-accent-10);
+}
+
+.sidebar-body select,
+.mobile-bottom-panel select {
+  min-height: var(--touch-target-min-size, 44px);
+}
+
+/* <details> disclosure rows are touch targets too. */
+.sidebar-body summary,
+.floating-panel summary {
+  min-height: var(--touch-target-min-size, 44px);
+  padding-block: 0.7rem;
+  cursor: pointer;
+}
+
+.sidebar-body button:not(.panel-icon-button) {
+  min-height: var(--touch-target-min-size, 44px);
+}
+
+.control-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+  color: var(--control-ink-muted);
+  letter-spacing: 0.06em;
+}
+
+.control-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--control-section-border);
+}

@@ -1,0 +1,119 @@
+/* Reduced motion and phones (≤767 px). */
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .scene-actions button,
+  .theme-switch button,
+  .overview-link {
+    transition: none;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .app-header h1 {
+    font-size: 1.05rem;
+  }
+
+  .app-header {
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 14px;
+  }
+
+  .app-controls {
+    gap: 0.35rem;
+  }
+
+  .app-header {
+    min-width: 0;
+  }
+
+  .app-header[data-page='scene'] .app-header-title {
+    display: none;
+  }
+
+  .app-header[data-page='overview'] .app-header-scene {
+    display: none;
+  }
+
+  .app-controls {
+    margin-left: auto;
+  }
+
+  .app-controls {
+    flex-wrap: nowrap;
+    /* safe: when the buttons overflow, start from the left edge so all of them can be scrolled to. */
+    justify-content: safe flex-end;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .app-controls::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The scene's playback buttons sit in a display: contents slot, so they are flex items too. */
+  .app-controls > *,
+  .app-header-scene-actions > * {
+    flex-shrink: 0;
+  }
+
+  .app-controls > button,
+  .app-header-scene-actions > button {
+    padding-inline: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .scene-actions-btn {
+    border: 1px solid var(--action-border);
+    background: var(--action-bg);
+    color: var(--action-ink);
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition:
+      transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+    box-shadow:
+      inset 0 1px 0 0 var(--day-btn-bg-medium),
+      0 1px 2px var(--day-shadow-weak);
+  }
+
+  .scene-actions-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--action-hover-border);
+    box-shadow: var(--action-hover-shadow);
+  }
+
+  .scene-actions-btn:active {
+    transform: scale(0.96);
+    box-shadow: var(--action-pressed-shadow);
+  }
+
+  .scene-actions-btn.active {
+    background: var(--action-active-bg);
+    border-color: var(--action-active-border);
+    color: var(--action-active-ink);
+  }
+
+  .scene-actions-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .scene-actions-btn:disabled:hover {
+    transform: none;
+    border-color: var(--action-border);
+    box-shadow: none;
+  }
+
+  .scene-container {
+    border-radius: 16px;
+  }
+}

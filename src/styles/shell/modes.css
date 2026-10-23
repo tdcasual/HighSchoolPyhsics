@@ -1,0 +1,157 @@
+/* Lecture mode (P), prediction mode (H), the slow-motion selector and classroom large text (L). */
+
+/* ── Lecture mode: only the 3D view, edge to edge ── */
+.app-shell.presenting {
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+}
+
+.app-shell.presenting .app-header,
+.app-shell.presenting .sidebar-panel,
+.app-shell.presenting .floating-panel:not([data-panel='data']),
+.app-shell.presenting .panel-restore-dock,
+.app-shell.presenting .interaction-hint {
+  display: none;
+}
+
+/* Core readings stay on screen in lecture mode (collapsible from its header), pinned top-left
+   since the sidebar it normally sits beside is hidden. */
+.app-shell.presenting .floating-panel[data-panel='data'] {
+  transform: translate(16px, 16px) !important;
+}
+
+.app-shell.presenting .scene-container {
+  border-radius: 0;
+}
+
+.presenting-exit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 60;
+  padding: 0 1rem;
+  border: 1px solid var(--action-border);
+  border-radius: 999px;
+  background: var(--panel-glass-bg);
+  color: var(--action-ink);
+  font-weight: 600;
+  font-size: 0.85rem;
+  opacity: 0.55;
+  backdrop-filter: blur(12px);
+  transition: opacity 200ms ease;
+}
+
+.presenting-exit:hover,
+.presenting-exit:focus-visible {
+  opacity: 1;
+}
+
+/* ── Prediction mode ── */
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-text-button {
+  min-height: var(--touch-target-min-size, 44px);
+  padding: 0 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--control-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.panel-text-button:hover {
+  background: var(--control-hover-bg);
+  color: var(--control-ink);
+}
+
+.panel-text-button.active {
+  background: var(--action-active-bg);
+  border-color: var(--action-active-border);
+  color: var(--action-active-ink);
+}
+
+/* A masked conclusion: same footprint as a reading, clearly a question. */
+.answer-mask {
+  min-width: 3.2em;
+  min-height: 1.6em;
+  padding: 0 0.6em;
+  border: 1.5px dashed var(--action-active-border);
+  border-radius: 8px;
+  background: var(--control-accent-6);
+  color: var(--action-active-border);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.chart-mask {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 160px;
+  border: 1.5px dashed var(--action-active-border);
+  border-radius: 12px;
+  background: var(--control-accent-6);
+  color: var(--action-active-border);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.answer-mask:hover {
+  background: var(--control-accent-10);
+}
+
+/* Shared slow-motion selector in the playback zone. */
+.playback-rate {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.playback-rate-label {
+  flex: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--control-ink-muted);
+}
+
+.playback-rate > :last-child {
+  flex: 1;
+}
+
+/* ── Classroom large text ── */
+/* Projected at 1080P, 14px readouts are legible only from the first rows. `zoom` scales each
+   scene's own readout markup, chart SVG and 3D labels without per-scene font overrides.
+   Small desktops keep the normal scale so panels still fit. A 1366-wide projection shows each
+   pixel ~1.4× larger than 1920, so the middle tier zooms less for the same size on the wall
+   and leaves the 3D view room. */
+@media (min-width: 1280px) and (max-width: 1679px) and (min-height: 760px) {
+  .app-shell.text-large .floating-panel[data-panel='data'] .panel-body > *,
+  .app-shell.text-large .interactive-canvas-surface > div > div:not(:has(canvas)) > div {
+    zoom: 1.1;
+  }
+}
+
+@media (min-width: 1680px) and (min-height: 760px) {
+  .app-shell.text-large .floating-panel[data-panel='data'] .panel-body > * {
+    zoom: 1.5;
+  }
+
+  .app-shell.text-large .floating-panel[data-panel='chart'] .panel-body > * {
+    zoom: 1.25;
+  }
+
+  /* drei <Html> labels: the R3F root holds the canvas wrapper plus one positioned div per label;
+     zoom the label's content box, not the positioned wrapper. */
+  .app-shell.text-large .interactive-canvas-surface > div > div:not(:has(canvas)) > div {
+    zoom: 1.4;
+  }
+}

@@ -1,0 +1,85 @@
+/* Data-panel readings: summary stack, footnotes, conclusion rows, label/value rows. */
+
+/* ── Scene Core Summary ── */
+.scene-core-summary-stack {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.scene-core-summary-stack p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: var(--readout-ink);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.scene-core-summary-stack p strong {
+  font-weight: 700;
+}
+
+/* Explanatory footnote under the readings (model caveats, formulas). */
+.scene-core-summary-stack .summary-note {
+  margin-top: 0.3rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--readout-divider);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--control-ink-muted);
+  text-align: left;
+}
+
+/* "Conclusion" rows (`<p class="…-conclusion"><span>标题</span><strong>说明</strong></p>`) read as
+   a captioned footnote rather than a right-aligned value. */
+.scene-core-summary-stack p[class$='-conclusion']:has(> span:first-child + strong) {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.3rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--readout-divider);
+}
+
+.scene-core-summary-stack p[class$='-conclusion']:has(> span:first-child + strong) > span:first-child {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.scene-core-summary-stack p[class$='-conclusion']:has(> span:first-child + strong) > strong {
+  max-width: 26rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--control-ink-soft);
+}
+
+.scene-core-summary-stack .summary-note + .summary-note {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Label/value rows (`<p><span>label</span><strong>value</strong></p>`): keep the label
+   and reading apart instead of letting them run together as one string. */
+.scene-core-summary-stack p:has(> span:first-child + strong) {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.scene-core-summary-stack p:has(> span:first-child + strong) > span:first-child {
+  flex-shrink: 0;
+  font-weight: 500;
+  color: var(--control-ink-muted);
+}
+
+.scene-core-summary-stack p:has(> span:first-child + strong) > strong {
+  min-width: 0;
+  text-align: right;
+  color: var(--readout-ink);
+}
