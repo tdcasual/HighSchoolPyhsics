@@ -1,7 +1,7 @@
 /**
- * Orbit-camera framing shared by scenes that compute their own camera from the apparatus
- * bounds (measuring instruments, multimeter, resistivity, celestial motion). Millimetre or
- * scene units alike; nothing here knows about a particular apparatus.
+ * Orbit-camera geometry behind every fitted view: bounds, the distance that fits them into an
+ * area of the canvas, and the orbit view (target, angles, radius, screen offset). Pure maths in
+ * millimetres or scene units alike; FittedCanvas and useFittedOrbitCamera put it on screen.
  */
 export type Vec3 = [number, number, number]
 
@@ -34,6 +34,14 @@ export type Bounds3 = { min: Vec3; max: Vec3 }
 
 export function bounds(min: Vec3, max: Vec3): Bounds3 {
   return { min, max }
+}
+
+/** Bounds of a box centred on `center` with half-sizes `half` (a rough initial extent). */
+export function boxAround(center: Vec3, half: Vec3): Bounds3 {
+  return bounds(
+    [center[0] - half[0], center[1] - half[1], center[2] - half[2]],
+    [center[0] + half[0], center[1] + half[1], center[2] + half[2]],
+  )
 }
 
 export function mergeBounds(...items: Bounds3[]): Bounds3 {
@@ -158,4 +166,12 @@ export function fitOrbitView(
       (input.centerOffsetYPixels ?? 0) - dot(relative, screenUp) * pixelsPerWorld,
     ],
   }
+}
+
+/** The orbit direction (radians) of a camera at `position` looking at `target`. */
+export function directionFrom(position: Vec3, target: Vec3): { azimuth: number; elevation: number } {
+  const dx = position[0] - target[0]
+  const dy = position[1] - target[1]
+  const dz = position[2] - target[2]
+  return { azimuth: Math.atan2(dx, dz), elevation: Math.atan2(dy, Math.hypot(dx, dz)) }
 }

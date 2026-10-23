@@ -216,4 +216,11 @@ describe('scene conventions', () => {
     )
     expect(unnamed).toEqual([])
   })
+
+  it('reaches the camera stack only through its public entry points', () => {
+    const internal =
+      /from '\.\.\/\.\.\/scene3d\/(useAutoFittedCamera|useOverlayObstacles|useViewportSize|freeRects|presentationCamera|usePresentationFocus|cameraSync|CameraSynchronizer|cameraControls|ProjectionOffset)'/
+    const files = [...Object.entries(sources), ...Object.entries(sharedParts)]
+    expect(files.filter(([, text]) => internal.test(text)).map(([path]) => path)).toEqual([])
+  })
 })

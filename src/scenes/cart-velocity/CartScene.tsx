@@ -1,7 +1,7 @@
 import { clockActions } from '../../simulation/clockActions'
 import { DataRows } from '../../ui/panels/DataRows'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { boxAround } from '../../scene3d/useAutoFittedCamera'
+import { boxAround } from '../../scene3d/orbitFraming'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { CartChart } from './CartChart'
 import { CartControls } from './CartControls'

@@ -3,7 +3,7 @@ import { clockActions } from '../../simulation/clockActions'
 import { useMemo } from 'react'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import type { Vec3 } from '../../scene3d/orbitFraming'
-import { boxAround } from '../../scene3d/useAutoFittedCamera'
+import { boxAround } from '../../scene3d/orbitFraming'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { RotationalEmfControls } from './RotationalEmfControls'
 import {

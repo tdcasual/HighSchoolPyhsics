@@ -1,14 +1,6 @@
 import { useCallback, useState, type RefObject } from 'react'
-import { bounds as makeBounds, fitOrbitView, type Bounds3, type OrbitView, type Vec3 } from './orbitFraming'
+import { fitOrbitView, type Bounds3, type OrbitView, type Vec3 } from './orbitFraming'
 import { useFittedOrbitCamera, type OrbitCameraLimits } from './useFittedOrbitCamera'
-
-/** The orbit direction (radians) of a camera at `position` looking at `target`. */
-export function directionFrom(position: Vec3, target: Vec3): { azimuth: number; elevation: number } {
-  const dx = position[0] - target[0]
-  const dy = position[1] - target[1]
-  const dz = position[2] - target[2]
-  return { azimuth: Math.atan2(dx, dz), elevation: Math.atan2(dy, Math.hypot(dx, dz)) }
-}
 
 export type CameraShot = {
   azimuth: number
@@ -64,12 +56,4 @@ export function useAutoFittedCamera(
       }),
   )
   return { ...camera, fitBoundsProps: { refitKey, onBounds } }
-}
-
-/** Bounds of a box centred on `center` with half-sizes `half` (a rough initial extent). */
-export function boxAround(center: Vec3, half: Vec3): Bounds3 {
-  return makeBounds(
-    [center[0] - half[0], center[1] - half[1], center[2] - half[2]],
-    [center[0] + half[0], center[1] + half[1], center[2] + half[2]],
-  )
 }

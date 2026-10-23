@@ -1,9 +1,11 @@
 import { useRef, type ComponentProps, type PropsWithChildren } from 'react'
 import { FitBounds } from './FitBounds'
 import { InteractiveCanvas } from './InteractiveCanvas'
-import type { Bounds3, Vec3 } from './orbitFraming'
-import { boxAround, directionFrom, useAutoFittedCamera, type CameraShot } from './useAutoFittedCamera'
+import { boxAround, directionFrom, type Bounds3, type Vec3 } from './orbitFraming'
+import { useAutoFittedCamera, type CameraShot } from './useAutoFittedCamera'
 import type { OrbitCameraLimits } from './useFittedOrbitCamera'
+
+export type { PresentationFocus } from './presentationCamera'
 
 type PassThrough = Pick<
   ComponentProps<typeof InteractiveCanvas>,
