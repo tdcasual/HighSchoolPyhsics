@@ -14,23 +14,3 @@
   font-size: 0.78rem;
   line-height: 1.45;
 }
-
-.ticker-pole-badge {
-  display: inline-block;
-  min-width: 0.9rem;
-  padding: 0.02rem 0.2rem;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 800;
-  color: #fff;
-}
-
-/* Darker fills so the white N/S letters stay legible (≥ 4.5:1). */
-
-.ticker-pole-n {
-  background: #e11d48;
-}
-
-.ticker-pole-s {
-  background: #0369a1;
-}

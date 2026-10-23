@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei/web/Html'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 import { EM_LAYOUT } from './layout'
 import { TICKER_CANDY as C } from './palette'
 import { BindingTerminal, Frame, GuideWindow, PartLabel, Wire } from './TickerTimerParts'
@@ -110,12 +110,12 @@ export function ElectromagneticTimer({
         <boxGeometry args={[...EM_LAYOUT.poleS.size]} />
         <meshStandardMaterial color={C.poleS} metalness={0.3} roughness={0.4} />
       </mesh>
-      <Html position={[0.15, 1.25, 0.415]} center style={{ pointerEvents: 'none' }}>
-        <span className="ticker-pole-badge ticker-pole-n">N</span>
-      </Html>
-      <Html position={[0.15, 0.73, 0.415]} center style={{ pointerEvents: 'none' }}>
-        <span className="ticker-pole-badge ticker-pole-s">S</span>
-      </Html>
+      <SceneLabel position={[0.15, 1.25, 0.415]} variant="badge" color="#e11d48" size={10}>
+        N
+      </SceneLabel>
+      <SceneLabel position={[0.15, 0.73, 0.415]} variant="badge" color="#0369a1" size={10}>
+        S
+      </SceneLabel>
 
       <mesh position={[-1.6, 0.59, -0.4]}>
         <boxGeometry args={[0.45, 0.74, 0.24]} />

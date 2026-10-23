@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei/web/Html'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 import { useMemo } from 'react'
 import { CALIPER_RANGE_MM, type VernierDivisions } from './model'
 import { createAxisDragHandlers } from './axisDrag'
@@ -64,14 +64,6 @@ function Jaw({ geometry }: { geometry: typeof FIXED_OUTER_JAW }) {
     <mesh geometry={geometry} castShadow receiveShadow>
       <Metal color={STEEL} metalness={0.6} roughness={0.36} />
     </mesh>
-  )
-}
-
-function PartLabel({ position, children }: { position: [number, number, number]; children: string }) {
-  return (
-    <Html position={position} center style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}>
-      <span className="measure-3d-label">{children}</span>
-    </Html>
   )
 }
 
@@ -175,15 +167,15 @@ export function CaliperAssembly({
         </group>
         <Box name="caliper-rod" size={[165, 1.6, 0.9]} position={[132.5, 7.8, pose.rodZ]} color={STEEL} />
         {showLabels ? (
-          <PartLabel position={viewPreset === 'focus' ? [6, -12, 4] : [8, -42, 4]}>游标尺</PartLabel>
+          <SceneLabel position={viewPreset === 'focus' ? [6, -12, 4] : [8, -42, 4]}>游标尺</SceneLabel>
         ) : null}
         {showLabels && measure === 'inner' ? (
-          <PartLabel position={[0, viewPreset === 'focus' ? 29 : 50, 4]}>移动内爪</PartLabel>
+          <SceneLabel position={[0, viewPreset === 'focus' ? 29 : 50, 4]}>移动内爪</SceneLabel>
         ) : null}
         {showLabels && measure === 'outer' && viewPreset !== 'focus' ? (
-          <PartLabel position={[24, -16, 4]}>移动外爪</PartLabel>
+          <SceneLabel position={[24, -16, 4]}>移动外爪</SceneLabel>
         ) : null}
-        {showLabels && measure === 'depth' ? <PartLabel position={[180, 14, pose.rodZ]}>深度尺</PartLabel> : null}
+        {showLabels && measure === 'depth' ? <SceneLabel position={[180, 14, pose.rodZ]}>深度尺</SceneLabel> : null}
       </group>
       {showWork && !pose.showDepthWork ? (
         <group name="caliper-work" position={[0, 0, pose.workZ]}>
@@ -191,13 +183,13 @@ export function CaliperAssembly({
         </group>
       ) : null}
       {showLabels ? (
-        <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [200, 26, 2]}>主尺</PartLabel>
+        <SceneLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [200, 26, 2]}>主尺</SceneLabel>
       ) : null}
       {showLabels && measure === 'inner' ? (
-        <PartLabel position={[0, viewPreset === 'focus' ? 29 : 39, 4]}>固定内爪</PartLabel>
+        <SceneLabel position={[0, viewPreset === 'focus' ? 29 : 39, 4]}>固定内爪</SceneLabel>
       ) : null}
       {showLabels && measure === 'outer' && viewPreset !== 'focus' ? (
-        <PartLabel position={[-24, -16, 4]}>固定外爪</PartLabel>
+        <SceneLabel position={[-24, -16, 4]}>固定外爪</SceneLabel>
       ) : null}
     </group>
   )

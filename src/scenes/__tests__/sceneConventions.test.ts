@@ -10,6 +10,12 @@ const sources = import.meta.glob<string>(
   },
 )
 
+// Shared 3D parts outside the scenes follow the same drawing rules.
+const sharedParts = import.meta.glob<string>(
+  ['../../instruments/**/*.tsx', '../../domains/**/*.tsx', '!../../**/*.test.tsx', '!../../**/__tests__/**'],
+  { query: '?raw', import: 'default', eager: true },
+)
+
 const scenes = new Map<string, string>()
 const chartFiles: Array<[string, string]> = []
 const sceneShells: Array<[string, string]> = []
@@ -154,5 +160,13 @@ describe('scene conventions', () => {
   it('remembers teacher-set parameters across scene switches', () => {
     const missing = [...scenes].filter(([, text]) => hasTeacherParameters(text) && !remembersParameters(text))
     expect(missing.map(([scene]) => scene)).toEqual([])
+  })
+
+  it('labels 3D parts with SceneLabel, never a hand-styled drei Html', () => {
+    const files = [...Object.entries(sources), ...Object.entries(sharedParts)]
+    const raw = files.filter(
+      ([, text]) => /from '@react-three\/drei(\/web\/Html)?'/.test(text) && /\bHtml\b/.test(text),
+    )
+    expect(raw.map(([path]) => path)).toEqual([])
   })
 })

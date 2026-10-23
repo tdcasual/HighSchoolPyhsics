@@ -8,14 +8,6 @@ import { useSceneTheme } from '../../scene3d/useSceneTheme'
 
 type Props = { angleRad: number; running: boolean }
 
-function Label({ text, position, color }: { text: string; position: [number, number, number]; color: string }) {
-  return (
-    <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>
-      {text}
-    </SceneLabel>
-  )
-}
-
 function Arrow({
   start,
   end,
@@ -108,8 +100,12 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
         <boxGeometry args={[1.25, 5.2, 4.8]} />
         <meshStandardMaterial color="#2d6db5" roughness={0.38} metalness={0.12} />
       </mesh>
-      <Label text="N" position={[-5, 0, 2.48]} color="#ffffff" />
-      <Label text="S" position={[5, 0, 2.48]} color="#ffffff" />
+      <SceneLabel position={[-5, 0, 2.48]} color="#ffffff" variant="text" size={11} halo="dark" distanceFactor={8}>
+        N
+      </SceneLabel>
+      <SceneLabel position={[5, 0, 2.48]} color="#ffffff" variant="text" size={11} halo="dark" distanceFactor={8}>
+        S
+      </SceneLabel>
       <FieldLines dark={dark} />
       <Line
         points={[
@@ -152,19 +148,42 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
         width={2.5}
       />
       <Arrow start={velocityStart} end={velocityEnd} color="#f4c542" width={2.5} />
-      <Label
-        text="法向量 n"
+      <SceneLabel
         position={[readings.normalVector[0] * 2.4, 0.25, readings.normalVector[2] * 2.4]}
         color="#9c27b0"
-      />
-      <Label text="速度 v" position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]} color="#c08500" />
-      <Label
-        text={readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`}
-        position={[0, -2.95, 0]}
-        color={currentColor}
-      />
-      <Label text="旋转轴 O" position={[0, -2.42, 0]} color={textColor} />
-      <Label text="B" position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} />
+        variant="text"
+        size={11}
+        halo="dark"
+        distanceFactor={8}
+      >
+        法向量 n
+      </SceneLabel>
+      <SceneLabel
+        position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]}
+        color="#c08500"
+        variant="text"
+        size={11}
+        halo="dark"
+        distanceFactor={8}
+      >
+        速度 v
+      </SceneLabel>
+      <SceneLabel position={[0, -2.95, 0]} color={currentColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+        {readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`}
+      </SceneLabel>
+      <SceneLabel position={[0, -2.42, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+        旋转轴 O
+      </SceneLabel>
+      <SceneLabel
+        position={[0, 2.58, -1.8]}
+        color={dark ? '#9ed7f0' : '#457b9d'}
+        variant="text"
+        size={11}
+        halo="dark"
+        distanceFactor={8}
+      >
+        B
+      </SceneLabel>
     </group>
   )
 }

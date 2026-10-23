@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei/web/Html'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 import { useMemo } from 'react'
 import { CatmullRomCurve3, Euler, Quaternion, TubeGeometry, Vector3 } from 'three'
 import { MOTIONAL_EMF_LAYOUT, type Vec3 } from './layout'
@@ -236,16 +236,12 @@ export function MotionalEmfRig3D({
         <meshBasicMaterial color="#101010" />
       </mesh>
       {/* The readout reports "A 端高电势 / B 端高电势"; name the ends where students can see them. */}
-      <Html position={[leftContact[0], leftContact[1] + 0.32, leftContact[2]]} center style={{ pointerEvents: 'none' }}>
-        <span className="motional-emf-end-label motional-emf-end-a">A</span>
-      </Html>
-      <Html
-        position={[rightContact[0], rightContact[1] + 0.32, rightContact[2]]}
-        center
-        style={{ pointerEvents: 'none' }}
-      >
-        <span className="motional-emf-end-label">B</span>
-      </Html>
+      <SceneLabel position={[leftContact[0], leftContact[1] + 0.32, leftContact[2]]} variant="badge" color="#c8322a">
+        A
+      </SceneLabel>
+      <SceneLabel position={[rightContact[0], rightContact[1] + 0.32, rightContact[2]]} variant="badge" color="#101010">
+        B
+      </SceneLabel>
 
       <Arrow3D
         anchor={vectorAnchors.velocity}

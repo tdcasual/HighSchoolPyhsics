@@ -38,13 +38,6 @@ const PART_LABELS: Record<PartId, string> = {
   screen: '荧光屏',
   beam: '电子束',
 }
-function PartLabel({ text, position, color }: { text: string; position: [number, number, number]; color: string }) {
-  return (
-    <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>
-      {text}
-    </SceneLabel>
-  )
-}
 function ScreenGrid({
   color,
   phosphorColor,
@@ -240,10 +233,18 @@ export function Oscilloscope3dRig3D({
         <sphereGeometry args={[0.1, 16, 16]} />
         <meshBasicMaterial color="#eaffd8" />
       </mesh>
-      <PartLabel text={PART_LABELS['electron-gun']} position={[-4.3, -2.48, 0]} color={textColor} />
-      <PartLabel text={PART_LABELS['y-plates']} position={[0.05, 2.32, 0]} color={plateY} />
-      <PartLabel text={PART_LABELS['x-plates']} position={[2.05, 0, 2.35]} color={plateX} />
-      <PartLabel text={PART_LABELS.screen} position={[4.74, -2.35, 0]} color={textColor} />
+      <SceneLabel position={[-4.3, -2.48, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+        {PART_LABELS['electron-gun']}
+      </SceneLabel>
+      <SceneLabel position={[0.05, 2.32, 0]} color={plateY} variant="text" size={11} halo="dark" distanceFactor={8}>
+        {PART_LABELS['y-plates']}
+      </SceneLabel>
+      <SceneLabel position={[2.05, 0, 2.35]} color={plateX} variant="text" size={11} halo="dark" distanceFactor={8}>
+        {PART_LABELS['x-plates']}
+      </SceneLabel>
+      <SceneLabel position={[4.74, -2.35, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+        {PART_LABELS.screen}
+      </SceneLabel>
     </group>
   )
 }

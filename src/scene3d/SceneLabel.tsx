@@ -7,10 +7,11 @@ type SceneLabelProps = {
   children: ReactNode
   /**
    * 'tag': a part's name on a light pill; 'dark': the same for a darkened optics lab; 'text':
-   * a coloured annotation (a field name, a reading, a scale number) with a soft halo.
+   * a coloured annotation (a field name, a reading, a scale number) with a soft halo; 'badge':
+   * a short marker (N/S, an end A/B) in white on a chip of `color`.
    */
-  variant?: 'tag' | 'dark' | 'text'
-  /** Text colour (any CSS colour). */
+  variant?: 'tag' | 'dark' | 'text' | 'badge'
+  /** Text colour (any CSS colour); the chip colour for a badge. */
   color?: string
   /** Font size in CSS px (text default 12, tags 13). */
   size?: number
@@ -42,7 +43,7 @@ export function SceneLabel({
   testId,
 }: SceneLabelProps) {
   const style: CSSProperties = {
-    color,
+    ...(variant === 'badge' ? { background: color } : { color }),
     fontSize: size === undefined ? undefined : `${size}px`,
     fontWeight: weight,
     fontStyle: italic ? 'italic' : undefined,

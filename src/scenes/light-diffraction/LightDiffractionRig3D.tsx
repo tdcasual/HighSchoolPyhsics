@@ -41,14 +41,6 @@ type LightDiffractionRig3DProps = {
   filterColor: FilterColor
 }
 
-function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <SceneLabel position={position} variant="dark">
-      {text}
-    </SceneLabel>
-  )
-}
-
 function apertureVisualSize(mode: DiffractionMode, params: DiffractionParams): number {
   if (mode === 'diffraction-grating') return 1.2
   const range = getApertureRange(mode)
@@ -292,7 +284,9 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
         <sphereGeometry args={[0.5, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
         <meshBasicMaterial color={isLightOn ? lightColorHex : 0x111111} />
       </mesh>
-      <Label text="光源" position={[-13, OPTICAL_AXIS_Y + 2.8, 0]} />
+      <SceneLabel position={[-13, OPTICAL_AXIS_Y + 2.8, 0]} variant="dark">
+        光源
+      </SceneLabel>
 
       {/* ====== Lens ====== */}
       <Stand xPos={-9.5} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
@@ -304,7 +298,9 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
         <cylinderGeometry args={[0.95, 0.95, 0.1, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...MAT_GLASS} />
       </mesh>
-      <Label text="透镜" position={[-9.5, OPTICAL_AXIS_Y + 1.2, 0]} />
+      <SceneLabel position={[-9.5, OPTICAL_AXIS_Y + 1.2, 0]} variant="dark">
+        透镜
+      </SceneLabel>
 
       {/* ====== Filter (before aperture) ====== */}
       {isWhiteLight && filterColor !== 'none' && (
@@ -321,7 +317,9 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
               emissiveIntensity={0.2}
             />
           </mesh>
-          <Label text="滤光片" position={[TUBE_START_X - 2.5, OPTICAL_AXIS_Y + 1.2, 0]} />
+          <SceneLabel position={[TUBE_START_X - 2.5, OPTICAL_AXIS_Y + 1.2, 0]} variant="dark">
+            滤光片
+          </SceneLabel>
         </>
       )}
 
@@ -367,18 +365,15 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
         </group>
       )}
 
-      <Label
-        text={
-          mode === 'circular-obstacle'
-            ? '不透明圆盘'
-            : mode === 'diffraction-grating'
-              ? '光栅（结构示意）'
-              : mode === 'circular-aperture'
-                ? '圆孔'
-                : '单缝'
-        }
-        position={[apertureX, OPTICAL_AXIS_Y + 2.8, 0]}
-      />
+      <SceneLabel position={[apertureX, OPTICAL_AXIS_Y + 2.8, 0]} variant="dark">
+        {mode === 'circular-obstacle'
+          ? '不透明圆盘'
+          : mode === 'diffraction-grating'
+            ? '光栅（结构示意）'
+            : mode === 'circular-aperture'
+              ? '圆孔'
+              : '单缝'}
+      </SceneLabel>
 
       {/* ====== Main tube (dynamic length) ====== */}
       <mesh
@@ -390,7 +385,9 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
       >
         <meshStandardMaterial {...MAT_WHITE_TUBE} />
       </mesh>
-      <Label text="遮光筒" position={[TUBE_START_X + current3DLength / 2, OPTICAL_AXIS_Y + 1.3, 0]} />
+      <SceneLabel position={[TUBE_START_X + current3DLength / 2, OPTICAL_AXIS_Y + 1.3, 0]} variant="dark">
+        遮光筒
+      </SceneLabel>
 
       {/* ====== Tail group ====== */}
       <Stand xPos={tailX - 1} height={3.5} radialSegments={geoDetail.cylinderRadialSegments} />
@@ -407,7 +404,9 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
         <meshBasicMaterial map={screenTexture ?? undefined} color={0xffffff} side={DoubleSide} toneMapped={false} />
       </mesh>
 
-      <Label text="衍射屏" position={[screenX, OPTICAL_AXIS_Y + 3, 0]} />
+      <SceneLabel position={[screenX, OPTICAL_AXIS_Y + 3, 0]} variant="dark">
+        衍射屏
+      </SceneLabel>
     </group>
   )
 })

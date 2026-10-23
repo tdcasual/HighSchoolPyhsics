@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react'
-import { Html } from '@react-three/drei/web/Html'
 import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { meterIntervals, terminalPosition, type CircuitPose, type WireLink } from './circuitPose'
 import type { ElementKind } from './model'
@@ -152,22 +151,10 @@ function Meter({
           </group>
         )
       })}
-      <Html position={[0, 5.15, 3.48]} center distanceFactor={90}>
-        <span
-          style={{
-            color: '#18343a',
-            fontSize: '12px',
-            fontWeight: 800,
-            whiteSpace: 'nowrap',
-            background: 'rgba(255,255,255,.75)',
-            padding: '1px 4px',
-            borderRadius: '4px',
-          }}
-        >
-          {unit} · {centered ? '±' : '0–'}
-          {range} {unit}
-        </span>
-      </Html>
+      <SceneLabel position={[0, 5.15, 3.48]} size={12} weight={800} distanceFactor={90}>
+        {unit} · {centered ? '±' : '0–'}
+        {range} {unit}
+      </SceneLabel>
       <group name={name} position={[0, 1.35, 3.48]} rotation={[0, 0, rotation]}>
         <mesh position={[0, 1.8, 0]}>
           <boxGeometry args={[0.09, 3.6, 0.08]} />
@@ -463,11 +450,16 @@ export function CircuitAssembly({
             )
           })}
           {[0, 10, 20, 30, 40, 50].map((centimetre) => (
-            <Html key={centimetre} position={[-25 + centimetre, 1.58, 13.48]} center distanceFactor={90}>
-              <span style={{ color: '#554f46', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                {centimetre}
-              </span>
-            </Html>
+            <SceneLabel
+              key={centimetre}
+              position={[-25 + centimetre, 1.58, 13.48]}
+              variant="text"
+              color="#554f46"
+              size={9}
+              distanceFactor={90}
+            >
+              {centimetre}
+            </SceneLabel>
           ))}
           <SceneLabel position={[2, 1.58, 13.8]} variant="text" color="#554f46" size={9} distanceFactor={90}>
             cm

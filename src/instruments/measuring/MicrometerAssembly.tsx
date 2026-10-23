@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei/web/Html'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 import type { BufferGeometry } from 'three'
 import { MICROMETER_PITCH_MM, MICROMETER_RANGE_MM } from './model'
 import { createAxisDragHandlers } from './axisDrag'
@@ -87,14 +87,6 @@ function TexturedRevolve({
     <mesh geometry={geometry} castShadow receiveShadow>
       <meshStandardMaterial map={texture} color={color} metalness={metalness} roughness={roughness} />
     </mesh>
-  )
-}
-
-function PartLabel({ position, children }: { position: [number, number, number]; children: string }) {
-  return (
-    <Html position={position} center style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}>
-      <span className="measure-3d-label">{children}</span>
-    </Html>
   )
 }
 
@@ -208,9 +200,9 @@ export function MicrometerAssembly({
       </group>
       {showLabels
         ? labelPositions.map(({ label, position }) => (
-            <PartLabel key={label} position={position}>
+            <SceneLabel key={label} position={position}>
               {label}
-            </PartLabel>
+            </SceneLabel>
           ))
         : null}
       <group name="micrometer-lock" position={pose.lock}>

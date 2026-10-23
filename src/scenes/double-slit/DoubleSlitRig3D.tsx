@@ -56,14 +56,6 @@ type DoubleSlitRig3DProps = {
   showFringeOrders: boolean
 }
 
-function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <SceneLabel position={position} variant="dark">
-      {text}
-    </SceneLabel>
-  )
-}
-
 function SlitPlate({
   x,
   angle,
@@ -401,7 +393,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
         <sphereGeometry args={[0.5, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
         <meshBasicMaterial color={isLightOn ? outgoingColor : 0x111111} />
       </mesh>
-      <Label text="光源" position={[SOURCE_X, OPTICAL_AXIS_Y + 3.5, -0.6]} />
+      <SceneLabel position={[SOURCE_X, OPTICAL_AXIS_Y + 3.5, -0.6]} variant="dark">
+        光源
+      </SceneLabel>
 
       <Stand xPos={LENS_X} height={3} radialSegments={geoDetail.cylinderRadialSegments} />
       <mesh position={[LENS_X, OPTICAL_AXIS_Y, 0]} rotation={[0, Math.PI / 2, 0]}>
@@ -412,7 +406,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
         <cylinderGeometry args={[0.95, 0.95, 0.1, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...MAT_GLASS} />
       </mesh>
-      <Label text="透镜" position={[LENS_X, OPTICAL_AXIS_Y + 2, 0.7]} />
+      <SceneLabel position={[LENS_X, OPTICAL_AXIS_Y + 2, 0.7]} variant="dark">
+        透镜
+      </SceneLabel>
 
       {isWhiteLight && filterColor !== 'none' && (
         <>
@@ -428,13 +424,17 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
               emissiveIntensity={0.2}
             />
           </mesh>
-          <Label text="滤光片" position={[FILTER_X, OPTICAL_AXIS_Y + 3, -0.7]} />
+          <SceneLabel position={[FILTER_X, OPTICAL_AXIS_Y + 3, -0.7]} variant="dark">
+            滤光片
+          </SceneLabel>
         </>
       )}
 
       <Stand xPos={SINGLE_SLIT_X} height={3} radialSegments={geoDetail.cylinderRadialSegments} />
       <SlitPlate x={SINGLE_SLIT_X} angle={singleSlitAngle} slitCount={1} params={params} />
-      <Label text="单缝开口" position={[SINGLE_SLIT_X, OPTICAL_AXIS_Y + 3.5, 0.7]} />
+      <SceneLabel position={[SINGLE_SLIT_X, OPTICAL_AXIS_Y + 3.5, 0.7]} variant="dark">
+        单缝开口
+      </SceneLabel>
 
       <Stand xPos={DOUBLE_SLIT_X} height={3} radialSegments={geoDetail.cylinderRadialSegments} />
       <SlitPlate x={DOUBLE_SLIT_X} angle={doubleSlitAngle} slitCount={2} params={params} />
@@ -450,7 +450,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
         <sphereGeometry args={[0.3, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
         <meshStandardMaterial {...MAT_BLACK_PLASTIC} />
       </mesh>
-      <Label text="双缝开口" position={[DOUBLE_SLIT_X - 2, OPTICAL_AXIS_Y + 6, -0.8]} />
+      <SceneLabel position={[DOUBLE_SLIT_X - 2, OPTICAL_AXIS_Y + 6, -0.8]} variant="dark">
+        双缝开口
+      </SceneLabel>
 
       <mesh
         position={[TUBE_START_X, OPTICAL_AXIS_Y, 0]}
@@ -461,7 +463,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
       >
         <meshStandardMaterial {...MAT_TRANSPARENT_TUBE} />
       </mesh>
-      <Label text="遮光筒（剖视示意）" position={[TUBE_START_X + tubeLength / 2, OPTICAL_AXIS_Y + 0.5, 0]} />
+      <SceneLabel position={[TUBE_START_X + tubeLength / 2, OPTICAL_AXIS_Y + 0.5, 0]} variant="dark">
+        遮光筒（剖视示意）
+      </SceneLabel>
 
       <Stand xPos={screenX} height={3.5} radialSegments={geoDetail.cylinderRadialSegments} />
       <mesh
@@ -493,7 +497,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
         wheelReadoutMm={wheelReadoutMm}
         showFringeOrders={showFringeOrders}
       />
-      <Label text="毛玻璃与干涉条纹" position={[screenX + 2.5, OPTICAL_AXIS_Y + 4, -0.6]} />
+      <SceneLabel position={[screenX + 2.5, OPTICAL_AXIS_Y + 4, -0.6]} variant="dark">
+        毛玻璃与干涉条纹
+      </SceneLabel>
 
       <mesh position={[wheelX, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[1.35, 1.35, 0.4, geoDetail.cylinderRadialSegments]} />
@@ -505,7 +511,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
           <meshBasicMaterial color="#f6ad55" />
         </mesh>
       </group>
-      <Label text="测量手轮" position={[wheelX + 0.6, OPTICAL_AXIS_Y + 3.2, 0.8]} />
+      <SceneLabel position={[wheelX + 0.6, OPTICAL_AXIS_Y + 3.2, 0.8]} variant="dark">
+        测量手轮
+      </SceneLabel>
 
       <mesh position={[eyepieceX, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.6, 0.6, 2.5, geoDetail.cylinderRadialSegments]} />
@@ -547,7 +555,9 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
         color="#b7f7dc"
         lineWidth={1.5}
       />
-      <Label text="目镜与分划板" position={[eyepieceX + 1.5, OPTICAL_AXIS_Y + 1.5, -0.8]} />
+      <SceneLabel position={[eyepieceX + 1.5, OPTICAL_AXIS_Y + 1.5, -0.8]} variant="dark">
+        目镜与分划板
+      </SceneLabel>
     </group>
   )
 })

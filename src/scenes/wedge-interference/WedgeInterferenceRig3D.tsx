@@ -28,14 +28,6 @@ const PLATE_DEPTH = 10
 const TEX_W = 512
 const TEX_H = 256
 
-function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return (
-    <SceneLabel position={position} variant="tag">
-      {text}
-    </SceneLabel>
-  )
-}
-
 /** Renders the interference fringe pattern as a texture on the top plate surface */
 const fringeCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null
 if (fringeCanvas) {
@@ -181,7 +173,9 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
         <boxGeometry args={[PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH]} />
         <meshStandardMaterial {...MAT_GLASS_BOTTOM} />
       </mesh>
-      <Label text="下玻璃板" position={[-PLATE_WIDTH / 2 - 1, PLATE_Y, PLATE_DEPTH / 2 + 1]} />
+      <SceneLabel position={[-PLATE_WIDTH / 2 - 1, PLATE_Y, PLATE_DEPTH / 2 + 1]} variant="tag">
+        下玻璃板
+      </SceneLabel>
 
       {/* ====== Top glass plate (tilted) ====== */}
       <group position={[0, groupY, 0]} rotation={[0, 0, (visualAngle * Math.PI) / 180]}>
@@ -192,14 +186,18 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
         {/* Fringe pattern on top surface of upper glass */}
         <FringeSurface params={params} isLightOn={isLightOn} />
       </group>
-      <Label text="上玻璃板" position={[PLATE_WIDTH / 2 + 1, PLATE_Y + 2, PLATE_DEPTH / 2 + 1]} />
+      <SceneLabel position={[PLATE_WIDTH / 2 + 1, PLATE_Y + 2, PLATE_DEPTH / 2 + 1]} variant="tag">
+        上玻璃板
+      </SceneLabel>
 
       {/* ====== Paper strip at thin end ====== */}
       <mesh position={[spacer.x, spacer.centerY, 0]}>
         <boxGeometry args={[0.3, spacer.height, PLATE_DEPTH * 0.8]} />
         <meshStandardMaterial {...MAT_PAPER} />
       </mesh>
-      <Label text="薄纸片（垫片）" position={[PLATE_WIDTH / 2 + 0.8, spacer.centerY + spacer.height / 2 + 0.4, 0]} />
+      <SceneLabel position={[PLATE_WIDTH / 2 + 0.8, spacer.centerY + spacer.height / 2 + 0.4, 0]} variant="tag">
+        薄纸片（垫片）
+      </SceneLabel>
 
       {/* ====== Bump — subtle surface bulge on bottom plate ====== */}
       {mode === 'bump' && (
@@ -224,7 +222,9 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
         </mesh>
         {isLightOn && <pointLight position={[0, -2, 0]} intensity={2} distance={15} color={lightColorHex} />}
       </group>
-      <Label text="光源" position={[0, PLATE_Y + 9.5, 0]} />
+      <SceneLabel position={[0, PLATE_Y + 9.5, 0]} variant="tag">
+        光源
+      </SceneLabel>
 
       {/* ====== Support stand for light source ====== */}
       <mesh position={[0, PLATE_Y + 5, PLATE_DEPTH / 2 + 0.5]}>
@@ -264,7 +264,9 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       )}
 
       {/* ====== Contact edge label ====== */}
-      <Label text="接触边" position={[-PLATE_WIDTH / 2 - 0.5, PLATE_Y + 0.8, 0]} />
+      <SceneLabel position={[-PLATE_WIDTH / 2 - 0.5, PLATE_Y + 0.8, 0]} variant="tag">
+        接触边
+      </SceneLabel>
 
       {/* ====== Scanning light beam (world-space vertical) ====== */}
       <ScanMarker isScanning={isScanning && isLightOn} visualAngle={visualAngle} groupY={groupY} />

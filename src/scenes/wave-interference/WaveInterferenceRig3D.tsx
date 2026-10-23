@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei/web/Html'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 import { Line } from '../../scene3d/ClassroomLine'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
@@ -155,19 +155,9 @@ const WaveSource = memo(function WaveSource({
 
   return (
     <group position={[position.x, 0, position.z]}>
-      <Html position={[0, 0.27, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-        <span
-          style={{
-            color,
-            fontSize: '12px',
-            fontWeight: 900,
-            whiteSpace: 'nowrap',
-            textShadow: '0 1px 3px white, 0 0 5px white',
-          }}
-        >
-          {label}
-        </span>
-      </Html>
+      <SceneLabel position={[0, 0.27, 0]} variant="text" color={color} weight={900} distanceFactor={8}>
+        {label}
+      </SceneLabel>
 
       {/* visible sphere */}
       <mesh position={[0, 0.08, 0]}>
@@ -316,19 +306,9 @@ function ObserverPoint({
         <meshBasicMaterial color="#8b5cf6" />
       </mesh>
 
-      <Html position={[0, 0.55, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-        <span
-          style={{
-            color: '#7c3aed',
-            fontSize: '11px',
-            fontWeight: 900,
-            whiteSpace: 'nowrap',
-            textShadow: '0 1px 3px white, 0 0 5px white',
-          }}
-        >
-          O
-        </span>
-      </Html>
+      <SceneLabel position={[0, 0.55, 0]} variant="text" color="#7c3aed" size={11} weight={900} distanceFactor={8}>
+        O
+      </SceneLabel>
 
       {/* ground ring */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
