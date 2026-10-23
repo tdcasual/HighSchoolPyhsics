@@ -1,5 +1,6 @@
+import { UniformField } from '../../domains/electromagnetism/UniformField'
+import { fieldGrid } from '../../domains/electromagnetism/fieldGrid'
 import { Arrow3D } from '../../scene3d/Arrow3D'
-import { extendBeyond } from '../../scene3d/arrowGeometry'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo, type ReactNode } from 'react'
 import { deriveMhdLayout, MHD_LAYOUT } from './layout'
@@ -47,13 +48,13 @@ function MhdWorldLabel({
   )
 }
 
-const magneticGuides = MHD_LAYOUT.magneticField.xGuides.map((x) => ({
-  shaft: [
-    [x, 0, MHD_LAYOUT.magneticField.zStart] as [number, number, number],
-    [x, 0, MHD_LAYOUT.magneticField.zEnd] as [number, number, number],
-  ],
-  tip: [x, 0, MHD_LAYOUT.magneticField.zEnd] as [number, number, number],
-}))
+// B runs along +z through the channel; heads end just past zEnd.
+const MAGNETIC_GUIDE_LENGTH = MHD_LAYOUT.magneticField.zEnd + 0.09 - MHD_LAYOUT.magneticField.zStart
+const magneticGuidePoints = fieldGrid(
+  MHD_LAYOUT.magneticField.xGuides,
+  [0],
+  [MHD_LAYOUT.magneticField.zStart + MAGNETIC_GUIDE_LENGTH / 2],
+)
 
 export function MhdGeneratorRig3D({
   running,
@@ -166,19 +167,17 @@ export function MhdGeneratorRig3D({
         />
       ))}
 
-      {magneticGuides.map((guide, index) => (
-        <Arrow3D
-          key={`b-guide-${index}`}
-          from={guide.shaft[0]}
-          to={extendBeyond(guide.shaft[0], guide.tip, 0.09)}
-          color="#fff090"
-          headLength={0.18}
-          headRadius={0.045}
-          lineWidth={2.6}
-          opacity={0.9}
-          segments={geoDetail.coneRadialSegments}
-        />
-      ))}
+      <UniformField
+        points={magneticGuidePoints}
+        direction={[0, 0, 1]}
+        length={MAGNETIC_GUIDE_LENGTH}
+        color="#fff090"
+        headLength={0.18}
+        headRadius={0.045}
+        lineWidth={2.6}
+        opacity={0.9}
+        segments={geoDetail.coneRadialSegments}
+      />
 
       {layout.magneticField.xGuides.map((x, index) => (
         <Arrow3D

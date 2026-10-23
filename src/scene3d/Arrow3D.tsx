@@ -1,7 +1,7 @@
 import { arrowGeometry, type ArrowPoint } from './arrowGeometry'
 import { Line } from './ClassroomLine'
 
-type Arrow3DProps = {
+export type Arrow3DProps = {
   from: ArrowPoint
   to: ArrowPoint
   color: string
@@ -41,7 +41,7 @@ export function Arrow3D({
       transparent={opacity < 1 || overlay}
       opacity={opacity}
       depthTest={!overlay}
-      depthWrite={!overlay}
+      depthWrite={!overlay && opacity >= 1}
     />
   )
   return (

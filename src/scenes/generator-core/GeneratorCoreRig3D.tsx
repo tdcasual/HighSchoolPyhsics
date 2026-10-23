@@ -1,7 +1,8 @@
+import { UniformField } from '../../domains/electromagnetism/UniformField'
+import { fieldGrid } from '../../domains/electromagnetism/fieldGrid'
 import { Arrow3D } from '../../scene3d/Arrow3D'
 import { extendBeyond } from '../../scene3d/arrowGeometry'
 import { Line } from '../../scene3d/ClassroomLine'
-import { useMemo } from 'react'
 import { deriveGeneratorReadings } from './model'
 import { SceneLabel } from '../../scene3d/SceneLabel'
 import { LabStage } from '../../scene3d/LabStage'
@@ -33,29 +34,20 @@ function Arrow({
   )
 }
 
+// Field lines run from the N pole to the S pole, front and back of the coil; heads end just past x = 3.9.
+const FIELD_POINTS = fieldGrid([0.085], [-2, -1, 0, 1, 2], [-1.8, 1.8])
+
 function FieldLines({ dark }: { dark: boolean }) {
-  const lines = useMemo(() => Array.from({ length: 5 }, (_, index) => -2 + index), [])
   return (
-    <group>
-      {lines.map((y) => (
-        <Arrow
-          key={`field-${y}`}
-          start={[-3.9, y, -1.8]}
-          end={[3.9, y, -1.8]}
-          color={dark ? '#78b7d8' : '#457b9d'}
-          width={1.2}
-        />
-      ))}
-      {lines.map((y) => (
-        <Arrow
-          key={`field-back-${y}`}
-          start={[-3.9, y, 1.8]}
-          end={[3.9, y, 1.8]}
-          color={dark ? '#78b7d8' : '#457b9d'}
-          width={1.2}
-        />
-      ))}
-    </group>
+    <UniformField
+      points={FIELD_POINTS}
+      direction={[1, 0, 0]}
+      length={7.97}
+      color={dark ? '#78b7d8' : '#457b9d'}
+      headLength={0.34}
+      headRadius={0.12}
+      lineWidth={1.2}
+    />
   )
 }
 

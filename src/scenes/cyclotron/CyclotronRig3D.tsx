@@ -1,4 +1,4 @@
-import { Arrow3D } from '../../scene3d/Arrow3D'
+import { UniformField } from '../../domains/electromagnetism/UniformField'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo } from 'react'
 import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
@@ -44,26 +44,6 @@ function buildCircle(radius: number, y: number, segments = 120): Point3[] {
   return points
 }
 
-type FieldArrowProps = {
-  x: number
-  z: number
-}
-
-function FieldArrow({ x, z }: FieldArrowProps) {
-  return (
-    <Arrow3D
-      from={[x, 1.25, z]}
-      to={[x, 0.61, z]}
-      color="#2399b3"
-      headLength={0.18}
-      headRadius={0.06}
-      shaftRadius={0.015}
-      opacity={0.88}
-      segments={14}
-    />
-  )
-}
-
 type CyclotronRig3DProps = {
   trailPoints: Point3[]
   particlePoint: Point3
@@ -85,16 +65,17 @@ export function CyclotronRig3D({
 }: CyclotronRig3DProps) {
   const guideRings = useMemo(() => GUIDE_RADII.map((radius) => buildCircle(radius, TRAJECTORY_Y - 0.006)), [])
   const fieldArrows = useMemo(
-    () => [
-      [-1.9, -1.5],
-      [-1.9, 0],
-      [-1.9, 1.5],
-      [0, -1.9],
-      [0, 1.9],
-      [1.9, -1.5],
-      [1.9, 0],
-      [1.9, 1.5],
-    ],
+    () =>
+      [
+        [-1.9, -1.5],
+        [-1.9, 0],
+        [-1.9, 1.5],
+        [0, -1.9],
+        [0, 1.9],
+        [1.9, -1.5],
+        [1.9, 0],
+        [1.9, 1.5],
+      ].map(([x, z]): [number, number, number] => [x, 0.93, z]),
     [],
   )
   const gapArrows = useMemo(() => [-1.68, -1.12, -0.56, 0, 0.56, 1.12, 1.68], [])
@@ -232,9 +213,17 @@ export function CyclotronRig3D({
         />
       </mesh>
 
-      {fieldArrows.map(([x, z], index) => (
-        <FieldArrow key={`field-${index}`} x={x} z={z} />
-      ))}
+      <UniformField
+        points={fieldArrows}
+        direction={[0, -1, 0]}
+        length={0.64}
+        color="#2399b3"
+        headLength={0.18}
+        headRadius={0.06}
+        shaftRadius={0.015}
+        opacity={0.88}
+        segments={14}
+      />
 
       <CyclotronLabel position={[0, INFO_LABEL_Y, -2.3]} color="#1c6583" fontSize={0.28}>
         B

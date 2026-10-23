@@ -82,6 +82,16 @@
 
 验收：盘点表写进本文；提取的每个部件至少 3 个使用者；视觉基线不变。
 
+**盘点结果（2026-10-23）**
+
+| 候选 | 使用者 | 结论 |
+|---|---|---|
+| 匀强场箭头阵列 | motional-emf、rotational-emf、cyclotron、generator-core、mhd（5） | 提取为 `domains/electromagnetism/UniformField` + `fieldGrid` |
+| 单个矢量箭头 | 9 个场景 | 已在 3a 提取为 `scene3d/Arrow3D`（通用，不属于电磁学） |
+| 接线柱 | resistivity、multimeter、ticker-timer（3） | 不提取：尺寸、材质各随所在仪器（台式电路、表盘、计时器），合并会改变外观，参数比实现还多 |
+| 磁铁 | generator-core（平板 N/S）、ticker-timer（U 形）、induction-current（条形）、electromagnetic-drive（蹄形） | 不提取：形状各不相同；N/S 标注已统一为 `SceneLabel` 的 badge |
+| 电动势、洛伦兹力公式 | 各场景模型 | 不提取：每个场景只算自己的量（BLv、½Bωl²、NBSω、qvB），没有重复实现 |
+
 ### 阶段 4：时间推进收口（2 次提交）
 
 现状：有 4 种推进方式（`useSimulationClock`、`useAnimatedState`、`useAnimationLoop`、`useFixedStepper`）；`useFixedStepper` 只有打点计时器使用；电势能场景的旋转扫出在 `useFrame` 中按 `delta` 自行推进，不受暂停和慢放控制，并用 `performance.now()` 节流。

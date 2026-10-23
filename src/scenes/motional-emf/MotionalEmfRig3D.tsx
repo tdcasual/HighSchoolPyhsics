@@ -1,3 +1,5 @@
+import { UniformField } from '../../domains/electromagnetism/UniformField'
+import { fieldGrid } from '../../domains/electromagnetism/fieldGrid'
 import { Arrow3D } from '../../scene3d/Arrow3D'
 import { SceneLabel } from '../../scene3d/SceneLabel'
 import { useMemo } from 'react'
@@ -156,6 +158,8 @@ export function MotionalEmfRig3D({
   const wireGeoA = useMemo(() => new TubeGeometry(wireACurve, 42, WIRE_RADIUS, 12, false), [wireACurve])
   const wireGeoB = useMemo(() => new TubeGeometry(wireBCurve, 42, WIRE_RADIUS, 12, false), [wireBCurve])
 
+  const fieldSign = magneticFieldDirection === 'up' ? 1 : -1
+
   return (
     <group>
       <ambientLight intensity={0.68} />
@@ -165,42 +169,20 @@ export function MotionalEmfRig3D({
 
       <gridHelper args={[18, 18, '#9aa7b5', '#d5dce4']} position={[0, -1.4, 0]} userData={NO_FIT} />
 
-      {MOTIONAL_EMF_LAYOUT.field.lineZs.map((z) => (
-        <group
-          key={`field-line-${z}`}
-          position={[MOTIONAL_EMF_LAYOUT.field.center[0], MOTIONAL_EMF_LAYOUT.field.center[1], z]}
-        >
-          {MOTIONAL_EMF_LAYOUT.field.lineXs.map((x) => {
-            const fieldArrowSign = magneticFieldDirection === 'up' ? 1 : -1
-            const arrowOffsetY =
-              fieldArrowSign *
-              (MOTIONAL_EMF_LAYOUT.field.lineLengthY / 2 + MOTIONAL_EMF_LAYOUT.field.arrowHeadLength * 0.42)
-            const arrowRotation: [number, number, number] = fieldArrowSign === 1 ? [0, 0, 0] : [Math.PI, 0, 0]
-
-            return (
-              <group key={`field-column-${z}-${x}`} position={[x, 0, 0]}>
-                <mesh>
-                  <cylinderGeometry
-                    args={[
-                      MOTIONAL_EMF_LAYOUT.field.lineRadius,
-                      MOTIONAL_EMF_LAYOUT.field.lineRadius,
-                      MOTIONAL_EMF_LAYOUT.field.lineLengthY,
-                      8,
-                    ]}
-                  />
-                  <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
-                </mesh>
-                <mesh position={[0, arrowOffsetY, 0]} rotation={arrowRotation}>
-                  <coneGeometry
-                    args={[MOTIONAL_EMF_LAYOUT.field.arrowHeadRadius, MOTIONAL_EMF_LAYOUT.field.arrowHeadLength, 12]}
-                  />
-                  <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
-                </mesh>
-              </group>
-            )
-          })}
-        </group>
-      ))}
+      <UniformField
+        points={fieldGrid(
+          MOTIONAL_EMF_LAYOUT.field.lineXs.map((x) => MOTIONAL_EMF_LAYOUT.field.center[0] + x),
+          [MOTIONAL_EMF_LAYOUT.field.center[1] + fieldSign * 0.46 * MOTIONAL_EMF_LAYOUT.field.arrowHeadLength],
+          MOTIONAL_EMF_LAYOUT.field.lineZs,
+        )}
+        direction={[0, fieldSign, 0]}
+        length={MOTIONAL_EMF_LAYOUT.field.lineLengthY + 0.92 * MOTIONAL_EMF_LAYOUT.field.arrowHeadLength}
+        color="#62b0ff"
+        headLength={MOTIONAL_EMF_LAYOUT.field.arrowHeadLength}
+        headRadius={MOTIONAL_EMF_LAYOUT.field.arrowHeadRadius}
+        shaftRadius={MOTIONAL_EMF_LAYOUT.field.lineRadius}
+        opacity={0.68}
+      />
 
       <mesh geometry={wireGeoA}>
         <meshStandardMaterial color="#cf4b42" metalness={0.12} roughness={0.82} />

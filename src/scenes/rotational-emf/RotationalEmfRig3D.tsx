@@ -1,4 +1,5 @@
-import { Arrow3D } from '../../scene3d/Arrow3D'
+import { UniformField } from '../../domains/electromagnetism/UniformField'
+import { fieldGrid } from '../../domains/electromagnetism/fieldGrid'
 import type { RotationalEmfScenario } from './model'
 import { NO_FIT } from '../../scene3d/FitBounds'
 
@@ -10,37 +11,6 @@ type RotationalEmfRig3DProps = {
   scenario: RotationalEmfScenario
   angleRad: number
   effectiveLengthM: number
-}
-
-type FieldArrowProps = {
-  position: [number, number, number]
-  rotation?: [number, number, number]
-  color: string
-  shaftLength?: number
-  shaftRadius?: number
-  scale?: number
-}
-
-function FieldArrow({
-  position,
-  rotation = [0, 0, 0],
-  color,
-  shaftLength = 1.8,
-  shaftRadius = 0.035,
-  scale = 1,
-}: FieldArrowProps) {
-  return (
-    <group position={position} rotation={rotation}>
-      <Arrow3D
-        from={[0, -shaftLength / 2, 0]}
-        to={[0, shaftLength / 2 + 0.29 * scale, 0]}
-        color={color}
-        headLength={0.26 * scale}
-        headRadius={shaftRadius * 3.3}
-        shaftRadius={shaftRadius}
-      />
-    </group>
-  )
 }
 
 function RodScenario({ angleRad, effectiveLengthM }: { angleRad: number; effectiveLengthM: number }) {
@@ -55,18 +25,15 @@ function RodScenario({ angleRad, effectiveLengthM }: { angleRad: number; effecti
         <meshBasicMaterial color="#476079" />
       </mesh>
 
-      {fieldOffsets.flatMap((x) =>
-        fieldOffsets.map((z) => (
-          <FieldArrow
-            key={'rod-field-' + x + '-' + z}
-            position={[x, -0.05 * effectiveLengthM, z]}
-            color="#62b0ff"
-            shaftLength={ROD_FIELD_SHAFT_LENGTH * effectiveLengthM}
-            shaftRadius={0.04 * effectiveLengthM}
-            scale={effectiveLengthM}
-          />
-        )),
-      )}
+      <UniformField
+        points={fieldGrid(fieldOffsets, [0.095 * effectiveLengthM], fieldOffsets)}
+        direction={[0, 1, 0]}
+        length={(ROD_FIELD_SHAFT_LENGTH + 0.29) * effectiveLengthM}
+        color="#62b0ff"
+        headLength={0.26 * effectiveLengthM}
+        headRadius={0.132 * effectiveLengthM}
+        shaftRadius={0.04 * effectiveLengthM}
+      />
 
       <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[0.14 * scale, 0.14 * scale, 0.42 * scale, 18]} />
@@ -99,19 +66,15 @@ function FrameScenario({ angleRad, effectiveLengthM }: { angleRad: number; effec
 
   return (
     <group data-rig-scenario="frame">
-      {fieldYs.flatMap((y) =>
-        fieldZs.map((z) => (
-          <FieldArrow
-            key={'frame-field-' + y + '-' + z}
-            position={[0, y, z]}
-            rotation={[0, 0, -Math.PI / 2]}
-            color="#7bb7ff"
-            shaftLength={FRAME_FIELD_SHAFT_LENGTH * effectiveLengthM}
-            shaftRadius={0.04 * effectiveLengthM}
-            scale={effectiveLengthM}
-          />
-        )),
-      )}
+      <UniformField
+        points={fieldGrid([0.145 * effectiveLengthM], fieldYs, fieldZs)}
+        direction={[1, 0, 0]}
+        length={(FRAME_FIELD_SHAFT_LENGTH + 0.29) * effectiveLengthM}
+        color="#7bb7ff"
+        headLength={0.26 * effectiveLengthM}
+        headRadius={0.132 * effectiveLengthM}
+        shaftRadius={0.04 * effectiveLengthM}
+      />
 
       <group position={[axisX, 0, 0]} rotation={[0, angleRad, 0]}>
         <mesh position={[0, 0, 0]}>
