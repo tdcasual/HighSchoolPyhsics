@@ -1,6 +1,5 @@
 import { Line } from '../../scene3d/ClassroomLine'
-import { useFrame } from '@react-three/fiber'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo } from 'react'
 import { DoubleSide, LatheGeometry } from 'three'
 import {
   buildLatheProfile,
@@ -15,10 +14,7 @@ type PotentialEnergyRig3DProps = {
   chargeSign: 1 | -1
   sliceVisible: boolean
   surfaceVisible: boolean
-  rotationInProgress: boolean
   sweepAngle: number
-  onSweepAngleChange: (nextAngle: number) => void
-  onRotationComplete: () => void
   onChargeClick: () => void
   slicePoints: ReadonlyArray<PotentialSlicePoint>
 }
@@ -37,10 +33,7 @@ export function PotentialEnergyRig3D({
   chargeSign,
   sliceVisible,
   surfaceVisible,
-  rotationInProgress,
   sweepAngle,
-  onSweepAngleChange,
-  onRotationComplete,
   onChargeClick,
   slicePoints,
 }: PotentialEnergyRig3DProps) {
@@ -58,71 +51,16 @@ export function PotentialEnergyRig3D({
 
   useEffect(() => () => latheGeometry.dispose(), [latheGeometry])
 
-  const sweepAngleRef = useRef(sweepAngle)
-  const rotationInProgressRef = useRef(rotationInProgress)
-  const geometryRef = useRef(latheGeometry)
-  const lastReactUpdateRef = useRef(0)
-  const completionSentRef = useRef(false)
-
+  // The sweep is advanced by the scene's simulation clock; this only reveals that much surface.
   useLayoutEffect(() => {
-    const justStarted = rotationInProgress && !rotationInProgressRef.current
-    const geometryChanged = geometryRef.current !== latheGeometry
-
-    if (justStarted) {
-      sweepAngleRef.current = sweepAngle
-      completionSentRef.current = false
-    } else if (!rotationInProgress) {
-      sweepAngleRef.current = sweepAngle
-    }
-
-    if (!rotationInProgress || justStarted || geometryChanged) {
-      latheGeometry.setDrawRange(
-        0,
-        resolveLatheDrawCount(sweepAngleRef.current, {
-          radialSegments: LATHE_RADIAL_SEGMENTS,
-          profilePointCount: latheProfile.length,
-        }),
-      )
-    }
-
-    rotationInProgressRef.current = rotationInProgress
-    geometryRef.current = latheGeometry
-  }, [latheGeometry, latheProfile.length, rotationInProgress, sweepAngle])
-
-  useFrame((_, delta) => {
-    if (!rotationInProgress || completionSentRef.current) {
-      return
-    }
-
-    const nextSweepAngle = Math.min(POTENTIAL_SURFACE_FULL_ANGLE, sweepAngleRef.current + delta * 2.3)
-    if (nextSweepAngle <= sweepAngleRef.current) {
-      return
-    }
-
     latheGeometry.setDrawRange(
       0,
-      resolveLatheDrawCount(nextSweepAngle, {
+      resolveLatheDrawCount(sweepAngle, {
         radialSegments: LATHE_RADIAL_SEGMENTS,
         profilePointCount: latheProfile.length,
       }),
     )
-    sweepAngleRef.current = nextSweepAngle
-
-    if (nextSweepAngle >= POTENTIAL_SURFACE_FULL_ANGLE) {
-      sweepAngleRef.current = POTENTIAL_SURFACE_FULL_ANGLE
-      completionSentRef.current = true
-      onSweepAngleChange(POTENTIAL_SURFACE_FULL_ANGLE)
-      onRotationComplete()
-      return
-    }
-
-    // Throttle React state updates to ~10 Hz to avoid per-frame re-renders.
-    const now = performance.now()
-    if (now - lastReactUpdateRef.current > 100) {
-      lastReactUpdateRef.current = now
-      onSweepAngleChange(nextSweepAngle)
-    }
-  })
+  }, [latheGeometry, latheProfile.length, sweepAngle])
 
   return (
     <group>

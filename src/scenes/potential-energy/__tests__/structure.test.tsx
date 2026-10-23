@@ -12,7 +12,7 @@ describe('potential-energy structure', () => {
     // Opens on the slice; the surface build is the playback action (Space starts it too).
     const playback = screen.getByRole('region', { name: '播放控制' })
     expect(within(playback).getByRole('button', { name: '旋转生成曲面' })).toBeEnabled()
-    expect(within(playback).getByRole('button', { name: '重置' })).toBeDisabled()
+    expect(within(playback).getByRole('button', { name: '单步 15°' })).toBeEnabled()
 
     expect(await screen.findByText(/^60 点/)).toBeInTheDocument()
   })

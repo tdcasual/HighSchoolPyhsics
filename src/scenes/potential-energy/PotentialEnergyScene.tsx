@@ -1,6 +1,7 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { clockActions } from '../../simulation/clockActions'
 import { POTENTIAL_DISPLAY_LIMIT, POTENTIAL_DISPLAY_MIN_RADIUS, POTENTIAL_FIELD_SCALE } from './model'
 import { PotentialEnergyControls } from './PotentialEnergyControls'
 import { PotentialEnergyRig3D } from './PotentialEnergyRig3D'
@@ -28,7 +29,7 @@ export function PotentialEnergyScene() {
             {
               label: '旋转',
               value: surfaceVisible
-                ? `${state.sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : '已完成'}`
+                ? `${state.sweepProgress.toFixed(0)}% · ${rotationInProgress ? '构建中' : state.complete ? '已完成' : '已暂停'}`
                 : '未开始',
             },
             {
@@ -52,32 +53,28 @@ export function PotentialEnergyScene() {
           <p>彩色球标记电荷极性；旋转切片生成轴对称函数图像，不是实际空间等势面。</p>
         </>
       }
-      playbackActions={[
-        {
-          key: 'play',
-          label: rotationInProgress ? '旋转中…' : surfaceVisible ? '重新旋转' : '旋转生成曲面',
-          onClick: state.startRotation,
-          disabled: rotationInProgress,
-        },
-        { key: 'reset', label: '重置', onClick: state.reset, disabled: !surfaceVisible },
-      ]}
+      timeControl
+      playbackActions={clockActions(state.transport, {
+        playLabel: surfaceVisible ? '继续旋转' : '旋转生成曲面',
+        finished: state.complete,
+        finishedLabel: '重新旋转',
+        stepLabel: '单步 15°',
+        onReset: state.reset,
+      })}
       viewport={
         <FittedCanvas
           shot={{ from: [18, 24, 38], to: [0, 0, 0] }}
           fov={58}
           minDistance={8}
           maxDistance={60}
-          frameloop={rotationInProgress ? 'always' : 'demand'}
+          frameloop={state.clock.frameloop}
         >
           <PotentialEnergyRig3D
             chargeSign={state.chargeSign}
             // Opens on the φ–r slice so there is something to discuss immediately; rotating builds the surface.
             sliceVisible
             surfaceVisible={surfaceVisible}
-            rotationInProgress={rotationInProgress}
             sweepAngle={sweepAngle}
-            onSweepAngleChange={state.setSweepAngle}
-            onRotationComplete={state.completeRotation}
             onChargeClick={state.toggleChargeSign}
             slicePoints={state.slicePoints}
           />

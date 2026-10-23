@@ -35,7 +35,6 @@ for (const [path, text] of Object.entries(sources)) {
 const NO_STEP: Record<string, string> = {
   'ideal-gas-isochoric': 'molecular motion is statistical; readings are equilibrium values',
   mhd: 'readings are steady-state values; the animation only illustrates flow and charge build-up',
-  'potential-energy': '播放 sweeps the potential surface into view; no physical time',
 }
 
 /**
@@ -56,7 +55,6 @@ const HAND_PLAYBACK: Record<string, string> = {
   micrometer: 'turn the thimble ± one division, explode and lock; there is no time',
   'ticker-timer': 'the experiment is 通电 then 释放纸带, as in the lab',
   'induction-current': 'the teacher moves the magnet 接近 / 远离 the coil',
-  'potential-energy': '播放 is a one-shot sweep that builds the potential surface',
 }
 
 const hasPlayAction = (text: string) => /clockActions\(|key:\s*'(play|toggle-running)'/.test(text)
