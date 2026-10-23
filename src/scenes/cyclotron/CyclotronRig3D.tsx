@@ -1,3 +1,4 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo } from 'react'
 import { DEE_RADIUS, DEE_THICKNESS, SCENE_Y, TRAJECTORY_Y, type Point3 } from './layout'
@@ -50,16 +51,16 @@ type FieldArrowProps = {
 
 function FieldArrow({ x, z }: FieldArrowProps) {
   return (
-    <group position={[x, 1.2, z]}>
-      <mesh position={[0, -0.2, 0]}>
-        <cylinderGeometry args={[0.015, 0.015, 0.5, 12]} />
-        <meshBasicMaterial color="#2ca6bf" transparent opacity={0.82} />
-      </mesh>
-      <mesh position={[0, -0.5, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.06, 0.18, 14]} />
-        <meshBasicMaterial color="#1f96b0" transparent opacity={0.92} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={[x, 1.25, z]}
+      to={[x, 0.61, z]}
+      color="#2399b3"
+      headLength={0.18}
+      headRadius={0.06}
+      shaftRadius={0.015}
+      opacity={0.88}
+      segments={14}
+    />
   )
 }
 

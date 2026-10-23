@@ -1,3 +1,4 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import type { ReactElement } from 'react'
 import { Line } from '../../scene3d/ClassroomLine'
 import { WAVE_DOMAIN_LENGTH, buildWavePoints, type WaveParticle } from './model'
@@ -39,14 +40,17 @@ function Arrow({
     x = xWorld(particle.x),
     start: Point = [x, yWorld(particle.y), 0.18],
     end: Point = [x, yWorld(particle.y) + sign * 0.42, 0.18]
+  // The head is centred on `end`.
   return (
-    <group>
-      <Line points={[start, end]} color={color} lineWidth={1.5} />
-      <mesh position={end} rotation={[sign > 0 ? 0 : Math.PI, 0, 0]}>
-        <coneGeometry args={[0.07, 0.18, 8]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={start}
+      to={[x, end[1] + sign * 0.09, 0.18]}
+      color={color}
+      headLength={0.18}
+      headRadius={0.07}
+      lineWidth={1.5}
+      segments={8}
+    />
   )
 }
 function Axis({ color }: { color: string }) {

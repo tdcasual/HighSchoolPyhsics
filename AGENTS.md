@@ -100,6 +100,7 @@ export function NewDemoScene() {
 - `src/domains/optics/` — spectrum colours, colour filters, diffraction model, pattern-canvas machinery, optical bench parts and the 光源 control section, shared by the interference and diffraction scenes
 - `src/scene3d/FittedCanvas.tsx` — the canvas every apparatus scene renders through (measured bounds fitted into the free area)
 - `src/scene3d/SceneLabel.tsx` — every text label in a 3D scene: `tag` (a part's name), `dark` (in the darkened optics lab), `text` (a coloured annotation) or `badge` (N/S, an end A/B on a coloured chip); no per-scene label CSS and no raw drei `Html` (a convention test checks)
+- `src/scene3d/Arrow3D.tsx` — every vector, field direction and force arrow (tail `from`, tip `to`; solid or line shaft, `overlay` to draw over the apparatus); `arrowGeometry.extendBeyond` for a head centred on a point. A convention test rejects hand-built cone arrows
 - `src/scene3d/useSceneTheme.ts`, `LabStage.tsx` — rigs read day/night themselves (`pick(day, night)`) instead of taking a `theme` prop; `LabStage` is the background and lights of a plain teaching model
 - `src/ui/charts/` — chart kit (ChartCard, ChartFrame and marks, scales, optics canvas hooks)
 - `src/scene3d/orbitFraming.ts`, `src/scene3d/useBoundsFraming.ts` — bounds-based camera framing shared by apparatus scenes

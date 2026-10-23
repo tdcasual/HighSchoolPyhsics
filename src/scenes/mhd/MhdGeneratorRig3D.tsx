@@ -1,3 +1,5 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
+import { extendBeyond } from '../../scene3d/arrowGeometry'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo, type ReactNode } from 'react'
 import { deriveMhdLayout, MHD_LAYOUT } from './layout'
@@ -165,66 +167,57 @@ export function MhdGeneratorRig3D({
       ))}
 
       {magneticGuides.map((guide, index) => (
-        <group key={`b-guide-${index}`}>
-          <Line points={guide.shaft} color="#fff090" lineWidth={2.6} transparent opacity={0.9} />
-          <mesh position={guide.tip} rotation={[Math.PI / 2, 0, 0]}>
-            <coneGeometry args={[0.045, 0.18, geoDetail.coneRadialSegments]} />
-            <meshBasicMaterial color="#fff090" />
-          </mesh>
-        </group>
+        <Arrow3D
+          key={`b-guide-${index}`}
+          from={guide.shaft[0]}
+          to={extendBeyond(guide.shaft[0], guide.tip, 0.09)}
+          color="#fff090"
+          headLength={0.18}
+          headRadius={0.045}
+          lineWidth={2.6}
+          opacity={0.9}
+          segments={geoDetail.coneRadialSegments}
+        />
       ))}
 
       {layout.magneticField.xGuides.map((x, index) => (
-        <group key={`e-field-${index}`}>
-          <Line
-            points={[
-              [x, layout.magneticField.yStart, 0.18],
-              [x, layout.magneticField.yEnd, 0.18],
-            ]}
-            color="#90f5ff"
-            lineWidth={2.1}
-            transparent
-            opacity={innerFieldOpacity}
-          />
-          <mesh position={[x, layout.magneticField.yEnd - electricArrowLength / 2, 0.18]} rotation={[0, 0, 0]}>
-            <coneGeometry args={[0.034, electricArrowLength, geoDetail.coneRadialSegments]} />
-            <meshBasicMaterial color="#90f5ff" transparent opacity={innerFieldOpacity} />
-          </mesh>
-        </group>
+        <Arrow3D
+          key={`e-field-${index}`}
+          from={[x, layout.magneticField.yStart, 0.18]}
+          to={[x, layout.magneticField.yEnd, 0.18]}
+          color="#90f5ff"
+          headLength={electricArrowLength}
+          headRadius={0.034}
+          lineWidth={2.1}
+          opacity={innerFieldOpacity}
+          segments={geoDetail.coneRadialSegments}
+        />
       ))}
 
-      <Line
-        points={[
-          [-0.54, lorentzArrowHalf, -0.22],
-          [-0.54, -lorentzArrowHalf, -0.22],
-        ]}
-        color="#ffb066"
-        lineWidth={2.4}
-        transparent
-        opacity={magneticDeflectionOpacity}
-      />
-      <mesh position={[-0.54, -lorentzArrowHalf + lorentzArrowHeadLength / 2, -0.22]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry
-          args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]}
+      {(
+        [
+          [
+            [-0.54, lorentzArrowHalf, -0.22],
+            [-0.54, -lorentzArrowHalf, -0.22],
+          ],
+          [
+            [0.54, -lorentzArrowHalf, 0.22],
+            [0.54, lorentzArrowHalf, 0.22],
+          ],
+        ] as const
+      ).map(([from, to], index) => (
+        <Arrow3D
+          key={`lorentz-${index}`}
+          from={from}
+          to={to}
+          color="#ffb066"
+          headLength={lorentzArrowHeadLength}
+          headRadius={Math.min(0.04, lorentzArrowHeadLength * 0.45)}
+          lineWidth={2.4}
+          opacity={magneticDeflectionOpacity}
+          segments={geoDetail.coneRadialSegments}
         />
-        <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
-      </mesh>
-      <Line
-        points={[
-          [0.54, -lorentzArrowHalf, 0.22],
-          [0.54, lorentzArrowHalf, 0.22],
-        ]}
-        color="#ffb066"
-        lineWidth={2.4}
-        transparent
-        opacity={magneticDeflectionOpacity}
-      />
-      <mesh position={[0.54, lorentzArrowHalf - lorentzArrowHeadLength / 2, 0.22]}>
-        <coneGeometry
-          args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]}
-        />
-        <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
-      </mesh>
+      ))}
       <MhdWorldLabel position={[-0.84, 0, -0.22]} color="#ffb066" fontSize={0.1}>
         q+ · F<sub>B</sub> ↓
       </MhdWorldLabel>

@@ -1,6 +1,7 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import { SceneLabel } from '../../scene3d/SceneLabel'
 import { useMemo } from 'react'
-import { CatmullRomCurve3, Euler, Quaternion, TubeGeometry, Vector3 } from 'three'
+import { CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
 import { MOTIONAL_EMF_LAYOUT, type Vec3 } from './layout'
 import { NO_FIT } from '../../scene3d/FitBounds'
 import {
@@ -53,48 +54,34 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-function rotateFromYAxis(direction: Vec3): [number, number, number] {
-  const target = new Vector3(direction[0], direction[1], direction[2]).normalize()
-  const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), target)
-  const euler = new Euler().setFromQuaternion(quaternion)
-  return [euler.x, euler.y, euler.z]
-}
-
-function Arrow3D({
+/** A teaching vector from `anchor` along `direction`, drawn over the apparatus; `length` sets its scale. */
+function TeachingVector({
   anchor,
   direction,
   color,
   length,
-  shaftRadius = 0.032,
-  headRadius = 0.09,
-  opacity = 0.85,
+  opacity,
 }: {
   anchor: Vec3
   direction: Vec3
   color: string
   length: number
-  shaftRadius?: number
-  headRadius?: number
-  opacity?: number
+  opacity: number
 }) {
-  const normalized = normalize(direction)
-  if (Math.hypot(normalized[0], normalized[1], normalized[2]) < 1e-8 || length <= 0) {
-    return null
-  }
-
-  const rotation = rotateFromYAxis(normalized)
-
+  const unit = normalize(direction)
+  const tip = add(anchor, [unit[0] * length * 0.8, unit[1] * length * 0.8, unit[2] * length * 0.8])
   return (
-    <group position={anchor} rotation={rotation}>
-      <mesh position={[0, length * 0.3, 0]}>
-        <cylinderGeometry args={[shaftRadius, shaftRadius, length * 0.6, 10]} />
-        <meshBasicMaterial color={color} transparent opacity={opacity} depthTest={false} depthWrite={false} />
-      </mesh>
-      <mesh position={[0, length * 0.68, 0]}>
-        <coneGeometry args={[headRadius, length * 0.24, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={opacity} depthTest={false} depthWrite={false} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={anchor}
+      to={tip}
+      color={color}
+      headLength={length * 0.24}
+      headRadius={0.09}
+      shaftRadius={0.032}
+      segments={10}
+      opacity={opacity}
+      overlay
+    />
   )
 }
 
@@ -243,14 +230,14 @@ export function MotionalEmfRig3D({
         B
       </SceneLabel>
 
-      <Arrow3D
+      <TeachingVector
         anchor={vectorAnchors.velocity}
         direction={velocityDirection}
         color="#ff9a3c"
         length={1.48 * clamp(velocitySpeedMps / 2, 0, 1.8)}
         opacity={0.78}
       />
-      <Arrow3D
+      <TeachingVector
         anchor={vectorAnchors.current}
         direction={currentDirection}
         color="#7bcf82"

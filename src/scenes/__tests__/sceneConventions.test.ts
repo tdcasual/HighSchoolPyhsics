@@ -169,4 +169,15 @@ describe('scene conventions', () => {
     )
     expect(raw.map(([path]) => path)).toEqual([])
   })
+
+  it('draws arrows with scene3d/Arrow3D instead of hand-built cones', () => {
+    const files = [...Object.entries(sources), ...Object.entries(sharedParts)]
+    const handBuilt = files.flatMap(([path, text]) =>
+      text
+        .split(/\n(?=(?:export )?function )/)
+        .filter((chunk) => /^(?:export )?function \w*Arrow\w*\(/.test(chunk) && /<coneGeometry\b/.test(chunk))
+        .map((chunk) => `${path}: ${chunk.match(/function (\w+)/)?.[1]}`),
+    )
+    expect(handBuilt).toEqual([])
+  })
 })

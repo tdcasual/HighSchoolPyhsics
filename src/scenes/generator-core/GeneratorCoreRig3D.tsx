@@ -1,6 +1,7 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
+import { extendBeyond } from '../../scene3d/arrowGeometry'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useMemo } from 'react'
-import { Quaternion, Vector3 } from 'three'
 import { deriveGeneratorReadings } from './model'
 import { SceneLabel } from '../../scene3d/SceneLabel'
 import { LabStage } from '../../scene3d/LabStage'
@@ -19,23 +20,16 @@ function Arrow({
   color: string
   width?: number
 }) {
-  const direction = useMemo(
-    () => [end[0] - start[0], end[1] - start[1], end[2] - start[2]] as [number, number, number],
-    [end, start],
-  )
-  const orientation = useMemo(() => {
-    const vector = new Vector3(...direction)
-    if (vector.lengthSq() < 1e-9) return new Quaternion()
-    return new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), vector.normalize())
-  }, [direction])
+  // The head is centred on `end`.
   return (
-    <group>
-      <Line points={[start, end]} color={color} lineWidth={width} />
-      <mesh position={end} quaternion={orientation}>
-        <coneGeometry args={[0.12, 0.34, 12]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={start}
+      to={extendBeyond(start, end, 0.17)}
+      color={color}
+      headLength={0.34}
+      headRadius={0.12}
+      lineWidth={width}
+    />
   )
 }
 
@@ -172,7 +166,13 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
       <SceneLabel position={[0, -2.42, 0]} color={textColor} variant="text" size={13} halo={dark ? 'dark' : 'light'}>
         旋转轴 O
       </SceneLabel>
-      <SceneLabel position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} variant="text" size={13} halo={dark ? 'dark' : 'light'}>
+      <SceneLabel
+        position={[0, 2.58, -1.8]}
+        color={dark ? '#9ed7f0' : '#457b9d'}
+        variant="text"
+        size={13}
+        halo={dark ? 'dark' : 'light'}
+      >
         B
       </SceneLabel>
     </group>

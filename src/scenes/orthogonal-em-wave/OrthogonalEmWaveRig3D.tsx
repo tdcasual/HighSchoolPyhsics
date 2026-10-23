@@ -1,3 +1,4 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import { useThree } from '@react-three/fiber'
 import { Line } from '../../scene3d/ClassroomLine'
 import { buildFieldSamples, type EmViewMode } from './model'
@@ -29,14 +30,17 @@ function EArrow({ x, value, color }: { x: number; value: number; color: string }
   const sign = value > 0 ? 1 : -1
   const start: Point = [xWorld(x), 0, 0.05]
   const end: Point = [xWorld(x), value * FIELD_SCALE, 0.05]
+  // The head is centred on `end`.
   return (
-    <group>
-      <Line points={[start, end]} color={color} lineWidth={1.5} />
-      <mesh position={end} rotation={[sign > 0 ? 0 : Math.PI, 0, 0]}>
-        <coneGeometry args={[0.075, 0.2, 8]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={start}
+      to={[end[0], end[1] + sign * 0.1, end[2]]}
+      color={color}
+      headLength={0.2}
+      headRadius={0.075}
+      lineWidth={1.5}
+      segments={8}
+    />
   )
 }
 
@@ -45,14 +49,17 @@ function BArrow({ x, value, color }: { x: number; value: number; color: string }
   const sign = value > 0 ? 1 : -1
   const start: Point = [xWorld(x), 0, 0]
   const end: Point = [xWorld(x), 0, value * FIELD_SCALE]
+  // The head is centred on `end`.
   return (
-    <group>
-      <Line points={[start, end]} color={color} lineWidth={1.5} />
-      <mesh position={end} rotation={[sign > 0 ? Math.PI / 2 : -Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[0.075, 0.2, 8]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </group>
+    <Arrow3D
+      from={start}
+      to={[end[0], end[1], end[2] + sign * 0.1]}
+      color={color}
+      headLength={0.2}
+      headRadius={0.075}
+      lineWidth={1.5}
+      segments={8}
+    />
   )
 }
 

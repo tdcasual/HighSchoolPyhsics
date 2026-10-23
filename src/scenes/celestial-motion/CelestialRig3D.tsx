@@ -1,3 +1,4 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import { Line } from '../../scene3d/ClassroomLine'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -172,17 +173,24 @@ function satelliteMesh(satellite: SatellitePose) {
 }
 
 function vectorArrow(position: Vec3, direction: Vec3, length: number, color: string, name: string) {
+  const unit = new Vector3(...direction).normalize()
+  const tip: Vec3 = [
+    position[0] + unit.x * (length + 0.07),
+    position[1] + unit.y * (length + 0.07),
+    position[2] + unit.z * (length + 0.07),
+  ]
   return (
-    <group key={name} name={name} position={position} quaternion={alignX(direction)}>
-      <mesh position={[length / 2, 0, 0]}>
-        <boxGeometry args={[length, 0.025, 0.025]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-      <mesh position={[length, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-        <coneGeometry args={[0.055, 0.14, 8]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </group>
+    <Arrow3D
+      key={name}
+      name={name}
+      from={position}
+      to={tip}
+      color={color}
+      headLength={0.14}
+      headRadius={0.055}
+      shaftRadius={0.0125}
+      segments={8}
+    />
   )
 }
 

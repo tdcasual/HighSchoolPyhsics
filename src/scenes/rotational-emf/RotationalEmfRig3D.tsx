@@ -1,3 +1,4 @@
+import { Arrow3D } from '../../scene3d/Arrow3D'
 import type { RotationalEmfScenario } from './model'
 import { NO_FIT } from '../../scene3d/FitBounds'
 
@@ -30,14 +31,14 @@ function FieldArrow({
 }: FieldArrowProps) {
   return (
     <group position={position} rotation={rotation}>
-      <mesh>
-        <cylinderGeometry args={[shaftRadius, shaftRadius, shaftLength, 10]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-      <mesh position={[0, shaftLength / 2 + 0.16 * scale, 0]}>
-        <coneGeometry args={[shaftRadius * 3.3, 0.26 * scale, 12]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
+      <Arrow3D
+        from={[0, -shaftLength / 2, 0]}
+        to={[0, shaftLength / 2 + 0.29 * scale, 0]}
+        color={color}
+        headLength={0.26 * scale}
+        headRadius={shaftRadius * 3.3}
+        shaftRadius={shaftRadius}
+      />
     </group>
   )
 }
