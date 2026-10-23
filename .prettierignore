@@ -1,0 +1,9 @@
+dist
+output
+node_modules
+coverage
+public
+docs
+*.md
+*.json
+scripts/playwright/baseline
