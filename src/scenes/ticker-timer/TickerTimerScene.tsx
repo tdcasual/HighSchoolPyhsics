@@ -1,12 +1,10 @@
 import { DataRows } from '../../ui/panels/DataRows'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
-import { RangeField } from '../../ui/controls/RangeField'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { TickerTimerChart } from './TickerTimerChart'
 import { TickerTimerControls } from './TickerTimerControls'
 import { TickerTimerRig3D } from './TickerTimerRig3D'
 import { useTickerTimerSceneState } from './useTickerTimerSceneState'
-import { MAX_PLAYBACK_RATE, MIN_PLAYBACK_RATE } from './useTickerTimerSceneState'
 import './ticker-timer.css'
 
 export function TickerTimerScene() {
@@ -59,20 +57,6 @@ export function TickerTimerScene() {
         />
       }
       chartVisible
-      playbackControls={
-        <RangeField
-          id="ticker-playback-rate"
-          label="播放速度"
-          min={MIN_PLAYBACK_RATE}
-          max={MAX_PLAYBACK_RATE}
-          step={0.25}
-          value={state.playbackRate}
-          onChange={state.setPlaybackRate}
-          unit="×"
-          displayValue={`${state.playbackRate.toFixed(2)}×`}
-          showMinMax
-        />
-      }
       playbackActions={[
         {
           key: 'power',

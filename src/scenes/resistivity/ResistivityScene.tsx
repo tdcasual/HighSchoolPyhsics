@@ -99,7 +99,7 @@ export function ResistivityScene() {
 
   return (
     <SceneLayout
-      chartContentClassName="measure-chart-content"
+      chartVariant="figure"
       controls={
         <ResistivityControls
           state={state}

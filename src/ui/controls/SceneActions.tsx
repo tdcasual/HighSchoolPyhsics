@@ -1,7 +1,7 @@
-import type { MobilePlaybackAction } from '../../store/useAppStore'
+import type { PlaybackAction } from '../layout/playbackAction'
 
 type SceneActionsProps = {
-  actions: MobilePlaybackAction[]
+  actions: PlaybackAction[]
   activeKey?: string
   layout?: 'row' | 'column' | 'grid-2'
 }

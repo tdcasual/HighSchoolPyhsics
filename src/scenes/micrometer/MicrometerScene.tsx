@@ -39,7 +39,7 @@ export function MicrometerScene() {
 
   return (
     <SceneLayout
-      chartContentClassName="measure-chart-content"
+      chartVariant="figure"
       controls={<MicrometerControls state={state} />}
       dataOverlay={
         <DataRows

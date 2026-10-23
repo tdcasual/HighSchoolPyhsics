@@ -284,9 +284,14 @@ body {
 /* ── Chart panel ── */
 /* Charts are usually `width: 100%` SVG/canvas inside a shrink-to-fit floating panel; without
    a floor they fall back to the 300px replaced-element default and their text becomes
-   unreadable at classroom distance. Scenes can still widen this via chartContentClassName. */
+   unreadable at classroom distance. */
 .scene-chart-content {
   min-width: min(440px, 30vw);
+}
+
+/* chartVariant="figure": a reading figure (caliper, micrometer scale) needs its full width. */
+.scene-chart-content--figure {
+  min-width: min(560px, 34vw);
 }
 
 /* Buttons that bring back a closed chart / playback panel. */
@@ -950,11 +955,14 @@ input[type='range']::-moz-range-track {
     display: none;
   }
 
-  .app-controls > * {
+  /* The scene's playback buttons sit in a display: contents slot, so they are flex items too. */
+  .app-controls > *,
+  .app-header-scene-actions > * {
     flex-shrink: 0;
   }
 
-  .app-controls > button {
+  .app-controls > button,
+  .app-header-scene-actions > button {
     padding-inline: 0.7rem;
     white-space: nowrap;
   }

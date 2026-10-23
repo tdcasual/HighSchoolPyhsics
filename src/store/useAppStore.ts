@@ -3,17 +3,9 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type ThemeMode = 'day' | 'night'
 
-export type MobilePlaybackAction = {
-  key: string
-  label: string
-  onClick: () => void
-  disabled?: boolean
-}
-
 type AppState = {
   theme: ThemeMode
   activeScenePath: string
-  mobilePlaybackActions: MobilePlaybackAction[]
   sidebarCollapsed: boolean
   /** Classroom projection text scale for readouts, charts and 3D labels. */
   largeText: boolean
@@ -29,7 +21,6 @@ type AppState = {
   sceneEpoch: number
   setTheme: (theme: ThemeMode) => void
   setActiveScenePath: (path: string) => void
-  setMobilePlaybackActions: (actions: MobilePlaybackAction[]) => void
   setSidebarCollapsed: (collapsed: boolean) => void
   setLargeText: (largeText: boolean) => void
   setPresenting: (presenting: boolean) => void
@@ -110,7 +101,6 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: 'day',
       activeScenePath: '/',
-      mobilePlaybackActions: [],
       sidebarCollapsed: false,
       largeText: true,
       presenting: false,
@@ -120,7 +110,6 @@ export const useAppStore = create<AppState>()(
       sceneEpoch: 0,
       setTheme: (theme) => set({ theme }),
       setActiveScenePath: (path) => set({ activeScenePath: path }),
-      setMobilePlaybackActions: (actions) => set({ mobilePlaybackActions: actions }),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
       setLargeText: (largeText) => set({ largeText }),
       setPresenting: (presenting) => set({ presenting }),

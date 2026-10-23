@@ -3,7 +3,7 @@ import { ControlSection } from '../../ui/controls/ControlSection'
 import { RangeField } from '../../ui/controls/RangeField'
 import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import type { MotionMode, TimerKind } from './model'
-import type { TickerTimerSceneState } from './useTickerTimerSceneState'
+import { MAX_PLAYBACK_RATE, MIN_PLAYBACK_RATE, type TickerTimerSceneState } from './useTickerTimerSceneState'
 import './ticker-timer.css'
 
 const KIND_OPTIONS = [
@@ -121,6 +121,22 @@ export function TickerTimerControls({ state }: TickerTimerControlsProps) {
           已有运行点迹；重置后再调整实验参数，避免改写已记录的数据。
         </p>
       ) : null}
+
+      {/* The tape runs at the timer's own pace (default ½×), not the shell's slow motion. */}
+      <ControlSection title="播放速度">
+        <RangeField
+          id="ticker-playback-rate"
+          label="播放速度"
+          min={MIN_PLAYBACK_RATE}
+          max={MAX_PLAYBACK_RATE}
+          step={0.25}
+          value={state.playbackRate}
+          onChange={state.setPlaybackRate}
+          unit="×"
+          displayValue={`${state.playbackRate.toFixed(2)}×`}
+          showMinMax
+        />
+      </ControlSection>
 
       <ControlSection title="显示">
         <SegmentedControl

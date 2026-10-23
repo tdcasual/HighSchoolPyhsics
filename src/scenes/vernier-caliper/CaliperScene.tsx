@@ -42,7 +42,7 @@ export function CaliperScene() {
 
   return (
     <SceneLayout
-      chartContentClassName="measure-chart-content"
+      chartVariant="figure"
       controls={<CaliperControls state={state} />}
       dataOverlay={
         <DataRows

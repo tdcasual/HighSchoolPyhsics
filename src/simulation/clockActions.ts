@@ -1,4 +1,4 @@
-import type { MobilePlaybackAction } from '../store/useAppStore'
+import type { PlaybackAction } from '../ui/layout/playbackAction'
 
 /**
  * Anything that plays and pauses: a `SimulationClock`, or a scene state machine that owns its
@@ -23,7 +23,7 @@ export type ClockActionOptions = {
   /** Play and 单步 are unavailable (e.g. the particle has left, or a practice lock). */
   disabled?: boolean
   /** Scene-specific actions after reset. */
-  extra?: MobilePlaybackAction[]
+  extra?: PlaybackAction[]
 }
 
 /**
@@ -31,13 +31,13 @@ export type ClockActionOptions = {
  * scene-specific actions after them. Every scene with a play button builds it here so the
  * keys, order and wording stay the same across scenes.
  */
-export function clockActions(transport: Transport, options: ClockActionOptions): MobilePlaybackAction[] {
+export function clockActions(transport: Transport, options: ClockActionOptions): PlaybackAction[] {
   const playLabel = transport.running
     ? (options.pauseLabel ?? '暂停')
     : options.finished
       ? (options.finishedLabel ?? '再演示')
       : (options.playLabel ?? '播放')
-  const actions: MobilePlaybackAction[] = [
+  const actions: PlaybackAction[] = [
     { key: 'toggle-running', label: playLabel, onClick: transport.toggle, disabled: options.disabled },
   ]
   if (options.stepLabel !== undefined) {

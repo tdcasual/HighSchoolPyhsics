@@ -1,4 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { HeaderActionsTargetContext } from './ui/layout/headerActionsTarget'
 import { DEMO_ROUTES, findDemoRoute, normalizeDemoPath } from './app/demoRoutes'
 import { SceneRuntimeBoundary } from './app/SceneRuntimeBoundary'
 import { useAppStore } from './store/useAppStore'
@@ -40,7 +41,7 @@ function App() {
   const setPredicting = useAppStore((state) => state.setPredicting)
   const sceneEpoch = useAppStore((state) => state.sceneEpoch)
   const setActiveScenePath = useAppStore((state) => state.setActiveScenePath)
-  const mobilePlaybackActions = useAppStore((state) => state.mobilePlaybackActions)
+  const [headerActionsSlot, setHeaderActionsSlot] = useState<HTMLElement | null>(null)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   const updateReady = useAppUpdateReady()
   const [pathname, setPathname] = useState(() => {
@@ -174,183 +175,177 @@ function App() {
   }
 
   return (
-    <main className={shellClassName} data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
-      <a
-        href="#scene-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[var(--skip-link-bg-night)] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
-      >
-        跳转到主要内容
-      </a>
-      <header className="app-header" data-page={isOverviewPage ? 'overview' : 'scene'}>
-        <div className="app-header-title">
-          <h1>{APP_BRAND_NAME}</h1>
-          {!isOverviewPage && activeRoute ? <span className="app-header-scene">{activeRoute.label}</span> : null}
-        </div>
-        <div className="app-controls">
-          {updateReady ? (
-            // Parameters survive the reload (scene memory), so refreshing mid-lesson is cheap.
-            <button type="button" className="touch-target app-update" onClick={() => window.location.reload()}>
-              {isMobile ? '更新' : '有新版本，点此刷新'}
-            </button>
-          ) : null}
-          {!isOverviewPage ? (
-            <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
-              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                <path
-                  d="M10 3.5L5.5 8l4.5 4.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {isMobile ? '返回' : '返回导航'}
-            </button>
-          ) : null}
-          {!isOverviewPage &&
-            isMobile &&
-            mobilePlaybackActions.map((action) => (
-              <button
-                key={action.key}
-                className="touch-target scene-actions-btn"
-                onClick={action.onClick}
-                disabled={action.disabled}
-              >
-                {action.label}
+    <HeaderActionsTargetContext.Provider value={headerActionsSlot}>
+      <main className={shellClassName} data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
+        <a
+          href="#scene-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[var(--skip-link-bg-night)] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
+        >
+          跳转到主要内容
+        </a>
+        <header className="app-header" data-page={isOverviewPage ? 'overview' : 'scene'}>
+          <div className="app-header-title">
+            <h1>{APP_BRAND_NAME}</h1>
+            {!isOverviewPage && activeRoute ? <span className="app-header-scene">{activeRoute.label}</span> : null}
+          </div>
+          <div className="app-controls">
+            {updateReady ? (
+              // Parameters survive the reload (scene memory), so refreshing mid-lesson is cheap.
+              <button type="button" className="touch-target app-update" onClick={() => window.location.reload()}>
+                {isMobile ? '更新' : '有新版本，点此刷新'}
               </button>
-            ))}
-          {isMobile ? (
-            <button
-              type="button"
-              className="touch-target theme-toggle-icon"
-              aria-label={theme === 'day' ? '切换到夜间模式' : '切换到白天模式'}
-              onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
-            >
-              {theme === 'day' ? (
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-                  <path d="M15.5 12.6A6.5 6.5 0 0 1 7.4 4.5a6.5 6.5 0 1 0 8.1 8.1z" fill="currentColor" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-                  <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+            ) : null}
+            {!isOverviewPage ? (
+              <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
                   <path
-                    d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"
+                    d="M10 3.5L5.5 8l4.5 4.5"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.6"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
-              )}
-            </button>
-          ) : (
-            <>
-              <div className="theme-switch">
-                <button
-                  className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
-                  aria-pressed={theme === 'day'}
-                  aria-keyshortcuts="D"
-                  title="快捷键 D"
-                  onClick={() => setTheme('day')}
-                >
-                  白天模式
-                </button>
-                <button
-                  className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
-                  aria-pressed={theme === 'night'}
-                  aria-keyshortcuts="N"
-                  title="快捷键 N"
-                  onClick={() => setTheme('night')}
-                >
-                  夜间模式
-                </button>
-              </div>
-              {!isOverviewPage ? (
+                {isMobile ? '返回' : '返回导航'}
+              </button>
+            ) : null}
+            {/* On phones the scene's SceneLayout portals its playback buttons here. */}
+            {!isOverviewPage && isMobile ? (
+              <span ref={setHeaderActionsSlot} className="app-header-scene-actions contents" />
+            ) : null}
+            {isMobile ? (
+              <button
+                type="button"
+                className="touch-target theme-toggle-icon"
+                aria-label={theme === 'day' ? '切换到夜间模式' : '切换到白天模式'}
+                onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
+              >
+                {theme === 'day' ? (
+                  <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+                    <path d="M15.5 12.6A6.5 6.5 0 0 1 7.4 4.5a6.5 6.5 0 1 0 8.1 8.1z" fill="currentColor" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+                    <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+                    <path
+                      d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
+              </button>
+            ) : (
+              <>
+                <div className="theme-switch">
+                  <button
+                    className={`touch-target ${theme === 'day' ? 'active' : ''}`.trim()}
+                    aria-pressed={theme === 'day'}
+                    aria-keyshortcuts="D"
+                    title="快捷键 D"
+                    onClick={() => setTheme('day')}
+                  >
+                    白天模式
+                  </button>
+                  <button
+                    className={`touch-target ${theme === 'night' ? 'active' : ''}`.trim()}
+                    aria-pressed={theme === 'night'}
+                    aria-keyshortcuts="N"
+                    title="快捷键 N"
+                    onClick={() => setTheme('night')}
+                  >
+                    夜间模式
+                  </button>
+                </div>
+                {!isOverviewPage ? (
+                  <button
+                    type="button"
+                    className="touch-target large-text-toggle"
+                    aria-keyshortcuts="P"
+                    title="讲解模式：只显示 3D 并全屏，Esc 退出（快捷键 P）"
+                    onClick={enterPresenting}
+                  >
+                    讲解
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  className="touch-target large-text-toggle"
-                  aria-keyshortcuts="P"
-                  title="讲解模式：只显示 3D 并全屏，Esc 退出（快捷键 P）"
-                  onClick={enterPresenting}
+                  className={`touch-target large-text-toggle ${largeText ? 'active' : ''}`.trim()}
+                  aria-pressed={largeText}
+                  aria-keyshortcuts="L"
+                  title="课堂大字：放大读数、图表与 3D 标签（快捷键 L）"
+                  onClick={() => setLargeText(!largeText)}
                 >
-                  讲解
+                  大字
                 </button>
-              ) : null}
-              <button
-                type="button"
-                className={`touch-target large-text-toggle ${largeText ? 'active' : ''}`.trim()}
-                aria-pressed={largeText}
-                aria-keyshortcuts="L"
-                title="课堂大字：放大读数、图表与 3D 标签（快捷键 L）"
-                onClick={() => setLargeText(!largeText)}
-              >
-                大字
-              </button>
-              <button
-                type="button"
-                className="touch-target shortcut-help-btn"
-                title="快捷键帮助 (?)"
-                aria-label="快捷键帮助"
-                onClick={() => setHelpVisible(true)}
-              >
-                ?
-              </button>
-            </>
-          )}
-        </div>
-      </header>
-      {presentingActive ? (
-        <button type="button" className="touch-target presenting-exit" onClick={exitPresenting}>
-          退出讲解
-        </button>
-      ) : null}
-      <section className="scene-container" id="scene-content">
-        <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
-          {isOverviewPage ? (
-            <SceneRuntimeBoundary scenePath="/" onBackToOverview={() => navigateTo('/')}>
-              <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
-            </SceneRuntimeBoundary>
-          ) : ActiveScene ? (
-            <SceneRuntimeBoundary
-              scenePath={pathname}
-              onBackToOverview={() => navigateTo('/')}
-              onRetryScene={() => activeRoute?.preload()}
-            >
-              <ActiveScene key={`${pathname}:${sceneEpoch}`} />
-            </SceneRuntimeBoundary>
-          ) : (
-            <div className="scene-missing">
-              <h2>页面不存在</h2>
-              <p>请选择一个有效演示页面，或先返回导航：</p>
-              <div className="scene-missing-links">
-                <button className="touch-target" onClick={() => navigateTo('/')}>
-                  返回导航
+                <button
+                  type="button"
+                  className="touch-target shortcut-help-btn"
+                  title="快捷键帮助 (?)"
+                  aria-label="快捷键帮助"
+                  onClick={() => setHelpVisible(true)}
+                >
+                  ?
                 </button>
-                {DEMO_ROUTES.map((route, index) => {
-                  const routePath = resolveRouteButtonPath(route.path)
-                  const routeLabel = resolveRouteButtonLabel(route.label, index)
+              </>
+            )}
+          </div>
+        </header>
+        {presentingActive ? (
+          <button type="button" className="touch-target presenting-exit" onClick={exitPresenting}>
+            退出讲解
+          </button>
+        ) : null}
+        <section className="scene-container" id="scene-content">
+          <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
+            {isOverviewPage ? (
+              <SceneRuntimeBoundary scenePath="/" onBackToOverview={() => navigateTo('/')}>
+                <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
+              </SceneRuntimeBoundary>
+            ) : ActiveScene ? (
+              <SceneRuntimeBoundary
+                scenePath={pathname}
+                onBackToOverview={() => navigateTo('/')}
+                onRetryScene={() => activeRoute?.preload()}
+              >
+                <ActiveScene key={`${pathname}:${sceneEpoch}`} />
+              </SceneRuntimeBoundary>
+            ) : (
+              <div className="scene-missing">
+                <h2>页面不存在</h2>
+                <p>请选择一个有效演示页面，或先返回导航：</p>
+                <div className="scene-missing-links">
+                  <button className="touch-target" onClick={() => navigateTo('/')}>
+                    返回导航
+                  </button>
+                  {DEMO_ROUTES.map((route, index) => {
+                    const routePath = resolveRouteButtonPath(route.path)
+                    const routeLabel = resolveRouteButtonLabel(route.label, index)
 
-                  return (
-                    <button
-                      className="touch-target"
-                      key={`${routePath}-${index}`}
-                      onClick={() => navigateTo(routePath)}
-                    >
-                      {routeLabel}
-                    </button>
-                  )
-                })}
+                    return (
+                      <button
+                        className="touch-target"
+                        key={`${routePath}-${index}`}
+                        onClick={() => navigateTo(routePath)}
+                      >
+                        {routeLabel}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-        </Suspense>
-      </section>
-      {helpVisible ? (
-        <Suspense fallback={null}>
-          <ShortcutHelpOverlay visible onClose={() => setHelpVisible(false)} />
-        </Suspense>
-      ) : null}
-    </main>
+            )}
+          </Suspense>
+        </section>
+        {helpVisible ? (
+          <Suspense fallback={null}>
+            <ShortcutHelpOverlay visible onClose={() => setHelpVisible(false)} />
+          </Suspense>
+        ) : null}
+      </main>
+    </HeaderActionsTargetContext.Provider>
   )
 }
 
