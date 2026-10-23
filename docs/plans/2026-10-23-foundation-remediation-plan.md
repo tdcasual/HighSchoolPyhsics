@@ -1,6 +1,6 @@
 # 基础组件修复计划（2026-10-23）
 
-状态：待执行。来源：2026-10-23 架构与基础组件审计（综合 8.2/10）。全部工作只做本地提交，不推送（见 `hold-pushes` 约定）。
+状态：已完成（2026-10-23），见文末「完成情况」。来源：2026-10-23 架构与基础组件审计（综合 8.2/10）。全部工作只做本地提交，不推送（见 `hold-pushes` 约定）。
 
 ## 0. 审计结论与目标
 
@@ -185,6 +185,31 @@
 - 新增场景或改变教学内容。
 - 依赖大版本升级（React 19.3、fiber 9.8 及以上），见 AGENTS.md「Dependency Pins」。
 
-## 完成情况
+## 完成情况（2026-10-23）
 
-（每个阶段完成后在此记录提交哈希与关键数字。）
+| 阶段 | 提交 | 结果 |
+|---|---|---|
+| 1 格式统一 | 7e0282c、4a347d9、11acbd2、98643c1 | Prettier 3.6.2（单引号、无分号、120 列），`format:check` 进 `verify:ci`；纯格式化提交登记在 `.git-blame-ignore-revs`。格式化后万用表、电阻率两个场景外壳超出 240 行预算，先把各阶段的数据面板拆成独立组件 |
+| 2 标签收口 | cbce828、0c022ba | 6 个文件的手写 `Html` 全部改用 `SceneLabel`（新增 `badge` 变体，用于 N/S 和端点 A/B），6 个本地包装内联，删除 3 组标签 CSS；约定测试禁止在场景、仪器、领域层直接用 `Html`。另修发电机核心模型和 3D 示波器：标签随距离缩小到几像素，改为恒定 13 px，白天用浅色描边 |
+| 3 共享部件 | f948dbf、3001541 | `scene3d/Arrow3D`（几何部分是有测试的纯函数）替换 9 个场景中的手工箭头；`domains/electromagnetism/UniformField` + `fieldGrid` 由 5 个场景共用。盘点结果见阶段 3b：接线柱、磁铁、公式不提取。截图差异都在 0.1% 以内 |
+| 4 时间推进 | 94dc929、2f086d4 | 电势能扫出改走共享时钟（可暂停、单步 15°、慢放），去掉两项豁免；`runFixedSteps` 统一固定子步，删除 `useFixedStepper`；AGENTS.md 规则 8 加上选型表；`useFrame` 白名单 4 项，各写明画的是什么 |
+| 5 SceneLayout | 237f5d0 | 453 → 148 行，拆为桌面、移动布局和 3 个 hook；手机端播放按钮改为 portal 到页头，store 不再存函数，去掉 eslint 豁免；删除 `playbackControls`（打点计时器的速度滑块移到侧栏）、`overlayZIndex`、`dataInitiallyCollapsed`，`chartContentClassName` 改为 `chartVariant="figure"`；新增手机布局测试 |
+| 6 样式 | 575dbe3、ca0b604 | `shell.css` 按区域拆成 9 个文件，构建产物 CSS 逐字节相同；场景 CSS 中的颜色全部改为令牌或具名变量（并给出夜间值），新增 `--readout-ok` / `--readout-warn`；约定测试从磁盘读取 CSS 检查（Vitest 里 `?raw` 导入的 CSS 是空字符串） |
+| 7 取景 | 36b33a7 | `useBoundsFraming` 并入 `useFittedOrbitCamera`；`boxAround`、`directionFrom` 移到 `orbitFraming`；新增 `src/scene3d/README.md` 分层图；约定测试限定场景只能用公开入口；补充边界测试 |
+| 8 测试 | dc02220 | 补测 `useAnimationLoop`、`useAnimatedState`、`measureBounds`（从 FitBounds 拆出）、`SceneLabel`、`useSceneTheme`；单元测试从 865 增至 896 |
+
+关键数字：
+
+| 指标 | 之前 | 之后 |
+|---|---:|---:|
+| `SceneLayout.tsx` 行数 | 453 | 148 |
+| `shell.css` 最大单文件行数 | 1393 | 约 300（9 个文件） |
+| eslint 豁免 | 4 | 3 |
+| 约定测试条数 | 14 | 19 |
+| `scene3d` / `simulation` 测试文件 | 5 / 2 | 10 / 4 |
+| 场景内手写箭头实现 | 9 | 0 |
+| 场景直接使用 `Html` 的文件 | 6 | 0 |
+| 场景 CSS 中未命名的颜色 | 50 | 0 |
+| 单元测试 | 865 | 896 |
+
+每个阶段都通过了 `verify:ci`、受影响场景的交互回归和三套视觉回归；有意的视觉变化（标签、手机播放按钮、打点计时器速度滑块位置、样式令牌）均已单独提交并更新基线。
