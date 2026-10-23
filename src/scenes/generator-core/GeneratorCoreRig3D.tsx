@@ -100,10 +100,10 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
         <boxGeometry args={[1.25, 5.2, 4.8]} />
         <meshStandardMaterial color="#2d6db5" roughness={0.38} metalness={0.12} />
       </mesh>
-      <SceneLabel position={[-5, 0, 2.48]} color="#ffffff" variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[-5, 0, 2.48]} color="#9f1239" variant="badge" size={14}>
         N
       </SceneLabel>
-      <SceneLabel position={[5, 0, 2.48]} color="#ffffff" variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[5, 0, 2.48]} color="#1e40af" variant="badge" size={14}>
         S
       </SceneLabel>
       <FieldLines dark={dark} />
@@ -152,9 +152,8 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
         position={[readings.normalVector[0] * 2.4, 0.25, readings.normalVector[2] * 2.4]}
         color="#9c27b0"
         variant="text"
-        size={11}
-        halo="dark"
-        distanceFactor={8}
+        size={13}
+        halo={dark ? 'dark' : 'light'}
       >
         法向量 n
       </SceneLabel>
@@ -162,26 +161,18 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
         position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]}
         color="#c08500"
         variant="text"
-        size={11}
-        halo="dark"
-        distanceFactor={8}
+        size={13}
+        halo={dark ? 'dark' : 'light'}
       >
         速度 v
       </SceneLabel>
-      <SceneLabel position={[0, -2.95, 0]} color={currentColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[0, -2.95, 0]} color={currentColor} variant="text" size={13} halo={dark ? 'dark' : 'light'}>
         {readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`}
       </SceneLabel>
-      <SceneLabel position={[0, -2.42, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[0, -2.42, 0]} color={textColor} variant="text" size={13} halo={dark ? 'dark' : 'light'}>
         旋转轴 O
       </SceneLabel>
-      <SceneLabel
-        position={[0, 2.58, -1.8]}
-        color={dark ? '#9ed7f0' : '#457b9d'}
-        variant="text"
-        size={11}
-        halo="dark"
-        distanceFactor={8}
-      >
+      <SceneLabel position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} variant="text" size={13} halo={dark ? 'dark' : 'light'}>
         B
       </SceneLabel>
     </group>

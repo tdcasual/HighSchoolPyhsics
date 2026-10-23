@@ -233,16 +233,16 @@ export function Oscilloscope3dRig3D({
         <sphereGeometry args={[0.1, 16, 16]} />
         <meshBasicMaterial color="#eaffd8" />
       </mesh>
-      <SceneLabel position={[-4.3, -2.48, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[-4.3, -2.48, 0]} color={textColor} variant="text" size={13} halo="dark">
         {PART_LABELS['electron-gun']}
       </SceneLabel>
-      <SceneLabel position={[0.05, 2.32, 0]} color={plateY} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[0.05, 2.32, 0]} color={plateY} variant="text" size={13} halo="dark">
         {PART_LABELS['y-plates']}
       </SceneLabel>
-      <SceneLabel position={[2.05, 0, 2.35]} color={plateX} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[2.05, 0, 2.35]} color={plateX} variant="text" size={13} halo="dark">
         {PART_LABELS['x-plates']}
       </SceneLabel>
-      <SceneLabel position={[4.74, -2.35, 0]} color={textColor} variant="text" size={11} halo="dark" distanceFactor={8}>
+      <SceneLabel position={[4.74, -2.35, 0]} color={textColor} variant="text" size={13} halo="dark">
         {PART_LABELS.screen}
       </SceneLabel>
     </group>
