@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
 // Source text of every scene file (tests excluded), grouped by scene directory.
-const sources = import.meta.glob<string>(['../*/*.ts', '../*/*.tsx', '!../*/*.test.ts', '!../*/*.test.tsx', '!../__tests__/*'], {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-})
+const sources = import.meta.glob<string>(
+  ['../*/*.ts', '../*/*.tsx', '!../*/*.test.ts', '!../*/*.test.tsx', '!../__tests__/*'],
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
 
 const scenes = new Map<string, string>()
 const chartFiles: Array<[string, string]> = []
@@ -63,7 +66,9 @@ describe('scene conventions', () => {
   })
 
   it('offers 单步 wherever there is a play action', () => {
-    const missing = [...scenes].filter(([scene, text]) => hasPlayAction(text) && !hasStepAction(text) && !(scene in NO_STEP))
+    const missing = [...scenes].filter(
+      ([scene, text]) => hasPlayAction(text) && !hasStepAction(text) && !(scene in NO_STEP),
+    )
     expect(missing.map(([scene]) => scene)).toEqual([])
   })
 
@@ -83,13 +88,18 @@ describe('scene conventions', () => {
   })
 
   it('advances simulated time only through the shared clock and loop', () => {
-    const raw = [...scenes].filter(([scene, text]) => /requestAnimationFrame\(/.test(text) && !(scene in RAW_FRAME_LOOPS))
+    const raw = [...scenes].filter(
+      ([scene, text]) => /requestAnimationFrame\(/.test(text) && !(scene in RAW_FRAME_LOOPS),
+    )
     expect(raw.map(([scene]) => scene)).toEqual([])
   })
 
   it('keeps the frame-loop exemptions current', () => {
     for (const scene of Object.keys(RAW_FRAME_LOOPS)) {
-      expect(/requestAnimationFrame\(/.test(scenes.get(scene) ?? ''), `${scene} has no frame loop now; drop the exemption`).toBe(true)
+      expect(
+        /requestAnimationFrame\(/.test(scenes.get(scene) ?? ''),
+        `${scene} has no frame loop now; drop the exemption`,
+      ).toBe(true)
     }
   })
 
@@ -130,7 +140,9 @@ describe('scene conventions', () => {
   })
 
   it('shares viewport measuring and framing helpers instead of copying them', () => {
-    const copies = [...scenes].filter(([, text]) => /function (useViewportSize|freeRects|fitCameraDistance)\b/.test(text))
+    const copies = [...scenes].filter(([, text]) =>
+      /function (useViewportSize|freeRects|fitCameraDistance)\b/.test(text),
+    )
     expect(copies.map(([scene]) => scene)).toEqual([])
   })
 

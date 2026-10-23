@@ -1,7 +1,24 @@
 import { CALIPER_RANGE_MM, MICROMETER_PITCH_MM } from './model'
-import { boundsCenter, bounds, fitOrbitView, mergeBounds, type Bounds3, type FramingArea, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
+import {
+  boundsCenter,
+  bounds,
+  fitOrbitView,
+  mergeBounds,
+  type Bounds3,
+  type FramingArea,
+  type OrbitView,
+  type Vec3,
+  type ViewPreset,
+} from '../../scene3d/orbitFraming'
 
-export { fitCameraDistance, orbitPosition, type Bounds3, type OrbitView, type Vec3, type ViewPreset } from '../../scene3d/orbitFraming'
+export {
+  fitCameraDistance,
+  orbitPosition,
+  type Bounds3,
+  type OrbitView,
+  type Vec3,
+  type ViewPreset,
+} from '../../scene3d/orbitFraming'
 
 /** Millimetre poses from resistivity-3d.js `buildCaliper` / `buildMicrometer` update(). */
 
@@ -63,7 +80,7 @@ export const MICROMETER_ZERO_X = 44
 export const CALIPER_EXPLODE_DROP = 28
 export const CALIPER_EXPLODE_FORWARD = 22
 export const CALIPER_INNER_CONTACT_Y = 31.5
-export const MICROMETER_REF_RAD = 28 * Math.PI / 180
+export const MICROMETER_REF_RAD = (28 * Math.PI) / 180
 
 export function caliperPose(input: {
   x: number
@@ -169,7 +186,10 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
     const explode = Math.max(0, Math.min(1, input.caliperExplode ?? 0))
     const read = Math.max(0, Math.min(150, input.caliperX))
     const span = input.vernierSpan ?? 19
-    let focused = bounds([read - 10, -18 - CALIPER_EXPLODE_DROP * explode, -5 - 49 * explode], [read + span + 14, 33, 5 + CALIPER_EXPLODE_FORWARD * explode])
+    let focused = bounds(
+      [read - 10, -18 - CALIPER_EXPLODE_DROP * explode, -5 - 49 * explode],
+      [read + span + 14, 33, 5 + CALIPER_EXPLODE_FORWARD * explode],
+    )
     if (input.showWork && input.mode === 'inner') {
       const size = Math.max(0, Math.min(150, input.workSize ?? read))
       const outerRadius = size / 2 + 2.2
@@ -211,7 +231,10 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
   const zMax = 5 + CALIPER_EXPLODE_FORWARD * explode
   // The depth rod leaves the beam end (x = 215) by exactly the reading.
   const rodTip = 215 + read + 2
-  const main = bounds([-30, -44 - CALIPER_EXPLODE_DROP * explode, zMin], [Math.max(CALIPER_RANGE_MM + 74, rodTip), 40 + 12 * explode, zMax])
+  const main = bounds(
+    [-30, -44 - CALIPER_EXPLODE_DROP * explode, zMin],
+    [Math.max(CALIPER_RANGE_MM + 74, rodTip), 40 + 12 * explode, zMax],
+  )
   if (input.mode === 'depth') {
     let result = transformCaliperDepthBounds(main)
     if (input.showWork) {
@@ -227,7 +250,13 @@ export function instrumentBounds(input: InstrumentViewInput): Bounds3 {
   const workZ = -46 * explode
   if (input.mode === 'inner') {
     const outerRadius = size / 2 + 2.2
-    return mergeBounds(main, bounds([-3, CALIPER_INNER_CONTACT_Y - outerRadius - 1, workZ - 3], [size + 3, CALIPER_INNER_CONTACT_Y + outerRadius + 1, workZ + 3]))
+    return mergeBounds(
+      main,
+      bounds(
+        [-3, CALIPER_INNER_CONTACT_Y - outerRadius - 1, workZ - 3],
+        [size + 3, CALIPER_INNER_CONTACT_Y + outerRadius + 1, workZ + 3],
+      ),
+    )
   }
   return mergeBounds(main, bounds([-1, -7 - size, workZ - 19], [size + 1, -6, workZ + 19]))
 }
@@ -236,21 +265,37 @@ export function instrumentView(input: InstrumentViewInput): OrbitView {
   const depth = input.tool === 'caliper' && input.mode === 'depth'
   const focus = input.preset === 'focus'
   const azimuth = focus
-    ? (input.tool === 'micrometer' ? 0.02 : depth ? 0.16 : 0.06)
+    ? input.tool === 'micrometer'
+      ? 0.02
+      : depth
+        ? 0.16
+        : 0.06
     : input.preset === 'top'
       ? 0
       : input.preset === 'front'
         ? 0
-        : input.tool === 'micrometer' ? 0.1 : depth ? 0.2 : 0.12
+        : input.tool === 'micrometer'
+          ? 0.1
+          : depth
+            ? 0.2
+            : 0.12
   const elevation = focus
-    ? (input.tool === 'micrometer' ? 0.34 : depth ? 0.2 : 0.16)
+    ? input.tool === 'micrometer'
+      ? 0.34
+      : depth
+        ? 0.2
+        : 0.16
     : input.preset === 'top'
-      // Both instruments stand on edge facing +z: a straight-down view only shows a 3.5 mm
-      // edge, so 俯视 looks down at ~55° to show thickness, the slider and the lock.
-      ? 0.95
+      ? // Both instruments stand on edge facing +z: a straight-down view only shows a 3.5 mm
+        // edge, so 俯视 looks down at ~55° to show thickness, the slider and the lock.
+        0.95
       : input.preset === 'front'
         ? 0.03
-        : input.tool === 'micrometer' ? 0.34 : depth ? 0.2 : 0.3
+        : input.tool === 'micrometer'
+          ? 0.34
+          : depth
+            ? 0.2
+            : 0.3
   const limits = cameraLimits(input.tool)
   // Orbit around the reading zone so zooming closes in on the scale. Overview presets use a fixed
   // anchor (mid-travel micrometer scale, the 0–50 mm vernier zone) so turning the thimble or

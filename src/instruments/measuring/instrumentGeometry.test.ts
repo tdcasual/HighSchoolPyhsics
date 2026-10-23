@@ -30,8 +30,11 @@ function segmentsIntersect(a: [number, number], b: [number, number], c: [number,
   const abD = cross(a, b, d)
   const cdA = cross(c, d, a)
   const cdB = cross(c, d, b)
-  if (((abC > epsilon && abD < -epsilon) || (abC < -epsilon && abD > epsilon)) &&
-      ((cdA > epsilon && cdB < -epsilon) || (cdA < -epsilon && cdB > epsilon))) return true
+  if (
+    ((abC > epsilon && abD < -epsilon) || (abC < -epsilon && abD > epsilon)) &&
+    ((cdA > epsilon && cdB < -epsilon) || (cdA < -epsilon && cdB > epsilon))
+  )
+    return true
   return (
     (Math.abs(abC) <= epsilon && onSegment(a, b, c)) ||
     (Math.abs(abD) <= epsilon && onSegment(a, b, d)) ||
@@ -57,10 +60,12 @@ function selfIntersections(points: InstrumentOutline) {
 }
 
 function signedArea(points: InstrumentOutline) {
-  return points.reduce((area, point, index) => {
-    const next = points[(index + 1) % points.length]
-    return area + point[0] * next[1] - next[0] * point[1]
-  }, 0) / 2
+  return (
+    points.reduce((area, point, index) => {
+      const next = points[(index + 1) % points.length]
+      return area + point[0] * next[1] - next[0] * point[1]
+    }, 0) / 2
+  )
 }
 
 const outlines: Array<[string, InstrumentOutline]> = [

@@ -24,7 +24,15 @@ type CaliperAssemblyProps = {
   onInstrumentDragChange?: (dragging: boolean) => void
 }
 
-function Metal({ color, metalness = 0.85, roughness = 0.27 }: { color: string; metalness?: number; roughness?: number }) {
+function Metal({
+  color,
+  metalness = 0.85,
+  roughness = 0.27,
+}: {
+  color: string
+  metalness?: number
+  roughness?: number
+}) {
   return <meshStandardMaterial color={color} metalness={metalness} roughness={roughness} />
 }
 
@@ -146,7 +154,14 @@ export function CaliperAssembly({
         <Jaw geometry={MOVING_INNER_JAW} />
         <VernierDecal divisions={divisions} />
         {Array.from({ length: 6 }, (_, index) => (
-          <Box key={index} size={[1, 3.2, 4.2]} position={[47 + index * 1.8, -6.6, 0]} color="#8e999e" metalness={0.8} roughness={0.34} />
+          <Box
+            key={index}
+            size={[1, 3.2, 4.2]}
+            position={[47 + index * 1.8, -6.6, 0]}
+            color="#8e999e"
+            metalness={0.8}
+            roughness={0.34}
+          />
         ))}
         <group name="caliper-screw" position={pose.screw}>
           <mesh position={[0, 2, 0]} castShadow receiveShadow>
@@ -159,7 +174,9 @@ export function CaliperAssembly({
           </mesh>
         </group>
         <Box name="caliper-rod" size={[165, 1.6, 0.9]} position={[132.5, 7.8, pose.rodZ]} color={STEEL} />
-        {showLabels ? <PartLabel position={viewPreset === 'focus' ? [6, -12, 4] : [8, -42, 4]}>游标尺</PartLabel> : null}
+        {showLabels ? (
+          <PartLabel position={viewPreset === 'focus' ? [6, -12, 4] : [8, -42, 4]}>游标尺</PartLabel>
+        ) : null}
         {showLabels && measure === 'inner' ? (
           <PartLabel position={[0, viewPreset === 'focus' ? 29 : 50, 4]}>移动内爪</PartLabel>
         ) : null}
@@ -173,7 +190,9 @@ export function CaliperAssembly({
           <Workpiece measure={measure} size={workSize} />
         </group>
       ) : null}
-      {showLabels ? <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [200, 26, 2]}>主尺</PartLabel> : null}
+      {showLabels ? (
+        <PartLabel position={viewPreset === 'focus' ? [pose.frame[0] - 8, 24, 4] : [200, 26, 2]}>主尺</PartLabel>
+      ) : null}
       {showLabels && measure === 'inner' ? (
         <PartLabel position={[0, viewPreset === 'focus' ? 29 : 39, 4]}>固定内爪</PartLabel>
       ) : null}

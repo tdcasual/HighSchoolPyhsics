@@ -132,7 +132,9 @@ function FrameScenario({ angleRad, effectiveLengthM }: { angleRad: number; effec
       </group>
 
       <mesh position={[axisX, 0, 0]}>
-        <cylinderGeometry args={[0.16 * effectiveLengthM, 0.16 * effectiveLengthM, frameHeight + 0.35 * effectiveLengthM, 18]} />
+        <cylinderGeometry
+          args={[0.16 * effectiveLengthM, 0.16 * effectiveLengthM, frameHeight + 0.35 * effectiveLengthM, 18]}
+        />
         <meshStandardMaterial color="#2f3b49" />
       </mesh>
     </group>
@@ -146,11 +148,17 @@ export function RotationalEmfRig3D({ scenario, angleRad, effectiveLengthM }: Rot
       <directionalLight position={[5, 8, 6]} intensity={1.1} />
       <pointLight position={[-4, 4, 3]} intensity={0.35} color="#b7d7ff" />
       <color attach="background" args={['#101821']} />
-      <gridHelper args={[14 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 14, '#3c536a', '#1d2833']} position={[0, -1.1 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 0]} userData={NO_FIT} />
+      <gridHelper
+        args={[14 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 14, '#3c536a', '#1d2833']}
+        position={[0, -1.1 * ROTATIONAL_EMF_VISUAL_UNITS_PER_METER * effectiveLengthM, 0]}
+        userData={NO_FIT}
+      />
 
-      {scenario === 'rod'
-        ? <RodScenario angleRad={angleRad} effectiveLengthM={effectiveLengthM} />
-        : <FrameScenario angleRad={angleRad} effectiveLengthM={effectiveLengthM} />}
+      {scenario === 'rod' ? (
+        <RodScenario angleRad={angleRad} effectiveLengthM={effectiveLengthM} />
+      ) : (
+        <FrameScenario angleRad={angleRad} effectiveLengthM={effectiveLengthM} />
+      )}
     </group>
   )
 }

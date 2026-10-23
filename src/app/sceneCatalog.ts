@@ -71,4 +71,3 @@ export function findSceneCatalogEntryByPath(pathname: unknown): SceneCatalogEntr
   const normalized = normalizeScenePath(pathname)
   return SCENE_CATALOG_BY_PATH.get(normalized) ?? null
 }
-

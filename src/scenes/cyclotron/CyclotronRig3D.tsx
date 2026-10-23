@@ -17,8 +17,22 @@ import {
 const GUIDE_RADII = [0.55, 0.95, 1.35, 1.75, 2.1]
 
 /** `fontSize` is in scene units (×64 px), as the dee and gap labels were sized. */
-function CyclotronLabel({ position, color, fontSize, children }: { position: Point3; color: string; fontSize: number; children: string }) {
-  return <SceneLabel position={position} variant="text" color={color} size={Math.max(10, Math.round(fontSize * 64))}>{children}</SceneLabel>
+function CyclotronLabel({
+  position,
+  color,
+  fontSize,
+  children,
+}: {
+  position: Point3
+  color: string
+  fontSize: number
+  children: string
+}) {
+  return (
+    <SceneLabel position={position} variant="text" color={color} size={Math.max(10, Math.round(fontSize * 64))}>
+      {children}
+    </SceneLabel>
+  )
 }
 function buildCircle(radius: number, y: number, segments = 120): Point3[] {
   const points: Point3[] = []
@@ -146,7 +160,10 @@ export function CyclotronRig3D({
         <meshBasicMaterial color={gapAltColor} transparent opacity={gapFieldOpacity} />
       </mesh>
       <Line
-        points={[[0, TRAJECTORY_Y + 0.002, -gapLength / 2], [0, TRAJECTORY_Y + 0.002, gapLength / 2]]}
+        points={[
+          [0, TRAJECTORY_Y + 0.002, -gapLength / 2],
+          [0, TRAJECTORY_Y + 0.002, gapLength / 2],
+        ]}
         color={gapMainColor}
         lineWidth={1.4}
         transparent
@@ -192,7 +209,13 @@ export function CyclotronRig3D({
               merge into a disc, and the latest turn is drawn bold. */}
           <Line points={trailPoints} color="#7a3016" lineWidth={1.1} transparent opacity={0.45} />
           {trailPoints.length > RECENT_TRAIL_POINTS ? (
-            <Line points={trailPoints.slice(-RECENT_TRAIL_POINTS)} color="#7a3016" lineWidth={3.2} transparent opacity={0.95} />
+            <Line
+              points={trailPoints.slice(-RECENT_TRAIL_POINTS)}
+              color="#7a3016"
+              lineWidth={3.2}
+              transparent
+              opacity={0.95}
+            />
           ) : null}
         </>
       ) : null}

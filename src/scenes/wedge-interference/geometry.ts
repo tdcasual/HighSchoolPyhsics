@@ -17,14 +17,17 @@ export function visualWedgeAngleDegrees(wedgeAngleDeg: number): number {
 }
 
 export function upperPlateGroupY(visualAngleDeg: number): number {
-  const angle = visualAngleDeg * Math.PI / 180
-  return WEDGE_PLATE_Y + WEDGE_PLATE_HEIGHT / 2
-    + (WEDGE_PLATE_WIDTH / 2) * Math.sin(angle)
-    + (WEDGE_PLATE_HEIGHT / 2) * Math.cos(angle)
+  const angle = (visualAngleDeg * Math.PI) / 180
+  return (
+    WEDGE_PLATE_Y +
+    WEDGE_PLATE_HEIGHT / 2 +
+    (WEDGE_PLATE_WIDTH / 2) * Math.sin(angle) +
+    (WEDGE_PLATE_HEIGHT / 2) * Math.cos(angle)
+  )
 }
 
 export function wedgeGapAtX(visualAngleDeg: number, xWorld: number): number {
-  const angle = visualAngleDeg * Math.PI / 180
+  const angle = (visualAngleDeg * Math.PI) / 180
   return Math.max(0, (xWorld + WEDGE_PLATE_WIDTH / 2) * Math.tan(angle))
 }
 

@@ -25,10 +25,14 @@ const MODE_OPTIONS: Array<{ key: DiffractionMode; label: string }> = [
 
 function getApertureLabel(mode: DiffractionMode): string {
   switch (mode) {
-    case 'single-slit': return '缝宽 a'
-    case 'circular-aperture': return '孔径 D'
-    case 'circular-obstacle': return '圆盘直径 D'
-    case 'diffraction-grating': return '缝宽 a'
+    case 'single-slit':
+      return '缝宽 a'
+    case 'circular-aperture':
+      return '孔径 D'
+    case 'circular-obstacle':
+      return '圆盘直径 D'
+    case 'diffraction-grating':
+      return '缝宽 a'
   }
 }
 
@@ -47,7 +51,11 @@ export function DiffractionControls({ state }: { state: DiffractionSceneState })
     <div className="grid gap-[0.8rem] content-start">
       <h2>衍射演示控制</h2>
       <ControlSection title="衍射模式">
-        <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={(key) => state.setMode(key as DiffractionMode)} />
+        <SegmentedControl
+          options={MODE_OPTIONS}
+          value={mode}
+          onChange={(key) => state.setMode(key as DiffractionMode)}
+        />
       </ControlSection>
 
       <LightSourceSection
@@ -59,7 +67,16 @@ export function DiffractionControls({ state }: { state: DiffractionSceneState })
 
       <ControlSection title="实验参数">
         {!isWhiteLight && (
-          <RangeField id="wavelength" label="波长 λ" value={params.wavelength} min={400} max={700} step={1} unit="nm" onChange={state.setWavelength} />
+          <RangeField
+            id="wavelength"
+            label="波长 λ"
+            value={params.wavelength}
+            min={400}
+            max={700}
+            step={1}
+            unit="nm"
+            onChange={state.setWavelength}
+          />
         )}
         {mode !== 'diffraction-grating' && (
           <RangeField
@@ -86,13 +103,23 @@ export function DiffractionControls({ state }: { state: DiffractionSceneState })
         />
         {mode === 'diffraction-grating' && (
           <>
-            <RangeField id="grating-lines" label="光栅线密度" value={params.gratingLines} min={100} max={600} step={10} unit="条/mm" onChange={state.setGratingLines} />
+            <RangeField
+              id="grating-lines"
+              label="光栅线密度"
+              value={params.gratingLines}
+              min={100}
+              max={600}
+              step={10}
+              unit="条/mm"
+              onChange={state.setGratingLines}
+            />
             <p className="text-xs opacity-80 leading-snug">
-              光栅常数 d = {(gratingSpacing(params.gratingLines) * 1e6).toFixed(2)} μm；
-              狭缝宽 a = {(gratingSlitWidth(params.gratingLines) * 1e6).toFixed(2)} μm。
+              光栅常数 d = {(gratingSpacing(params.gratingLines) * 1e6).toFixed(2)} μm； 狭缝宽 a ={' '}
+              {(gratingSlitWidth(params.gratingLines) * 1e6).toFixed(2)} μm。
               三维光栅为放大示意，屏幕图样按实际线密度计算。
               <br />
-              有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm，N = {gratingIlluminatedSlitCount(params.gratingLines)}。
+              有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm，N ={' '}
+              {gratingIlluminatedSlitCount(params.gratingLines)}。
             </p>
           </>
         )}
@@ -104,8 +131,13 @@ export function DiffractionControls({ state }: { state: DiffractionSceneState })
       </ControlSection>
 
       <ModelNote>
-        <p>单缝、圆孔和光栅按夫琅禾费远场模型，自动保持 F=b²/(λL)≤0.1（b 为半缝宽、孔半径或受光宽的一半）；孔径或波长增大时会提高屏距下限。圆盘按近轴泊松亮斑近似。屏幕视场随参数调整，三维几何按观察需要放大。</p>
-        {mode === 'circular-obstacle' && <p>圆盘屏幕图样采用近轴菲涅耳 / 巴比涅 J₀² 近似，显示轴上泊松亮斑与第一暗环；不等同完整有限距离积分。</p>}
+        <p>
+          单缝、圆孔和光栅按夫琅禾费远场模型，自动保持 F=b²/(λL)≤0.1（b
+          为半缝宽、孔半径或受光宽的一半）；孔径或波长增大时会提高屏距下限。圆盘按近轴泊松亮斑近似。屏幕视场随参数调整，三维几何按观察需要放大。
+        </p>
+        {mode === 'circular-obstacle' && (
+          <p>圆盘屏幕图样采用近轴菲涅耳 / 巴比涅 J₀² 近似，显示轴上泊松亮斑与第一暗环；不等同完整有限距离积分。</p>
+        )}
       </ModelNote>
     </div>
   )

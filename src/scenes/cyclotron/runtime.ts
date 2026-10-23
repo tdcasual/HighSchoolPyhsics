@@ -2,11 +2,7 @@ import type { Vector3Like } from './particle'
 import type { CyclotronConfig } from './model'
 import { evaluateGapVoltageAtTime } from './trace'
 
-function deriveGapElectricFieldX(
-  state: { position: Vector3Like },
-  config: CyclotronConfig,
-  timeS: number,
-): number {
+function deriveGapElectricFieldX(state: { position: Vector3Like }, config: CyclotronConfig, timeS: number): number {
   const inGap = Math.abs(state.position.x) <= Math.max(0, config.gapHalfWidthM)
   if (!inGap) {
     return 0
@@ -47,9 +43,9 @@ export function computeCyclotronStepAcceleration(
   }
 
   const qOverM = config.chargeC / config.massKg
-  const magneticRotation = qOverM * config.magneticFieldT * dt / 2
+  const magneticRotation = (qOverM * config.magneticFieldT * dt) / 2
   const rotationScale = (2 * magneticRotation) / (1 + magneticRotation * magneticRotation)
-  const electricHalfImpulse = qOverM * deriveGapElectricFieldX(state, config, timeS) * dt / 2
+  const electricHalfImpulse = (qOverM * deriveGapElectricFieldX(state, config, timeS) * dt) / 2
 
   const vxMinus = state.velocity.x + electricHalfImpulse
   const vyMinus = state.velocity.y

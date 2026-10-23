@@ -37,7 +37,11 @@ const activeDrags = new WeakMap<Object3D, ActiveAxisDrag>()
  * Builds a camera-facing drag plane and the instrument axis projected onto it.
  * Scene units are millimetres, so the returned pointer delta is a millimetre delta.
  */
-export function createAxisDragPlane(anchor: Vector3, cameraDirection: Vector3, worldAxis: Vector3): AxisDragPlane | null {
+export function createAxisDragPlane(
+  anchor: Vector3,
+  cameraDirection: Vector3,
+  worldAxis: Vector3,
+): AxisDragPlane | null {
   const normal = cameraDirection.clone().normalize()
   const axis = worldAxis.clone().normalize()
   const projectedAxis = axis.addScaledVector(normal, -axis.dot(normal))
@@ -164,12 +168,14 @@ export function createAxisDragHandlers(options: {
         if (Math.hypot(dx, dy) < MODE_THRESHOLD_PX) return
         // Commit to whichever motion the pointer follows more closely.
         const slide = Math.abs(axisDragDelta(event.ray, active) ?? 0) * Math.sqrt(active.projectedAxis.lengthSq())
-        const turned = Math.abs(axisDragDelta(event.ray, active.turn) ?? 0) * Math.sqrt(active.turn.projectedAxis.lengthSq())
+        const turned =
+          Math.abs(axisDragDelta(event.ray, active.turn) ?? 0) * Math.sqrt(active.turn.projectedAxis.lengthSq())
         active.mode = turned >= slide ? 'turn' : 'slide'
       }
-      const delta = active.mode === 'turn' && active.turn
-        ? (axisDragDelta(event.ray, active.turn) ?? null)
-        : axisDragDelta(event.ray, active)
+      const delta =
+        active.mode === 'turn' && active.turn
+          ? (axisDragDelta(event.ray, active.turn) ?? null)
+          : axisDragDelta(event.ray, active)
       if (delta === null) return
       const change = active.mode === 'turn' && active.turn ? delta * active.turn.mmPerSurfaceMm : delta
       options.onValueChange(Math.max(active.min, Math.min(active.max, active.startValue + change)))

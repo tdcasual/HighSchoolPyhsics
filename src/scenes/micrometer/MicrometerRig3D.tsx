@@ -1,4 +1,8 @@
-import { InstrumentBackdrop, MicrometerStage, type MicrometerStageProps } from '../../instruments/measuring/InstrumentStages'
+import {
+  InstrumentBackdrop,
+  MicrometerStage,
+  type MicrometerStageProps,
+} from '../../instruments/measuring/InstrumentStages'
 
 export function MicrometerRig3D(props: MicrometerStageProps) {
   return (

@@ -12,11 +12,11 @@ export type MotionInput = { a: number; v0: number; dh?: number; d0?: number }
 
 export function hookAcceleration(hooks: number): number {
   const mass = Math.max(0, hooks) * HOOK_MASS
-  return mass * G / (CART_MASS + mass)
+  return (mass * G) / (CART_MASS + mass)
 }
 
 export function hangingMass(input: MotionInput): number {
-  return input.a > 0 ? CART_MASS * input.a / (G - input.a) : 0
+  return input.a > 0 ? (CART_MASS * input.a) / (G - input.a) : 0
 }
 
 export function hangingDrop(input: MotionInput, position: number): number {
@@ -35,7 +35,7 @@ export function accelerationAt(input: MotionInput, position: number): number {
   const mass = hangingMass(input)
   if (!mass) return input.a
   const cosine = Math.cos(stringAngle(input, position))
-  return mass * G * cosine / (CART_MASS + mass * cosine * cosine)
+  return (mass * G * cosine) / (CART_MASS + mass * cosine * cosine)
 }
 
 const tables = new Map<string, { h: number; xs: Float64Array; vs: Float64Array; n: number }>()
@@ -45,7 +45,7 @@ function motionTable(input: MotionInput) {
   const cached = tables.get(key)
   if (cached) return cached
   const n = 6401
-  const h = DURATION * 1.25 / (n - 1)
+  const h = (DURATION * 1.25) / (n - 1)
   const xs = new Float64Array(n)
   const vs = new Float64Array(n)
   let x = 0
@@ -55,11 +55,11 @@ function motionTable(input: MotionInput) {
     vs[index] = v
     const slope = (xx: number, vv: number): [number, number] => [vv, accelerationAt(input, xx)]
     const k1 = slope(x, v)
-    const k2 = slope(x + h / 2 * k1[0], v + h / 2 * k1[1])
-    const k3 = slope(x + h / 2 * k2[0], v + h / 2 * k2[1])
+    const k2 = slope(x + (h / 2) * k1[0], v + (h / 2) * k1[1])
+    const k3 = slope(x + (h / 2) * k2[0], v + (h / 2) * k2[1])
     const k4 = slope(x + h * k3[0], v + h * k3[1])
-    x += h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
-    v += h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
+    x += (h / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
+    v += (h / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
   }
   const table = { h, xs, vs, n }
   if (tables.size > 40) tables.clear()

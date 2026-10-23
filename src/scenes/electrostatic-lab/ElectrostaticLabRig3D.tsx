@@ -2,11 +2,7 @@ import { Line } from '../../scene3d/ClassroomLine'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BufferAttribute, BufferGeometry, DoubleSide, Plane, Vector3 } from 'three'
-import {
-  samplePotentialTerrainHeight,
-  type ElectrostaticCharge,
-  type PotentialTerrain,
-} from './model'
+import { samplePotentialTerrainHeight, type ElectrostaticCharge, type PotentialTerrain } from './model'
 
 type ProbePoint = {
   x: number
@@ -170,10 +166,7 @@ export function ElectrostaticLabRig3D({
     [bounds, fieldLines, showTerrain, terrain],
   )
   const contourGroups = useMemo(() => groupContourSegments(terrain), [terrain])
-  const fieldArrowheads = useMemo(
-    () => buildFieldArrowheads(displayFieldLines, charges),
-    [charges, displayFieldLines],
-  )
+  const fieldArrowheads = useMemo(() => buildFieldArrowheads(displayFieldLines, charges), [charges, displayFieldLines])
   const dragPlaneRef = useRef(new Plane(new Vector3(0, 1, 0), 0))
   const dragHitPoint = useMemo(() => new Vector3(), [])
   const dragOffsetRef = useRef({ x: 0, z: 0 })
@@ -193,11 +186,7 @@ export function ElectrostaticLabRig3D({
     }
   }
 
-  const startChargeDrag = (
-    event: ThreeEvent<PointerEvent>,
-    charge: ElectrostaticCharge,
-    markerY: number,
-  ) => {
+  const startChargeDrag = (event: ThreeEvent<PointerEvent>, charge: ElectrostaticCharge, markerY: number) => {
     dragPlaneRef.current.constant = -markerY
     if (event.ray.intersectPlane(dragPlaneRef.current, dragHitPoint)) {
       dragOffsetRef.current = {
@@ -310,8 +299,7 @@ export function ElectrostaticLabRig3D({
 
       {charges.map((charge) => {
         const isSelected = charge.id === selectedChargeId
-        const color =
-          charge.magnitude > 1e-6 ? '#ff6b6b' : charge.magnitude < -1e-6 ? '#5c86ff' : '#aeb8c7'
+        const color = charge.magnitude > 1e-6 ? '#ff6b6b' : charge.magnitude < -1e-6 ? '#5c86ff' : '#aeb8c7'
         const radius = 0.2 + Math.min(0.18, Math.abs(charge.magnitude) * 0.03)
         const surfaceHeight = showTerrain
           ? samplePotentialTerrainHeight(terrain, bounds, { x: charge.x, z: charge.z })

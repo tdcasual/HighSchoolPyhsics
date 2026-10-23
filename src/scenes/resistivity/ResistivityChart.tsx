@@ -23,7 +23,9 @@ export function ResistivityChart({
   yLabel: string
 }) {
   const xMax = niceMax(Math.max(0.05, ...points.map((point) => point[0])))
-  const yMax = niceMax(Math.max(0.05, ...points.map((point) => point[1]), slope !== null ? slope * xMax + intercept : 0))
+  const yMax = niceMax(
+    Math.max(0.05, ...points.map((point) => point[1]), slope !== null ? slope * xMax + intercept : 0),
+  )
   return (
     <ChartCard
       title={title}
@@ -32,11 +34,28 @@ export function ResistivityChart({
         ...(slope !== null ? [{ label: '拟合直线', color: 'var(--chart-1)' }] : []),
       ]}
     >
-      <ChartFrame ariaLabel={title} xDomain={[0, xMax]} yDomain={[0, yMax]} xLabel={xLabel} yLabel={yLabel} height={230}>
+      <ChartFrame
+        ariaLabel={title}
+        xDomain={[0, xMax]}
+        yDomain={[0, yMax]}
+        xLabel={xLabel}
+        yLabel={yLabel}
+        height={230}
+      >
         {(plot) => (
           <>
-            {slope !== null ? <Segment plot={plot} from={[0, intercept]} to={[xMax, slope * xMax + intercept]} color="var(--chart-1)" testId="fit-line" /> : null}
-            {points.map((point, index) => <Dot key={index} plot={plot} x={point[0]} y={point[1]} color="var(--chart-point)" r={4.5} />)}
+            {slope !== null ? (
+              <Segment
+                plot={plot}
+                from={[0, intercept]}
+                to={[xMax, slope * xMax + intercept]}
+                color="var(--chart-1)"
+                testId="fit-line"
+              />
+            ) : null}
+            {points.map((point, index) => (
+              <Dot key={index} plot={plot} x={point[0]} y={point[1]} color="var(--chart-point)" r={4.5} />
+            ))}
           </>
         )}
       </ChartFrame>
@@ -45,7 +64,17 @@ export function ResistivityChart({
 }
 
 /** The element's I–U characteristic with the secant (R = U/I) and tangent at the operating point. */
-export function ElementChart({ kind, voltage, showSecant = true, showTangent = false }: { kind: ElementKind; voltage: number; showSecant?: boolean; showTangent?: boolean }) {
+export function ElementChart({
+  kind,
+  voltage,
+  showSecant = true,
+  showTangent = false,
+}: {
+  kind: ElementKind
+  voltage: number
+  showSecant?: boolean
+  showTangent?: boolean
+}) {
   const info = ELEMENTS[kind]
   const samples: Point[] = []
   for (let index = 0; index <= 48; index += 1) {
@@ -61,7 +90,11 @@ export function ElementChart({ kind, voltage, showSecant = true, showTangent = f
   return (
     <ChartCard
       title={info.name}
-      status={<>U = {now.U.toFixed(2)} V · I = {formatScientific(now.I)} A</>}
+      status={
+        <>
+          U = {now.U.toFixed(2)} V · I = {formatScientific(now.I)} A
+        </>
+      }
       legend={[
         { label: 'I–U 曲线', color: 'var(--chart-3)' },
         ...(showSecant ? [{ label: '割线：R = U/I', color: 'var(--chart-2)', shape: 'dash' as const }] : []),
@@ -88,7 +121,14 @@ export function ElementChart({ kind, voltage, showSecant = true, showTangent = f
               </Segment>
             ) : null}
             {showTangent ? (
-              <Segment plot={plot} from={[u0, now.I + slope * (u0 - now.U)]} to={[u1, now.I + slope * (u1 - now.U)]} color="var(--chart-1)" dashed="3 3" testId="iv-tangent">
+              <Segment
+                plot={plot}
+                from={[u0, now.I + slope * (u0 - now.U)]}
+                to={[u1, now.I + slope * (u1 - now.U)]}
+                color="var(--chart-1)"
+                dashed="3 3"
+                testId="iv-tangent"
+              >
                 <title>切线：斜率 dI/dU</title>
               </Segment>
             ) : null}

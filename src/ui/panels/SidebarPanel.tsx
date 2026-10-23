@@ -52,11 +52,7 @@ export function SidebarPanel({
       style={{ width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : width }}
     >
       {collapsed ? (
-        <button
-          className="sidebar-rail-button"
-          onClick={() => onCollapsedChange?.(false)}
-          aria-label="展开参数面板"
-        >
+        <button className="sidebar-rail-button" onClick={() => onCollapsedChange?.(false)} aria-label="展开参数面板">
           <SidebarChevron direction="right" />
           {title && <span className="sidebar-rail-title">{title}</span>}
         </button>
@@ -64,18 +60,11 @@ export function SidebarPanel({
         <div className="flex flex-col w-full overflow-hidden">
           <div className="panel-header flex items-center justify-between pl-4 pr-1 border-b shrink-0">
             {title && <span className="panel-title">{title}</span>}
-            <button
-              className="panel-icon-button"
-              onClick={() => onCollapsedChange?.(true)}
-              aria-label="折叠参数面板"
-            >
+            <button className="panel-icon-button" onClick={() => onCollapsedChange?.(true)} aria-label="折叠参数面板">
               <SidebarChevron direction="left" />
             </button>
           </div>
-          <div
-            className="sidebar-body flex-1 overflow-y-auto px-4 pt-3 pb-5"
-            style={{ maxHeight: maxContentHeight }}
-          >
+          <div className="sidebar-body flex-1 overflow-y-auto px-4 pt-3 pb-5" style={{ maxHeight: maxContentHeight }}>
             {children}
           </div>
         </div>

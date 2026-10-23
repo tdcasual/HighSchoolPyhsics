@@ -136,19 +136,11 @@ export function PotentialEnergyRig3D({
         <sphereGeometry args={[0.48, 32, 32]} />
         <meshPhongMaterial color={chargeColor} emissive={chargeColor} emissiveIntensity={0.42} />
       </mesh>
-      {sliceVisible ? (
-        <Line points={curvePoints} color="#4ce37f" lineWidth={2.4} transparent opacity={0.95} />
-      ) : null}
+      {sliceVisible ? <Line points={curvePoints} color="#4ce37f" lineWidth={2.4} transparent opacity={0.95} /> : null}
 
       {surfaceVisible ? (
         <mesh geometry={latheGeometry} rotation={[0, 0, 0]}>
-          <meshPhongMaterial
-            color={surfaceColor}
-            side={DoubleSide}
-            transparent
-            opacity={0.62}
-            shininess={56}
-          />
+          <meshPhongMaterial color={surfaceColor} side={DoubleSide} transparent opacity={0.62} shininess={56} />
         </mesh>
       ) : null}
     </group>

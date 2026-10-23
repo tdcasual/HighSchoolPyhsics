@@ -67,7 +67,7 @@ function CtrModel({ beamX, beamY, timeCursor, traceSegments, running }: Oscillos
           depthTest={false}
         />
       ))}
-      {screenTraceSegments.map((points, index) => (
+      {screenTraceSegments.map((points, index) =>
         points.length >= 2 ? (
           <Line
             key={'crt-phosphor-trace-' + index}
@@ -78,8 +78,8 @@ function CtrModel({ beamX, beamY, timeCursor, traceSegments, running }: Oscillos
             opacity={0.96}
             depthTest={false}
           />
-        ) : null
-      ))}
+        ) : null,
+      )}
 
       <mesh position={[-3.1, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.48, 0.3, 0.9, 40]} />

@@ -17,7 +17,15 @@ type CyclotronTraceChartProps = {
 /** Grid lines across the time window; times are given in the footer (they are 10⁻⁸ s scale). */
 const TIME_GRID = Array.from({ length: 9 }, (_, index) => ({ value: index / 8, label: '' }))
 
-export function CyclotronTraceChart({ title, series, running, valueLabel, unit, tone, fixedRange }: CyclotronTraceChartProps) {
+export function CyclotronTraceChart({
+  title,
+  series,
+  running,
+  valueLabel,
+  unit,
+  tone,
+  fixedRange,
+}: CyclotronTraceChartProps) {
   const start = series[0]?.timeS ?? 0
   const end = series[series.length - 1]?.timeS ?? start + 1
   const span = Math.max(1e-18, end - start)
@@ -26,8 +34,16 @@ export function CyclotronTraceChart({ title, series, running, valueLabel, unit, 
   return (
     <ChartCard
       title={title}
-      status={<>{running ? '运行中' : '已暂停'} · {valueLabel} = {formatScientific(latest ? latest.value : 0)} {unit}</>}
-      footer={<>t 窗口：{formatScientific(start)} ~ {formatScientific(end)} s</>}
+      status={
+        <>
+          {running ? '运行中' : '已暂停'} · {valueLabel} = {formatScientific(latest ? latest.value : 0)} {unit}
+        </>
+      }
+      footer={
+        <>
+          t 窗口：{formatScientific(start)} ~ {formatScientific(end)} s
+        </>
+      }
     >
       <ChartFrame
         ariaLabel={title}

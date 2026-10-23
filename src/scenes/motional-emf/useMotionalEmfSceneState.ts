@@ -125,16 +125,38 @@ function advanceTravel(current: { phase: number; offset: MotionOffset }, deltaS:
 }
 
 export function useMotionalEmfSceneState(): MotionalEmfSceneState {
-  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('motional-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T))
-  const [magneticFieldDirection, setMagneticFieldDirection] = useState<MagneticFieldDirection>(() => recall('motional-emf.magneticFieldDirection', DEFAULT_MAGNETIC_FIELD_DIRECTION))
+  const [magneticFieldT, setMagneticFieldT] = useState(() =>
+    recall('motional-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T),
+  )
+  const [magneticFieldDirection, setMagneticFieldDirection] = useState<MagneticFieldDirection>(() =>
+    recall('motional-emf.magneticFieldDirection', DEFAULT_MAGNETIC_FIELD_DIRECTION),
+  )
   const [rodLengthM, setRodLengthM] = useState(() => recall('motional-emf.rodLengthM', DEFAULT_ROD_LENGTH_M))
   const [speedMps, setSpeedMps] = useState(() => recall('motional-emf.speedMps', DEFAULT_SPEED_MPS))
   const [rodAngleDeg, setRodAngleDeg] = useState(() => recall('motional-emf.rodAngleDeg', DEFAULT_ROD_ANGLE_DEG))
-  const [discussionMode, setDiscussionMode] = useState<DiscussionMode>(() => recall('motional-emf.discussionMode', DEFAULT_DISCUSSION_MODE))
-  const [velocityPreset, setVelocityPreset] = useState<VelocityPreset>(() => recall('motional-emf.velocityPreset', DEFAULT_VELOCITY_PRESET))
-  const [rodVelocityAngleDeg, setRodVelocityAngleDeg] = useState<RodVelocityAnglePreset>(() => recall('motional-emf.rodVelocityAngleDeg', DEFAULT_ROD_VELOCITY_ANGLE_DEG))
-  const [motionDirection, setMotionDirection] = useState<MotionDirectionPreset>(() => recall('motional-emf.motionDirection', DEFAULT_MOTION_DIRECTION))
-  useRemember('motional-emf', { magneticFieldT, magneticFieldDirection, rodLengthM, speedMps, rodAngleDeg, discussionMode, velocityPreset, rodVelocityAngleDeg, motionDirection })
+  const [discussionMode, setDiscussionMode] = useState<DiscussionMode>(() =>
+    recall('motional-emf.discussionMode', DEFAULT_DISCUSSION_MODE),
+  )
+  const [velocityPreset, setVelocityPreset] = useState<VelocityPreset>(() =>
+    recall('motional-emf.velocityPreset', DEFAULT_VELOCITY_PRESET),
+  )
+  const [rodVelocityAngleDeg, setRodVelocityAngleDeg] = useState<RodVelocityAnglePreset>(() =>
+    recall('motional-emf.rodVelocityAngleDeg', DEFAULT_ROD_VELOCITY_ANGLE_DEG),
+  )
+  const [motionDirection, setMotionDirection] = useState<MotionDirectionPreset>(() =>
+    recall('motional-emf.motionDirection', DEFAULT_MOTION_DIRECTION),
+  )
+  useRemember('motional-emf', {
+    magneticFieldT,
+    magneticFieldDirection,
+    rodLengthM,
+    speedMps,
+    rodAngleDeg,
+    discussionMode,
+    velocityPreset,
+    rodVelocityAngleDeg,
+    motionDirection,
+  })
   const [travel, setTravel] = useState(() => ({ phase: 0, offset: createRestOffset() }))
   // The clock reads and writes the travel synchronously (it must know when the rails end).
   const travelRef = useRef(travel)
@@ -147,7 +169,15 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
   // After 单步 the rod is shown as a frozen instant of the motion, so it keeps its velocity
   // (and its EMF) until it is played, reset or reaches the end.
   const [steppedInMotion, setSteppedInMotion] = useState(false)
-  const motionParams: MotionParams = { speedMps, discussionMode, velocityPreset, magneticFieldDirection, rodAngleDeg, rodVelocityAngleDeg, motionDirection }
+  const motionParams: MotionParams = {
+    speedMps,
+    discussionMode,
+    velocityPreset,
+    magneticFieldDirection,
+    rodAngleDeg,
+    rodVelocityAngleDeg,
+    motionDirection,
+  }
   const clock = useSimulationClock({
     stepSeconds: STEP_S,
     advance: (dt) => {
@@ -174,7 +204,17 @@ export function useMotionalEmfSceneState(): MotionalEmfSceneState {
         rodVelocityAngleDeg,
         motionDirection,
       }),
-    [activeMotionSpeedMps, discussionMode, magneticFieldDirection, magneticFieldT, motionDirection, rodAngleDeg, rodLengthM, rodVelocityAngleDeg, velocityPreset],
+    [
+      activeMotionSpeedMps,
+      discussionMode,
+      magneticFieldDirection,
+      magneticFieldT,
+      motionDirection,
+      rodAngleDeg,
+      rodLengthM,
+      rodVelocityAngleDeg,
+      velocityPreset,
+    ],
   )
 
   const reset = () => {

@@ -30,16 +30,44 @@ export function useGlobalShortcuts({
     if (typeof window === 'undefined') return
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) return
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target))
+        return
 
       const key = event.key.toLowerCase()
-      if (key === 'd') { event.preventDefault(); setTheme('day'); return }
-      if (key === 'n') { event.preventDefault(); setTheme('night'); return }
-      if (key === '?') { event.preventDefault(); onToggleHelp?.(); return }
-      if (key === 'l') { event.preventDefault(); onToggleLargeText?.(); return }
-      if (key === 'escape') { onExitPresenting?.(); return }
-      if (key === 'p' && pathname !== '/') { event.preventDefault(); onTogglePresenting?.(); return }
-      if (key === 'h' && pathname !== '/') { event.preventDefault(); onTogglePredicting?.(); return }
+      if (key === 'd') {
+        event.preventDefault()
+        setTheme('day')
+        return
+      }
+      if (key === 'n') {
+        event.preventDefault()
+        setTheme('night')
+        return
+      }
+      if (key === '?') {
+        event.preventDefault()
+        onToggleHelp?.()
+        return
+      }
+      if (key === 'l') {
+        event.preventDefault()
+        onToggleLargeText?.()
+        return
+      }
+      if (key === 'escape') {
+        onExitPresenting?.()
+        return
+      }
+      if (key === 'p' && pathname !== '/') {
+        event.preventDefault()
+        onTogglePresenting?.()
+        return
+      }
+      if (key === 'h' && pathname !== '/') {
+        event.preventDefault()
+        onTogglePredicting?.()
+        return
+      }
       // 1–9 and / on the overview are handled by NavigationPage, which knows the current view.
     }
 

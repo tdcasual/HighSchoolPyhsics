@@ -41,11 +41,7 @@ export function OscilloscopeDisplay({ beamX, beamY, traceSegments, running }: Os
     <div className="scope-card">
       <h3>荧光屏显示</h3>
       <div className="scope-screen">
-        <svg
-          className="scope-svg"
-          viewBox={`0 0 ${SCREEN_WIDTH} ${SCREEN_HEIGHT}`}
-          aria-label="示波器荧光屏"
-        >
+        <svg className="scope-svg" viewBox={`0 0 ${SCREEN_WIDTH} ${SCREEN_HEIGHT}`} aria-label="示波器荧光屏">
           <defs>
             <filter id="scopeGlow">
               <feGaussianBlur stdDeviation="2.2" result="blurred" />
@@ -59,44 +55,16 @@ export function OscilloscopeDisplay({ beamX, beamY, traceSegments, running }: Os
           <g className="scope-grid">
             {Array.from({ length: 11 }).map((_, index) => {
               const x = (SCREEN_WIDTH / 10) * index
-              return (
-                <line
-                  key={`grid-x-${x}`}
-                  x1={x}
-                  y1={0}
-                  x2={x}
-                  y2={SCREEN_HEIGHT}
-                />
-              )
+              return <line key={`grid-x-${x}`} x1={x} y1={0} x2={x} y2={SCREEN_HEIGHT} />
             })}
             {Array.from({ length: 9 }).map((_, index) => {
               const y = (SCREEN_HEIGHT / 8) * index
-              return (
-                <line
-                  key={`grid-y-${y}`}
-                  x1={0}
-                  y1={y}
-                  x2={SCREEN_WIDTH}
-                  y2={y}
-                />
-              )
+              return <line key={`grid-y-${y}`} x1={0} y1={y} x2={SCREEN_WIDTH} y2={y} />
             })}
           </g>
 
-          <line
-            className="scope-axis"
-            x1={SCREEN_WIDTH / 2}
-            y1={0}
-            x2={SCREEN_WIDTH / 2}
-            y2={SCREEN_HEIGHT}
-          />
-          <line
-            className="scope-axis"
-            x1={0}
-            y1={SCREEN_HEIGHT / 2}
-            x2={SCREEN_WIDTH}
-            y2={SCREEN_HEIGHT / 2}
-          />
+          <line className="scope-axis" x1={SCREEN_WIDTH / 2} y1={0} x2={SCREEN_WIDTH / 2} y2={SCREEN_HEIGHT} />
+          <line className="scope-axis" x1={0} y1={SCREEN_HEIGHT / 2} x2={SCREEN_WIDTH} y2={SCREEN_HEIGHT / 2} />
 
           {tracePolylines.length > 0 ? (
             <g filter="url(#scopeGlow)">

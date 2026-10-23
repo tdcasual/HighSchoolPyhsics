@@ -14,12 +14,9 @@ export function buildBeamPathPoints(beamX: number, beamY: number): [number, numb
     const t = i / samples
     const mt = 1 - t
 
-    const bx =
-      mt * mt * mt * p0[0] + 3 * mt * mt * t * p1[0] + 3 * mt * t * t * p2[0] + t * t * t * p3[0]
-    const by =
-      mt * mt * mt * p0[1] + 3 * mt * mt * t * p1[1] + 3 * mt * t * t * p2[1] + t * t * t * p3[1]
-    const bz =
-      mt * mt * mt * p0[2] + 3 * mt * mt * t * p1[2] + 3 * mt * t * t * p2[2] + t * t * t * p3[2]
+    const bx = mt * mt * mt * p0[0] + 3 * mt * mt * t * p1[0] + 3 * mt * t * t * p2[0] + t * t * t * p3[0]
+    const by = mt * mt * mt * p0[1] + 3 * mt * mt * t * p1[1] + 3 * mt * t * t * p2[1] + t * t * t * p3[1]
+    const bz = mt * mt * mt * p0[2] + 3 * mt * mt * t * p1[2] + 3 * mt * t * t * p2[2] + t * t * t * p3[2]
 
     points.push([bx, by, bz])
   }
@@ -61,10 +58,7 @@ export function buildBeamFlightTrailPoints(
   }
 
   const normalizedPhase = clampPathPhase(phase)
-  const headIndex = Math.max(
-    0,
-    Math.min(beamPath.length - 1, Math.round(normalizedPhase * (beamPath.length - 1))),
-  )
+  const headIndex = Math.max(0, Math.min(beamPath.length - 1, Math.round(normalizedPhase * (beamPath.length - 1))))
   const trailSize = Math.max(2, Math.min(trailSamples, beamPath.length))
   const start = Math.max(0, headIndex - (trailSize - 1))
   const segment = beamPath.slice(start, headIndex + 1)

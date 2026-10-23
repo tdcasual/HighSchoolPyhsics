@@ -56,12 +56,7 @@ describe('SceneLayout panel stacking', () => {
   })
 
   it('does not render data panel when not provided', () => {
-    render(
-      <SceneLayout
-        controls={<div>params</div>}
-        viewport={<div>canvas</div>}
-      />,
-    )
+    render(<SceneLayout controls={<div>params</div>} viewport={<div>canvas</div>} />)
     expect(screen.queryByText('数据')).not.toBeInTheDocument()
   })
 })

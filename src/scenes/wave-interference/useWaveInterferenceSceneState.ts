@@ -77,8 +77,8 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
   })
 
   // Mutable ring buffer — animation loop writes here, no React state churn
-  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(
-    () => createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z),
+  const [observerBuffer, setObserverBufferState] = useState<ObserverBuffer | null>(() =>
+    createObserverBuffer(OBSERVER_DEFAULT.x, OBSERVER_DEFAULT.z),
   )
   const bufferRef = useRef<ObserverBuffer | null>(observerBuffer)
 
@@ -97,11 +97,14 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
     setObserverBufferState(buf)
   }, [])
 
-  const setObserverBuffer = useCallback((b: ObserverBuffer | null) => {
-    bufferRef.current = b
-    syncCounterRef.current = 0
-    syncBufferToState()
-  }, [syncBufferToState])
+  const setObserverBuffer = useCallback(
+    (b: ObserverBuffer | null) => {
+      bufferRef.current = b
+      syncCounterRef.current = 0
+      syncBufferToState()
+    },
+    [syncBufferToState],
+  )
 
   const tickSync = useCallback(() => {
     syncCounterRef.current++
@@ -113,19 +116,21 @@ export function useWaveInterferenceSceneState(): WaveInterferenceSceneState {
 
   // Expose tickSync via a stable ref so the animation loop can call it
   const tickSyncRef = useRef(tickSync)
-  useEffect(() => { tickSyncRef.current = tickSync }, [tickSync])
+  useEffect(() => {
+    tickSyncRef.current = tickSync
+  }, [tickSync])
 
-  const setWavelength1 = useCallback((v: number) => setParams(p => ({ ...p, wavelength1: v })), [])
-  const setWavelength2 = useCallback((v: number) => setParams(p => ({ ...p, wavelength2: v })), [])
-  const setAmplitude1 = useCallback((v: number) => setParams(p => ({ ...p, amplitude1: v })), [])
-  const setAmplitude2 = useCallback((v: number) => setParams(p => ({ ...p, amplitude2: v })), [])
-  const setPhaseDiff = useCallback((v: number) => setParams(p => ({ ...p, phaseDiff: v })), [])
-  const setSource1 = useCallback((v: Vec2) => setParams(p => ({ ...p, source1: v })), [])
-  const setSource2 = useCallback((v: Vec2) => setParams(p => ({ ...p, source2: v })), [])
-  const toggleChart = useCallback(() => setShowChart(p => !p), [])
+  const setWavelength1 = useCallback((v: number) => setParams((p) => ({ ...p, wavelength1: v })), [])
+  const setWavelength2 = useCallback((v: number) => setParams((p) => ({ ...p, wavelength2: v })), [])
+  const setAmplitude1 = useCallback((v: number) => setParams((p) => ({ ...p, amplitude1: v })), [])
+  const setAmplitude2 = useCallback((v: number) => setParams((p) => ({ ...p, amplitude2: v })), [])
+  const setPhaseDiff = useCallback((v: number) => setParams((p) => ({ ...p, phaseDiff: v })), [])
+  const setSource1 = useCallback((v: Vec2) => setParams((p) => ({ ...p, source1: v })), [])
+  const setSource2 = useCallback((v: Vec2) => setParams((p) => ({ ...p, source2: v })), [])
+  const toggleChart = useCallback(() => setShowChart((p) => !p), [])
   const setPlaySpeed = useCallback((v: number) => setPlaySpeedState(v), [])
-  const toggleConstructive = useCallback(() => setShowConstructive(p => !p), [])
-  const toggleDestructive = useCallback(() => setShowDestructive(p => !p), [])
+  const toggleConstructive = useCallback(() => setShowConstructive((p) => !p), [])
+  const toggleDestructive = useCallback(() => setShowDestructive((p) => !p), [])
 
   const step = () => {
     clock.step()

@@ -1,9 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  createElectromagneticDriveState,
-  stepElectromagneticDriveState,
-} from './model'
+import { createElectromagneticDriveState, stepElectromagneticDriveState } from './model'
 import { useElectromagneticDriveSceneState } from './useElectromagneticDriveSceneState'
 
 function flushAnimationFramesAt(timesMs: number[], queue: FrameRequestCallback[]) {

@@ -27,18 +27,14 @@ export function waveLengthToRGB(wl: number): [number, number, number] {
   }
 
   if (wl >= 380 && wl < 420) {
-    alpha = 0.3 + 0.7 * (wl - 380) / (420 - 380)
+    alpha = 0.3 + (0.7 * (wl - 380)) / (420 - 380)
   } else if (wl >= 420 && wl <= 700) {
     alpha = 1.0
   } else if (wl > 700 && wl <= 780) {
-    alpha = 0.3 + 0.7 * (780 - wl) / (780 - 700)
+    alpha = 0.3 + (0.7 * (780 - wl)) / (780 - 700)
   }
 
-  return [
-    Math.round(r * alpha * 255),
-    Math.round(g * alpha * 255),
-    Math.round(b * alpha * 255),
-  ]
+  return [Math.round(r * alpha * 255), Math.round(g * alpha * 255), Math.round(b * alpha * 255)]
 }
 
 export function waveLengthToHex(wl: number): number {

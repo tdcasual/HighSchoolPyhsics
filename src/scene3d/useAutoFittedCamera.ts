@@ -47,16 +47,22 @@ export function useAutoFittedCamera(
   const [measured, setMeasured] = useState<Bounds3 | null>(null)
   const onBounds = useCallback((next: Bounds3) => setMeasured(next), [])
   const fitBounds = shot.bounds ?? measured ?? options.initialBounds
-  const camera = useFittedOrbitCamera(viewportRef, refitKey, limits, (area): OrbitView => fitOrbitView({
-    ...area,
-    bounds: fitBounds,
-    anchor: shot.anchor,
-    azimuth: shot.azimuth,
-    elevation: shot.elevation,
-    fov: limits.fov,
-    minDistance: limits.minDistance,
-    margin: shot.margin,
-  }))
+  const camera = useFittedOrbitCamera(
+    viewportRef,
+    refitKey,
+    limits,
+    (area): OrbitView =>
+      fitOrbitView({
+        ...area,
+        bounds: fitBounds,
+        anchor: shot.anchor,
+        azimuth: shot.azimuth,
+        elevation: shot.elevation,
+        fov: limits.fov,
+        minDistance: limits.minDistance,
+        margin: shot.margin,
+      }),
+  )
   return { ...camera, fitBoundsProps: { refitKey, onBounds } }
 }
 

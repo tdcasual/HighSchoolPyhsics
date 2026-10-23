@@ -105,15 +105,32 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
         <meshStandardMaterial color={night ? '#262d34' : '#e9eee8'} />
       </mesh>
       {box({ size: [10.55, 0.08, 4.5], position: [-0.375, -0.345, 0.24], color: '#f3f2e8' })}
-      {[[-3.95, -0.45], [-3.95, 0.45], [3.95, -0.45], [3.95, 0.45]].map(([x, z]) => (
+      {[
+        [-3.95, -0.45],
+        [-3.95, 0.45],
+        [3.95, -0.45],
+        [3.95, 0.45],
+      ].map(([x, z]) => (
         <group key={`${x}-${z}`} visible={pose.trackVisible}>
           {box({ size: [0.34, 0.66, 0.37], position: [x, 0.03, z], color: '#9cae9a', metalness: 0.4 })}
         </group>
       ))}
       <group position={[0, 0.47, 0]}>
         {box({ size: [9.7, 0.22, 1.25], position: [0, 0, 0], color: '#b99b72', visible: pose.trackVisible })}
-        {box({ size: [9.5, 0.045, 0.055], position: [0, 0.152, -0.52], color: '#a7bab4', metalness: 0.8, visible: pose.trackVisible })}
-        {box({ size: [9.5, 0.045, 0.055], position: [0, 0.152, 0.52], color: '#a7bab4', metalness: 0.8, visible: pose.trackVisible })}
+        {box({
+          size: [9.5, 0.045, 0.055],
+          position: [0, 0.152, -0.52],
+          color: '#a7bab4',
+          metalness: 0.8,
+          visible: pose.trackVisible,
+        })}
+        {box({
+          size: [9.5, 0.045, 0.055],
+          position: [0, 0.152, 0.52],
+          color: '#a7bab4',
+          metalness: 0.8,
+          visible: pose.trackVisible,
+        })}
         {pose.cartVisible ? (
           <group name="cart" position={[pose.cartX, 0.14, 0]}>
             {box({ size: [1.08, 0.12, 0.66], position: [0, 0.26, 0], color: '#c0c9bd', metalness: 0.5 })}
@@ -124,7 +141,9 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
             {wheel([0.35, 0.15, 0.41], pose.wheelRotation)}
             {box({ size: [0.13, 0.13, 0.72], position: [0.53, 0.29, 0], color: '#a4b6ac', metalness: 0.4 })}
             {box({ size: [0.12, 0.12, 0.72], position: [-0.53, 0.29, 0], color: '#a4b6ac', metalness: 0.4 })}
-            <SceneLabel position={[0, 1.27, 0]} className="cart-rig-label--cart">实验小车</SceneLabel>
+            <SceneLabel position={[0, 1.27, 0]} className="cart-rig-label--cart">
+              实验小车
+            </SceneLabel>
             {skin === 'classic' ? (
               <group name="skin-classic">
                 {box({ size: [0.58, 0.22, 0.42], position: [0, 0.65, 0], color: '#a7bbb1', metalness: 0.7 })}
@@ -198,7 +217,9 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
                 <meshStandardMaterial color="#8d9c97" metalness={0.7} roughness={0.35} />
               </mesh>
             </group>
-            <SceneLabel position={[0, 0.9, -0.2]} className="cart-rig-label--timer">电磁打点计时器</SceneLabel>
+            <SceneLabel position={[0, 0.9, -0.2]} className="cart-rig-label--timer">
+              电磁打点计时器
+            </SceneLabel>
             <mesh name="striker" position={[TIMER_STRIKER_X - TIMER_X, pose.strikerY, 0]}>
               <cylinderGeometry args={[0.016, 0.016, 0.24, 10]} />
               <meshStandardMaterial color="#566c64" metalness={0.45} roughness={0.38} />
@@ -211,10 +232,18 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
               <boxGeometry args={[1, 0.014, 0.15]} />
               <meshStandardMaterial color="#f5edd0" />
             </mesh>
-            <SceneLabel position={[pose.tapeX, 0.62, -0.18]} className="cart-rig-label--tape">运动纸带</SceneLabel>
+            <SceneLabel position={[pose.tapeX, 0.62, -0.18]} className="cart-rig-label--tape">
+              运动纸带
+            </SceneLabel>
             {box({ size: [0.9, 0.014, 0.15], position: [TIMER_X - 0.45, 0.45, 0], color: '#eee4bd' })}
             {pose.dots.map((dot, index) => (
-              <mesh key={index} name="tape-dot" position={[dot.x, 0.46, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={dot.count ? 1.4 : 1}>
+              <mesh
+                key={index}
+                name="tape-dot"
+                position={[dot.x, 0.46, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                scale={dot.count ? 1.4 : 1}
+              >
                 <circleGeometry args={[0.012, 12]} />
                 <meshBasicMaterial color={dot.count ? '#c17a48' : '#516450'} side={DoubleSide} />
               </mesh>
@@ -234,7 +263,7 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
                 <meshStandardMaterial color="#c9a15e" metalness={0.6} roughness={0.35} />
               </mesh>
               {[0, 1, 2].map((index) => (
-                <mesh key={index} name="pulley-spoke" position={[0, 0, 0.004]} rotation={[0, 0, index * Math.PI / 3]}>
+                <mesh key={index} name="pulley-spoke" position={[0, 0, 0.004]} rotation={[0, 0, (index * Math.PI) / 3]}>
                   <boxGeometry args={[PULLEY_RADIUS * 1.7, 0.014, 0.012]} />
                   <meshStandardMaterial color="#899a91" metalness={0.6} roughness={0.42} />
                 </mesh>
@@ -251,7 +280,12 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
               <>
                 <group name="hook-weight" position={weight}>
                   {Array.from({ length: 6 }, (_, index) => (
-                    <mesh key={index} name="hook-disc" visible={index < pose.discCount} position={[0, -0.29 - index * 0.055, 0]}>
+                    <mesh
+                      key={index}
+                      name="hook-disc"
+                      visible={index < pose.discCount}
+                      position={[0, -0.29 - index * 0.055, 0]}
+                    >
                       <cylinderGeometry args={[0.1, 0.1, 0.05, 16]} />
                       <meshStandardMaterial color="#98a4aa" metalness={0.75} roughness={0.35} />
                     </mesh>
@@ -289,23 +323,27 @@ export function CartRig3D({ pose, skin, night = false }: { pose: CartPose; skin:
       {pose.powerVisible ? (
         <group name="power" position={[-3.25, -0.03, 1.58]}>
           {box({ size: [1.5, 0.55, 1.02], position: [0, 0, 0], color: '#94a995', metalness: 0.15 })}
-          <SceneLabel position={[0, 0.6, 0]} className="cart-rig-label--power">低压交流电源</SceneLabel>
+          <SceneLabel position={[0, 0.6, 0]} className="cart-rig-label--power">
+            低压交流电源
+          </SceneLabel>
         </group>
       ) : null}
-      {pose.powerVisible && pose.timerVisible ? [-1, 1].map((side) => {
-        const curve = new CatmullRomCurve3([
-          new Vector3(-3.25 + side * 0.3, 0.01, 1.98),
-          new Vector3(-4.4 + side * 0.35, -0.27, 2.13),
-          new Vector3(-4.87 + side * 0.2, -0.28, 0.88),
-          new Vector3(-3.95 + side * 0.25, 0.82, 0.42),
-        ])
-        return (
-          <mesh key={side} name="supply-wire">
-            <tubeGeometry args={[curve, 40, 0.017, 8, false]} />
-            <meshStandardMaterial color={side === 1 ? '#b96e52' : '#516f84'} roughness={0.55} />
-          </mesh>
-        )
-      }) : null}
+      {pose.powerVisible && pose.timerVisible
+        ? [-1, 1].map((side) => {
+            const curve = new CatmullRomCurve3([
+              new Vector3(-3.25 + side * 0.3, 0.01, 1.98),
+              new Vector3(-4.4 + side * 0.35, -0.27, 2.13),
+              new Vector3(-4.87 + side * 0.2, -0.28, 0.88),
+              new Vector3(-3.95 + side * 0.25, 0.82, 0.42),
+            ])
+            return (
+              <mesh key={side} name="supply-wire">
+                <tubeGeometry args={[curve, 40, 0.017, 8, false]} />
+                <meshStandardMaterial color={side === 1 ? '#b96e52' : '#516f84'} roughness={0.55} />
+              </mesh>
+            )
+          })
+        : null}
     </>
   )
 }

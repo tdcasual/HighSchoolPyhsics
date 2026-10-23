@@ -45,9 +45,7 @@ describe('demo route conformance', () => {
   it('stays aligned with the shared scene catalog source', () => {
     const expectedPageIds = SCENE_CATALOG.map((scene) => scene.pageId)
     expect(DEMO_ROUTES.map((route) => route.pageId)).toEqual(expectedPageIds)
-    expect(DEMO_ROUTES.map((route) => route.path)).toEqual(
-      expectedPageIds.map((pageId) => `/${pageId}`),
-    )
+    expect(DEMO_ROUTES.map((route) => route.path)).toEqual(expectedPageIds.map((pageId) => `/${pageId}`))
   })
 
   it('keeps auto-discovered scene modules aligned with the catalog', () => {

@@ -29,19 +29,23 @@ describe('electromagnetic-drive rig', () => {
 
     const crankGroup = elements.find((element) => {
       const position = element.props.position
-      return element.type === 'group'
-        && Array.isArray(position)
-        && position[0] === 0
-        && position[1] === 8.65
-        && position[2] === 0
+      return (
+        element.type === 'group' &&
+        Array.isArray(position) &&
+        position[0] === 0 &&
+        position[1] === 8.65 &&
+        position[2] === 0
+      )
     })
     const handleMesh = elements.find((element) => {
       const position = element.props.position
-      return element.type === 'mesh'
-        && Array.isArray(position)
-        && position[0] === 1.6
-        && position[1] === 2
-        && position[2] === 0
+      return (
+        element.type === 'mesh' &&
+        Array.isArray(position) &&
+        position[0] === 1.6 &&
+        position[1] === 2 &&
+        position[2] === 0
+      )
     })
 
     expect(crankGroup).toBeDefined()

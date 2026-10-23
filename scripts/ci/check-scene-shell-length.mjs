@@ -18,10 +18,7 @@ function parsePositiveInteger(rawValue, fallback) {
   return parsed
 }
 
-const MAX_SCENE_SHELL_LINES = parsePositiveInteger(
-  process.env.MAX_SCENE_SHELL_LINES,
-  DEFAULT_MAX_LINES,
-)
+const MAX_SCENE_SHELL_LINES = parsePositiveInteger(process.env.MAX_SCENE_SHELL_LINES, DEFAULT_MAX_LINES)
 
 function walkFiles(dirPath) {
   const entries = readdirSync(dirPath)
@@ -54,11 +51,7 @@ function toPosixPath(filePath) {
 const sceneShellFiles = walkFiles(SCENES_DIR)
   .map((absolutePath) => path.relative(ROOT_DIR, absolutePath))
   .map(toPosixPath)
-  .filter(
-    (relativePath) =>
-      relativePath.endsWith('Scene.tsx') &&
-      !relativePath.includes('/__tests__/'),
-  )
+  .filter((relativePath) => relativePath.endsWith('Scene.tsx') && !relativePath.includes('/__tests__/'))
   .sort((a, b) => a.localeCompare(b))
 
 if (sceneShellFiles.length === 0) {

@@ -132,4 +132,3 @@ export const NAVIGATION_VIEWS: NavigationView[] = [
 export function findNavigationView(id: string): NavigationView {
   return NAVIGATION_VIEWS.find((view) => view.id === id) ?? NAVIGATION_VIEWS[0]
 }
-

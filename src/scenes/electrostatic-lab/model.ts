@@ -205,10 +205,16 @@ function buildContourSegments(
 
         if (candidates.length === 4) {
           const centerPotential = (p00 + p10 + p11 + p01) / 4
-          const centerMatchesP00 = (centerPotential >= level) === (p00 >= level)
+          const centerMatchesP00 = centerPotential >= level === p00 >= level
           const pairs: ReadonlyArray<readonly [number, number]> = centerMatchesP00
-            ? [[0, 1], [2, 3]]
-            : [[0, 3], [1, 2]]
+            ? [
+                [0, 1],
+                [2, 3],
+              ]
+            : [
+                [0, 3],
+                [1, 2],
+              ]
           for (const [fromIndex, toIndex] of pairs) {
             addSegment(level, candidates[fromIndex], candidates[toIndex])
           }
@@ -221,15 +227,7 @@ function buildContourSegments(
 }
 
 export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): PotentialTerrain {
-  const {
-    charges,
-    bounds,
-    resolution,
-    contourLevels,
-    heightScale = 0.62,
-    invertHeight = false,
-    sample = {},
-  } = options
+  const { charges, bounds, resolution, contourLevels, heightScale = 0.62, invertHeight = false, sample = {} } = options
   const safeBounds = Math.max(1, bounds)
   const safeResolution = Math.max(12, Math.min(100, Math.round(resolution)))
   const vertexCount = safeResolution * safeResolution
@@ -316,11 +314,7 @@ export function buildPotentialTerrain(options: BuildPotentialTerrainOptions): Po
   }
 }
 
-export function samplePotentialTerrainHeight(
-  terrain: PotentialTerrain,
-  bounds: number,
-  point: Vector2,
-): number {
+export function samplePotentialTerrainHeight(terrain: PotentialTerrain, bounds: number, point: Vector2): number {
   const resolution = Math.round(Math.sqrt(terrain.vertexPositions.length / 3))
   if (resolution < 2) {
     return 0
@@ -457,8 +451,7 @@ export function summarizeChargeSet(charges: ReadonlyArray<ElectrostaticCharge>):
   return summarizeChargeMagnitudes(charges)
 }
 
-export const PRESET_CONFIGS: Record<PresetKey, ElectrostaticPresetDefinition> =
-  ELECTROSTATIC_LAB_PRESET_CONFIGS
+export const PRESET_CONFIGS: Record<PresetKey, ElectrostaticPresetDefinition> = ELECTROSTATIC_LAB_PRESET_CONFIGS
 
 export function clonePresetCharges(preset: PresetKey): ElectrostaticCharge[] {
   return cloneElectrostaticPresetCharges(preset, PRESET_CONFIGS)

@@ -139,7 +139,7 @@ const CHAPTERS: Omit<PhysicsRegion, 'scenePageIds'>[] = [
   },
 ]
 
-export const PHYSICS_REGIONS: PhysicsRegion[] = CHAPTERS.map((chapter) => ({ ...chapter, scenePageIds: scenesIn('chapter', chapter.id) }))
-
-
-
+export const PHYSICS_REGIONS: PhysicsRegion[] = CHAPTERS.map((chapter) => ({
+  ...chapter,
+  scenePageIds: scenesIn('chapter', chapter.id),
+}))

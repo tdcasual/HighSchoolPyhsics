@@ -35,9 +35,7 @@ async function measureRouteLoad(page, demo) {
       'Runtime capability gate blocked route-load budget in headless browser; verify WebGL2 flags are enabled for Playwright Chromium.',
     )
   }
-  await page
-    .getByText('物理演示')
-    .waitFor({ state: 'visible', timeout: 15000 })
+  await page.getByText('物理演示').waitFor({ state: 'visible', timeout: 15000 })
 
   const startTime = performance.now()
   // All scenes are visible directly on the whiteboard overview
@@ -65,7 +63,8 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
+        browser = await chromium.launch({
+          executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
         })

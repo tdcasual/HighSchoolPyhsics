@@ -1,9 +1,9 @@
-import { MAX_TAPE_M } from "./model";
+import { MAX_TAPE_M } from './model'
 
 /** Scene units per metre of measured paper travel. */
-export const SCENE_SCALE = 4;
-export const PUNCH_POINT_X = 0.8;
-const TRAILING_TAPE_M = 0.5;
+export const SCENE_SCALE = 4
+export const PUNCH_POINT_X = 0.8
+const TRAILING_TAPE_M = 0.5
 
 export const TAPE = {
   width: 0.38,
@@ -11,10 +11,9 @@ export const TAPE = {
   physicalLengthM: MAX_TAPE_M,
   trailingLengthM: TRAILING_TAPE_M,
   visibleLength: (MAX_TAPE_M + TRAILING_TAPE_M) * SCENE_SCALE,
-  centerX:
-    PUNCH_POINT_X + ((MAX_TAPE_M - TRAILING_TAPE_M) * SCENE_SCALE) / 2,
+  centerX: PUNCH_POINT_X + ((MAX_TAPE_M - TRAILING_TAPE_M) * SCENE_SCALE) / 2,
   y: 0.47,
-};
+}
 
 export const EM_LAYOUT = {
   base: { size: [4.4, 0.22, 2.6] as const, position: [0, 0.11, 0] as const },
@@ -24,8 +23,8 @@ export const EM_LAYOUT = {
   },
   fixScrew: { position: [-1.6, 0.2, -1.7] as const },
   terminals: [
-    { position: [-1.2, 0.43, -0.95] as const, polarity: "positive" as const },
-    { position: [-0.5, 0.43, -0.95] as const, polarity: "negative" as const },
+    { position: [-1.2, 0.43, -0.95] as const, polarity: 'positive' as const },
+    { position: [-0.5, 0.43, -0.95] as const, polarity: 'negative' as const },
   ],
   coil: {
     position: [-0.85, 1, 0] as const,
@@ -50,15 +49,12 @@ export const EM_LAYOUT = {
   carbonPin: {
     position: [PUNCH_POINT_X + TAPE.width, TAPE.y + 0.08, 0] as const,
   },
-  guides: [
-    { position: [PUNCH_POINT_X, 0.49, -0.95] as const },
-    { position: [PUNCH_POINT_X, 0.49, 0.95] as const },
-  ],
+  guides: [{ position: [PUNCH_POINT_X, 0.49, -0.95] as const }, { position: [PUNCH_POINT_X, 0.49, 0.95] as const }],
   pad: {
     size: [0.62, 0.035, 0.5] as const,
     position: [PUNCH_POINT_X, 0.44, 0] as const,
   },
-} as const;
+} as const
 
 export const SPARK_LAYOUT = {
   box: { size: [1.6, 1.38, 2.6] as const, position: [-1.4, 0.81, 0] as const },
@@ -93,22 +89,19 @@ export const SPARK_LAYOUT = {
   switch: { position: [-1.7, 1.64, -0.55] as const },
   lamp: { position: [-1.1, 1.62, -0.55] as const },
   sockets: [
-    { position: [-0.49, 1.08, -0.67] as const, polarity: "negative" as const },
-    { position: [-0.49, 1.08, 0.67] as const, polarity: "positive" as const },
+    { position: [-0.49, 1.08, -0.67] as const, polarity: 'negative' as const },
+    { position: [-0.49, 1.08, 0.67] as const, polarity: 'positive' as const },
   ],
   pcb: {
     position: [-1.45, 0.5, -0.25] as const,
     size: [0.7, 0.06, 0.95] as const,
   },
-} as const;
+} as const
 
-export function tapeWorldX(
-  dotPositionM: number,
-  currentDisplacementM: number,
-): number {
-  return PUNCH_POINT_X + (currentDisplacementM - dotPositionM) * SCENE_SCALE;
+export function tapeWorldX(dotPositionM: number, currentDisplacementM: number): number {
+  return PUNCH_POINT_X + (currentDisplacementM - dotPositionM) * SCENE_SCALE
 }
 
 export function sparkDiscRotationRad(displacementM: number): number {
-  return displacementM / SPARK_LAYOUT.disc.rollingRadius;
+  return displacementM / SPARK_LAYOUT.disc.rollingRadius
 }

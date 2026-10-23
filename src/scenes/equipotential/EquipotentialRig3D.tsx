@@ -30,8 +30,20 @@ function createSurfaceGeometries(surfaces: ReadonlyArray<EquipotentialSurface>):
   })
 }
 
-function WorldLabel({ position, color, children }: { position: [number, number, number]; color: string; children: string }) {
-  return <SceneLabel position={position} color={color} size={12} weight={800} distanceFactor={8}>{children}</SceneLabel>
+function WorldLabel({
+  position,
+  color,
+  children,
+}: {
+  position: [number, number, number]
+  color: string
+  children: string
+}) {
+  return (
+    <SceneLabel position={position} color={color} size={12} weight={800} distanceFactor={8}>
+      {children}
+    </SceneLabel>
+  )
 }
 
 export function EquipotentialRig3D({
@@ -44,10 +56,13 @@ export function EquipotentialRig3D({
   const positiveGeometries = useMemo(() => createSurfaceGeometries(positiveSurfaces), [positiveSurfaces])
   const negativeGeometries = useMemo(() => createSurfaceGeometries(negativeSurfaces), [negativeSurfaces])
 
-  useEffect(() => () => {
-    for (const item of positiveGeometries) item.geometry.dispose()
-    for (const item of negativeGeometries) item.geometry.dispose()
-  }, [negativeGeometries, positiveGeometries])
+  useEffect(
+    () => () => {
+      for (const item of positiveGeometries) item.geometry.dispose()
+      for (const item of negativeGeometries) item.geometry.dispose()
+    },
+    [negativeGeometries, positiveGeometries],
+  )
 
   return (
     <group>
@@ -56,12 +71,39 @@ export function EquipotentialRig3D({
       <pointLight position={[-4.6, 2.8, -3.5]} intensity={0.42} color="#8ec7ff" />
 
       <gridHelper args={[bounds * 2, 20, '#6f8095', '#9aafc5']} />
-      <Line points={[[-bounds, 0, 0], [bounds, 0, 0]]} color="#ff886e" lineWidth={1.9} />
-      <Line points={[[0, -bounds, 0], [0, bounds, 0]]} color="#77d2a7" lineWidth={1.6} />
-      <Line points={[[0, 0, -bounds], [0, 0, bounds]]} color="#7fb7ff" lineWidth={1.6} />
-      <WorldLabel position={[bounds, 0, 0]} color="#c34d3c">+X</WorldLabel>
-      <WorldLabel position={[0, bounds, 0]} color="#288d68">+Y</WorldLabel>
-      <WorldLabel position={[0, 0, bounds]} color="#3978bb">+Z</WorldLabel>
+      <Line
+        points={[
+          [-bounds, 0, 0],
+          [bounds, 0, 0],
+        ]}
+        color="#ff886e"
+        lineWidth={1.9}
+      />
+      <Line
+        points={[
+          [0, -bounds, 0],
+          [0, bounds, 0],
+        ]}
+        color="#77d2a7"
+        lineWidth={1.6}
+      />
+      <Line
+        points={[
+          [0, 0, -bounds],
+          [0, 0, bounds],
+        ]}
+        color="#7fb7ff"
+        lineWidth={1.6}
+      />
+      <WorldLabel position={[bounds, 0, 0]} color="#c34d3c">
+        +X
+      </WorldLabel>
+      <WorldLabel position={[0, bounds, 0]} color="#288d68">
+        +Y
+      </WorldLabel>
+      <WorldLabel position={[0, 0, bounds]} color="#3978bb">
+        +Z
+      </WorldLabel>
 
       {positiveGeometries.map((item, index) => (
         <mesh key={`positive-surface-${index}`} geometry={item.geometry} renderOrder={1}>
@@ -109,11 +151,7 @@ export function EquipotentialRig3D({
               {`${sign} ${charge.id}`}
             </WorldLabel>
             {charge.id === selectedChargeId ? (
-              <mesh
-                position={[charge.x, charge.y + 0.06, charge.z]}
-                rotation={[-Math.PI / 2, 0, 0]}
-                renderOrder={3}
-              >
+              <mesh position={[charge.x, charge.y + 0.06, charge.z]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={3}>
                 <ringGeometry args={[radius + 0.04, radius + 0.09, 32]} />
                 <meshBasicMaterial color="#f2b134" transparent opacity={0.95} depthWrite={false} />
               </mesh>

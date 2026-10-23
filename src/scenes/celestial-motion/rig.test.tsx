@@ -28,7 +28,15 @@ function named(elements: SceneElement[], name: string) {
 
 describe('celestial rig', () => {
   it('places the satellite, north pole and equator plane from the shared pose', () => {
-    const scenario = scenarioOf({ mode: 'circular', body: 'earth', r1: 1.1, r2: 3, phaseDeg: 90, inclinationDeg: 0, time: 0 })
+    const scenario = scenarioOf({
+      mode: 'circular',
+      body: 'earth',
+      r1: 1.1,
+      r2: 3,
+      phaseDeg: 90,
+      inclinationDeg: 0,
+      time: 0,
+    })
     const pose = celestialPose({ scenario, showVectors: true, showArea: true, showPlane: true, corotate: false })
     const elements = collect(CelestialRig3D({ pose }))
     expect(named(elements, 'satellite')[0]?.props.position).toEqual(pose.satellites[0]?.position)
@@ -40,7 +48,15 @@ describe('celestial rig', () => {
   })
 
   it('shows both burn points on a transfer and hides the plane when asked', () => {
-    const scenario = scenarioOf({ mode: 'transfer', body: 'earth', r1: 1.2, r2: 4, phaseDeg: 0, inclinationDeg: 26, time: 0 })
+    const scenario = scenarioOf({
+      mode: 'transfer',
+      body: 'earth',
+      r1: 1.2,
+      r2: 4,
+      phaseDeg: 0,
+      inclinationDeg: 26,
+      time: 0,
+    })
     const pose = celestialPose({ scenario, showVectors: false, showArea: false, showPlane: false, corotate: false })
     const elements = collect(CelestialRig3D({ pose }))
     expect(named(elements, 'periapsis')[0]?.props.position).toEqual(pose.periapsis)

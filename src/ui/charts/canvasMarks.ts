@@ -3,7 +3,14 @@
 /** A bar `length` px long centred on (x, y) — or starting at x when `from` is 'start' — with end ticks and a label below. */
 export function drawScaleBar(
   ctx: CanvasRenderingContext2D,
-  { x, y, length, label, from = 'center', alpha = 0.55 }: { x: number; y: number; length: number; label: string; from?: 'center' | 'start'; alpha?: number },
+  {
+    x,
+    y,
+    length,
+    label,
+    from = 'center',
+    alpha = 0.55,
+  }: { x: number; y: number; length: number; label: string; from?: 'center' | 'start'; alpha?: number },
 ) {
   const start = from === 'center' ? x - length / 2 : x
   ctx.save()
@@ -31,7 +38,14 @@ export function drawScaleBar(
  */
 export function drawReticle(
   ctx: CanvasRenderingContext2D,
-  { cx, cy, radius, angleDeg = 0, offsetX = 0, lit }: { cx: number; cy: number; radius: number; angleDeg?: number; offsetX?: number; lit: boolean },
+  {
+    cx,
+    cy,
+    radius,
+    angleDeg = 0,
+    offsetX = 0,
+    lit,
+  }: { cx: number; cy: number; radius: number; angleDeg?: number; offsetX?: number; lit: boolean },
 ) {
   if (!lit) {
     ctx.beginPath()

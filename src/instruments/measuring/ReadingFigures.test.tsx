@@ -9,16 +9,15 @@ function texts(container: HTMLElement) {
 
 describe('exam-style reading figures', () => {
   it('prints vernier numbers the way exam papers do', () => {
-    const labels = (n: 10 | 20 | 50) => Array.from({ length: n + 1 }, (_, mark) => vernierLabel(n, mark)).filter(Boolean)
+    const labels = (n: 10 | 20 | 50) =>
+      Array.from({ length: n + 1 }, (_, mark) => vernierLabel(n, mark)).filter(Boolean)
     expect(labels(10)).toEqual(['0', '5', '10'])
     expect(labels(20)).toEqual(['0', '10', '20'])
     expect(labels(50)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'])
   })
 
   it('labels the caliper main scale in cm and aligns vernier line k with main line main+k', () => {
-    const { container } = render(
-      <CaliperFigure reveal divisions={20} x={23.45} />,
-    )
+    const { container } = render(<CaliperFigure reveal divisions={20} x={23.45} />)
     expect(texts(container)).toEqual(expect.arrayContaining(['2', '3', 'cm']))
     const vernierLine = screen.getByTestId('aligned-vernier')
     const mainLine = screen.getByTestId('aligned-main')
@@ -33,9 +32,7 @@ describe('exam-style reading figures', () => {
   })
 
   it('draws the micrometer sleeve up to the thimble edge with the aligned division on the datum', () => {
-    const { container } = render(
-      <MicrometerFigure reveal reading={5.237} zero={0} click={0} />,
-    )
+    const { container } = render(<MicrometerFigure reveal reading={5.237} zero={0} click={0} />)
     expect(texts(container)).toEqual(expect.arrayContaining(['0', '5', '20', '25']))
     expect(screen.getByTestId('micrometer-reading')).toHaveTextContent('5.0 mm + 23.7 × 0.01 mm = 5.237 mm')
     const edge = Number(screen.getByTestId('thimble-body').getAttribute('x'))

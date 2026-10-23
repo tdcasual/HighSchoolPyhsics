@@ -58,13 +58,17 @@ export function useSimulationClock(options: SimulationClockOptions): SimulationC
     return true
   }, [])
 
-  useAnimationLoop(running, (dt) => {
-    if (!run(dt)) setRunning(false)
-  }, {
-    honourPlaybackRate: options.honourPlaybackRate,
-    timeScale: options.timeScale,
-    maxFrameSeconds: options.maxFrameSeconds,
-  })
+  useAnimationLoop(
+    running,
+    (dt) => {
+      if (!run(dt)) setRunning(false)
+    },
+    {
+      honourPlaybackRate: options.honourPlaybackRate,
+      timeScale: options.timeScale,
+      maxFrameSeconds: options.maxFrameSeconds,
+    },
+  )
 
   const step = useCallback(() => {
     setRunning(false)

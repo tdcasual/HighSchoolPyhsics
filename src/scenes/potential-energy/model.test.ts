@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildPotentialSlicePoints,
-  resolveLatheDrawCount,
-  summarizeSlice,
-  POTENTIAL_SURFACE_FULL_ANGLE,
-} from './model'
+import { buildPotentialSlicePoints, resolveLatheDrawCount, summarizeSlice, POTENTIAL_SURFACE_FULL_ANGLE } from './model'
 
 describe('potential-energy model', () => {
   it('builds positive slice with decreasing potential by radius', () => {

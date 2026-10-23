@@ -67,29 +67,37 @@ describe('cart rig', () => {
     expect(named(moving, 'velocity-arrow')[0]?.props.position).toEqual([moved.cartX, 1.35, 0])
     expect(named(moving, 'string-guide')).toHaveLength(1)
     const body = named(moving, 'cart-body')[0]
-    const material = Children.toArray(body?.props.children as ReactNode).filter(isValidElement<Record<string, unknown>>).at(1)
+    const material = Children.toArray(body?.props.children as ReactNode)
+      .filter(isValidElement<Record<string, unknown>>)
+      .at(1)
     expect(material?.props.color).toBe('#e4e6d7')
 
-    const hidden = collect(CartRig3D({
-      pose: cartPose({ time: 0, hooks: 0, v0: 0.2, dh: 0, group: 5, stage: 'assemble', assembly: 0 }),
-      skin: 'classic',
-    }))
+    const hidden = collect(
+      CartRig3D({
+        pose: cartPose({ time: 0, hooks: 0, v0: 0.2, dh: 0, group: 5, stage: 'assemble', assembly: 0 }),
+        skin: 'classic',
+      }),
+    )
     expect(named(hidden, 'cart')).toHaveLength(0)
     expect(named(hidden, 'timer')).toHaveLength(0)
     expect(named(hidden, 'pulley')).toHaveLength(0)
 
-    const trackInstalled = collect(CartRig3D({
-      pose: cartPose({ time: 0, hooks: 3, v0: 0.1, dh: 0, group: 5, stage: 'assemble', assembly: 1 }),
-      skin: 'classic',
-    }))
+    const trackInstalled = collect(
+      CartRig3D({
+        pose: cartPose({ time: 0, hooks: 3, v0: 0.1, dh: 0, group: 5, stage: 'assemble', assembly: 1 }),
+        skin: 'classic',
+      }),
+    )
     expect(named(trackInstalled, 'cart')).toHaveLength(0)
     expect(named(trackInstalled, 'timer')).toHaveLength(0)
     expect(named(trackInstalled, 'pulley')).toHaveLength(1)
 
-    const finalStep = collect(CartRig3D({
-      pose: cartPose({ time: 0, hooks: 3, v0: 0.1, dh: 0, group: 5, stage: 'assemble', assembly: 5 }),
-      skin: 'classic',
-    }))
+    const finalStep = collect(
+      CartRig3D({
+        pose: cartPose({ time: 0, hooks: 3, v0: 0.1, dh: 0, group: 5, stage: 'assemble', assembly: 5 }),
+        skin: 'classic',
+      }),
+    )
     expect(named(finalStep, 'hook-weight')).toHaveLength(1)
     expect(named(finalStep, 'pulley-wrap-rope')).toHaveLength(1)
     expect(named(finalStep, 'hook-disc').filter((disc) => disc.props.visible !== false)).toHaveLength(3)

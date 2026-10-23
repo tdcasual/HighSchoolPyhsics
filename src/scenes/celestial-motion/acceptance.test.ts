@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { scenarioOf } from './model'
-import {
-  applyPreset,
-  createCelestialState,
-  integrateCelestial,
-  stepCelestial,
-  toggleCelestial,
-} from './state'
+import { applyPreset, createCelestialState, integrateCelestial, stepCelestial, toggleCelestial } from './state'
 
 describe('celestial acceptance', () => {
   it('steps a visible arc and stops a Hohmann transfer at apoapsis', () => {

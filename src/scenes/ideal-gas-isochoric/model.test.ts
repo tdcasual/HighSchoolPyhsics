@@ -34,13 +34,23 @@ describe('ideal-gas-isochoric model', () => {
 
   it('builds finite traces without temperatures below absolute zero', () => {
     const kelvin = buildIsochoricTraceSegment(6, 'kelvin', 0, ISOCHORIC_TEMPERATURE_RANGE.maxK, 33)
-    const celsius = buildIsochoricTraceSegment(6, 'celsius', IDEAL_GAS_CONSTANTS.absoluteZeroC, ISOCHORIC_TEMPERATURE_RANGE.maxK + IDEAL_GAS_CONSTANTS.absoluteZeroC, 33)
+    const celsius = buildIsochoricTraceSegment(
+      6,
+      'celsius',
+      IDEAL_GAS_CONSTANTS.absoluteZeroC,
+      ISOCHORIC_TEMPERATURE_RANGE.maxK + IDEAL_GAS_CONSTANTS.absoluteZeroC,
+      33,
+    )
     const belowMeasured = buildIsochoricTraceSegment(6, 'kelvin', 0, ISOCHORIC_TEMPERATURE_RANGE.minK, 17)
     expect(kelvin).toHaveLength(33)
     expect(celsius).toHaveLength(33)
-    expect([...kelvin, ...celsius, ...belowMeasured].every(([x, p]) => Number.isFinite(x) && Number.isFinite(p))).toBe(true)
+    expect([...kelvin, ...celsius, ...belowMeasured].every(([x, p]) => Number.isFinite(x) && Number.isFinite(p))).toBe(
+      true,
+    )
     expect(celsius[0]).toEqual([IDEAL_GAS_CONSTANTS.absoluteZeroC, 0])
     expect(celsius.at(-1)?.[0]).toBeCloseTo(ISOCHORIC_TEMPERATURE_RANGE.maxK + IDEAL_GAS_CONSTANTS.absoluteZeroC)
-    expect(belowMeasured.every(([temperatureK]) => temperatureK >= 0 && temperatureK <= ISOCHORIC_TEMPERATURE_RANGE.minK)).toBe(true)
+    expect(
+      belowMeasured.every(([temperatureK]) => temperatureK >= 0 && temperatureK <= ISOCHORIC_TEMPERATURE_RANGE.minK),
+    ).toBe(true)
   })
 })

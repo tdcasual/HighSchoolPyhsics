@@ -35,7 +35,9 @@ export function RangeField({
   const rafRef = useRef(0)
   const latestRef = useRef(value)
   const onChangeRef = useRef(onChange)
-  useEffect(() => { onChangeRef.current = onChange }, [onChange])
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
 
@@ -49,9 +51,12 @@ export function RangeField({
     }
   }, [])
 
-  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    throttledOnChange(Number(event.target.value))
-  }, [throttledOnChange])
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      throttledOnChange(Number(event.target.value))
+    },
+    [throttledOnChange],
+  )
 
   const handlePointerUp = useCallback(() => {
     if (rafRef.current) {

@@ -11,10 +11,7 @@ function createCharge(id: string, x: number, y: number, z: number, magnitude: nu
 }
 
 function createDipolePreset(): EquipotentialCharge[] {
-  return [
-    createCharge('C1', -2.2, 0, 0, 12),
-    createCharge('C2', 2.2, 0, 0, -12),
-  ]
+  return [createCharge('C1', -2.2, 0, 0, 12), createCharge('C2', 2.2, 0, 0, -12)]
 }
 
 function createQuadrupolePreset(): EquipotentialCharge[] {
@@ -40,11 +37,15 @@ function nextChargeId(charges: ReadonlyArray<EquipotentialCharge>): string {
 
 /** Charges, presets, sampling and the computed equipotential shells for the 等势面 scene. */
 export function useEquipotentialSceneState() {
-  const [charges, setCharges] = useState<EquipotentialCharge[]>(() => recall('equipotential.charges', () => createDipolePreset()))
+  const [charges, setCharges] = useState<EquipotentialCharge[]>(() =>
+    recall('equipotential.charges', () => createDipolePreset()),
+  )
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
   const [shellCount, setShellCount] = useState(() => recall('equipotential.shellCount', 4))
   const [sampleResolution, setSampleResolution] = useState(() => recall('equipotential.sampleResolution', 20))
-  const [activePreset, setActivePreset] = useState<'dipole' | 'quadrupole' | 'custom'>(() => recall('equipotential.activePreset', 'dipole'))
+  const [activePreset, setActivePreset] = useState<'dipole' | 'quadrupole' | 'custom'>(() =>
+    recall('equipotential.activePreset', 'dipole'),
+  )
   useRemember('equipotential', { charges, shellCount, sampleResolution, activePreset })
   const maxCharges = 12
 
@@ -54,7 +55,10 @@ export function useEquipotentialSceneState() {
   )
 
   const perf = resolvePerformanceProfile()
-  const maxSampleResolution = Math.max(14, Math.min(26, Math.round(14 + 12 * Math.sqrt(perf.equipotentialMaxPointsPerSurface / 1200))))
+  const maxSampleResolution = Math.max(
+    14,
+    Math.min(26, Math.round(14 + 12 * Math.sqrt(perf.equipotentialMaxPointsPerSurface / 1200))),
+  )
   const effectiveResolution = Math.min(sampleResolution, maxSampleResolution)
 
   const cloudResult = useMemo(
@@ -89,9 +93,7 @@ export function useEquipotentialSceneState() {
     setActivePreset('custom')
   }
 
-  const updateSelectedCharge = (
-    patch: Partial<Pick<EquipotentialCharge, 'x' | 'y' | 'z' | 'magnitude'>>,
-  ) => {
+  const updateSelectedCharge = (patch: Partial<Pick<EquipotentialCharge, 'x' | 'y' | 'z' | 'magnitude'>>) => {
     if (!selectedChargeId) {
       return
     }

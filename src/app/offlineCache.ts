@@ -10,17 +10,20 @@ const UPDATE_CHECK_MS = 30 * 60 * 1000
 export function registerOfflineCache(): void {
   if (!import.meta.env.PROD || typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then((registration) => {
-      const check = () => {
-        registration.update().catch(() => {})
-      }
-      window.setInterval(check, UPDATE_CHECK_MS)
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') check()
-      })
-    }, () => {
-      // Offline support is a bonus; the app works online without it.
-    })
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(
+      (registration) => {
+        const check = () => {
+          registration.update().catch(() => {})
+        }
+        window.setInterval(check, UPDATE_CHECK_MS)
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') check()
+        })
+      },
+      () => {
+        // Offline support is a bonus; the app works online without it.
+      },
+    )
   })
 }
 
@@ -43,13 +46,18 @@ export function useAppUpdateReady(): boolean {
 
 /** True once a service worker is active, i.e. every scene has been cached and works without network. */
 export function useOfflineReady(): boolean {
-  const [ready, setReady] = useState(() => typeof navigator !== 'undefined' && Boolean(navigator.serviceWorker?.controller))
+  const [ready, setReady] = useState(
+    () => typeof navigator !== 'undefined' && Boolean(navigator.serviceWorker?.controller),
+  )
   useEffect(() => {
     if (ready || typeof navigator === 'undefined' || !navigator.serviceWorker) return
     let cancelled = false
-    navigator.serviceWorker.ready.then(() => {
-      if (!cancelled) setReady(true)
-    }, () => {})
+    navigator.serviceWorker.ready.then(
+      () => {
+        if (!cancelled) setReady(true)
+      },
+      () => {},
+    )
     return () => {
       cancelled = true
     }

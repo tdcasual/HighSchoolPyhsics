@@ -31,7 +31,9 @@ export function DataRows({ rows, className, note }: { rows: DataRow[]; className
       {shown.map((row, index) => (
         <p key={index} className={row.className}>
           <span>{row.label}</span>
-          <strong data-testid={row.testId} className={row.valueClassName}>{row.answer ? <Answer>{row.value}</Answer> : row.value}</strong>
+          <strong data-testid={row.testId} className={row.valueClassName}>
+            {row.answer ? <Answer>{row.value}</Answer> : row.value}
+          </strong>
         </p>
       ))}
       {note}

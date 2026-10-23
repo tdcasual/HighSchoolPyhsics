@@ -52,10 +52,7 @@ export function evaluateKineticEnergyAtTime(options: EvaluateEnergyOptions): num
   }
 
   const maxCrossingDurationS = halfPeriodS * 0.8
-  const crossingDurationS = Math.min(
-    maxCrossingDurationS,
-    safePositive(options.crossingDurationS, 0),
-  )
+  const crossingDurationS = Math.min(maxCrossingDurationS, safePositive(options.crossingDurationS, 0))
 
   if (crossingDurationS === 0) {
     return baseEnergy + deltaEnergyJ

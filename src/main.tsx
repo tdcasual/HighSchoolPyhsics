@@ -9,6 +9,4 @@ import { registerOfflineCache } from './app/offlineCache'
 
 registerOfflineCache()
 
-createRoot(document.getElementById('root')!).render(
-  <App />,
-)
+createRoot(document.getElementById('root')!).render(<App />)

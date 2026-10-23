@@ -4,12 +4,20 @@ import { FloatingPanel } from '../FloatingPanel'
 
 describe('FloatingPanel', () => {
   it('renders title', () => {
-    render(<FloatingPanel title="数据面板" defaultPosition={{ x: 0, y: 0 }}>content</FloatingPanel>)
+    render(
+      <FloatingPanel title="数据面板" defaultPosition={{ x: 0, y: 0 }}>
+        content
+      </FloatingPanel>,
+    )
     expect(screen.getByText('数据面板')).toBeInTheDocument()
   })
 
   it('renders children when expanded', () => {
-    render(<FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>panel body</FloatingPanel>)
+    render(
+      <FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>
+        panel body
+      </FloatingPanel>,
+    )
     expect(screen.getByText('panel body')).toBeInTheDocument()
   })
 
@@ -23,12 +31,20 @@ describe('FloatingPanel', () => {
   })
 
   it('shows collapse button', () => {
-    render(<FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>body</FloatingPanel>)
+    render(
+      <FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>
+        body
+      </FloatingPanel>,
+    )
     expect(screen.getByRole('button', { name: /折叠/i })).toBeInTheDocument()
   })
 
   it('toggles collapse on button click', () => {
-    render(<FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>panel body</FloatingPanel>)
+    render(
+      <FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>
+        panel body
+      </FloatingPanel>,
+    )
     const btn = screen.getByRole('button', { name: /折叠/i })
     fireEvent.click(btn)
     expect(screen.queryByText('panel body')).not.toBeInTheDocument()
@@ -44,7 +60,11 @@ describe('FloatingPanel', () => {
   })
 
   it('does not show close button when not closable', () => {
-    render(<FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>body</FloatingPanel>)
+    render(
+      <FloatingPanel title="Test" defaultPosition={{ x: 0, y: 0 }}>
+        body
+      </FloatingPanel>,
+    )
     expect(screen.queryByRole('button', { name: /关闭/i })).not.toBeInTheDocument()
   })
 

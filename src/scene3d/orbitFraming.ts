@@ -52,11 +52,7 @@ export function mergeBounds(...items: Bounds3[]): Bounds3 {
 }
 
 export function boundsCenter(value: Bounds3): Vec3 {
-  return [
-    (value.min[0] + value.max[0]) / 2,
-    (value.min[1] + value.max[1]) / 2,
-    (value.min[2] + value.max[2]) / 2,
-  ]
+  return [(value.min[0] + value.max[0]) / 2, (value.min[1] + value.max[1]) / 2, (value.min[2] + value.max[2]) / 2]
 }
 
 export function dot(a: Vec3, b: Vec3): number {
@@ -93,11 +89,7 @@ export function fitCameraDistance(input: {
         const depth = dot(relative, forward)
         const horizontal = Math.abs(dot(relative, right))
         const vertical = Math.abs(dot(relative, up))
-        required = Math.max(
-          required,
-          depth + horizontal / horizontalTangent,
-          depth + vertical / verticalTangent,
-        )
+        required = Math.max(required, depth + horizontal / horizontalTangent, depth + vertical / verticalTangent)
       }
     }
   }
@@ -123,15 +115,17 @@ export type FramingArea = {
  * center). Zooming dollies toward the anchor, so a scene anchors on what students read (a
  * scale, a needle); the image is shifted back so the whole apparatus stays centered in the area.
  */
-export function fitOrbitView(input: FramingArea & {
-  bounds: Bounds3
-  anchor?: Vec3
-  azimuth: number
-  elevation: number
-  fov: number
-  minDistance?: number
-  margin?: number
-}): OrbitView {
+export function fitOrbitView(
+  input: FramingArea & {
+    bounds: Bounds3
+    anchor?: Vec3
+    azimuth: number
+    elevation: number
+    fov: number
+    minDistance?: number
+    margin?: number
+  },
+): OrbitView {
   const { azimuth, elevation } = input
   const center = boundsCenter(input.bounds)
   const radius = fitCameraDistance({
@@ -152,7 +146,8 @@ export function fitOrbitView(input: FramingArea & {
   const screenRight: Vec3 = [Math.cos(azimuth), 0, -Math.sin(azimuth)]
   const screenUp: Vec3 = [-Math.sin(elevation) * Math.sin(azimuth), cosine, -Math.sin(elevation) * Math.cos(azimuth)]
   const viewportHeight = Math.max(1, input.viewportHeight ?? 720)
-  const pixelsPerWorld = viewportHeight / 2 / Math.tan((input.fov * Math.PI) / 360) / Math.max(1e-6, radius + dot(relative, forward))
+  const pixelsPerWorld =
+    viewportHeight / 2 / Math.tan((input.fov * Math.PI) / 360) / Math.max(1e-6, radius + dot(relative, forward))
   return {
     target: anchor,
     azimuth,

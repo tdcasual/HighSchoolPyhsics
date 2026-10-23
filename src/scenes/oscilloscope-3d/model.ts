@@ -48,7 +48,7 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 export function evaluateWaveform(kind: XYWaveform, phase: number): number {
-  const normalized = ((phase / (Math.PI * 2)) % 1 + 1) % 1
+  const normalized = (((phase / (Math.PI * 2)) % 1) + 1) % 1
   switch (kind) {
     case 'square':
       return normalized < 0.5 ? 1 : -1
@@ -67,7 +67,7 @@ export function evaluateWaveform(kind: XYWaveform, phase: number): number {
 }
 
 export function deriveBeamProgress(mode: OscilloscopeMode, elapsed: number, timeDivMs: number): number {
-  const sweepPeriodS = mode === 'xy' ? 1 : Math.max(0.001, timeDivMs * 10 / 1000)
+  const sweepPeriodS = mode === 'xy' ? 1 : Math.max(0.001, (timeDivMs * 10) / 1000)
   const progress = elapsed / sweepPeriodS
   return progress - Math.floor(progress)
 }
@@ -99,15 +99,15 @@ export function buildNormalTrace(options: {
   samples?: number
 }): Array<[number, number]> {
   const samples = options.samples ?? 240
-  const timeWindowS = Math.max(0.001, options.timeDiv * 10 / 1000)
+  const timeWindowS = Math.max(0.001, (options.timeDiv * 10) / 1000)
   const phaseOffset = options.trigger ? 0 : options.elapsed * options.frequencyHz * Math.PI * 2
   const points: Array<[number, number]> = []
   for (let index = 0; index < samples; index += 1) {
-    const x = index / (samples - 1) * 2 - 1
+    const x = (index / (samples - 1)) * 2 - 1
     const t = (index / (samples - 1)) * timeWindowS
     const phase = t * options.frequencyHz * Math.PI * 2 + phaseOffset
     const raw = evaluateWaveform(options.wave, phase)
-    const y = clamp(raw * options.amplitudeV / Math.max(0.001, options.voltsDiv * 4), -1, 1)
+    const y = clamp((raw * options.amplitudeV) / Math.max(0.001, options.voltsDiv * 4), -1, 1)
     points.push([x, y])
   }
   return points
@@ -115,13 +115,13 @@ export function buildNormalTrace(options: {
 
 export function buildXYTrace(options: { xy: XYSettings; elapsed: number; samples?: number }): Array<[number, number]> {
   const samples = options.samples ?? 240
-  const phase = options.xy.phaseDeg * Math.PI / 180
+  const phase = (options.xy.phaseDeg * Math.PI) / 180
   const points: Array<[number, number]> = []
   for (let index = 0; index < samples; index += 1) {
     const progress = index / (samples - 1)
     const t = progress * Math.PI * 2
-    const x = evaluateWaveform(options.xy.xWave, t * options.xy.xRate + phase) * options.xy.xAmplitude / 5
-    const y = evaluateWaveform(options.xy.yWave, t * options.xy.yRate) * options.xy.yAmplitude / 4
+    const x = (evaluateWaveform(options.xy.xWave, t * options.xy.xRate + phase) * options.xy.xAmplitude) / 5
+    const y = (evaluateWaveform(options.xy.yWave, t * options.xy.yRate) * options.xy.yAmplitude) / 4
     points.push([clamp(x, -1, 1), clamp(y, -1, 1)])
   }
   return points
@@ -138,18 +138,19 @@ export function buildElectronBeamPath(options: {
   trigger: boolean
   xy: XYSettings
 }): Array<[number, number, number]> {
-  const trace = options.mode === 'xy'
-    ? buildXYTrace({ xy: options.xy, elapsed: options.elapsed, samples: 44 })
-    : buildNormalTrace({
-        wave: options.wave,
-        amplitudeV: options.amplitudeV,
-        frequencyHz: options.frequencyHz,
-        voltsDiv: options.voltsDiv,
-        timeDiv: options.timeDiv,
-        elapsed: options.elapsed,
-        trigger: options.trigger,
-        samples: 44,
-      })
+  const trace =
+    options.mode === 'xy'
+      ? buildXYTrace({ xy: options.xy, elapsed: options.elapsed, samples: 44 })
+      : buildNormalTrace({
+          wave: options.wave,
+          amplitudeV: options.amplitudeV,
+          frequencyHz: options.frequencyHz,
+          voltsDiv: options.voltsDiv,
+          timeDiv: options.timeDiv,
+          elapsed: options.elapsed,
+          trigger: options.trigger,
+          samples: 44,
+        })
   const progress = deriveBeamProgress(options.mode, options.elapsed, options.timeDiv)
   const active = trace[Math.floor(progress * (trace.length - 1))] ?? [0, 0]
   const screenY = clamp(active[1], -1, 1) * CRT_SCREEN_HALF_HEIGHT
@@ -167,11 +168,35 @@ export function buildElectronBeamPath(options: {
 export function xyPresetSettings(preset: XYPreset): XYSettings {
   switch (preset) {
     case 'a':
-      return { ...DEFAULT_XY_SETTINGS, preset, xWave: 'sawtooth', yWave: 'square', xAmplitude: 3, yAmplitude: 2, phaseDeg: 0 }
+      return {
+        ...DEFAULT_XY_SETTINGS,
+        preset,
+        xWave: 'sawtooth',
+        yWave: 'square',
+        xAmplitude: 3,
+        yAmplitude: 2,
+        phaseDeg: 0,
+      }
     case 'b':
-      return { ...DEFAULT_XY_SETTINGS, preset, xWave: 'square', yWave: 'sine', xAmplitude: 3, yAmplitude: 3, phaseDeg: 0 }
+      return {
+        ...DEFAULT_XY_SETTINGS,
+        preset,
+        xWave: 'square',
+        yWave: 'sine',
+        xAmplitude: 3,
+        yAmplitude: 3,
+        phaseDeg: 0,
+      }
     case 'c':
-      return { ...DEFAULT_XY_SETTINGS, preset, xWave: 'sine', yWave: 'sawtooth', xAmplitude: 3, yAmplitude: 3, phaseDeg: 0 }
+      return {
+        ...DEFAULT_XY_SETTINGS,
+        preset,
+        xWave: 'sine',
+        yWave: 'sawtooth',
+        xAmplitude: 3,
+        yAmplitude: 3,
+        phaseDeg: 0,
+      }
     case 'd':
       return { ...DEFAULT_XY_SETTINGS, preset, xWave: 'square', yWave: 'dc', xAmplitude: 3, yAmplitude: 2, phaseDeg: 0 }
     case 'custom':

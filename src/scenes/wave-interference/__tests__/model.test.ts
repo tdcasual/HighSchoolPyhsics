@@ -30,7 +30,7 @@ describe('calcWaveDisplacement', () => {
     const wl = 0.6
     const k = (2 * Math.PI) / wl
     const omega = 2 * k
-    const t = (Math.PI / 2) / omega
+    const t = Math.PI / 2 / omega
     expect(calcWaveDisplacement(pos, source, t, wl, 0.15)).toBeCloseTo(-0.15, 5)
   })
 
@@ -120,13 +120,24 @@ describe('getInterferenceStatus', () => {
   })
 })
 
-
 describe('calcCombinedDisplacement', () => {
   it('sums displacements from both sources', () => {
     const pos = { x: 0, z: 0 }
     const y = calcCombinedDisplacement(pos, DEFAULT_PARAMS, 0)
-    const y1 = calcWaveDisplacement(pos, DEFAULT_PARAMS.source1, 0, DEFAULT_PARAMS.wavelength1, DEFAULT_PARAMS.amplitude1)
-    const y2 = calcWaveDisplacement(pos, DEFAULT_PARAMS.source2, 0, DEFAULT_PARAMS.wavelength2, DEFAULT_PARAMS.amplitude2)
+    const y1 = calcWaveDisplacement(
+      pos,
+      DEFAULT_PARAMS.source1,
+      0,
+      DEFAULT_PARAMS.wavelength1,
+      DEFAULT_PARAMS.amplitude1,
+    )
+    const y2 = calcWaveDisplacement(
+      pos,
+      DEFAULT_PARAMS.source2,
+      0,
+      DEFAULT_PARAMS.wavelength2,
+      DEFAULT_PARAMS.amplitude2,
+    )
     expect(y).toBeCloseTo(y1 + y2, 10)
   })
 })

@@ -33,7 +33,8 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
+        browser = await chromium.launch({
+          executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: [
             '--use-angle=swiftshader',
@@ -81,7 +82,11 @@ async function run() {
         await xFormula.fill('window.alert(1)')
         assert.equal(await page.locator('.formula-error').count(), 1, 'unsafe custom input should show a formula error')
         assert.match(await page.locator('.formula-error').innerText(), /非法字符|数字格式无效/)
-        assert.equal(await page.evaluate(() => typeof window.alert), 'function', 'unsafe input must not invoke browser globals')
+        assert.equal(
+          await page.evaluate(() => typeof window.alert),
+          'function',
+          'unsafe input must not invoke browser globals',
+        )
         assert.deepEqual(cspErrors, [], 'formula compilation should not trigger CSP errors')
 
         console.log('Oscilloscope formula browser regression passed with the production CSP policy.')

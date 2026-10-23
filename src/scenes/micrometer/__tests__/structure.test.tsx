@@ -8,7 +8,11 @@ const canvasProps: { current: Record<string, unknown> | null } = { current: null
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({ children, frameloop, ...props }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => {
     canvasProps.current = { ...props, frameloop }
-    return <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div>
+    return (
+      <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
+        {children}
+      </div>
+    )
   },
 }))
 
@@ -27,7 +31,9 @@ describe('micrometer structure', () => {
   it('opens with the thimble reading figure, zero error and teacher notes', () => {
     render(<MicrometerScene />)
     expect(screen.getByRole('heading', { name: '螺旋测微器控制' })).toBeInTheDocument()
-    expect(within(screen.getByRole('region', { name: '图表' })).getByRole('img', { name: '螺旋测微器读数放大' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('region', { name: '图表' })).getByRole('img', { name: '螺旋测微器读数放大' }),
+    ).toBeInTheDocument()
     expect(within(screen.getByRole('region', { name: '数据' })).getByText('5.237 mm')).toBeInTheDocument()
     expect(screen.getByText(/螺距 0.5 mm/)).toBeInTheDocument()
     expect((canvasProps.current?.controls as { minDistance: number }).minDistance).toBe(40)

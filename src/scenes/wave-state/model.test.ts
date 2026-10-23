@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { buildParticleStates, buildProbeTrace, buildWavePoints, deriveWaveReadings, hasWaveReached, phaseAt, waveAcceleration, waveArrivalTime, waveDisplacement, wavefrontPosition, waveSpeed, waveVelocity } from './model'
+import {
+  buildParticleStates,
+  buildProbeTrace,
+  buildWavePoints,
+  deriveWaveReadings,
+  hasWaveReached,
+  phaseAt,
+  waveAcceleration,
+  waveArrivalTime,
+  waveDisplacement,
+  wavefrontPosition,
+  waveSpeed,
+  waveVelocity,
+} from './model'
 
 const params = { amplitude: 10, wavelength: 4, period: 2, direction: 'right' as const }
 
@@ -20,7 +33,6 @@ describe('wave-state model', () => {
     expect(readings.probe.x).toBe(2)
     expect(readings.probeReached).toBe(false)
   })
-
 
   it('derives rightward and leftward wavefront arrival from v=lambda/T', () => {
     expect(waveSpeed(params)).toBeCloseTo(2)

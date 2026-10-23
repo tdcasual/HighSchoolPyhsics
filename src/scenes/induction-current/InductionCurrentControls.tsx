@@ -2,11 +2,7 @@ import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { DataReadout } from '../../ui/controls/DataReadout'
 import type { InductionCurrentSceneState } from './useInductionCurrentSceneState'
-import {
-  formatCurrentDirection,
-  formatFluxChange,
-  formatVerticalDirection,
-} from './model'
+import { formatCurrentDirection, formatFluxChange, formatVerticalDirection } from './model'
 
 type InductionCurrentControlsProps = {
   state: InductionCurrentSceneState
@@ -47,7 +43,11 @@ export function InductionCurrentControls({ state }: InductionCurrentControlsProp
           S 极
         </span>
         <span className="scene-legend-item">
-          <i className="scene-legend-dot" style={{ backgroundColor: 'var(--induction-legend-current)' }} aria-hidden="true" />
+          <i
+            className="scene-legend-dot"
+            style={{ backgroundColor: 'var(--induction-legend-current)' }}
+            aria-hidden="true"
+          />
           感应电流
         </span>
       </div>

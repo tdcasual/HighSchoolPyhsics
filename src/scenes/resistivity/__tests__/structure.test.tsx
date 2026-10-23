@@ -7,7 +7,11 @@ const canvasProps: { current: Record<string, unknown> | null } = { current: null
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({ children, frameloop, ...props }: { children: ReactNode; frameloop?: string }) => {
     canvasProps.current = { ...props, frameloop }
-    return <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div>
+    return (
+      <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
+        {children}
+      </div>
+    )
   },
 }))
 

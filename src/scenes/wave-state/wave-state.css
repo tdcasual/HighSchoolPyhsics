@@ -1,11 +1,52 @@
-.wave-state-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
-.wave-state-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
-.wave-state-help { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.wave-state-toggle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem; }
-.wave-state-toggle { min-height: 44px; border: 1px solid rgba(69, 123, 157, 0.55); border-radius: 10px; padding: 0.35rem 0.45rem; color: var(--control-ink-soft); background: var(--control-bg); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
-.wave-state-toggle[aria-pressed="true"] { color: #2a7f73; background: rgba(42, 157, 143, 0.12); }
-.wave-state-toggle.velocity { border-color: rgba(42, 157, 143, 0.55); }
-.wave-state-toggle.acceleration { border-color: rgba(230, 57, 70, 0.55); }
-.wave-state-velocity-value { color: #2a9d8f !important; }
-.wave-state-acceleration-value { color: #e63946 !important; }
-.app-shell.theme-night .wave-state-toggle[aria-pressed="true"] { color: #5fd3c3; }
+.wave-state-controls h2 {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.35;
+}
+.wave-state-subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--control-ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.wave-state-help {
+  margin: 0;
+  color: var(--control-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.wave-state-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+.wave-state-toggle {
+  min-height: 44px;
+  border: 1px solid rgba(69, 123, 157, 0.55);
+  border-radius: 10px;
+  padding: 0.35rem 0.45rem;
+  color: var(--control-ink-soft);
+  background: var(--control-bg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.wave-state-toggle[aria-pressed='true'] {
+  color: #2a7f73;
+  background: rgba(42, 157, 143, 0.12);
+}
+.wave-state-toggle.velocity {
+  border-color: rgba(42, 157, 143, 0.55);
+}
+.wave-state-toggle.acceleration {
+  border-color: rgba(230, 57, 70, 0.55);
+}
+.wave-state-velocity-value {
+  color: #2a9d8f !important;
+}
+.wave-state-acceleration-value {
+  color: #e63946 !important;
+}
+.app-shell.theme-night .wave-state-toggle[aria-pressed='true'] {
+  color: #5fd3c3;
+}

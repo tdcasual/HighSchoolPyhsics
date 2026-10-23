@@ -28,19 +28,15 @@ export function wrapAngle(angleRad: number): number {
 
 export function deriveGeneratorReadings(angleRad: number): GeneratorReadings {
   const normalized = wrapAngle(angleRad)
-  const angleDeg = normalized * 180 / Math.PI
+  const angleDeg = (normalized * 180) / Math.PI
   const fluxNormalized = Math.cos(normalized)
   const emfNormalized = Math.sin(normalized)
   const nearNeutral = Math.abs(emfNormalized) < 0.08
   const nearParallel = Math.abs(fluxNormalized) < 0.08
   const position: GeneratorPosition = nearNeutral ? 'neutral' : nearParallel ? 'parallel' : 'transition'
   const positionLabel = position === 'neutral' ? '中性面' : position === 'parallel' ? '平行面' : '过渡位置'
-  const cuttingLabel = nearNeutral
-    ? 'v⊥ ≈ 0（不切割）'
-    : `v⊥ = ${Math.abs(emfNormalized).toFixed(2)}v（切割增强）`
-  const currentDirection = Math.abs(emfNormalized) < 0.08
-    ? '换向瞬间'
-    : emfNormalized > 0 ? '正向' : '反向'
+  const cuttingLabel = nearNeutral ? 'v⊥ ≈ 0（不切割）' : `v⊥ = ${Math.abs(emfNormalized).toFixed(2)}v（切割增强）`
+  const currentDirection = Math.abs(emfNormalized) < 0.08 ? '换向瞬间' : emfNormalized > 0 ? '正向' : '反向'
   return {
     angleRad: normalized,
     angleDeg,
@@ -60,8 +56,8 @@ export function buildPhaseTrace(samples = 240): PhaseTrace {
   const flux: Array<[number, number]> = []
   const emf: Array<[number, number]> = []
   for (let index = 0; index < count; index += 1) {
-    const phase = index / (count - 1) * Math.PI * 2
-    const x = index / (count - 1) * 2 - 1
+    const phase = (index / (count - 1)) * Math.PI * 2
+    const x = (index / (count - 1)) * 2 - 1
     flux.push([x, Math.cos(phase)])
     emf.push([x, Math.sin(phase)])
   }
@@ -70,12 +66,12 @@ export function buildPhaseTrace(samples = 240): PhaseTrace {
 
 export function phaseToPlotPoint(angleRad: number): [number, number] {
   const normalized = wrapAngle(angleRad)
-  return [normalized / (Math.PI * 2) * 2 - 1, Math.cos(normalized)]
+  return [(normalized / (Math.PI * 2)) * 2 - 1, Math.cos(normalized)]
 }
 
 export function emfToPlotPoint(angleRad: number): [number, number] {
   const normalized = wrapAngle(angleRad)
-  return [normalized / (Math.PI * 2) * 2 - 1, Math.sin(normalized)]
+  return [(normalized / (Math.PI * 2)) * 2 - 1, Math.sin(normalized)]
 }
 
 export function positionDescription(readings: GeneratorReadings): string {
@@ -87,4 +83,3 @@ export function positionDescription(readings: GeneratorReadings): string {
   }
   return '过渡位置：Φ = Φₘ cosθ、e = Eₘ sinθ；v⊥/v = |sinθ|。'
 }
-

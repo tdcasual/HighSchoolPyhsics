@@ -1,10 +1,6 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import {
-  FRAME_FIELD_SHAFT_LENGTH,
-  ROD_FIELD_SHAFT_LENGTH,
-  RotationalEmfRig3D,
-} from './RotationalEmfRig3D'
+import { FRAME_FIELD_SHAFT_LENGTH, ROD_FIELD_SHAFT_LENGTH, RotationalEmfRig3D } from './RotationalEmfRig3D'
 
 describe('RotationalEmfRig3D', () => {
   it('renders only the rod apparatus in rod mode', () => {

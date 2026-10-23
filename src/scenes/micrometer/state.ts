@@ -34,7 +34,10 @@ const LOCKED_NOTICE = '锁紧装置已锁定：先松开，才能转动旋钮。
 
 export function createMicrometerState(): MicrometerState {
   return {
-    ...createPracticeState(5.237, '上下拖微分筒表面可转动它（转一圈前进 0.5 mm），沿轴向拖可快速移动。播放面板的 ± 按钮、方向键或「.」键每次调一格。'),
+    ...createPracticeState(
+      5.237,
+      '上下拖微分筒表面可转动它（转一圈前进 0.5 mm），沿轴向拖可快速移动。播放面板的 ± 按钮、方向键或「.」键每次调一格。',
+    ),
     zero: 0,
     click: 0,
   }

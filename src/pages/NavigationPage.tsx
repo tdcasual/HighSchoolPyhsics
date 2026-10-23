@@ -150,8 +150,15 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
   const matches = (route: DemoRoute, group: { title: string; description: string }) => {
     if (!needle) return true
     const card = SCENE_CARDS.get(route.pageId)
-    return [route.label, card?.summary, card?.tag, card?.level, ...(card?.highlights ?? []), group.title, group.description]
-      .some((text) => text?.toLowerCase().includes(needle))
+    return [
+      route.label,
+      card?.summary,
+      card?.tag,
+      card?.level,
+      ...(card?.highlights ?? []),
+      group.title,
+      group.description,
+    ].some((text) => text?.toLowerCase().includes(needle))
   }
   let runningIndex = 0
   const indexedGroups = view.groups.flatMap((group) => {
@@ -167,7 +174,8 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
       const jump = group.jumpGroup ?? { id: group.id, label: group.title }
       const existing = chips.find((chip) => chip.id === jump.id)
       if (existing) existing.count += groupRoutes.length
-      else chips.push({ id: jump.id, label: jump.label, anchor: group.id, color: group.color, count: groupRoutes.length })
+      else
+        chips.push({ id: jump.id, label: jump.label, anchor: group.id, color: group.color, count: groupRoutes.length })
       return chips
     },
     [],
@@ -181,7 +189,8 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
       const target = event.target
-      const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+      const typing =
+        target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
       if (event.key === '/' && !typing) {
         event.preventDefault()
         searchRef.current?.focus()
@@ -237,7 +246,9 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
                 style={{ '--scene-card-accent': chip.color } as CSSProperties}
                 onClick={(event) => {
                   event.preventDefault()
-                  document.getElementById(`group-${chip.anchor}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  document
+                    .getElementById(`group-${chip.anchor}`)
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }}
               >
                 {chip.label}
@@ -263,7 +274,9 @@ export function NavigationPage({ routes, onOpenRoute }: NavigationPageProps) {
             <div className="scene-overview-group-header">
               <span className="scene-overview-group-dot" />
               {group.badge ? <span className="scene-overview-group-volume">{group.badge}</span> : null}
-              <h2 id={`group-${group.id}-title`} className="scene-overview-group-name">{group.title}</h2>
+              <h2 id={`group-${group.id}-title`} className="scene-overview-group-name">
+                {group.title}
+              </h2>
               <span className="scene-overview-group-desc">{group.description}</span>
             </div>
             <div className="scene-overview-grid">

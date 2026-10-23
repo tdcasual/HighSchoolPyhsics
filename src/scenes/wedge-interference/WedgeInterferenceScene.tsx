@@ -27,7 +27,14 @@ export function WedgeInterferenceScene() {
       dataOverlay={
         <DataRows
           rows={[
-            { label: '已知 λ · θ', value: <>{Math.round(state.wavelength)} nm · {(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad</> },
+            {
+              label: '已知 λ · θ',
+              value: (
+                <>
+                  {Math.round(state.wavelength)} nm · {(((state.wedgeAngle * Math.PI) / 180) * 1000).toFixed(3)} mrad
+                </>
+              ),
+            },
             { label: '条纹间距 l', value: state.fringeSpacingLabel, answer: true },
             { label: '视场最大间隙 hmax', value: <>{state.maxThickness.toFixed(2)} μm</> },
             { label: '表面凸起 h', value: <>{state.bumpHeight.toFixed(1)} μm</>, when: state.mode === 'bump' },
@@ -37,7 +44,11 @@ export function WedgeInterferenceScene() {
       }
       notes={
         <>
-          <p>λ = {Math.round(state.wavelength)} nm，劈尖角 θ = {state.wedgeAngle.toFixed(4)}°（{(state.wedgeAngle * Math.PI / 180 * 1000).toFixed(3)} mrad），下表面{state.mode === 'flat' ? '平整' : '凸起'}；条纹间距 l = λ/(2θ)。</p>
+          <p>
+            λ = {Math.round(state.wavelength)} nm，劈尖角 θ = {state.wedgeAngle.toFixed(4)}°（
+            {(((state.wedgeAngle * Math.PI) / 180) * 1000).toFixed(3)} mrad），下表面
+            {state.mode === 'flat' ? '平整' : '凸起'}；条纹间距 l = λ/(2θ)。
+          </p>
           <p>板间隙与垫片外观为放大示意；条纹按实际 θ、λ 和凸起高度计算。</p>
         </>
       }
@@ -47,7 +58,10 @@ export function WedgeInterferenceScene() {
       viewport={
         <FittedCanvas
           shot={{ from: [0, 18, 30], to: [0, 3, 0] }}
-          fov={45} minDistance={10} maxDistance={60} maxPolarAngle={Math.PI / 2 + 0.1}
+          fov={45}
+          minDistance={10}
+          maxDistance={60}
+          maxPolarAngle={Math.PI / 2 + 0.1}
           frameloop={state.isScanning ? 'always' : 'demand'}
         >
           <WedgeInterferenceRig3D

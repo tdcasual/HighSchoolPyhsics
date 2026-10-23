@@ -25,15 +25,19 @@ describe('App shell', () => {
   it('renders the product title and overview navigation entries', async () => {
     render(<App />)
 
-    expect(
-      screen.getByRole('heading', { name: '教学动画演示' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '教学动画演示' })).toBeInTheDocument()
     // The overview is loaded on demand.
     expect(await screen.findByText('物理演示')).toBeInTheDocument()
     expect(document.title).toBe('教学动画演示')
 
     // Scenes are grouped by textbook chapter
-    for (const chapter of ['第二章 匀变速直线运动的研究', '第十一章 电路及其应用', '第二章 电磁感应', '第四章 光', '第二章 气体、固体和液体']) {
+    for (const chapter of [
+      '第二章 匀变速直线运动的研究',
+      '第十一章 电路及其应用',
+      '第二章 电磁感应',
+      '第四章 光',
+      '第二章 气体、固体和液体',
+    ]) {
       expect(screen.getByRole('heading', { level: 2, name: chapter })).toBeInTheDocument()
     }
     // …and every scene is listed exactly once
@@ -239,16 +243,14 @@ describe('App shell', () => {
   })
 
   it('renders runtime capability blocking card when required features are unavailable', () => {
-    vi
-      .spyOn(runtimeCapabilities, 'getRuntimeCapabilities')
-      .mockReturnValue({
-        hasWorker: false,
-        hasPointerEvents: true,
-        hasWebGL2: false,
-        hasWebGL1: false,
-        supported: false,
-        missing: ['Worker', 'WebGL'],
-      })
+    vi.spyOn(runtimeCapabilities, 'getRuntimeCapabilities').mockReturnValue({
+      hasWorker: false,
+      hasPointerEvents: true,
+      hasWebGL2: false,
+      hasWebGL1: false,
+      supported: false,
+      missing: ['Worker', 'WebGL'],
+    })
 
     render(<App />)
 

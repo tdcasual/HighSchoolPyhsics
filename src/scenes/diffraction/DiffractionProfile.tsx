@@ -50,5 +50,7 @@ export const DiffractionProfile = memo(function DiffractionProfile({
     drawDiffractionProfile(context, mode, params, width, height, isWhiteLight, filterColor)
   }, [mode, params, isLightOn, isWhiteLight, filterColor, width, height])
 
-  return <canvas ref={canvasRef} style={{ width, height, imageRendering: 'auto' }} role="img" aria-label="强度分布曲线" />
+  return (
+    <canvas ref={canvasRef} style={{ width, height, imageRendering: 'auto' }} role="img" aria-label="强度分布曲线" />
+  )
 })

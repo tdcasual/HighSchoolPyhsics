@@ -12,7 +12,10 @@ const MOBILE_MAX_WIDTH = 767
  * opens and when `refitKey` changes (a view preset, another apparatus); opening or dragging a
  * panel afterwards only covers the view.
  */
-export function useFreeAreas(ref: RefObject<HTMLDivElement | null>, refitKey: string): { areas: FramingArea[]; viewportHeight: number } {
+export function useFreeAreas(
+  ref: RefObject<HTMLDivElement | null>,
+  refitKey: string,
+): { areas: FramingArea[]; viewportHeight: number } {
   const viewport = useViewportSize(ref)
   const { obstacles } = useOverlayObstacles(ref, refitKey)
   const areas = freeRects({
@@ -31,7 +34,11 @@ export function useFreeAreas(ref: RefObject<HTMLDivElement | null>, refitKey: st
 }
 
 /** The view that shows the apparatus largest: the one with the closest camera. */
-export function pickLargestView(areas: FramingArea[], fit: (area: FramingArea) => OrbitView, fallback: FramingArea): OrbitView {
+export function pickLargestView(
+  areas: FramingArea[],
+  fit: (area: FramingArea) => OrbitView,
+  fallback: FramingArea,
+): OrbitView {
   let best: OrbitView | null = null
   for (const area of areas) {
     const view = fit(area)
@@ -46,7 +53,11 @@ export function pickLargestView(areas: FramingArea[], fit: (area: FramingArea) =
  * (usually via fitOrbitView with the apparatus bounds); pass the result's screenOffset to
  * InteractiveCanvas.
  */
-export function useBoundsFraming(ref: RefObject<HTMLDivElement | null>, refitKey: string, fit: (area: FramingArea) => OrbitView): OrbitView {
+export function useBoundsFraming(
+  ref: RefObject<HTMLDivElement | null>,
+  refitKey: string,
+  fit: (area: FramingArea) => OrbitView,
+): OrbitView {
   const { areas, viewportHeight } = useFreeAreas(ref, refitKey)
   return pickLargestView(areas, fit, { viewportHeight })
 }

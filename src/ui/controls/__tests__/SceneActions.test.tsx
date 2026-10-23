@@ -25,10 +25,7 @@ describe('SceneActions', () => {
 
   it('supports vertically stacked actions for narrow control panels', () => {
     const { container } = render(
-      <SceneActions
-        layout="column"
-        actions={[{ key: 'slice', label: '显示切片', onClick: vi.fn() }]}
-      />,
+      <SceneActions layout="column" actions={[{ key: 'slice', label: '显示切片', onClick: vi.fn() }]} />,
     )
 
     expect(container.firstChild).toHaveClass('scene-actions-column')

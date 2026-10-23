@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { createPracticeState, easeInOutQuad, goToDuration, setLesson, setView, startQuestion, type PracticeState } from './practice'
+import {
+  createPracticeState,
+  easeInOutQuad,
+  goToDuration,
+  setLesson,
+  setView,
+  startQuestion,
+  type PracticeState,
+} from './practice'
 
 const fresh = (): PracticeState => createPracticeState(10, '')
 

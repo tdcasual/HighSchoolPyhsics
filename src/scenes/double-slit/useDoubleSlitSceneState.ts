@@ -72,11 +72,22 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
   const [secondReadingMm, setSecondReadingMm] = useState<number | null>(null)
   const [measurementResult, setMeasurementResult] = useState<WavelengthMeasurement | null>(null)
   const [showFringeOrders, setShowFringeOrders] = useState(() => recall('double-slit.showFringeOrders', true))
-  useRemember('double-slit', { params, showChart, isWhiteLight, filterColor, singleSlitAngle, doubleSlitAngle, eyepieceAngle, isBlindMode, fringeCount, showFringeOrders })
+  useRemember('double-slit', {
+    params,
+    showChart,
+    isWhiteLight,
+    filterColor,
+    singleSlitAngle,
+    doubleSlitAngle,
+    eyepieceAngle,
+    isBlindMode,
+    fringeCount,
+    showFringeOrders,
+  })
 
   const lightColorHex = useMemo(() => waveLengthToHex(params.wavelength), [params.wavelength])
   const fringeSpacingLabel = useMemo(
-    () => isWhiteLight ? formatWhiteLightFringeRange(params, filterColor) : formatFringeSpacing(params),
+    () => (isWhiteLight ? formatWhiteLightFringeRange(params, filterColor) : formatFringeSpacing(params)),
     [isWhiteLight, filterColor, params],
   )
 
@@ -121,10 +132,13 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
     setMeasurementResult(null)
   }, [])
 
-  const setBlindMode = useCallback((value: boolean) => {
-    setIsBlindModeState(value && !isWhiteLight)
-    setMeasurementResult(null)
-  }, [isWhiteLight])
+  const setBlindMode = useCallback(
+    (value: boolean) => {
+      setIsBlindModeState(value && !isWhiteLight)
+      setMeasurementResult(null)
+    },
+    [isWhiteLight],
+  )
 
   const setWheelReadoutMm = useCallback((value: number) => {
     setWheelReadoutMmState(clampMicrometerReadout(value))
@@ -157,13 +171,15 @@ export function useDoubleSlitSceneState(): DoubleSlitSceneState {
       setMeasurementResult(null)
       return
     }
-    setMeasurementResult(computeWavelengthMeasurement({
-      slitDistanceMm: params.slitDistance,
-      screenDistanceM: params.screenDistance,
-      firstReadingMm,
-      secondReadingMm,
-      fringeCount,
-    }))
+    setMeasurementResult(
+      computeWavelengthMeasurement({
+        slitDistanceMm: params.slitDistance,
+        screenDistanceM: params.screenDistance,
+        firstReadingMm,
+        secondReadingMm,
+        fringeCount,
+      }),
+    )
   }, [firstReadingMm, secondReadingMm, isWhiteLight, params.slitDistance, params.screenDistance, fringeCount])
 
   const clearMeasurements = useCallback(() => {

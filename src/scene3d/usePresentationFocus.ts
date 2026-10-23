@@ -31,7 +31,10 @@ export function usePresentationFocus(options: {
       const orbit = controlsRef.current
       if (!orbit || Date.now() < lockUntilRef.current) return
       const next = resolvePresentationCameraTarget({ baseTarget: orbit.target, ...focus })
-      const changed = Math.abs(orbit.target.x - next.x) > 1e-4 || Math.abs(orbit.target.y - next.y) > 1e-4 || Math.abs(orbit.target.z - next.z) > 1e-4
+      const changed =
+        Math.abs(orbit.target.x - next.x) > 1e-4 ||
+        Math.abs(orbit.target.y - next.y) > 1e-4 ||
+        Math.abs(orbit.target.z - next.z) > 1e-4
       if (!changed) return
       orbit.target.set(next.x, next.y, next.z)
       orbit.update()

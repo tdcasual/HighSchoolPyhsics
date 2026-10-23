@@ -8,7 +8,11 @@ const canvasProps: { current: Record<string, unknown> | null } = { current: null
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
   InteractiveCanvas: ({ children, frameloop, ...props }: { children: ReactNode; frameloop?: 'always' | 'demand' }) => {
     canvasProps.current = { ...props, frameloop }
-    return <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>{children}</div>
+    return (
+      <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
+        {children}
+      </div>
+    )
   },
 }))
 
@@ -33,7 +37,9 @@ describe('vernier-caliper structure', () => {
   it('opens on the 20-division caliper with the exam-style reading figure and teacher notes', () => {
     render(<CaliperScene />)
     expect(screen.getByRole('heading', { name: '游标卡尺控制' })).toBeInTheDocument()
-    expect(within(screen.getByRole('region', { name: '图表' })).getByRole('img', { name: '游标卡尺读数放大' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('region', { name: '图表' })).getByRole('img', { name: '游标卡尺读数放大' }),
+    ).toBeInTheDocument()
     expect(within(screen.getByRole('region', { name: '数据' })).getByText('23.45 mm')).toBeInTheDocument()
     expect(screen.getByText(/游标卡尺不估读/)).toBeInTheDocument()
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')

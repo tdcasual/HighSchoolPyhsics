@@ -1,12 +1,4 @@
-import {
-  DURATION,
-  MAX_HOOKS,
-  fit,
-  hookAcceleration,
-  measurements,
-  type MotionInput,
-  type SpeedPoint,
-} from './model'
+import { DURATION, MAX_HOOKS, fit, hookAcceleration, measurements, type MotionInput, type SpeedPoint } from './model'
 import { motionOf, type CartPart, type CartSkin, type CartStage } from './pose'
 
 export type CartRun = { hooks: number; v0: number; dh: number; a: number }
@@ -91,7 +83,9 @@ export function setHooks(state: CartState, hooks: number): CartState {
     time: 0,
     running: false,
     selected: 1,
-    notice: next ? `挂 ${next} 个钩码，理论加速度约 ${hookAcceleration(next).toFixed(3)} m/s²。` : '不挂钩码：小车以初速度匀速运动。',
+    notice: next
+      ? `挂 ${next} 个钩码，理论加速度约 ${hookAcceleration(next).toFixed(3)} m/s²。`
+      : '不挂钩码：小车以初速度匀速运动。',
   }
 }
 

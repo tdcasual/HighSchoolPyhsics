@@ -33,10 +33,10 @@ export type ClockActionOptions = {
  */
 export function clockActions(transport: Transport, options: ClockActionOptions): MobilePlaybackAction[] {
   const playLabel = transport.running
-    ? options.pauseLabel ?? '暂停'
+    ? (options.pauseLabel ?? '暂停')
     : options.finished
-      ? options.finishedLabel ?? '再演示'
-      : options.playLabel ?? '播放'
+      ? (options.finishedLabel ?? '再演示')
+      : (options.playLabel ?? '播放')
   const actions: MobilePlaybackAction[] = [
     { key: 'toggle-running', label: playLabel, onClick: transport.toggle, disabled: options.disabled },
   ]

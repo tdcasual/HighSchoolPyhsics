@@ -43,15 +43,13 @@ export function wrapPhase(phase: number): number {
 export function phaseAt(x: number, time: number, params: EmWaveParams): number {
   const directionSign = params.direction === 'right' ? 1 : -1
   const wavelength = Math.max(EPSILON, params.wavelength)
-  return TWO_PI * (time * params.speed / wavelength - directionSign * x / wavelength)
+  return TWO_PI * ((time * params.speed) / wavelength - (directionSign * x) / wavelength)
 }
-
-
 
 export function buildFieldSamples(time: number, params: EmWaveParams, samples = 129): EmFieldSample[] {
   const count = Math.max(2, Math.floor(samples))
   return Array.from({ length: count }, (_, index) => {
-    const x = index / (count - 1) * WAVE_LENGTH
+    const x = (index / (count - 1)) * WAVE_LENGTH
     const phase = phaseAt(x, time, params)
     const e = params.amplitude * Math.sin(phase)
     const b = (params.direction === 'right' ? 1 : -1) * e
@@ -61,11 +59,14 @@ export function buildFieldSamples(time: number, params: EmWaveParams, samples = 
 
 export function deriveEmWaveReadings(time: number, params: EmWaveParams): EmWaveReadings {
   const samples = buildFieldSamples(time, params)
-  const probe = samples.reduce((closest, sample) => Math.abs(sample.x - PROBE_X) < Math.abs(closest.x - PROBE_X) ? sample : closest, samples[0])
+  const probe = samples.reduce(
+    (closest, sample) => (Math.abs(sample.x - PROBE_X) < Math.abs(closest.x - PROBE_X) ? sample : closest),
+    samples[0],
+  )
   return {
     frequency: params.speed / Math.max(EPSILON, params.wavelength),
     waveNumber: TWO_PI / Math.max(EPSILON, params.wavelength),
-    angularFrequency: TWO_PI * params.speed / Math.max(EPSILON, params.wavelength),
+    angularFrequency: (TWO_PI * params.speed) / Math.max(EPSILON, params.wavelength),
     phase: probe.phase,
     probe,
     samples,

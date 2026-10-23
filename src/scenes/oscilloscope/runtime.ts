@@ -1,4 +1,3 @@
-
 export function deriveVerticalDeflection(signalV: number, fullScaleV: number): number {
   if (!Number.isFinite(signalV) || !Number.isFinite(fullScaleV) || fullScaleV <= 0) {
     return 0

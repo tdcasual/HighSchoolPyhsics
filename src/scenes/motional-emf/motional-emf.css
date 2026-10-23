@@ -39,7 +39,11 @@
   padding: 0.52rem 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease, background 170ms ease;
+  transition:
+    transform 170ms ease,
+    border-color 170ms ease,
+    box-shadow 170ms ease,
+    background 170ms ease;
   min-height: 40px;
 }
 
@@ -72,7 +76,9 @@
   background: rgb(255 255 255 / 90%);
   border: 1px solid #101010;
   color: #101010;
-  font: 700 13px/1.4 system-ui, sans-serif;
+  font:
+    700 13px/1.4 system-ui,
+    sans-serif;
   text-align: center;
 }
 

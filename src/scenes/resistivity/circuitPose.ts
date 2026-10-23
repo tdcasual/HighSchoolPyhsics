@@ -45,7 +45,7 @@ export function sliderX(slider: number): number {
 }
 
 export function bladeRotation(closed: boolean): number {
-  return closed ? 0 : 58 * Math.PI / 180
+  return closed ? 0 : (58 * Math.PI) / 180
 }
 
 export function needleRotation(fraction: number): number {
@@ -99,7 +99,6 @@ export function circuitView(preset: ViewPreset): OrbitView {
   return { target: [0, 3, -1], azimuth: -0.02, elevation: 0.7, radius: 96 }
 }
 
-
 export function circuitWires(input: {
   step: number
   control: 'limit' | 'divider'
@@ -126,10 +125,20 @@ export function circuitWires(input: {
   if (input.control === 'limit') {
     wires.push(['sw2', 'rh-a', 'red'], ['rh-w', ammeter, 'red', 5], ['A−', 'wA', 'black'], ['wP', 'bat-', 'black'])
   } else {
-    wires.push(['sw2', 'rh-b', 'red'], ['bat-', 'rh-a', 'black'], ['rh-w', ammeter, 'red', 5], ['A−', 'wA', 'black'], ['wP', 'rh-a', 'black'])
+    wires.push(
+      ['sw2', 'rh-b', 'red'],
+      ['bat-', 'rh-a', 'black'],
+      ['rh-w', ammeter, 'red', 5],
+      ['A−', 'wA', 'black'],
+      ['wP', 'rh-a', 'black'],
+    )
   }
   if (input.step >= 2) {
-    wires.push(input.method === 'external' ? [voltmeter, 'wA', 'orange'] : [voltmeter, ammeter, 'orange'], ['V−', 'wP', 'blue'])
+    wires.push(input.method === 'external' ? [voltmeter, 'wA', 'orange'] : [voltmeter, ammeter, 'orange'], [
+      'V−',
+      'wP',
+      'blue',
+    ])
   }
   return wires
 }

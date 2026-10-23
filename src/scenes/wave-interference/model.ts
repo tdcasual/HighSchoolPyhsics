@@ -35,7 +35,8 @@ export type ObserverBuffer = {
 
 export function createObserverBuffer(x: number, z: number): ObserverBuffer {
   return {
-    x, z,
+    x,
+    z,
     time: 0,
     timeBuf: new Float32Array(MAX_HISTORY),
     buf: new Float32Array(MAX_HISTORY),
@@ -55,7 +56,12 @@ export function ringPush(ring: ObserverBuffer, time: number, v: number, v1: numb
   if (ring.count < MAX_HISTORY) ring.count++
 }
 
-export function ringToArrays(ring: ObserverBuffer): { history: number[]; history1: number[]; history2: number[]; historyTimes: number[] } {
+export function ringToArrays(ring: ObserverBuffer): {
+  history: number[]
+  history1: number[]
+  history2: number[]
+  historyTimes: number[]
+} {
   const { timeBuf, buf, buf1, buf2, head, count } = ring
   const historyTimes = new Array<number>(count)
   const history = new Array<number>(count)
@@ -93,7 +99,7 @@ export function hasEqualWavelengths(wavelength1: number, wavelength2: number): b
 }
 
 export function wrapPhase(phase: number): number {
-  return ((phase + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI
+  return ((((phase + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI
 }
 
 /** Map world XZ coordinates into the local XY plane rotated by -π/2 around X. */
@@ -120,7 +126,15 @@ export function calcWaveDisplacement(
 
 export function calcCombinedDisplacement(pos: Vec2, params: WaveParams, t: number): number {
   const y1 = calcWaveDisplacement(pos, params.source1, t, params.wavelength1, params.amplitude1, 0, params.waveSpeed)
-  const y2 = calcWaveDisplacement(pos, params.source2, t, params.wavelength2, params.amplitude2, params.phaseDiff, params.waveSpeed)
+  const y2 = calcWaveDisplacement(
+    pos,
+    params.source2,
+    t,
+    params.wavelength2,
+    params.amplitude2,
+    params.phaseDiff,
+    params.waveSpeed,
+  )
   return y1 + y2
 }
 
@@ -159,7 +173,7 @@ export function getInterferenceStatus(
   if (instantaneousPhaseDiff === undefined && !hasEqualWavelengths(params.wavelength1, params.wavelength2)) {
     return { type: 'partial', n: 0, label: '不同频率：需按当前时刻判定' }
   }
-  const phase = instantaneousPhaseDiff ?? (2 * Math.PI * dr / params.wavelength1 + params.phaseDiff)
+  const phase = instantaneousPhaseDiff ?? (2 * Math.PI * dr) / params.wavelength1 + params.phaseDiff
   const phaseInCycle = ((phase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
   const constructiveDistance = Math.min(phaseInCycle, 2 * Math.PI - phaseInCycle)
   const destructiveDistance = Math.abs(phaseInCycle - Math.PI)
@@ -180,8 +194,12 @@ export function getInterferenceStatus(
       type: 'destructive',
       n,
       label: !equalFrequency
-        ? (amplitudesMatch ? '瞬时相消相位（不是固定波节）' : '瞬时相消相位（位移仍非零）')
-        : (amplitudesMatch ? '相消条件（波节）' : '相消条件（最小振幅仍非零）'),
+        ? amplitudesMatch
+          ? '瞬时相消相位（不是固定波节）'
+          : '瞬时相消相位（位移仍非零）'
+        : amplitudesMatch
+          ? '相消条件（波节）'
+          : '相消条件（最小振幅仍非零）',
     }
   }
   return { type: 'partial', n, label: '介于相长、相消之间' }
@@ -245,7 +263,10 @@ function clipPolylineToGrid(points: PointXZ[]): HyperbolaBranch[] {
       }
     } else {
       flush()
-      active = [[start.x, 0.02, start.z], [end.x, 0.02, end.z]]
+      active = [
+        [start.x, 0.02, start.z],
+        [end.x, 0.02, end.z],
+      ]
     }
   }
 
@@ -253,11 +274,7 @@ function clipPolylineToGrid(points: PointXZ[]): HyperbolaBranch[] {
   return branches
 }
 
-export function buildHyperbolaBranches(
-  s1: Vec2,
-  s2: Vec2,
-  aVal: number,
-): HyperbolaBranch[] {
+export function buildHyperbolaBranches(s1: Vec2, s2: Vec2, aVal: number): HyperbolaBranch[] {
   const dx = s2.x - s1.x
   const dz = s2.z - s1.z
   const d = Math.sqrt(dx * dx + dz * dz)
@@ -303,7 +320,6 @@ export function buildHyperbolaBranches(
   }
   return branches
 }
-
 
 /** Build the fixed-phase loci that exist only for equal-frequency point sources. */
 export function buildInterferenceBranches(

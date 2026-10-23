@@ -24,7 +24,7 @@ describe('resistivity animation and measurement audit', () => {
     expect(recordDiameter(createResistivityState()).diameters[0]).toBeNull()
     const measured = recordDiameter({ ...finished, zero: 0.006 })
     expect(measured.diameters[0]?.d).toBeCloseTo(0.404, 6)
-    expect(measured.diameters[0]?.reading).toBeCloseTo(0.410, 6)
+    expect(measured.diameters[0]?.reading).toBeCloseTo(0.41, 6)
     expect(measured.diameters[0]?.zero).toBe(0.006)
   })
 
@@ -95,7 +95,9 @@ describe('resistivity animation and measurement audit', () => {
     expect(filled.diameters.every(Boolean)).toBe(true)
     expect(filled.diameters[0]?.source).toBe('示例')
     expect(filled.records.length).toBeGreaterThan(4)
-    expect(filled.records.every((row) => row.source === '示例' && row.ammeter === 'A06' && row.voltmeter === 'V3')).toBe(true)
+    expect(
+      filled.records.every((row) => row.source === '示例' && row.ammeter === 'A06' && row.voltmeter === 'V3'),
+    ).toBe(true)
     expect(filled.closed).toBe(false)
   })
 })

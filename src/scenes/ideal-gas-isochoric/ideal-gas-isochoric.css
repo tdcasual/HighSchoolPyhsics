@@ -1,11 +1,46 @@
-.ideal-gas-isochoric-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
-.ideal-gas-isochoric-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
-.ideal-gas-isochoric-help { margin: 0; padding-left: 1.1rem; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.ideal-gas-isochoric-help strong { color: var(--control-ink); }
-.ideal-gas-isochoric-help-note { margin: 0.35rem 0 0; color: var(--control-ink-muted); font-size: 0.72rem; line-height: 1.45; }
-@media (max-width: 640px) {
-  .mobile-data-strip .ideal-gas-isochoric-telemetry { display: flex; flex-wrap: wrap; gap: 0.25rem 0.65rem; padding: 0.45rem 0.55rem; }
-  .mobile-data-strip .ideal-gas-isochoric-telemetry p { min-width: 0; max-width: calc(50% - 0.4rem); font-size: 0.68rem; }
+.ideal-gas-isochoric-controls h2 {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.35;
 }
-.scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #dc2626; }
-.app-shell.theme-night .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong { color: #f87171; }
+.ideal-gas-isochoric-subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--control-ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.ideal-gas-isochoric-help {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--control-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.ideal-gas-isochoric-help strong {
+  color: var(--control-ink);
+}
+.ideal-gas-isochoric-help-note {
+  margin: 0.35rem 0 0;
+  color: var(--control-ink-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+@media (max-width: 640px) {
+  .mobile-data-strip .ideal-gas-isochoric-telemetry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.65rem;
+    padding: 0.45rem 0.55rem;
+  }
+  .mobile-data-strip .ideal-gas-isochoric-telemetry p {
+    min-width: 0;
+    max-width: calc(50% - 0.4rem);
+    font-size: 0.68rem;
+  }
+}
+.scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong {
+  color: #dc2626;
+}
+.app-shell.theme-night .scene-core-summary-stack.ideal-gas-isochoric-telemetry p:first-child > strong {
+  color: #f87171;
+}

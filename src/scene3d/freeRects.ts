@@ -45,7 +45,12 @@ export function freeRects(input: {
           const rect = { left, top, right, bottom }
           if (blocks.some((block) => overlaps(rect, block))) continue
           // Drop rectangles nested inside one already found.
-          if (found.some((other) => other.left <= left && other.top <= top && other.right >= right && other.bottom >= bottom)) continue
+          if (
+            found.some(
+              (other) => other.left <= left && other.top <= top && other.right >= right && other.bottom >= bottom,
+            )
+          )
+            continue
           found.push(rect)
         }
       }
@@ -54,5 +59,12 @@ export function freeRects(input: {
 
   return found.length > 0
     ? found
-    : [{ left: gutter, top: gutter, right: Math.max(gutter + 1, width - gutter), bottom: Math.max(gutter + 1, height - gutter) }]
+    : [
+        {
+          left: gutter,
+          top: gutter,
+          right: Math.max(gutter + 1, width - gutter),
+          bottom: Math.max(gutter + 1, height - gutter),
+        },
+      ]
 }

@@ -10,9 +10,7 @@ type SceneLoadState =
   | { status: 'resolved'; module: LoadedSceneModule }
   | { status: 'rejected'; error: unknown }
 
-export function createPreloadableScene(
-  loadModule: () => Promise<LoadedSceneModule>,
-): {
+export function createPreloadableScene(loadModule: () => Promise<LoadedSceneModule>): {
   Component: ComponentType
   preload: () => Promise<void>
 } {

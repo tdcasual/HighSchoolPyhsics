@@ -2,7 +2,17 @@ import { DataRows } from '../../ui/panels/DataRows'
 import { useMemo } from 'react'
 import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
-import { FILTER_HEX, FILTER_LABEL, GRATING_ILLUMINATED_WIDTH_MM, MODE_LABEL, formatScreenDistance, formatWhiteLightFeatureValue, gratingIlluminatedSlitCount, gratingSlitWidth, gratingSpacing } from '../../domains/optics/diffraction'
+import {
+  FILTER_HEX,
+  FILTER_LABEL,
+  GRATING_ILLUMINATED_WIDTH_MM,
+  MODE_LABEL,
+  formatScreenDistance,
+  formatWhiteLightFeatureValue,
+  gratingIlluminatedSlitCount,
+  gratingSlitWidth,
+  gratingSpacing,
+} from '../../domains/optics/diffraction'
 import { LightDiffractionChart } from './LightDiffractionChart'
 import { LightDiffractionControls } from './LightDiffractionControls'
 import { LightDiffractionRig3D } from './LightDiffractionRig3D'
@@ -39,13 +49,34 @@ export function LightDiffractionScene() {
           className="w-[260px] max-w-full min-w-0"
           rows={[
             { label: '模式', value: MODE_LABEL[state.mode] },
-            { label: '波长 λ', value: state.isWhiteLight
+            {
+              label: '波长 λ',
+              value: state.isWhiteLight
                 ? `白光 400-700nm${state.filterColor !== 'none' ? ` (${FILTER_LABEL[state.filterColor]}滤光片)` : ''}`
-                : `${Math.round(state.wavelength)} nm` },
-            { label: '光栅常数 d', value: <>{(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm（{state.gratingLines.toFixed(0)} 线/mm）</>, when: state.mode === 'diffraction-grating' },
-            { label: state.mode === 'single-slit' ? '缝宽 a' : '孔径 D', value: <>{state.apertureSize.toFixed(3)} mm</>, when: !(state.mode === 'diffraction-grating') },
+                : `${Math.round(state.wavelength)} nm`,
+            },
+            {
+              label: '光栅常数 d',
+              value: (
+                <>
+                  {(gratingSpacing(state.gratingLines) * 1e6).toFixed(2)} μm（{state.gratingLines.toFixed(0)} 线/mm）
+                </>
+              ),
+              when: state.mode === 'diffraction-grating',
+            },
+            {
+              label: state.mode === 'single-slit' ? '缝宽 a' : '孔径 D',
+              value: <>{state.apertureSize.toFixed(3)} mm</>,
+              when: !(state.mode === 'diffraction-grating'),
+            },
             { label: '缝屏距 L', value: formatScreenDistance(state.screenDistance) },
-            { label: state.featureLabel, value: state.isWhiteLight ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor) : state.featureValue, answer: true },
+            {
+              label: state.featureLabel,
+              value: state.isWhiteLight
+                ? formatWhiteLightFeatureValue(chartParams, state.mode, state.filterColor)
+                : state.featureValue,
+              answer: true,
+            },
           ]}
         />
       }
@@ -53,7 +84,8 @@ export function LightDiffractionScene() {
         <>
           {state.mode === 'diffraction-grating' && (
             <p>
-              光栅模型：狭缝宽 a = {(gratingSlitWidth(state.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm（N = {gratingIlluminatedSlitCount(state.gratingLines)}）。
+              光栅模型：狭缝宽 a = {(gratingSlitWidth(state.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度{' '}
+              {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm（N = {gratingIlluminatedSlitCount(state.gratingLines)}）。
             </p>
           )}
           {state.mode === 'circular-obstacle' && <p>近轴菲涅耳 / 巴比涅模型显示轴上亮斑；外圈采用理想圆盘近似。</p>}

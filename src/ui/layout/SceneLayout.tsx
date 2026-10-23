@@ -103,48 +103,65 @@ export function SceneLayout({
   const [predictionRound, setPredictionRound] = useState({ predicting, round: 0, revealAll: false })
   // A new round starts whenever prediction mode turns on (adjusting state during render).
   if (predictionRound.predicting !== predicting) {
-    setPredictionRound((current) => ({ predicting, round: predicting ? current.round + 1 : current.round, revealAll: false }))
+    setPredictionRound((current) => ({
+      predicting,
+      round: predicting ? current.round + 1 : current.round,
+      revealAll: false,
+    }))
   }
   const registerAnswer = useCallback(() => {
     setAnswerCount((count) => count + 1)
     return () => setAnswerCount((count) => count - 1)
   }, [])
   const prediction = useMemo<PredictionState>(
-    () => ({ predicting, round: predictionRound.round, revealAll: predictionRound.revealAll, register: registerAnswer }),
+    () => ({
+      predicting,
+      round: predictionRound.round,
+      revealAll: predictionRound.revealAll,
+      register: registerAnswer,
+    }),
     [predicting, predictionRound.round, predictionRound.revealAll, registerAnswer],
   )
   // Charts usually plot the outcome too (e.g. P's future displacement), so in prediction mode the
   // chart stays covered until the teacher opens it or reveals everything.
   const [chartRevealedRound, setChartRevealedRound] = useState<number | null>(null)
-  const chartMasked = chartMaskable && predicting && answerCount > 0 && !predictionRound.revealAll && chartRevealedRound !== predictionRound.round
+  const chartMasked =
+    chartMaskable &&
+    predicting &&
+    answerCount > 0 &&
+    !predictionRound.revealAll &&
+    chartRevealedRound !== predictionRound.round
   const chartBody = chartMasked ? (
     <button type="button" className="chart-mask" onClick={() => setChartRevealedRound(predictionRound.round)}>
       图表含结论 · 点击显示
     </button>
-  ) : chart
-  const predictionActions = answerCount > 0 ? (
-    <>
-      {predicting && !predictionRound.revealAll ? (
+  ) : (
+    chart
+  )
+  const predictionActions =
+    answerCount > 0 ? (
+      <>
+        {predicting && !predictionRound.revealAll ? (
+          <button
+            type="button"
+            className="panel-text-button"
+            onClick={() => setPredictionRound((current) => ({ ...current, revealAll: true }))}
+          >
+            全部揭晓
+          </button>
+        ) : null}
         <button
           type="button"
-          className="panel-text-button"
-          onClick={() => setPredictionRound((current) => ({ ...current, revealAll: true }))}
+          className={`panel-text-button${predicting ? ' active' : ''}`}
+          aria-pressed={predicting}
+          aria-keyshortcuts="H"
+          title="预测模式：先遮住结论，学生预测后再揭晓（快捷键 H）"
+          onClick={() => setPredicting(!predicting)}
         >
-          全部揭晓
+          预测
         </button>
-      ) : null}
-      <button
-        type="button"
-        className={`panel-text-button${predicting ? ' active' : ''}`}
-        aria-pressed={predicting}
-        aria-keyshortcuts="H"
-        title="预测模式：先遮住结论，学生预测后再揭晓（快捷键 H）"
-        onClick={() => setPredicting(!predicting)}
-      >
-        预测
-      </button>
-    </>
-  ) : null
+      </>
+    ) : null
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
   // On small desktops the chart starts collapsed so the 3D view keeps the room right of the
   // data panel; it opens on demand like everywhere else.
@@ -211,7 +228,12 @@ export function SceneLayout({
       // Arrow keys belong to a focused slider, radio group or tab list, however it got focus.
       if (event.key.startsWith('Arrow') && target instanceof Element && target.closest(ARROW_KEY_CONTROLS)) return
       if (target instanceof HTMLElement && target !== document.body && target !== pointerFocused) return
-      const action = key === 'step' ? stepPlaybackRef.current : key === 'step-back' ? stepBackPlaybackRef.current : primaryPlaybackRef.current
+      const action =
+        key === 'step'
+          ? stepPlaybackRef.current
+          : key === 'step-back'
+            ? stepBackPlaybackRef.current
+            : primaryPlaybackRef.current
       if (!action || action.disabled) return
       event.preventDefault()
       if (target instanceof HTMLElement) target.blur()
@@ -332,122 +354,140 @@ export function SceneLayout({
   if (isMobile) {
     return (
       <ModelNoteTargetContext.Provider value={notesTarget}>
-      <PredictionContext.Provider value={prediction}>
-      <div className="flex flex-col w-full h-full">
-        <div className="flex-1 min-h-0">{viewport}</div>
+        <PredictionContext.Provider value={prediction}>
+          <div className="flex flex-col w-full h-full">
+            <div className="flex-1 min-h-0">{viewport}</div>
 
-        <div
-          className="mobile-bottom-panel shrink-0 flex flex-col border-t"
-          style={{ height: effectiveMobileTab === 'controls' ? '30vh' : '46vh' }}
-        >
-          {dataOverlay && effectiveMobileTab === 'controls' && <div className="mobile-data-strip">{dataOverlay}</div>}
-          <div className="px-2 pt-1.5 shrink-0">
-            <SegmentedControl
-              options={mobileTabOptions}
-              value={effectiveMobileTab}
-              onChange={(key) => setActiveMobileTab(key as MobileTabKey)}
-            />
+            <div
+              className="mobile-bottom-panel shrink-0 flex flex-col border-t"
+              style={{ height: effectiveMobileTab === 'controls' ? '30vh' : '46vh' }}
+            >
+              {dataOverlay && effectiveMobileTab === 'controls' && (
+                <div className="mobile-data-strip">{dataOverlay}</div>
+              )}
+              <div className="px-2 pt-1.5 shrink-0">
+                <SegmentedControl
+                  options={mobileTabOptions}
+                  value={effectiveMobileTab}
+                  onChange={(key) => setActiveMobileTab(key as MobileTabKey)}
+                />
+              </div>
+              {(playbackControls || rateControl) && (
+                <div className="px-2 pt-2 shrink-0">
+                  {playbackControls}
+                  {rateControl}
+                </div>
+              )}
+              <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
+                {effectiveMobileTab === 'controls' && controls}
+                {effectiveMobileTab === 'controls' && resetParamsButton}
+                {effectiveMobileTab === 'controls' && notesBlock}
+                {effectiveMobileTab === 'data' && dataOverlay}
+                {effectiveMobileTab === 'chart' && chartBody}
+              </div>
+            </div>
           </div>
-          {(playbackControls || rateControl) && <div className="px-2 pt-2 shrink-0">{playbackControls}{rateControl}</div>}
-          <div className="sidebar-body flex-1 overflow-y-auto px-3 pt-2 pb-3">
-            {effectiveMobileTab === 'controls' && controls}
-            {effectiveMobileTab === 'controls' && resetParamsButton}
-            {effectiveMobileTab === 'controls' && notesBlock}
-            {effectiveMobileTab === 'data' && dataOverlay}
-            {effectiveMobileTab === 'chart' && chartBody}
-          </div>
-        </div>
-      </div>
-      </PredictionContext.Provider>
+        </PredictionContext.Provider>
       </ModelNoteTargetContext.Provider>
     )
   }
 
   return (
     <ModelNoteTargetContext.Provider value={notesTarget}>
-    <PredictionContext.Provider value={prediction}>
-    <div className="relative w-full h-full">
-      <div className="absolute inset-0 z-0">{viewport}</div>
+      <PredictionContext.Provider value={prediction}>
+        <div className="relative w-full h-full">
+          <div className="absolute inset-0 z-0">{viewport}</div>
 
-      <SidebarPanel title="参数控制" collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed}>
-        {controls}
-        {resetParamsButton}
-        {notesBlock}
-      </SidebarPanel>
+          <SidebarPanel title="参数控制" collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed}>
+            {controls}
+            {resetParamsButton}
+            {notesBlock}
+          </SidebarPanel>
 
-      {dataOverlay && (
-        <FloatingPanel
-          key={dataInitiallyCollapsed ? 'data-collapsed' : 'data-expanded'}
-          title="数据"
-          zone="data"
-          headerActions={predictionActions}
-          ref={stableRef0}
-          defaultCollapsed={dataInitiallyCollapsed}
-          defaultPosition={{ x: 0, y: 0 }}
-          offsetX={panelX}
-          zIndex={overlayZIndex}
-        >
-          <div className="min-w-[200px]">{dataOverlay}</div>
-        </FloatingPanel>
-      )}
-
-      {chart && showChart && (
-        <FloatingPanel
-          key={chartStartsCollapsed ? 'chart-collapsed' : 'chart-expanded'}
-          title="图表"
-          zone="chart"
-          ref={stableRef1}
-          defaultCollapsed={chartStartsCollapsed}
-          defaultPosition={{ x: 0, y: chartPanelY }}
-          offsetX={panelX}
-          zIndex={overlayZIndex}
-          closable
-          onClose={() => setChartDismissVersion(1)}
-          resizable
-        >
-          <div className={chartContentClassName ? `scene-chart-content ${chartContentClassName}` : 'scene-chart-content'}>{chartBody}</div>
-        </FloatingPanel>
-      )}
-
-      {hasPlayback && !playbackDismissed && (
-        <FloatingPanel
-          title="播放控制"
-          zone="playback"
-          ref={stableRef2}
-          defaultPosition={{ x: 0, y: playbackPanelY }}
-          offsetX={panelX}
-          zIndex="z-20"
-          closable
-          onClose={() => setPlaybackDismissVersion(1)}
-        >
-          <div className="flex flex-col gap-3">
-            {playbackControls}
-            {rateControl}
-            {playbackActions && (
-              <div className="flex items-center gap-2">
-                <SceneActions actions={playbackActions} />
-              </div>
-            )}
-          </div>
-        </FloatingPanel>
-      )}
-
-      {(chartDismissed || playbackDismissed) && (
-        <div className="panel-restore-dock scene-actions absolute z-20" style={{ left: panelX }} role="toolbar" aria-label="已关闭的面板">
-          {chartDismissed && (
-            <button type="button" className="touch-target" onClick={() => setChartDismissVersion(0)}>
-              显示图表
-            </button>
+          {dataOverlay && (
+            <FloatingPanel
+              key={dataInitiallyCollapsed ? 'data-collapsed' : 'data-expanded'}
+              title="数据"
+              zone="data"
+              headerActions={predictionActions}
+              ref={stableRef0}
+              defaultCollapsed={dataInitiallyCollapsed}
+              defaultPosition={{ x: 0, y: 0 }}
+              offsetX={panelX}
+              zIndex={overlayZIndex}
+            >
+              <div className="min-w-[200px]">{dataOverlay}</div>
+            </FloatingPanel>
           )}
-          {playbackDismissed && (
-            <button type="button" className="touch-target" onClick={() => setPlaybackDismissVersion(0)}>
-              显示播放控制
-            </button>
+
+          {chart && showChart && (
+            <FloatingPanel
+              key={chartStartsCollapsed ? 'chart-collapsed' : 'chart-expanded'}
+              title="图表"
+              zone="chart"
+              ref={stableRef1}
+              defaultCollapsed={chartStartsCollapsed}
+              defaultPosition={{ x: 0, y: chartPanelY }}
+              offsetX={panelX}
+              zIndex={overlayZIndex}
+              closable
+              onClose={() => setChartDismissVersion(1)}
+              resizable
+            >
+              <div
+                className={
+                  chartContentClassName ? `scene-chart-content ${chartContentClassName}` : 'scene-chart-content'
+                }
+              >
+                {chartBody}
+              </div>
+            </FloatingPanel>
+          )}
+
+          {hasPlayback && !playbackDismissed && (
+            <FloatingPanel
+              title="播放控制"
+              zone="playback"
+              ref={stableRef2}
+              defaultPosition={{ x: 0, y: playbackPanelY }}
+              offsetX={panelX}
+              zIndex="z-20"
+              closable
+              onClose={() => setPlaybackDismissVersion(1)}
+            >
+              <div className="flex flex-col gap-3">
+                {playbackControls}
+                {rateControl}
+                {playbackActions && (
+                  <div className="flex items-center gap-2">
+                    <SceneActions actions={playbackActions} />
+                  </div>
+                )}
+              </div>
+            </FloatingPanel>
+          )}
+
+          {(chartDismissed || playbackDismissed) && (
+            <div
+              className="panel-restore-dock scene-actions absolute z-20"
+              style={{ left: panelX }}
+              role="toolbar"
+              aria-label="已关闭的面板"
+            >
+              {chartDismissed && (
+                <button type="button" className="touch-target" onClick={() => setChartDismissVersion(0)}>
+                  显示图表
+                </button>
+              )}
+              {playbackDismissed && (
+                <button type="button" className="touch-target" onClick={() => setPlaybackDismissVersion(0)}>
+                  显示播放控制
+                </button>
+              )}
+            </div>
           )}
         </div>
-      )}
-    </div>
-    </PredictionContext.Provider>
+      </PredictionContext.Provider>
     </ModelNoteTargetContext.Provider>
   )
 }

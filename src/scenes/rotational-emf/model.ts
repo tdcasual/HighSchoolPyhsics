@@ -23,23 +23,24 @@ export const ROTATIONAL_EMF_VIEW_LABELS: Record<RotationalEmfViewMode, string> =
 }
 
 export function deriveRotatingRodEmfMagnitude(inputs: RotationalEmfInputs): number {
-  return Math.abs(
-    0.5 * inputs.magneticFieldT * inputs.angularSpeed * inputs.effectiveLengthM * inputs.effectiveLengthM,
-  )
+  return Math.abs(0.5 * inputs.magneticFieldT * inputs.angularSpeed * inputs.effectiveLengthM * inputs.effectiveLengthM)
 }
 
 export function deriveRotatingFrameEmfMagnitude(inputs: RotationalEmfInputs): number {
   return Math.abs(
-    inputs.magneticFieldT * inputs.angularSpeed * inputs.effectiveLengthM * inputs.effectiveLengthM * Math.cos(inputs.angleRad),
+    inputs.magneticFieldT *
+      inputs.angularSpeed *
+      inputs.effectiveLengthM *
+      inputs.effectiveLengthM *
+      Math.cos(inputs.angleRad),
   )
 }
 
 export function deriveRotationalEmfReadout(
   inputs: RotationalEmfInputs & { scenario: RotationalEmfScenario },
 ): RotationalEmfReadout {
-  const emfMagnitudeV = inputs.scenario === 'rod'
-    ? deriveRotatingRodEmfMagnitude(inputs)
-    : deriveRotatingFrameEmfMagnitude(inputs)
+  const emfMagnitudeV =
+    inputs.scenario === 'rod' ? deriveRotatingRodEmfMagnitude(inputs) : deriveRotatingFrameEmfMagnitude(inputs)
 
   return { emfMagnitudeV }
 }

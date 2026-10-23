@@ -36,7 +36,7 @@ describe('computeWedgeIntensity', () => {
 
   it('returns 1 at d = λ/4 (first bright fringe)', () => {
     // d = λ/4 in μm: 550nm/4 = 137.5nm = 0.1375μm
-    const I = computeWedgeIntensity(550, 550 / 4 * 1e-3)
+    const I = computeWedgeIntensity(550, (550 / 4) * 1e-3)
     expect(I).toBeCloseTo(1, 10)
   })
 

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  DEE_TOP_Y,
-  TRAJECTORY_Y,
-  deriveGapWidthScene,
-  projectParticleToScene,
-} from './layout'
+import { DEE_TOP_Y, TRAJECTORY_Y, deriveGapWidthScene, projectParticleToScene } from './layout'
 
 describe('cyclotron scene layout', () => {
   it('keeps trajectory plane above dee top surface', () => {
@@ -20,5 +15,4 @@ describe('cyclotron scene layout', () => {
     expect(deriveGapWidthScene(0)).toBeCloseTo(deriveGapWidthScene(0.005), 6)
     expect(deriveGapWidthScene(1)).toBeCloseTo(deriveGapWidthScene(0.02), 6)
   })
-
 })

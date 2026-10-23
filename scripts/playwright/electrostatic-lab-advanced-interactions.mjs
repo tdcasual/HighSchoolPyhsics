@@ -13,7 +13,6 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/electrostatic-lab-adva
 const LOG_DIR = path.join(OUTPUT_DIR, 'logs')
 const DEV_SERVER_LOG = path.join(LOG_DIR, 'vite-dev.log')
 
-
 async function readChargeCount(page) {
   const readout = page.locator('.readout-panel').filter({
     has: page.getByText('电荷总数', { exact: true }),
@@ -45,7 +44,8 @@ async function run() {
     async () => {
       let browser = null
       try {
-        browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined,
+        browser = await chromium.launch({
+          executablePath: process.env.CHROME_PATH || undefined,
           headless: true,
           args: [
             '--use-angle=swiftshader',
@@ -144,9 +144,14 @@ async function run() {
         const mobilePage = await browser.newPage({ viewport: { width: 390, height: 844 } })
         mobilePage.on('pageerror', (error) => runtimeErrors.push('mobile pageerror: ' + error.message))
         await mobilePage.goto(baseUrl + '/electrostatic-lab', { waitUntil: 'domcontentloaded' })
-        await mobilePage.getByRole('heading', { name: '电势地形与电场线' }).waitFor({ state: 'visible', timeout: 15000 })
-        const mobileHasHorizontalOverflow = await mobilePage.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
-        if (mobileHasHorizontalOverflow) throw new Error('Electrostatic lab overflows horizontally at 390px viewport width')
+        await mobilePage
+          .getByRole('heading', { name: '电势地形与电场线' })
+          .waitFor({ state: 'visible', timeout: 15000 })
+        const mobileHasHorizontalOverflow = await mobilePage.evaluate(
+          () => document.documentElement.scrollWidth > window.innerWidth + 1,
+        )
+        if (mobileHasHorizontalOverflow)
+          throw new Error('Electrostatic lab overflows horizontally at 390px viewport width')
         await mobilePage.close()
 
         await mkdir(OUTPUT_DIR, { recursive: true })

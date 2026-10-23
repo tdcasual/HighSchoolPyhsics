@@ -39,23 +39,29 @@ describe('instrument stages', () => {
     expect(root?.props.rotation).toEqual([0, 0, -Math.PI / 2])
     expect(root?.props.position).toEqual([0, 215, 0])
 
-    const depth = collectElements(CaliperStage({
-      divisions: 20,
-      measure: 'depth',
-      caliperX: 23.4,
-      caliperExplode: 0.5,
-      caliperLocked: true,
-      showWork: true,
-      showLabels: false,
-      workSize: 23.4,
-    }))
+    const depth = collectElements(
+      CaliperStage({
+        divisions: 20,
+        measure: 'depth',
+        caliperX: 23.4,
+        caliperExplode: 0.5,
+        caliperLocked: true,
+        showWork: true,
+        showLabels: false,
+        workSize: 23.4,
+      }),
+    )
     const ground = depth.find((element) => element.props.name === 'caliper-ground')
     const depthElements = collectElements(CaliperDepthWork({ pose, size: 23.4, showWork: true }))
     const depthWork = depthElements.find((element) => element.props.name === 'caliper-depth-work')
     const workBoxes = depthElements.filter((element) => element.type === 'boxGeometry')
     expect(ground?.props.position).toEqual([95, -46, 0])
     expect(depthWork?.props.position).toEqual([7.8, 0, -23])
-    expect(workBoxes.map((element) => element.props.args)).toEqual([[24, 23.4, 16], [24, 23.4, 16], [60, 0.8, 16]])
+    expect(workBoxes.map((element) => element.props.args)).toEqual([
+      [24, 23.4, 16],
+      [24, 23.4, 16],
+      [60, 0.8, 16],
+    ])
   })
 
   it('puts the thimble rotation and spindle centre on the posed meshes', () => {

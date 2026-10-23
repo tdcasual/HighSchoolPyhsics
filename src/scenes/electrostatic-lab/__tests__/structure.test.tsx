@@ -10,9 +10,7 @@ const { mockUseElectrostaticLabState, mockControls, mockRig } = vi.hoisted(() =>
 }))
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({ children }: { children: ReactNode }) => (
-    <div data-testid="interactive-canvas">{children}</div>
-  ),
+  InteractiveCanvas: ({ children }: { children: ReactNode }) => <div data-testid="interactive-canvas">{children}</div>,
 }))
 
 vi.mock('../ElectrostaticLabControls', () => ({

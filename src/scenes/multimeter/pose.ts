@@ -14,7 +14,7 @@ export const METER_CAMERA = {
 
 export const NEEDLE_PIVOT_Y = 12.2 - 5.57 / 2 - 0.18 * 5.57
 export const NEEDLE_LENGTH = 5.57 * 1.06
-export const NEEDLE_SPAN = 48 * Math.PI / 180
+export const NEEDLE_SPAN = (48 * Math.PI) / 180
 
 export function needleRotation(fraction: number): number {
   const clamped = Math.max(-0.035, Math.min(1.04, fraction))
@@ -22,8 +22,11 @@ export function needleRotation(fraction: number): number {
 }
 
 export function knobRotation(range: RangeKey): number {
-  const index = Math.max(0, RANGES.findIndex((item) => item.key === range))
-  return (150 - index * 30) * Math.PI / 180
+  const index = Math.max(
+    0,
+    RANGES.findIndex((item) => item.key === range),
+  )
+  return ((150 - index * 30) * Math.PI) / 180
 }
 
 export function screwRotation(mechanicalSlider: number): number {
@@ -51,16 +54,21 @@ export const POSTS: Record<string, Vec3> = {
 const REST_RED: Vec3 = [12, 2.4, 3]
 const REST_BLACK: Vec3 = [-12, 2.4, 3]
 
-export function probeTips(target: MeasureTarget, swapped: boolean, contactMethod: ContactMethod = 'external'): { red: Vec3; black: Vec3 } {
+export function probeTips(
+  target: MeasureTarget,
+  swapped: boolean,
+  contactMethod: ContactMethod = 'external',
+): { red: Vec3; black: Vec3 } {
   const pairs: Partial<Record<MeasureTarget, [Vec3, Vec3]>> = {
     cell: [POSTS['cell+'], POSTS['cell-']],
-    loopV: contactMethod === 'external'
-      ? [POSTS['va-a'], POSTS['va-b']]
-      : [POSTS['va-before-ammeter'], POSTS['va-b']],
+    loopV: contactMethod === 'external' ? [POSTS['va-a'], POSTS['va-b']] : [POSTS['va-before-ammeter'], POSTS['va-b']],
     loopI: [POSTS['loop-a'], POSTS['loop-b']],
     resistor: [POSTS['res-a'], POSTS['res-b']],
     diode: [POSTS['diode-cathode'], POSTS['diode-anode']],
-    short: [[-0.3, 3.2, 4.4], [0.3, 3.2, 4.4]],
+    short: [
+      [-0.3, 3.2, 4.4],
+      [0.3, 3.2, 4.4],
+    ],
   }
   const pair = pairs[target]
   if (!pair) return { red: REST_RED, black: REST_BLACK }
@@ -73,7 +81,6 @@ export function meterView(preset: ViewPreset): OrbitView {
   if (preset === 'top') return { target: [0, 4, 8], azimuth: 0, elevation: 1.45, radius: 60 }
   return { target: [0, 6, 6], azimuth: 0.18, elevation: 0.5, radius: 62 }
 }
-
 
 export type MeterPose = {
   needle: number

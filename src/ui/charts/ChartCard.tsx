@@ -32,7 +32,11 @@ export function ChartCard({
   children: ReactNode
 }) {
   return (
-    <figure className={['chart-card', className].filter(Boolean).join(' ')} role={ariaLabel ? 'group' : undefined} aria-label={ariaLabel}>
+    <figure
+      className={['chart-card', className].filter(Boolean).join(' ')}
+      role={ariaLabel ? 'group' : undefined}
+      aria-label={ariaLabel}
+    >
       {title || status ? (
         <figcaption className="chart-card-heading">
           {title ? <span className="chart-card-title">{title}</span> : null}

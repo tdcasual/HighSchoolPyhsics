@@ -11,8 +11,13 @@ describe('scene navigation table', () => {
   })
 
   it('only names groups that exist in each view', () => {
-    const groupIds = (viewId: string) => new Set(NAVIGATION_VIEWS.find((view) => view.id === viewId)!.groups.map((group) => group.id))
-    const columns = [['chapter', 'textbook'], ['topic', 'topic'], ['lesson', 'lesson']] as const
+    const groupIds = (viewId: string) =>
+      new Set(NAVIGATION_VIEWS.find((view) => view.id === viewId)!.groups.map((group) => group.id))
+    const columns = [
+      ['chapter', 'textbook'],
+      ['topic', 'topic'],
+      ['lesson', 'lesson'],
+    ] as const
     for (const scene of SCENE_NAVIGATION) {
       for (const [column, viewId] of columns) {
         expect(groupIds(viewId).has(scene[column]), `${scene.pageId}.${column} = ${scene[column]}`).toBe(true)

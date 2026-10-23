@@ -23,7 +23,14 @@ function collect(node: ReactNode): SceneElement[] {
 
 describe('multimeter rig', () => {
   it('mounts the needle, knob and probes from the shared pose', () => {
-    const pose = meterPose({ fraction: 0, range: 'V2.5', mechanicalSlider: 0, ohmSlider: 0, target: 'cell', swapped: false })
+    const pose = meterPose({
+      fraction: 0,
+      range: 'V2.5',
+      mechanicalSlider: 0,
+      ohmSlider: 0,
+      target: 'cell',
+      swapped: false,
+    })
     const elements = collect(MeterAssembly({ pose }))
     const needle = elements.find((element) => element.props.name === 'meter-needle')
     const knob = elements.find((element) => element.props.name === 'meter-knob')
@@ -32,6 +39,6 @@ describe('multimeter rig', () => {
     expect(needle?.props.rotation).toEqual([0, 0, pose.needle])
     expect(knob?.props.rotation).toEqual([0, 0, pose.knob])
     expect(red?.props.position).toEqual([-5.6, 2.7, 9])
-    expect(pose.needle).toBeCloseTo(48 * Math.PI / 180, 8)
+    expect(pose.needle).toBeCloseTo((48 * Math.PI) / 180, 8)
   })
 })

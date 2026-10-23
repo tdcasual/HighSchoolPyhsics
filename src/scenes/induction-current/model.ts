@@ -46,9 +46,7 @@ function resolveInducedFieldDirection(
   return originalFieldDirection
 }
 
-function resolveInducedCurrentDirection(
-  inducedFieldDirection: VerticalDirection,
-): CurrentDirection {
+function resolveInducedCurrentDirection(inducedFieldDirection: VerticalDirection): CurrentDirection {
   return inducedFieldDirection === 'up' ? 'counterclockwise' : 'clockwise'
 }
 
@@ -56,15 +54,10 @@ function resolveNeedleSign(inducedCurrentDirection: CurrentDirection): 1 | -1 {
   return inducedCurrentDirection === 'counterclockwise' ? 1 : -1
 }
 
-export function deriveInductionOutcome(
-  options: DeriveInductionOutcomeOptions,
-): InductionOutcome {
+export function deriveInductionOutcome(options: DeriveInductionOutcomeOptions): InductionOutcome {
   const originalFieldDirection = resolveOriginalFieldDirection(options.poleSetting)
   const fluxChange = resolveFluxChange(options.motion)
-  const inducedFieldDirection = resolveInducedFieldDirection(
-    originalFieldDirection,
-    fluxChange,
-  )
+  const inducedFieldDirection = resolveInducedFieldDirection(originalFieldDirection, fluxChange)
   const inducedCurrentDirection = resolveInducedCurrentDirection(inducedFieldDirection)
 
   return {
@@ -86,18 +79,14 @@ export function deriveRelativeInducedCurrent(options: {
   const radiusSquared = INDUCTION_COIL_RADIUS ** 2
   const offsetSquared = options.magnetOffset ** 2
   const denominator = (radiusSquared + offsetSquared) ** 2.5
-  const fluxGradient = denominator > 0
-    ? (3 * radiusSquared * Math.abs(options.magnetOffset)) / denominator
-    : 0
+  const fluxGradient = denominator > 0 ? (3 * radiusSquared * Math.abs(options.magnetOffset)) / denominator : 0
   const outcome = deriveInductionOutcome(options)
   const visualGain = 0.25
 
   return outcome.needleSign * Math.abs(options.magnetVelocity) * fluxGradient * visualGain
 }
 
-export function createExperimentRecord(
-  options: CreateExperimentRecordOptions,
-): ExperimentRecord {
+export function createExperimentRecord(options: CreateExperimentRecordOptions): ExperimentRecord {
   return {
     id: options.id,
     poleSetting: options.poleSetting,
@@ -105,7 +94,6 @@ export function createExperimentRecord(
     ...deriveInductionOutcome(options),
   }
 }
-
 
 export function formatVerticalDirection(direction: VerticalDirection): string {
   return direction === 'up' ? '向上 (↑)' : '向下 (↓)'

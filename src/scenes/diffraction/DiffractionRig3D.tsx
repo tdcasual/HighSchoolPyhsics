@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { getApertureRange, type DiffractionMode, type DiffractionParams, type FilterColor } from '../../domains/optics/diffraction'
+import {
+  getApertureRange,
+  type DiffractionMode,
+  type DiffractionParams,
+  type FilterColor,
+} from '../../domains/optics/diffraction'
 import { DiffractionScreen } from './DiffractionScreen'
 import { SceneLabel } from '../../scene3d/SceneLabel'
 
@@ -18,7 +23,11 @@ function enlargedAperture(sizeM: number, mode: DiffractionMode, minFraction: num
 }
 
 function RigLabel({ text, position }: { text: string; position: [number, number, number] }) {
-  return <SceneLabel position={position} variant="dark" size={12} distanceFactor={2}>{text}</SceneLabel>
+  return (
+    <SceneLabel position={position} variant="dark" size={12} distanceFactor={2}>
+      {text}
+    </SceneLabel>
+  )
 }
 
 function SlitObstacle({ slitWidthM }: { slitWidthM: number }) {
@@ -66,7 +75,9 @@ function HoleObstacle({ holeDiameterM }: { holeDiameterM: number }) {
   }, [shape])
 
   useEffect(() => {
-    return () => { geometry.dispose() }
+    return () => {
+      geometry.dispose()
+    }
   }, [geometry])
 
   return (
@@ -94,7 +105,7 @@ function GratingObstacle({ gratingLines }: { gratingLines: number }) {
         <mesh key={i} position={[x, 0, BOARD_THICKNESS / 2]}>
           <boxGeometry args={[opaqueBarWidth, BOARD_SIZE, BOARD_THICKNESS * 1.5]} />
           <meshStandardMaterial color="#111111" />
-        </mesh>
+        </mesh>,
       )
     }
     return items
@@ -104,13 +115,7 @@ function GratingObstacle({ gratingLines }: { gratingLines: number }) {
     <group>
       <mesh position={[0, 0, -BOARD_THICKNESS / 2]}>
         <boxGeometry args={[BOARD_SIZE, BOARD_SIZE, BOARD_THICKNESS]} />
-        <meshStandardMaterial
-          color="#cbd5e1"
-          transparent
-          opacity={0.12}
-          side={THREE.DoubleSide}
-          depthWrite={false}
-        />
+        <meshStandardMaterial color="#cbd5e1" transparent opacity={0.12} side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       {bars}
     </group>
@@ -151,12 +156,7 @@ function LineSource({ color, isLightOn }: { color: number; isLightOn: boolean })
       {/* Core — bright emissive cylinder */}
       <mesh>
         <cylinderGeometry args={[SOURCE_THICKNESS / 2, SOURCE_THICKNESS / 2, SOURCE_LENGTH, 16]} />
-        <meshStandardMaterial
-          color={hex}
-          emissive={hex}
-          emissiveIntensity={isLightOn ? 4 : 0.2}
-          toneMapped={false}
-        />
+        <meshStandardMaterial color={hex} emissive={hex} emissiveIntensity={isLightOn ? 4 : 0.2} toneMapped={false} />
       </mesh>
       {/* Glow halo — larger translucent cylinder */}
       {isLightOn && (
@@ -166,14 +166,7 @@ function LineSource({ color, isLightOn }: { color: number; isLightOn: boolean })
         </mesh>
       )}
       {/* Point light */}
-      {isLightOn && (
-        <pointLight
-          color={hex}
-          intensity={15}
-          distance={3}
-          decay={2}
-        />
-      )}
+      {isLightOn && <pointLight color={hex} intensity={15} distance={3} decay={2} />}
       {/* Beam direction indicator — flat translucent panel */}
       <mesh position={[0, 0, SOURCE_DISTANCE / 2]}>
         <boxGeometry args={[SOURCE_THICKNESS, SOURCE_THICKNESS, SOURCE_DISTANCE]} />
@@ -196,7 +189,17 @@ export type DiffractionRig3DProps = {
   screenHeightM: number
 }
 
-export function DiffractionRig3D({ mode, params, isLightOn, showPattern, isWhiteLight, filterColor, lightColorHex, screenWidthM, screenHeightM }: DiffractionRig3DProps) {
+export function DiffractionRig3D({
+  mode,
+  params,
+  isLightOn,
+  showPattern,
+  isWhiteLight,
+  filterColor,
+  lightColorHex,
+  screenWidthM,
+  screenHeightM,
+}: DiffractionRig3DProps) {
   return (
     <group data-rig-scene="diffraction">
       {/* Ambient */}
@@ -209,7 +212,15 @@ export function DiffractionRig3D({ mode, params, isLightOn, showPattern, isWhite
       {/* Obstacle at origin */}
       <Obstacle mode={mode} params={params} />
       <RigLabel
-        text={mode === 'single-slit' ? '单缝' : mode === 'circular-aperture' ? '圆孔' : mode === 'circular-obstacle' ? '不透明圆盘' : '衍射光栅'}
+        text={
+          mode === 'single-slit'
+            ? '单缝'
+            : mode === 'circular-aperture'
+              ? '圆孔'
+              : mode === 'circular-obstacle'
+                ? '不透明圆盘'
+                : '衍射光栅'
+        }
         position={[0, BOARD_SIZE / 2 + 0.045, 0]}
       />
 
@@ -224,10 +235,7 @@ export function DiffractionRig3D({ mode, params, isLightOn, showPattern, isWhite
         screenWidthM={screenWidthM}
         screenHeightM={screenHeightM}
       />
-      <RigLabel
-        text="观察屏"
-        position={[0, screenHeightM / 2 + 0.045, params.screenDistance]}
-      />
+      <RigLabel text="观察屏" position={[0, screenHeightM / 2 + 0.045, params.screenDistance]} />
 
       {/* Optical axis helper (subtle) */}
       <mesh position={[0, 0, (params.screenDistance - SOURCE_DISTANCE) / 2]} rotation={[Math.PI / 2, 0, 0]}>

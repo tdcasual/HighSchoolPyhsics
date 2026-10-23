@@ -15,5 +15,10 @@ export function useFixedStepper<S>(step: (state: S, dt: number) => S, fixedSecon
     }
     return next
   }
-  return { stepper, resetCarry: () => { carryRef.current = 0 } }
+  return {
+    stepper,
+    resetCarry: () => {
+      carryRef.current = 0
+    },
+  }
 }

@@ -17,7 +17,6 @@ import {
   formatWhiteLightFeatureValue,
 } from '../../domains/optics/diffraction'
 
-
 export function DiffractionScene() {
   const state = useDiffractionSceneState()
 
@@ -38,11 +37,32 @@ export function DiffractionScene() {
         <DataRows
           className="w-[200px] max-w-full min-w-0"
           rows={[
-            { label: '光源', value: !state.isLightOn ? '关闭' : state.isWhiteLight
-                ? '白光' + (state.filterColor !== 'none' ? `（${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片）` : '')
-                : `${state.params.wavelength} nm` },
-            { label: '光栅常数 d', value: <>{(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm（{state.params.gratingLines} 条/mm）</>, when: state.mode === 'diffraction-grating' },
-            { label: state.mode === 'single-slit' ? '缝宽 a' : state.mode === 'circular-aperture' ? '孔径 D' : '障碍物直径', value: <>{state.params.apertureSize.toFixed(3)} mm</>, when: !(state.mode === 'diffraction-grating') },
+            {
+              label: '光源',
+              value: !state.isLightOn
+                ? '关闭'
+                : state.isWhiteLight
+                  ? '白光' +
+                    (state.filterColor !== 'none'
+                      ? `（${state.filterColor === 'red' ? '红' : state.filterColor === 'green' ? '绿' : '蓝'}滤光片）`
+                      : '')
+                  : `${state.params.wavelength} nm`,
+            },
+            {
+              label: '光栅常数 d',
+              value: (
+                <>
+                  {(gratingSpacing(state.params.gratingLines) * 1e6).toFixed(2)} μm（{state.params.gratingLines} 条/mm）
+                </>
+              ),
+              when: state.mode === 'diffraction-grating',
+            },
+            {
+              label:
+                state.mode === 'single-slit' ? '缝宽 a' : state.mode === 'circular-aperture' ? '孔径 D' : '障碍物直径',
+              value: <>{state.params.apertureSize.toFixed(3)} mm</>,
+              when: !(state.mode === 'diffraction-grating'),
+            },
             { label: '屏距 L', value: formatScreenDistance(state.params.screenDistance) },
             { label: featureLabel, value: featureValue, answer: true },
           ]}
@@ -51,23 +71,27 @@ export function DiffractionScene() {
       notes={
         state.mode === 'diffraction-grating' ? (
           <p>
-            光栅模型：狭缝宽 a = {(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度 {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm，照明狭缝数 N = {gratingIlluminatedSlitCount(state.params.gratingLines)}。
+            光栅模型：狭缝宽 a = {(gratingSlitWidth(state.params.gratingLines) * 1e6).toFixed(2)} μm；有效照明宽度{' '}
+            {GRATING_ILLUMINATED_WIDTH_MM.toFixed(2)} mm，照明狭缝数 N ={' '}
+            {gratingIlluminatedSlitCount(state.params.gratingLines)}。
           </p>
         ) : undefined
       }
-      chart={state.showProfile ? (
-        <div className="flex flex-col gap-2" style={{ width: 360 }}>
-          <DiffractionProfile
-            mode={state.mode}
-            params={state.params}
-            isLightOn={state.isLightOn}
-            isWhiteLight={state.isWhiteLight}
-            filterColor={state.filterColor}
-            width={340}
-            height={160}
-          />
-        </div>
-      ) : undefined}
+      chart={
+        state.showProfile ? (
+          <div className="flex flex-col gap-2" style={{ width: 360 }}>
+            <DiffractionProfile
+              mode={state.mode}
+              params={state.params}
+              isLightOn={state.isLightOn}
+              isWhiteLight={state.isWhiteLight}
+              filterColor={state.filterColor}
+              width={340}
+              height={160}
+            />
+          </div>
+        ) : undefined
+      }
       chartVisible={state.showProfile}
       chartInitiallyCollapsed={false}
       viewport={

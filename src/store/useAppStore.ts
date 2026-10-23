@@ -75,7 +75,11 @@ function sanitizeNavView(value: unknown, fallback: NavViewId): NavViewId {
 }
 
 function pickPersistedAppState(state: AppState): PersistedAppState {
-  return { theme: sanitizeThemeMode(state.theme, 'day'), largeText: state.largeText !== false, navView: sanitizeNavView(state.navView, 'textbook') }
+  return {
+    theme: sanitizeThemeMode(state.theme, 'day'),
+    largeText: state.largeText !== false,
+    navView: sanitizeNavView(state.navView, 'textbook'),
+  }
 }
 
 function sanitizePersistedAppState(value: unknown, fallback: PersistedAppState): PersistedAppState {

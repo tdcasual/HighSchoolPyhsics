@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildSceneCatalog,
-  findSceneCatalogEntryByPath,
-} from '../sceneCatalog'
+import { buildSceneCatalog, findSceneCatalogEntryByPath } from '../sceneCatalog'
 
 describe('sceneCatalog classroom semantics', () => {
   it('throws a descriptive error when a scene catalog entry is malformed', () => {
@@ -20,12 +17,9 @@ describe('sceneCatalog classroom semantics', () => {
   })
 
   it('throws a descriptive error when scene catalog pageIds are duplicated', () => {
-    expect(() =>
-      buildSceneCatalog([
-        { pageId: 'oscilloscope' },
-        { pageId: 'oscilloscope' },
-      ]),
-    ).toThrow(/duplicate sceneCatalog pageId "oscilloscope" at index 1/i)
+    expect(() => buildSceneCatalog([{ pageId: 'oscilloscope' }, { pageId: 'oscilloscope' }])).toThrow(
+      /duplicate sceneCatalog pageId "oscilloscope" at index 1/i,
+    )
   })
 
   it('exposes touch profile metadata from the shared catalog lookup', () => {
@@ -40,5 +34,4 @@ describe('sceneCatalog classroom semantics', () => {
     expect(() => findSceneCatalogEntryByPath({ broken: 'path' } as unknown as string)).not.toThrow()
     expect(findSceneCatalogEntryByPath({ broken: 'path' } as unknown as string)).toBeNull()
   })
-
 })

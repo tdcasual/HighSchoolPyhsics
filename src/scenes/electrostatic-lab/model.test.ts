@@ -88,14 +88,8 @@ describe('electrostatic-lab model', () => {
     const firstPoint = { x: -bounds + (xIndex + 0.2) * step, z: -bounds + (zIndex + 0.3) * step }
     const secondPoint = { x: -bounds + (xIndex + 0.8) * step, z: -bounds + (zIndex + 0.7) * step }
 
-    expect(samplePotentialTerrainHeight(terrain, bounds, firstPoint)).toBeCloseTo(
-      y00 * 0.5 + y10 * 0.2 + y01 * 0.3,
-      6,
-    )
-    expect(samplePotentialTerrainHeight(terrain, bounds, secondPoint)).toBeCloseTo(
-      y10 * 0.3 + y01 * 0.2 + y11 * 0.5,
-      6,
-    )
+    expect(samplePotentialTerrainHeight(terrain, bounds, firstPoint)).toBeCloseTo(y00 * 0.5 + y10 * 0.2 + y01 * 0.3, 6)
+    expect(samplePotentialTerrainHeight(terrain, bounds, secondPoint)).toBeCloseTo(y10 * 0.3 + y01 * 0.2 + y11 * 0.5, 6)
   })
 
   it('deduplicates exact zero-contour segments on a symmetric grid', () => {

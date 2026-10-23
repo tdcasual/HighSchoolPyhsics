@@ -12,16 +12,26 @@ import './electromagnetic-drive.css'
 export function ElectromagneticDriveScene() {
   const state = useElectromagneticDriveSceneState()
   const isCoasting = state.magnetSpeed > 0.01 || state.frameSpeed > 0.01
-  const experimentStatus = state.frozen ? '定格（单步）' : state.isRunning ? '摇动中' : isCoasting ? '惯性滑行中' : '静止'
+  const experimentStatus = state.frozen
+    ? '定格（单步）'
+    : state.isRunning
+      ? '摇动中'
+      : isCoasting
+        ? '惯性滑行中'
+        : '静止'
   const magnetSpeedText = formatAngularSpeed(state.magnetSpeed)
   const frameSpeedText = formatAngularSpeed(state.frameSpeed)
-  const lagRatioText = state.magnetSpeed > 0.001
-    ? formatLagRatio(state.frameSpeed, state.magnetSpeed)
-    : state.frameSpeed > 0.001 ? '磁铁近静止，铝框惯性滑行' : '0%'
+  const lagRatioText =
+    state.magnetSpeed > 0.001
+      ? formatLagRatio(state.frameSpeed, state.magnetSpeed)
+      : state.frameSpeed > 0.001
+        ? '磁铁近静止，铝框惯性滑行'
+        : '0%'
   const frameloop = state.ticking ? 'always' : 'demand'
 
   return (
-    <SceneLayout timeControl
+    <SceneLayout
+      timeControl
       controls={<ElectromagneticDriveControls />}
       playbackActions={clockActions(
         {
@@ -29,7 +39,13 @@ export function ElectromagneticDriveScene() {
           toggle: state.frozen ? state.resume : state.isRunning ? state.pause : state.start,
           step: state.step,
         },
-        { playLabel: state.frozen ? '继续' : '开始摇动', pauseLabel: '停止摇动', stepLabel: '单步 0.1 s', resetLabel: '重置实验', onReset: state.reset },
+        {
+          playLabel: state.frozen ? '继续' : '开始摇动',
+          pauseLabel: '停止摇动',
+          stepLabel: '单步 0.1 s',
+          resetLabel: '重置实验',
+          onReset: state.reset,
+        },
       )}
       dataOverlay={
         <DataRows
@@ -43,15 +59,18 @@ export function ElectromagneticDriveScene() {
         />
       }
       chart={
-        <ElectromagneticDriveChart
-          magnetSpeeds={state.history.magnetSpeeds}
-          frameSpeeds={state.history.frameSpeeds}
-        />
+        <ElectromagneticDriveChart magnetSpeeds={state.history.magnetSpeeds} frameSpeeds={state.history.frameSpeeds} />
       }
       chartVisible={true}
       chartInitiallyCollapsed
       viewport={
-        <FittedCanvas shot={{ from: [1.2, 11.7, 18.2], to: [-10.08, 4.2, 0] }} fov={42} minDistance={12} maxDistance={42} frameloop={frameloop}>
+        <FittedCanvas
+          shot={{ from: [1.2, 11.7, 18.2], to: [-10.08, 4.2, 0] }}
+          fov={42}
+          minDistance={12}
+          maxDistance={42}
+          frameloop={frameloop}
+        >
           <ElectromagneticDriveRig3D
             magnetAngle={state.magnetAngle}
             frameAngle={state.frameAngle}

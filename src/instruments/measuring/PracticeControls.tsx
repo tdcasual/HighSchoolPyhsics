@@ -23,7 +23,11 @@ const VIEWS = [
   { key: 'focus', label: '刻度' },
 ]
 
-export function LessonSection({ state, summary, onLesson }: {
+export function LessonSection({
+  state,
+  summary,
+  onLesson,
+}: {
   state: PracticeState
   /** One line describing the current question's set-up (shown while a question runs). */
   summary: string
@@ -33,7 +37,9 @@ export function LessonSection({ state, summary, onLesson }: {
     <ControlSection title={state.challengeActive ? '当前练习' : '课堂模式'}>
       {state.challengeActive ? (
         <>
-          <p className="measure-hint">{summary} · {state.lesson === 'read' ? '读数练习' : '调节练习'}</p>
+          <p className="measure-hint">
+            {summary} · {state.lesson === 'read' ? '读数练习' : '调节练习'}
+          </p>
           <SceneActions actions={[{ key: 'end', label: '结束本题并返回自由调节', onClick: () => onLesson('free') }]} />
         </>
       ) : (
@@ -43,7 +49,13 @@ export function LessonSection({ state, summary, onLesson }: {
   )
 }
 
-export function StepButtons({ hint, actions }: { hint: string; actions: { key: string; label: string; onClick: () => void; disabled?: boolean }[] }) {
+export function StepButtons({
+  hint,
+  actions,
+}: {
+  hint: string
+  actions: { key: string; label: string; onClick: () => void; disabled?: boolean }[]
+}) {
   return (
     <>
       <p className="measure-hint">{hint}</p>
@@ -54,7 +66,12 @@ export function StepButtons({ hint, actions }: { hint: string; actions: { key: s
   )
 }
 
-export function ViewSection({ state, onView, onLabels, onFreeWork }: {
+export function ViewSection({
+  state,
+  onView,
+  onLabels,
+  onFreeWork,
+}: {
   state: PracticeState
   onView: (view: ViewPreset) => void
   onLabels: (show: boolean) => void
@@ -65,9 +82,19 @@ export function ViewSection({ state, onView, onLabels, onFreeWork }: {
       <SegmentedControl options={VIEWS} value={state.view} onChange={(key) => onView(key as ViewPreset)} />
       <SceneActions
         actions={[
-          { key: 'labels', label: state.showLabels ? '隐藏部件名称' : '显示部件名称', onClick: () => onLabels(!state.showLabels) },
+          {
+            key: 'labels',
+            label: state.showLabels ? '隐藏部件名称' : '显示部件名称',
+            onClick: () => onLabels(!state.showLabels),
+          },
           ...(state.lesson === 'free'
-            ? [{ key: 'work', label: state.freeWork ? '隐藏工件' : '显示工件', onClick: () => onFreeWork(!state.freeWork) }]
+            ? [
+                {
+                  key: 'work',
+                  label: state.freeWork ? '隐藏工件' : '显示工件',
+                  onClick: () => onFreeWork(!state.freeWork),
+                },
+              ]
             : []),
         ]}
       />
@@ -76,7 +103,13 @@ export function ViewSection({ state, onView, onLabels, onFreeWork }: {
 }
 
 /** 自由调节: type a reading and the instrument eases to it; plus the 分解 toggle. */
-export function TargetSection({ state, label, example, onGoTo, onHints }: {
+export function TargetSection({
+  state,
+  label,
+  example,
+  onGoTo,
+  onHints,
+}: {
   state: PracticeState
   label: string
   example: string
@@ -89,23 +122,37 @@ export function TargetSection({ state, label, example, onGoTo, onHints }: {
       <ControlSection title="调到指定读数">
         <TextField id="measure-target" label={label} value={text} onChange={setText} placeholder={`例如 ${example}`} />
         <SceneActions
-          actions={[{
-            key: 'goto',
-            label: '调到该读数',
-            onClick: () => onGoTo(parseReading(text)?.value ?? Number.NaN),
-            disabled: state.locked,
-          }]}
+          actions={[
+            {
+              key: 'goto',
+              label: '调到该读数',
+              onClick: () => onGoTo(parseReading(text)?.value ?? Number.NaN),
+              disabled: state.locked,
+            },
+          ]}
         />
       </ControlSection>
       <ControlSection title="提示">
-        <SceneActions actions={[{ key: 'hints', label: state.hints ? '隐藏分解' : '显示分解', onClick: () => onHints(!state.hints) }]} />
+        <SceneActions
+          actions={[
+            { key: 'hints', label: state.hints ? '隐藏分解' : '显示分解', onClick: () => onHints(!state.hints) },
+          ]}
+        />
       </ControlSection>
     </>
   )
 }
 
 /** Reading and adjustment practice: the answer box or target, 出题 / 判定, and feedback. */
-export function JudgeSection({ state, targetText, readHint, stepButtons, onAnswer, onAsk, onSubmit }: {
+export function JudgeSection({
+  state,
+  targetText,
+  readHint,
+  stepButtons,
+  onAnswer,
+  onAsk,
+  onSubmit,
+}: {
   state: PracticeState
   /** The adjustment target formatted to the instrument's precision. */
   targetText: string | null
@@ -124,7 +171,13 @@ export function JudgeSection({ state, targetText, readHint, stepButtons, onAnswe
           {state.challengeActive && checked ? (
             <p className="measure-hint">你提交的读数：{state.answer || '（空）'}</p>
           ) : (
-            <TextField id="measure-answer" label="你的读数" value={state.answer} onChange={onAnswer} placeholder="输入读数（mm）" />
+            <TextField
+              id="measure-answer"
+              label="你的读数"
+              value={state.answer}
+              onChange={onAnswer}
+              placeholder="输入读数（mm）"
+            />
           )}
         </>
       ) : targetText === null ? (
@@ -140,10 +193,17 @@ export function JudgeSection({ state, targetText, readHint, stepButtons, onAnswe
       <SceneActions
         actions={[
           { key: 'ask', label: state.challengeActive ? '换一题' : '出题', onClick: onAsk },
-          { key: 'check', label: state.lesson === 'read' ? '判定' : '检查', onClick: onSubmit, disabled: !state.challengeActive || checked },
+          {
+            key: 'check',
+            label: state.lesson === 'read' ? '判定' : '检查',
+            onClick: onSubmit,
+            disabled: !state.challengeActive || checked,
+          },
         ]}
       />
-      {state.feedback ? <p className={state.feedbackOk ? 'measure-feedback ok' : 'measure-feedback bad'}>{state.feedback}</p> : null}
+      {state.feedback ? (
+        <p className={state.feedbackOk ? 'measure-feedback ok' : 'measure-feedback bad'}>{state.feedback}</p>
+      ) : null}
     </ControlSection>
   )
 }

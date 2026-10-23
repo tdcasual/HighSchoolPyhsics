@@ -51,12 +51,10 @@ function resolveSceneComponent(pageId: string, module: SceneImportModule): Compo
     return module.default
   }
 
-  const namedSceneExports = Object.entries(module).filter(
-    (entry): entry is [string, ComponentType] => {
-      const [exportName, exportedValue] = entry
-      return exportName.endsWith('Scene') && isSceneComponent(exportedValue)
-    },
-  )
+  const namedSceneExports = Object.entries(module).filter((entry): entry is [string, ComponentType] => {
+    const [exportName, exportedValue] = entry
+    return exportName.endsWith('Scene') && isSceneComponent(exportedValue)
+  })
 
   if (namedSceneExports.length === 1) {
     return namedSceneExports[0][1]
@@ -102,7 +100,6 @@ const SCENE_LOADERS = createSceneLoaders()
 export const DISCOVERED_SCENE_PAGE_IDS = Object.freeze(Object.keys(SCENE_LOADERS).sort())
 
 export const DEMO_SCENE_CATALOG: SceneCatalogEntry[] = SCENE_CATALOG
-
 
 const DEMO_SCENE_DEFINITIONS: DemoSceneDefinition[] = DEMO_SCENE_CATALOG.map((entry) => {
   const loadScene = SCENE_LOADERS[entry.pageId]

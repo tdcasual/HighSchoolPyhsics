@@ -38,19 +38,11 @@ function hasConstrainedConnection(connection: NetworkInformationLike | undefined
     return true
   }
 
-  if (
-    typeof connection.downlink === 'number' &&
-    connection.downlink > 0 &&
-    connection.downlink < MIN_DOWNLINK_MBPS
-  ) {
+  if (typeof connection.downlink === 'number' && connection.downlink > 0 && connection.downlink < MIN_DOWNLINK_MBPS) {
     return true
   }
 
-  if (
-    typeof connection.rtt === 'number' &&
-    connection.rtt > 0 &&
-    connection.rtt > MAX_RTT_MS
-  ) {
+  if (typeof connection.rtt === 'number' && connection.rtt > 0 && connection.rtt > MAX_RTT_MS) {
     return true
   }
 

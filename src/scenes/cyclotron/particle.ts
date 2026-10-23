@@ -11,11 +11,7 @@ export type ParticleState = {
 }
 
 /** Velocity first, then position with the new velocity: keeps circular orbits from spiralling out. */
-export function semiImplicitEulerStep(
-  state: ParticleState,
-  acceleration: Vector3Like,
-  dt: number,
-): ParticleState {
+export function semiImplicitEulerStep(state: ParticleState, acceleration: Vector3Like, dt: number): ParticleState {
   const velocity = {
     x: state.velocity.x + acceleration.x * dt,
     y: state.velocity.y + acceleration.y * dt,

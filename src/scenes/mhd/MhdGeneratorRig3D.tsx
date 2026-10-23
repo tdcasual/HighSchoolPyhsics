@@ -20,10 +20,30 @@ const channelVisibility = deriveChannelVisibilityConfig()
 /** `fontSize` is in scene units (×64 px). */
 
 /** `fontSize` is in scene units (×64 px). */
-function MhdWorldLabel({ position, color, fontSize, children }: { position: [number, number, number]; color: string; fontSize: number; children: ReactNode }) {
-  return <SceneLabel position={position} variant="text" color={color} size={Math.max(10, Math.round(fontSize * 64))} halo="dark" distanceFactor={8}>{children}</SceneLabel>
+function MhdWorldLabel({
+  position,
+  color,
+  fontSize,
+  children,
+}: {
+  position: [number, number, number]
+  color: string
+  fontSize: number
+  children: ReactNode
+}) {
+  return (
+    <SceneLabel
+      position={position}
+      variant="text"
+      color={color}
+      size={Math.max(10, Math.round(fontSize * 64))}
+      halo="dark"
+      distanceFactor={8}
+    >
+      {children}
+    </SceneLabel>
+  )
 }
-
 
 const magneticGuides = MHD_LAYOUT.magneticField.xGuides.map((x) => ({
   shaft: [
@@ -74,8 +94,6 @@ export function MhdGeneratorRig3D({
         position={[0, 0, layout.magnets.northPosition[2] + layout.magnets.size[2] / 2 + 0.012]}
         color="#ffffff"
         fontSize={0.28}
-
-
       >
         N
       </MhdWorldLabel>
@@ -83,30 +101,30 @@ export function MhdGeneratorRig3D({
         position={[0, 0, layout.magnets.southPosition[2] + layout.magnets.size[2] / 2 + 0.012]}
         color="#ffffff"
         fontSize={0.28}
-
-
       >
         S
       </MhdWorldLabel>
 
-      <mesh
-        position={layout.electrodes.topCenter}
-        rotation={[0, layout.electrodes.topRotationY, 0]}
-      >
+      <mesh position={layout.electrodes.topCenter} rotation={[0, layout.electrodes.topRotationY, 0]}>
         <boxGeometry args={layout.electrodes.size} />
         <meshStandardMaterial color="#d7cd9d" metalness={0.25} roughness={0.52} />
       </mesh>
-      <mesh
-        position={layout.electrodes.bottomCenter}
-        rotation={[0, layout.electrodes.bottomRotationY, 0]}
-      >
+      <mesh position={layout.electrodes.bottomCenter} rotation={[0, layout.electrodes.bottomRotationY, 0]}>
         <boxGeometry args={layout.electrodes.size} />
         <meshStandardMaterial color="#d7cd9d" metalness={0.25} roughness={0.52} />
       </mesh>
-      <MhdWorldLabel position={[0, layout.electrodes.topCenter[1] + layout.electrodes.size[1] / 2 + 0.1, -0.5]} color="#2a2a2a" fontSize={0.2}  >
+      <MhdWorldLabel
+        position={[0, layout.electrodes.topCenter[1] + layout.electrodes.size[1] / 2 + 0.1, -0.5]}
+        color="#2a2a2a"
+        fontSize={0.2}
+      >
         A (−)
       </MhdWorldLabel>
-      <MhdWorldLabel position={[0, layout.electrodes.bottomCenter[1] - layout.electrodes.size[1] / 2 - 0.1, 0]} color="#2a2a2a" fontSize={0.2}  >
+      <MhdWorldLabel
+        position={[0, layout.electrodes.bottomCenter[1] - layout.electrodes.size[1] / 2 - 0.1, 0]}
+        color="#2a2a2a"
+        fontSize={0.2}
+      >
         B (+)
       </MhdWorldLabel>
 
@@ -148,13 +166,7 @@ export function MhdGeneratorRig3D({
 
       {magneticGuides.map((guide, index) => (
         <group key={`b-guide-${index}`}>
-          <Line
-            points={guide.shaft}
-            color="#fff090"
-            lineWidth={2.6}
-            transparent
-            opacity={0.9}
-          />
+          <Line points={guide.shaft} color="#fff090" lineWidth={2.6} transparent opacity={0.9} />
           <mesh position={guide.tip} rotation={[Math.PI / 2, 0, 0]}>
             <coneGeometry args={[0.045, 0.18, geoDetail.coneRadialSegments]} />
             <meshBasicMaterial color="#fff090" />
@@ -192,7 +204,9 @@ export function MhdGeneratorRig3D({
         opacity={magneticDeflectionOpacity}
       />
       <mesh position={[-0.54, -lorentzArrowHalf + lorentzArrowHeadLength / 2, -0.22]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]} />
+        <coneGeometry
+          args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]}
+        />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
       <Line
@@ -206,7 +220,9 @@ export function MhdGeneratorRig3D({
         opacity={magneticDeflectionOpacity}
       />
       <mesh position={[0.54, lorentzArrowHalf - lorentzArrowHeadLength / 2, 0.22]}>
-        <coneGeometry args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]} />
+        <coneGeometry
+          args={[Math.min(0.04, lorentzArrowHeadLength * 0.45), lorentzArrowHeadLength, geoDetail.coneRadialSegments]}
+        />
         <meshBasicMaterial color="#ffb066" transparent opacity={magneticDeflectionOpacity} />
       </mesh>
       <MhdWorldLabel position={[-0.84, 0, -0.22]} color="#ffb066" fontSize={0.1}>
@@ -227,37 +243,15 @@ export function MhdGeneratorRig3D({
         electrodeGapM={electrodeGapM}
       />
 
-      <PlateCharges
-        chargeSeparation={chargeSeparation}
-        topChargeY={topChargeY}
-        bottomChargeY={bottomChargeY}
-      />
+      <PlateCharges chargeSeparation={chargeSeparation} topChargeY={topChargeY} bottomChargeY={bottomChargeY} />
 
-      <MhdWorldLabel
-        position={[-0.95, 0.12, 0.58]}
-        color="#fff4b8"
-        fontSize={0.16}
-
-
-      >
+      <MhdWorldLabel position={[-0.95, 0.12, 0.58]} color="#fff4b8" fontSize={0.16}>
         B
       </MhdWorldLabel>
-      <MhdWorldLabel
-        position={[-1.42, 0.38, 0]}
-        color="#d62f93"
-        fontSize={0.17}
-
-
-      >
+      <MhdWorldLabel position={[-1.42, 0.38, 0]} color="#d62f93" fontSize={0.17}>
         v
       </MhdWorldLabel>
-      <MhdWorldLabel
-        position={[-0.8, 0.5, 0.2]}
-        color="#abf6ff"
-        fontSize={0.13}
-
-
-      >
+      <MhdWorldLabel position={[-0.8, 0.5, 0.2]} color="#abf6ff" fontSize={0.13}>
         E<sub>ind</sub> ↑
       </MhdWorldLabel>
       <Line points={layout.wires.top} color="#2a2a2a" lineWidth={2.2} />
@@ -266,15 +260,22 @@ export function MhdGeneratorRig3D({
         <boxGeometry args={layout.load.bodySize} />
         <meshStandardMaterial color="#f2f2f2" roughness={0.4} metalness={0.15} />
       </mesh>
-      <Line points={[[2.18, -0.18, 0.72], [2.18, 0.18, 0.72]]} color="#e77b42" lineWidth={2} />
+      <Line
+        points={[
+          [2.18, -0.18, 0.72],
+          [2.18, 0.18, 0.72],
+        ]}
+        color="#e77b42"
+        lineWidth={2}
+      />
       <mesh position={[2.18, 0.18, 0.72]} rotation={[0, 0, 0]}>
         <coneGeometry args={[0.035, 0.12, geoDetail.coneRadialSegments]} />
         <meshBasicMaterial color="#e77b42" />
       </mesh>
-      <MhdWorldLabel position={[2.08, 0.3, 0.72]} color="#b95a2a" fontSize={0.1} >
+      <MhdWorldLabel position={[2.08, 0.3, 0.72]} color="#b95a2a" fontSize={0.1}>
         I<sub>L</sub> ↑
       </MhdWorldLabel>
-      <MhdWorldLabel position={[2.32, 0.12, 0.51]} color="#333333" fontSize={0.1}  >
+      <MhdWorldLabel position={[2.32, 0.12, 0.51]} color="#333333" fontSize={0.1}>
         R<sub>L</sub>
       </MhdWorldLabel>
     </group>

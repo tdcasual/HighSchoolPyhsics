@@ -5,15 +5,7 @@ import { RangeField } from '../RangeField'
 describe('RangeField', () => {
   it('renders an accessible range input from label and id', () => {
     render(
-      <RangeField
-        id="range-speed"
-        label="速度"
-        min={0}
-        max={10}
-        step={0.5}
-        value={2}
-        onChange={() => undefined}
-      />,
+      <RangeField id="range-speed" label="速度" min={0} max={10} step={0.5} value={2} onChange={() => undefined} />,
     )
 
     const input = screen.getByLabelText('速度')
@@ -26,17 +18,7 @@ describe('RangeField', () => {
     vi.useFakeTimers()
     const onChange = vi.fn()
 
-    render(
-      <RangeField
-        id="range-current"
-        label="电流"
-        min={-8}
-        max={8}
-        step={0.2}
-        value={0}
-        onChange={onChange}
-      />,
-    )
+    render(<RangeField id="range-current" label="电流" min={-8} max={8} step={0.2} value={0} onChange={onChange} />)
 
     fireEvent.change(screen.getByLabelText('电流'), { target: { value: '3.6' } })
     vi.advanceTimersToNextTimer()

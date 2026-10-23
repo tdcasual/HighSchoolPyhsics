@@ -7,13 +7,7 @@ const { mockRig } = vi.hoisted(() => ({
 }))
 
 vi.mock('../../../scene3d/InteractiveCanvas', () => ({
-  InteractiveCanvas: ({
-    frameloop,
-    children,
-  }: {
-    frameloop?: 'always' | 'demand'
-    children: ReactNode
-  }) => (
+  InteractiveCanvas: ({ frameloop, children }: { frameloop?: 'always' | 'demand'; children: ReactNode }) => (
     <div data-testid="interactive-canvas" data-frameloop={frameloop ?? 'always'}>
       {children}
     </div>

@@ -29,4 +29,3 @@ describe('generator-core structure', () => {
     expect(screen.getByTestId('interactive-canvas')).toHaveAttribute('data-frameloop', 'demand')
   })
 })
-

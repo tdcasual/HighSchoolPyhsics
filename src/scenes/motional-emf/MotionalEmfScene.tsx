@@ -24,7 +24,8 @@ export function MotionalEmfScene() {
   const activeCameraPreset = useMemo(() => CAMERA_PRESETS[cameraView], [cameraView])
 
   return (
-    <SceneLayout timeControl
+    <SceneLayout
+      timeControl
       controls={
         <>
           <MotionalEmfControls
@@ -83,11 +84,37 @@ export function MotionalEmfScene() {
       dataOverlay={
         <DataRows
           rows={[
-            { label: '运动状态', value: state.running ? '运动中' : state.steppedInMotion ? '运动中（定格）' : state.phase >= 1 ? '行程完成' : state.phase > 0 ? '已暂停' : '静止' },
+            {
+              label: '运动状态',
+              value: state.running
+                ? '运动中'
+                : state.steppedInMotion
+                  ? '运动中（定格）'
+                  : state.phase >= 1
+                    ? '行程完成'
+                    : state.phase > 0
+                      ? '已暂停'
+                      : '静止',
+            },
             { label: '行程', value: <>{(state.phase * 100).toFixed(0)}%</> },
-            { label: <>电压 U<sub>AB</sub></>, value: <>{state.signedVoltageV.toFixed(2)} V</>, answer: true },
+            {
+              label: (
+                <>
+                  电压 U<sub>AB</sub>
+                </>
+              ),
+              value: <>{state.signedVoltageV.toFixed(2)} V</>,
+              answer: true,
+            },
             { label: '极性', value: state.polarityText, answer: true },
-            { label: '∠(B,L) / ∠(L,v) / ∠(B,v)', value: <>{state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}</> },
+            {
+              label: '∠(B,L) / ∠(L,v) / ∠(B,v)',
+              value: (
+                <>
+                  {state.angleBetweenBLLabel} / {state.angleBetweenLVLabel} / {state.angleBetweenBVLabel}
+                </>
+              ),
+            },
           ]}
         />
       }

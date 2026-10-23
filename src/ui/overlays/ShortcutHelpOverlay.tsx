@@ -15,9 +15,7 @@ const SHORTCUT_GROUPS = [
   },
   {
     title: '导航页',
-    items: [
-      { keys: ['1 ~ 9'], desc: '快速进入第 1~9 个演示' },
-    ],
+    items: [{ keys: ['1 ~ 9'], desc: '快速进入第 1~9 个演示' }],
   },
   {
     title: '通用',
@@ -51,22 +49,11 @@ export function ShortcutHelpOverlay({ visible, onClose }: ShortcutHelpOverlayPro
   if (!visible) return null
 
   return (
-    <div
-      className="shortcut-help-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="快捷键帮助"
-      onClick={onClose}
-    >
+    <div className="shortcut-help-overlay" role="dialog" aria-modal="true" aria-label="快捷键帮助" onClick={onClose}>
       <div className="shortcut-help-panel" onClick={(e) => e.stopPropagation()}>
         <div className="shortcut-help-header">
           <h2>快捷键</h2>
-          <button
-            type="button"
-            className="shortcut-help-close"
-            aria-label="关闭"
-            onClick={onClose}
-          >
+          <button type="button" className="shortcut-help-close" aria-label="关闭" onClick={onClose}>
             ✕
           </button>
         </div>

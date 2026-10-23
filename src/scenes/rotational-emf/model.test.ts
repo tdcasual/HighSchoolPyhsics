@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  deriveRotatingFrameEmfMagnitude,
-  deriveRotatingRodEmfMagnitude,
-  deriveRotationalEmfReadout,
-} from './model'
+import { deriveRotatingFrameEmfMagnitude, deriveRotatingRodEmfMagnitude, deriveRotationalEmfReadout } from './model'
 
 describe('rotational-emf model', () => {
   it('keeps the rotating rod magnitude independent of angle in the standard classroom model', () => {

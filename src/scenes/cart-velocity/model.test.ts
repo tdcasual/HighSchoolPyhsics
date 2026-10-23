@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  at,
-  counts,
-  dots,
-  fit,
-  hangingMass,
-  hookAcceleration,
-  measurements,
-} from './model'
+import { at, counts, dots, fit, hangingMass, hookAcceleration, measurements } from './model'
 
 const accelerated = { a: hookAcceleration(3), v0: 0.1, dh: 0 }
 

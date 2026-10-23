@@ -36,9 +36,11 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute(
+      'data-presentation-focus-mode',
+      'focus',
+    )
   })
-
 
   it('uses current browser path when activeScenePath has not synced yet', () => {
     window.history.replaceState(null, '', '/oscilloscope')
@@ -53,7 +55,10 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'focus')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute(
+      'data-presentation-focus-mode',
+      'focus',
+    )
   })
 
   it('defaults to overview when no presentationFocus is provided', () => {
@@ -63,9 +68,11 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-presentation-focus-mode', 'overview')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute(
+      'data-presentation-focus-mode',
+      'overview',
+    )
   })
-
 
   it('exposes the current route canvas gesture scope on the fallback surface', () => {
     setScenePath('/oscilloscope')
@@ -76,7 +83,10 @@ describe('InteractiveCanvas classroom contract', () => {
       </InteractiveCanvas>,
     )
 
-    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute('data-canvas-gesture-scope', 'interactive-canvas')
+    expect(screen.getByText(/3D演示预览/).closest('.canvas-fallback-stack')).toHaveAttribute(
+      'data-canvas-gesture-scope',
+      'interactive-canvas',
+    )
   })
 
   it('renders the current route touch-profile hint in the canvas fallback', () => {

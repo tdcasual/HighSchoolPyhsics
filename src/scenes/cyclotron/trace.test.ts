@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildTimeSeries,
-  deriveAdaptiveWindowS,
-  evaluateGapVoltageAtTime,
-  evaluateKineticEnergyAtTime,
-} from './trace'
+import { buildTimeSeries, deriveAdaptiveWindowS, evaluateGapVoltageAtTime, evaluateKineticEnergyAtTime } from './trace'
 
 describe('cyclotron trace helpers', () => {
   it('adapts chart window from cyclotron period', () => {

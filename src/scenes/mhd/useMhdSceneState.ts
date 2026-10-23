@@ -35,13 +35,32 @@ export type MhdSceneState = {
 }
 
 export function useMhdSceneState(): MhdSceneState {
-  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('mhd.magneticFieldT', INITIAL_PARAMETERS.magneticFieldT))
-  const [plasmaVelocityMps, setPlasmaVelocityMps] = useState(() => recall('mhd.plasmaVelocityMps', INITIAL_PARAMETERS.plasmaVelocityMps))
-  const [plasmaDensityRatio, setPlasmaDensityRatio] = useState(() => recall('mhd.plasmaDensityRatio', INITIAL_PARAMETERS.plasmaDensityRatio))
-  const [electrodeGapM, setElectrodeGapM] = useState(() => recall('mhd.electrodeGapM', INITIAL_PARAMETERS.electrodeGapM))
-  const [conductivitySPerM, setConductivitySPerM] = useState(() => recall('mhd.conductivitySPerM', INITIAL_PARAMETERS.conductivitySPerM))
-  const [loadResistanceOhm, setLoadResistanceOhm] = useState(() => recall('mhd.loadResistanceOhm', INITIAL_PARAMETERS.loadResistanceOhm))
-  useRemember('mhd', { magneticFieldT, plasmaVelocityMps, plasmaDensityRatio, electrodeGapM, conductivitySPerM, loadResistanceOhm })
+  const [magneticFieldT, setMagneticFieldT] = useState(() =>
+    recall('mhd.magneticFieldT', INITIAL_PARAMETERS.magneticFieldT),
+  )
+  const [plasmaVelocityMps, setPlasmaVelocityMps] = useState(() =>
+    recall('mhd.plasmaVelocityMps', INITIAL_PARAMETERS.plasmaVelocityMps),
+  )
+  const [plasmaDensityRatio, setPlasmaDensityRatio] = useState(() =>
+    recall('mhd.plasmaDensityRatio', INITIAL_PARAMETERS.plasmaDensityRatio),
+  )
+  const [electrodeGapM, setElectrodeGapM] = useState(() =>
+    recall('mhd.electrodeGapM', INITIAL_PARAMETERS.electrodeGapM),
+  )
+  const [conductivitySPerM, setConductivitySPerM] = useState(() =>
+    recall('mhd.conductivitySPerM', INITIAL_PARAMETERS.conductivitySPerM),
+  )
+  const [loadResistanceOhm, setLoadResistanceOhm] = useState(() =>
+    recall('mhd.loadResistanceOhm', INITIAL_PARAMETERS.loadResistanceOhm),
+  )
+  useRemember('mhd', {
+    magneticFieldT,
+    plasmaVelocityMps,
+    plasmaDensityRatio,
+    electrodeGapM,
+    conductivitySPerM,
+    loadResistanceOhm,
+  })
   const [running, setRunning] = useState(false)
   const [chargeSeparation, setChargeSeparation] = useState(0)
 
@@ -58,19 +77,10 @@ export function useMhdSceneState(): MhdSceneState {
         conductivitySPerM: conductivitySPerM * plasmaDensityRatio,
         loadResistanceOhm,
       }),
-    [
-      conductivitySPerM,
-      electrodeGapM,
-      loadResistanceOhm,
-      magneticFieldT,
-      plasmaDensityRatio,
-      plasmaVelocityMps,
-    ],
+    [conductivitySPerM, electrodeGapM, loadResistanceOhm, magneticFieldT, plasmaDensityRatio, plasmaVelocityMps],
   )
   const loadVoltageRatio =
-    Math.abs(readings.openCircuitVoltageV) > 0
-      ? Math.abs(readings.outputVoltageV / readings.openCircuitVoltageV)
-      : 0
+    Math.abs(readings.openCircuitVoltageV) > 0 ? Math.abs(readings.outputVoltageV / readings.openCircuitVoltageV) : 0
   const polarizationTarget = driveRatio * loadVoltageRatio
 
   // Charge separation builds up toward the steady state while the plasma flows.

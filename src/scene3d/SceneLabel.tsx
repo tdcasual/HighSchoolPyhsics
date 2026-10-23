@@ -47,7 +47,12 @@ export function SceneLabel({
     fontWeight: weight,
     fontStyle: italic ? 'italic' : undefined,
   }
-  const classes = ['scene-label', `scene-label--${variant}`, variant === 'text' && halo === 'dark' ? 'scene-label--dark-halo' : null, className]
+  const classes = [
+    'scene-label',
+    `scene-label--${variant}`,
+    variant === 'text' && halo === 'dark' ? 'scene-label--dark-halo' : null,
+    className,
+  ]
   return (
     <Html position={position} center={center} distanceFactor={distanceFactor} style={{ pointerEvents: 'none' }}>
       <span className={classes.filter(Boolean).join(' ')} style={style} data-testid={testId}>

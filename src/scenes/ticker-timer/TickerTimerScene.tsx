@@ -1,20 +1,17 @@
 import { DataRows } from '../../ui/panels/DataRows'
-import { FittedCanvas } from "../../scene3d/FittedCanvas";
-import { RangeField } from "../../ui/controls/RangeField";
-import { SceneLayout } from "../../ui/layout/SceneLayout";
-import { TickerTimerChart } from "./TickerTimerChart";
-import { TickerTimerControls } from "./TickerTimerControls";
-import { TickerTimerRig3D } from "./TickerTimerRig3D";
-import { useTickerTimerSceneState } from "./useTickerTimerSceneState";
-import {
-  MAX_PLAYBACK_RATE,
-  MIN_PLAYBACK_RATE,
-} from "./useTickerTimerSceneState";
-import "./ticker-timer.css";
+import { FittedCanvas } from '../../scene3d/FittedCanvas'
+import { RangeField } from '../../ui/controls/RangeField'
+import { SceneLayout } from '../../ui/layout/SceneLayout'
+import { TickerTimerChart } from './TickerTimerChart'
+import { TickerTimerControls } from './TickerTimerControls'
+import { TickerTimerRig3D } from './TickerTimerRig3D'
+import { useTickerTimerSceneState } from './useTickerTimerSceneState'
+import { MAX_PLAYBACK_RATE, MIN_PLAYBACK_RATE } from './useTickerTimerSceneState'
+import './ticker-timer.css'
 
 export function TickerTimerScene() {
-  const state = useTickerTimerSceneState();
-  const animating = state.powered && !state.finished;
+  const state = useTickerTimerSceneState()
+  const animating = state.powered && !state.finished
 
   return (
     <SceneLayout
@@ -24,14 +21,24 @@ export function TickerTimerScene() {
         <DataRows
           className="ticker-telemetry"
           rows={[
-            { label: '状态', value: state.finished
-                ? "记录已结束 · 请重置"
+            {
+              label: '状态',
+              value: state.finished
+                ? '记录已结束 · 请重置'
                 : state.released
-                  ? "纸带运动中"
+                  ? '纸带运动中'
                   : state.powered
-                    ? "已通电 · 待释放"
-                    : "待通电" },
-            { label: '点迹', value: <>{state.dotCount} 个 · {state.qualityLabel}</> },
+                    ? '已通电 · 待释放'
+                    : '待通电',
+            },
+            {
+              label: '点迹',
+              value: (
+                <>
+                  {state.dotCount} 个 · {state.qualityLabel}
+                </>
+              ),
+            },
             { label: '纸带位移', value: state.displacementLabel },
             { label: '瞬时速度', value: state.speedLabel },
             { label: '逐差法加速度', value: state.measuredAccelerationLabel, answer: true },
@@ -40,7 +47,8 @@ export function TickerTimerScene() {
       }
       notes={
         <p>
-          {state.kindLabel}：{state.powered ? '已通电' : '未通电'} · {state.voltageLabel}，打点周期 T = {state.periodLabel}（{state.frequencyLabel}）；纸带阻力 {state.frictionLabel}。
+          {state.kindLabel}：{state.powered ? '已通电' : '未通电'} · {state.voltageLabel}，打点周期 T ={' '}
+          {state.periodLabel}（{state.frequencyLabel}）；纸带阻力 {state.frictionLabel}。
         </p>
       }
       chart={
@@ -67,20 +75,20 @@ export function TickerTimerScene() {
       }
       playbackActions={[
         {
-          key: "power",
-          label: state.powered ? "断电" : "通电",
+          key: 'power',
+          label: state.powered ? '断电' : '通电',
           onClick: state.togglePower,
           disabled: state.finished && !state.powered,
         },
         {
-          key: "release",
-          label: "释放纸带",
+          key: 'release',
+          label: '释放纸带',
           onClick: state.release,
           disabled: !state.powered || state.released || state.finished,
         },
         {
-          key: "reset",
-          label: "重置",
+          key: 'reset',
+          label: '重置',
           onClick: state.reset,
         },
       ]}
@@ -90,7 +98,7 @@ export function TickerTimerScene() {
           fov={38}
           minDistance={4.5}
           maxDistance={18}
-          frameloop={animating ? "always" : "demand"}
+          frameloop={animating ? 'always' : 'demand'}
         >
           <TickerTimerRig3D
             kind={state.kind}
@@ -104,7 +112,7 @@ export function TickerTimerScene() {
         </FittedCanvas>
       }
     />
-  );
+  )
 }
 
-export default TickerTimerScene;
+export default TickerTimerScene

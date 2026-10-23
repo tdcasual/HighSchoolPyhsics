@@ -104,7 +104,12 @@ function resolveVisualRodLength(rodLengthM: number): number {
 }
 
 function createCurve(points: Vec3[]): CatmullRomCurve3 {
-  return new CatmullRomCurve3(points.map((point) => new Vector3(point[0], point[1], point[2])), false, 'catmullrom', 0.5)
+  return new CatmullRomCurve3(
+    points.map((point) => new Vector3(point[0], point[1], point[2])),
+    false,
+    'catmullrom',
+    0.5,
+  )
 }
 
 export function MotionalEmfRig3D({
@@ -128,11 +133,7 @@ export function MotionalEmfRig3D({
     rodVelocityAngleDeg,
     motionDirection,
   })
-  const velocityDirection = normalize([
-    velocityDirectionVector.x,
-    velocityDirectionVector.y,
-    velocityDirectionVector.z,
-  ])
+  const velocityDirection = normalize([velocityDirectionVector.x, velocityDirectionVector.y, velocityDirectionVector.z])
   const currentDirection = resolveInducedCurrentDirection({
     rodAngleDeg,
     discussionMode,
@@ -165,14 +166,8 @@ export function MotionalEmfRig3D({
   const wireACurve = useMemo(() => createCurve(wireAPoints), [wireAPoints])
   const wireBCurve = useMemo(() => createCurve(wireBPoints), [wireBPoints])
 
-  const wireGeoA = useMemo(
-    () => new TubeGeometry(wireACurve, 42, WIRE_RADIUS, 12, false),
-    [wireACurve],
-  )
-  const wireGeoB = useMemo(
-    () => new TubeGeometry(wireBCurve, 42, WIRE_RADIUS, 12, false),
-    [wireBCurve],
-  )
+  const wireGeoA = useMemo(() => new TubeGeometry(wireACurve, 42, WIRE_RADIUS, 12, false), [wireACurve])
+  const wireGeoB = useMemo(() => new TubeGeometry(wireBCurve, 42, WIRE_RADIUS, 12, false), [wireBCurve])
 
   return (
     <group>
@@ -184,29 +179,33 @@ export function MotionalEmfRig3D({
       <gridHelper args={[18, 18, '#9aa7b5', '#d5dce4']} position={[0, -1.4, 0]} userData={NO_FIT} />
 
       {MOTIONAL_EMF_LAYOUT.field.lineZs.map((z) => (
-        <group key={`field-line-${z}`} position={[MOTIONAL_EMF_LAYOUT.field.center[0], MOTIONAL_EMF_LAYOUT.field.center[1], z]}>
+        <group
+          key={`field-line-${z}`}
+          position={[MOTIONAL_EMF_LAYOUT.field.center[0], MOTIONAL_EMF_LAYOUT.field.center[1], z]}
+        >
           {MOTIONAL_EMF_LAYOUT.field.lineXs.map((x) => {
             const fieldArrowSign = magneticFieldDirection === 'up' ? 1 : -1
-            const arrowOffsetY = fieldArrowSign * (
-              MOTIONAL_EMF_LAYOUT.field.lineLengthY / 2 + MOTIONAL_EMF_LAYOUT.field.arrowHeadLength * 0.42
-            )
+            const arrowOffsetY =
+              fieldArrowSign *
+              (MOTIONAL_EMF_LAYOUT.field.lineLengthY / 2 + MOTIONAL_EMF_LAYOUT.field.arrowHeadLength * 0.42)
             const arrowRotation: [number, number, number] = fieldArrowSign === 1 ? [0, 0, 0] : [Math.PI, 0, 0]
 
             return (
               <group key={`field-column-${z}-${x}`} position={[x, 0, 0]}>
                 <mesh>
                   <cylinderGeometry
-                    args={[MOTIONAL_EMF_LAYOUT.field.lineRadius, MOTIONAL_EMF_LAYOUT.field.lineRadius, MOTIONAL_EMF_LAYOUT.field.lineLengthY, 8]}
+                    args={[
+                      MOTIONAL_EMF_LAYOUT.field.lineRadius,
+                      MOTIONAL_EMF_LAYOUT.field.lineRadius,
+                      MOTIONAL_EMF_LAYOUT.field.lineLengthY,
+                      8,
+                    ]}
                   />
                   <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
                 </mesh>
                 <mesh position={[0, arrowOffsetY, 0]} rotation={arrowRotation}>
                   <coneGeometry
-                    args={[
-                      MOTIONAL_EMF_LAYOUT.field.arrowHeadRadius,
-                      MOTIONAL_EMF_LAYOUT.field.arrowHeadLength,
-                      12,
-                    ]}
+                    args={[MOTIONAL_EMF_LAYOUT.field.arrowHeadRadius, MOTIONAL_EMF_LAYOUT.field.arrowHeadLength, 12]}
                   />
                   <meshBasicMaterial color="#62b0ff" transparent opacity={0.68} depthWrite={false} />
                 </mesh>
@@ -240,7 +239,11 @@ export function MotionalEmfRig3D({
       <Html position={[leftContact[0], leftContact[1] + 0.32, leftContact[2]]} center style={{ pointerEvents: 'none' }}>
         <span className="motional-emf-end-label motional-emf-end-a">A</span>
       </Html>
-      <Html position={[rightContact[0], rightContact[1] + 0.32, rightContact[2]]} center style={{ pointerEvents: 'none' }}>
+      <Html
+        position={[rightContact[0], rightContact[1] + 0.32, rightContact[2]]}
+        center
+        style={{ pointerEvents: 'none' }}
+      >
         <span className="motional-emf-end-label">B</span>
       </Html>
 

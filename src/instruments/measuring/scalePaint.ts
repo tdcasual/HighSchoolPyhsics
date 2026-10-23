@@ -90,9 +90,9 @@ const SLEEVE_X0 = 38
 const THIMBLE_PITCH_X = 44
 
 export function paintSleeveScale(context: CanvasRenderingContext2D, width: number, height: number) {
-  const ref = 28 * Math.PI / 180
-  const phi0 = ref - 55 * Math.PI / 180
-  const phi1 = ref + 55 * Math.PI / 180
+  const ref = (28 * Math.PI) / 180
+  const phi0 = ref - (55 * Math.PI) / 180
+  const phi1 = ref + (55 * Math.PI) / 180
   const yRef = height * (1 - (ref - phi0) / (phi1 - phi0))
   const backing = context.createLinearGradient(0, 0, 0, height)
   backing.addColorStop(0, '#c8d1d4')
@@ -170,7 +170,7 @@ export function paintThimbleScale(context: CanvasRenderingContext2D, width: numb
 
 export const SLEEVE_TEXTURE = {
   width: Math.round((77 - 38) * SLEEVE_PX),
-  height: Math.round(4.62 * (110 * Math.PI / 180) * SLEEVE_PX),
+  height: Math.round(4.62 * ((110 * Math.PI) / 180) * SLEEVE_PX),
 }
 
 export const THIMBLE_TEXTURE = {

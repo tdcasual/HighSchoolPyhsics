@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { CALIPER_RANGE_MM, MAIN_SCALE_END_MM, caliperReading, checkCaliper, checkMicrometer, micrometerReading } from './model'
+import {
+  CALIPER_RANGE_MM,
+  MAIN_SCALE_END_MM,
+  caliperReading,
+  checkCaliper,
+  checkMicrometer,
+  micrometerReading,
+} from './model'
 
 describe('measuring instrument readings', () => {
   it('reads a 20-division caliper without estimating an extra digit', () => {

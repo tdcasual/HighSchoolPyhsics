@@ -50,13 +50,15 @@ export function WedgeInterferenceControls({ state }: WedgeInterferenceControlsPr
           label="劈尖角 θ"
           unit="°"
           min={0.005}
-          max={0.30}
+          max={0.3}
           step={0.0001}
           value={state.wedgeAngle}
           onChange={state.setWedgeAngle}
           displayValue={state.wedgeAngle.toFixed(4) + '°'}
         />
-        <p className="text-xs text-slate-500 dark:text-slate-400">玻璃板倾斜和垫片厚度按示意放大；条纹计算使用实际 θ。</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          玻璃板倾斜和垫片厚度按示意放大；条纹计算使用实际 θ。
+        </p>
       </ControlSection>
       <ControlSection title="下表面">
         <SegmentedControl

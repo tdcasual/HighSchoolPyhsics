@@ -13,7 +13,11 @@ const DEV_AND_TEST = [
 let installed = false
 
 function currentEnvironment(requested?: unknown): ThreeConsoleFilterEnvironment {
-  const candidates = [requested, import.meta.env?.MODE, typeof process !== 'undefined' ? process.env.NODE_ENV : undefined]
+  const candidates = [
+    requested,
+    import.meta.env?.MODE,
+    typeof process !== 'undefined' ? process.env.NODE_ENV : undefined,
+  ]
   const match = candidates.find((value) => value === 'development' || value === 'test' || value === 'production')
   return (match as ThreeConsoleFilterEnvironment | undefined) ?? 'development'
 }

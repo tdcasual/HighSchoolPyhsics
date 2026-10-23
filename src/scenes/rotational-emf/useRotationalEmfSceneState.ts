@@ -44,11 +44,19 @@ export type RotationalEmfSceneState = {
 }
 
 export function useRotationalEmfSceneState(): RotationalEmfSceneState {
-  const [scenario, setScenario] = useState<RotationalEmfScenario>(() => recall('rotational-emf.scenario', DEFAULT_SCENARIO))
-  const [viewMode, setViewMode] = useState<RotationalEmfViewMode>(() => recall('rotational-emf.viewMode', DEFAULT_VIEW_MODE))
-  const [magneticFieldT, setMagneticFieldT] = useState(() => recall('rotational-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T))
+  const [scenario, setScenario] = useState<RotationalEmfScenario>(() =>
+    recall('rotational-emf.scenario', DEFAULT_SCENARIO),
+  )
+  const [viewMode, setViewMode] = useState<RotationalEmfViewMode>(() =>
+    recall('rotational-emf.viewMode', DEFAULT_VIEW_MODE),
+  )
+  const [magneticFieldT, setMagneticFieldT] = useState(() =>
+    recall('rotational-emf.magneticFieldT', DEFAULT_MAGNETIC_FIELD_T),
+  )
   const [angularSpeed, setAngularSpeed] = useState(() => recall('rotational-emf.angularSpeed', DEFAULT_ANGULAR_SPEED))
-  const [effectiveLengthM, setEffectiveLengthM] = useState(() => recall('rotational-emf.effectiveLengthM', DEFAULT_EFFECTIVE_LENGTH_M))
+  const [effectiveLengthM, setEffectiveLengthM] = useState(() =>
+    recall('rotational-emf.effectiveLengthM', DEFAULT_EFFECTIVE_LENGTH_M),
+  )
   useRemember('rotational-emf', { scenario, viewMode, magneticFieldT, angularSpeed, effectiveLengthM })
   const [angleRad, setAngleRad] = useState(DEFAULT_ANGLE_RAD)
   // 单步 turns the rod 15°.

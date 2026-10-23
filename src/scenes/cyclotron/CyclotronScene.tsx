@@ -27,7 +27,8 @@ export function CyclotronScene() {
   }, [state.particleInGap, state.particlePoint, state.running])
 
   return (
-    <SceneLayout timeControl
+    <SceneLayout
+      timeControl
       chartInitiallyCollapsed
       controls={
         <CyclotronControls
@@ -44,21 +45,54 @@ export function CyclotronScene() {
       dataOverlay={
         <DataRows
           rows={[
-            { label: '已知 B · U · R', value: <>{state.magneticFieldT.toFixed(1)} T · {state.gapVoltageKv.toFixed(0)} kV · {MAX_ORBIT_RADIUS_M.toFixed(1)} m</> },
-            { label: '缝隙电压 u', value: <>{(state.currentVoltageV / 1000).toFixed(0)} kV · {state.voltageDirectionText}</> },
-            { label: '动能 Eₖ · 过缝次数', value: <>{(state.currentEnergyJ / MEV_J).toFixed(2)} MeV · {state.crossings}</> },
-            { label: 'Eₖ,max = q²B²R²/(2m)', value: <>{(state.maximumKineticEnergyJ / MEV_J).toFixed(1)} MeV</>, answer: true },
-            { label: '回旋周期 T = 2πm/(qB)', value: <>{(state.cyclotronPeriodS * 1e9).toFixed(1)} ns</>, answer: true },
+            {
+              label: '已知 B · U · R',
+              value: (
+                <>
+                  {state.magneticFieldT.toFixed(1)} T · {state.gapVoltageKv.toFixed(0)} kV ·{' '}
+                  {MAX_ORBIT_RADIUS_M.toFixed(1)} m
+                </>
+              ),
+            },
+            {
+              label: '缝隙电压 u',
+              value: (
+                <>
+                  {(state.currentVoltageV / 1000).toFixed(0)} kV · {state.voltageDirectionText}
+                </>
+              ),
+            },
+            {
+              label: '动能 Eₖ · 过缝次数',
+              value: (
+                <>
+                  {(state.currentEnergyJ / MEV_J).toFixed(2)} MeV · {state.crossings}
+                </>
+              ),
+            },
+            {
+              label: 'Eₖ,max = q²B²R²/(2m)',
+              value: <>{(state.maximumKineticEnergyJ / MEV_J).toFixed(1)} MeV</>,
+              answer: true,
+            },
+            {
+              label: '回旋周期 T = 2πm/(qB)',
+              value: <>{(state.cyclotronPeriodS * 1e9).toFixed(1)} ns</>,
+              answer: true,
+            },
           ]}
         />
       }
       notes={
         <>
           <p>
-            教材量级的质子回旋加速器：D 形盒半径 {MAX_ORBIT_RADIUS_M} m，缝隙宽 {state.gapWidthCm} cm，交变电压频率等于回旋频率。粒子运动由洛伦兹力与缝隙电场直接积分得到（每圈 {STEPS_PER_TURN} 步，非相对论）。
+            教材量级的质子回旋加速器：D 形盒半径 {MAX_ORBIT_RADIUS_M} m，缝隙宽 {state.gapWidthCm}{' '}
+            cm，交变电压频率等于回旋频率。粒子运动由洛伦兹力与缝隙电场直接积分得到（每圈 {STEPS_PER_TURN}{' '}
+            步，非相对论）。
           </p>
           <p>
-            Eₖ,max 只取决于 B 与 R、与 U 无关；U 越大，过缝次数越少、加速越快。实际出射动能略小于 q²B²R²/(2m)：每次过缝都使轨道圆心偏移，粒子在轨道半径略小于 R 时就到达边缘。
+            Eₖ,max 只取决于 B 与 R、与 U 无关；U 越大，过缝次数越少、加速越快。实际出射动能略小于
+            q²B²R²/(2m)：每次过缝都使轨道圆心偏移，粒子在轨道半径略小于 R 时就到达边缘。
           </p>
         </>
       }

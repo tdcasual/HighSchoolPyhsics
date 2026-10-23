@@ -9,36 +9,83 @@ import { useSceneTheme } from '../../scene3d/useSceneTheme'
 type Props = { angleRad: number; running: boolean }
 
 function Label({ text, position, color }: { text: string; position: [number, number, number]; color: string }) {
-  return <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>{text}</SceneLabel>
+  return (
+    <SceneLabel position={position} variant="text" color={color} size={11} halo="dark" distanceFactor={8}>
+      {text}
+    </SceneLabel>
+  )
 }
 
-function Arrow({ start, end, color, width = 2 }: { start: [number, number, number]; end: [number, number, number]; color: string; width?: number }) {
-  const direction = useMemo(() => [end[0] - start[0], end[1] - start[1], end[2] - start[2]] as [number, number, number], [end, start])
+function Arrow({
+  start,
+  end,
+  color,
+  width = 2,
+}: {
+  start: [number, number, number]
+  end: [number, number, number]
+  color: string
+  width?: number
+}) {
+  const direction = useMemo(
+    () => [end[0] - start[0], end[1] - start[1], end[2] - start[2]] as [number, number, number],
+    [end, start],
+  )
   const orientation = useMemo(() => {
     const vector = new Vector3(...direction)
     if (vector.lengthSq() < 1e-9) return new Quaternion()
     return new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), vector.normalize())
   }, [direction])
-  return <group>
-    <Line points={[start, end]} color={color} lineWidth={width} />
-    <mesh position={end} quaternion={orientation}><coneGeometry args={[0.12, 0.34, 12]} /><meshBasicMaterial color={color} /></mesh>
-  </group>
+  return (
+    <group>
+      <Line points={[start, end]} color={color} lineWidth={width} />
+      <mesh position={end} quaternion={orientation}>
+        <coneGeometry args={[0.12, 0.34, 12]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+    </group>
+  )
 }
 
 function FieldLines({ dark }: { dark: boolean }) {
   const lines = useMemo(() => Array.from({ length: 5 }, (_, index) => -2 + index), [])
-  return <group>
-    {lines.map((y) => <Arrow key={`field-${y}`} start={[-3.9, y, -1.8]} end={[3.9, y, -1.8]} color={dark ? '#78b7d8' : '#457b9d'} width={1.2} />)}
-    {lines.map((y) => <Arrow key={`field-back-${y}`} start={[-3.9, y, 1.8]} end={[3.9, y, 1.8]} color={dark ? '#78b7d8' : '#457b9d'} width={1.2} />)}
-  </group>
+  return (
+    <group>
+      {lines.map((y) => (
+        <Arrow
+          key={`field-${y}`}
+          start={[-3.9, y, -1.8]}
+          end={[3.9, y, -1.8]}
+          color={dark ? '#78b7d8' : '#457b9d'}
+          width={1.2}
+        />
+      ))}
+      {lines.map((y) => (
+        <Arrow
+          key={`field-back-${y}`}
+          start={[-3.9, y, 1.8]}
+          end={[3.9, y, 1.8]}
+          color={dark ? '#78b7d8' : '#457b9d'}
+          width={1.2}
+        />
+      ))}
+    </group>
+  )
 }
 
 export function GeneratorCoreRig3D({ angleRad, running }: Props) {
   const { night: dark } = useSceneTheme()
   const textColor = dark ? '#e4edf4' : '#3b2e24'
   const readings = deriveGeneratorReadings(angleRad)
-  const coilPoints: Array<[number, number, number]> = [[0, -1.55, -1.05], [0, 1.55, -1.05], [0, 1.55, 1.05], [0, -1.55, 1.05], [0, -1.55, -1.05]]
-  const currentColor = readings.emfNormalized > 0.08 ? '#e63946' : readings.emfNormalized < -0.08 ? '#3b82c4' : '#7d8790'
+  const coilPoints: Array<[number, number, number]> = [
+    [0, -1.55, -1.05],
+    [0, 1.55, -1.05],
+    [0, 1.55, 1.05],
+    [0, -1.55, 1.05],
+    [0, -1.55, -1.05],
+  ]
+  const currentColor =
+    readings.emfNormalized > 0.08 ? '#e63946' : readings.emfNormalized < -0.08 ? '#3b82c4' : '#7d8790'
   const currentIsVisible = Math.abs(readings.emfNormalized) >= 0.08
   const velocityStart: [number, number, number] = [Math.sin(angleRad) * 1.05, 0, Math.cos(angleRad) * 1.05]
   const velocityEnd: [number, number, number] = [
@@ -46,25 +93,78 @@ export function GeneratorCoreRig3D({ angleRad, running }: Props) {
     0,
     velocityStart[2] + readings.velocityVector[2] * 0.9,
   ]
-  return <group data-rig-scene="generator-core">
-    <LabStage background={['#edf1ee', '#101823']} ambient={[0.9, 0.7]} keyLight={{ position: [6, 9, 8], intensity: [0.85, 1.1] }} />
-    <mesh position={[-5, 0, 0]}><boxGeometry args={[1.25, 5.2, 4.8]} /><meshStandardMaterial color="#e63946" roughness={0.38} metalness={0.12} /></mesh>
-    <mesh position={[5, 0, 0]}><boxGeometry args={[1.25, 5.2, 4.8]} /><meshStandardMaterial color="#2d6db5" roughness={0.38} metalness={0.12} /></mesh>
-    <Label text="N" position={[-5, 0, 2.48]} color="#ffffff" /><Label text="S" position={[5, 0, 2.48]} color="#ffffff" />
-    <FieldLines dark={dark} />
-    <Line points={[[-3.8, 0, 0], [3.8, 0, 0]]} color={dark ? '#a8b9c8' : '#788a92'} lineWidth={1} dashed dashSize={0.12} gapSize={0.1} />
-    <group rotation={[0, angleRad, 0]}>
-      <Line points={coilPoints} color="#f4a261" lineWidth={running ? 3.2 : 2.4} />
-      <mesh position={[0, 1.55, -1.05]}><sphereGeometry args={[0.1, 12, 12]} /><meshStandardMaterial color="#ffd166" /></mesh>
-      {currentIsVisible && <><Arrow start={[0, readings.emfNormalized > 0 ? 0.58 : -0.58, 1.05]} end={[0, readings.emfNormalized > 0 ? -0.58 : 0.58, 1.05]} color={currentColor} width={2.1} /><Arrow start={[0, readings.emfNormalized > 0 ? -0.58 : 0.58, -1.05]} end={[0, readings.emfNormalized > 0 ? 0.58 : -0.58, -1.05]} color={currentColor} width={2.1} /></>}
+  return (
+    <group data-rig-scene="generator-core">
+      <LabStage
+        background={['#edf1ee', '#101823']}
+        ambient={[0.9, 0.7]}
+        keyLight={{ position: [6, 9, 8], intensity: [0.85, 1.1] }}
+      />
+      <mesh position={[-5, 0, 0]}>
+        <boxGeometry args={[1.25, 5.2, 4.8]} />
+        <meshStandardMaterial color="#e63946" roughness={0.38} metalness={0.12} />
+      </mesh>
+      <mesh position={[5, 0, 0]}>
+        <boxGeometry args={[1.25, 5.2, 4.8]} />
+        <meshStandardMaterial color="#2d6db5" roughness={0.38} metalness={0.12} />
+      </mesh>
+      <Label text="N" position={[-5, 0, 2.48]} color="#ffffff" />
+      <Label text="S" position={[5, 0, 2.48]} color="#ffffff" />
+      <FieldLines dark={dark} />
+      <Line
+        points={[
+          [-3.8, 0, 0],
+          [3.8, 0, 0],
+        ]}
+        color={dark ? '#a8b9c8' : '#788a92'}
+        lineWidth={1}
+        dashed
+        dashSize={0.12}
+        gapSize={0.1}
+      />
+      <group rotation={[0, angleRad, 0]}>
+        <Line points={coilPoints} color="#f4a261" lineWidth={running ? 3.2 : 2.4} />
+        <mesh position={[0, 1.55, -1.05]}>
+          <sphereGeometry args={[0.1, 12, 12]} />
+          <meshStandardMaterial color="#ffd166" />
+        </mesh>
+        {currentIsVisible && (
+          <>
+            <Arrow
+              start={[0, readings.emfNormalized > 0 ? 0.58 : -0.58, 1.05]}
+              end={[0, readings.emfNormalized > 0 ? -0.58 : 0.58, 1.05]}
+              color={currentColor}
+              width={2.1}
+            />
+            <Arrow
+              start={[0, readings.emfNormalized > 0 ? -0.58 : 0.58, -1.05]}
+              end={[0, readings.emfNormalized > 0 ? 0.58 : -0.58, -1.05]}
+              color={currentColor}
+              width={2.1}
+            />
+          </>
+        )}
+      </group>
+      <Arrow
+        start={[0, 0, 0]}
+        end={[readings.normalVector[0] * 2.3, 0, readings.normalVector[2] * 2.3]}
+        color="#9c27b0"
+        width={2.5}
+      />
+      <Arrow start={velocityStart} end={velocityEnd} color="#f4c542" width={2.5} />
+      <Label
+        text="法向量 n"
+        position={[readings.normalVector[0] * 2.4, 0.25, readings.normalVector[2] * 2.4]}
+        color="#9c27b0"
+      />
+      <Label text="速度 v" position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]} color="#c08500" />
+      <Label
+        text={readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`}
+        position={[0, -2.95, 0]}
+        color={currentColor}
+      />
+      <Label text="旋转轴 O" position={[0, -2.42, 0]} color={textColor} />
+      <Label text="B" position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} />
     </group>
-    <Arrow start={[0, 0, 0]} end={[readings.normalVector[0] * 2.3, 0, readings.normalVector[2] * 2.3]} color="#9c27b0" width={2.5} />
-    <Arrow start={velocityStart} end={velocityEnd} color="#f4c542" width={2.5} />
-    <Label text="法向量 n" position={[readings.normalVector[0] * 2.4, 0.25, readings.normalVector[2] * 2.4]} color="#9c27b0" />
-    <Label text="速度 v" position={[velocityEnd[0] + 0.12, 0.3, velocityEnd[2] + 0.12]} color="#c08500" />
-    <Label text={readings.currentDirection === '换向瞬间' ? '电流换向' : `电流 ${readings.currentDirection}`} position={[0, -2.95, 0]} color={currentColor} />
-    <Label text="旋转轴 O" position={[0, -2.42, 0]} color={textColor} />
-    <Label text="B" position={[0, 2.58, -1.8]} color={dark ? '#9ed7f0' : '#457b9d'} />
-  </group>
+  )
 }
-

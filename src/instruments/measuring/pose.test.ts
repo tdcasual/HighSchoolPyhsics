@@ -60,11 +60,50 @@ describe('measuring instrument poses', () => {
   it('fits every corner of the active instrument into its unobstructed viewport', () => {
     const cases: InstrumentViewInput[] = [
       { tool: 'caliper', mode: 'outer', preset: 'home', caliperX: 75, reading: 0, aspect: 0.5 },
-      { tool: 'caliper', mode: 'depth', preset: 'home', caliperX: 150, reading: 0, caliperExplode: 1, showWork: true, workSize: 150, aspect: 0.4 },
-      { tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 150, reading: 0, caliperExplode: 1, showWork: true, workSize: 150, aspect: 0.45 },
-      { tool: 'micrometer', mode: 'outer', preset: 'home', caliperX: 0, reading: 25, micrometerExplode: 1, showWork: true, workSize: 25, aspect: 0.35 },
+      {
+        tool: 'caliper',
+        mode: 'depth',
+        preset: 'home',
+        caliperX: 150,
+        reading: 0,
+        caliperExplode: 1,
+        showWork: true,
+        workSize: 150,
+        aspect: 0.4,
+      },
+      {
+        tool: 'caliper',
+        mode: 'depth',
+        preset: 'focus',
+        caliperX: 150,
+        reading: 0,
+        caliperExplode: 1,
+        showWork: true,
+        workSize: 150,
+        aspect: 0.45,
+      },
+      {
+        tool: 'micrometer',
+        mode: 'outer',
+        preset: 'home',
+        caliperX: 0,
+        reading: 25,
+        micrometerExplode: 1,
+        showWork: true,
+        workSize: 25,
+        aspect: 0.35,
+      },
       { tool: 'micrometer', mode: 'outer', preset: 'focus', caliperX: 0, reading: 25, aspect: 0.4 },
-      { tool: 'micrometer', mode: 'outer', preset: 'focus', caliperX: 0, reading: 25, showWork: true, workSize: 25, aspect: 0.4 },
+      {
+        tool: 'micrometer',
+        mode: 'outer',
+        preset: 'focus',
+        caliperX: 0,
+        reading: 25,
+        showWork: true,
+        workSize: 25,
+        aspect: 0.4,
+      },
     ]
 
     for (const input of cases) {
@@ -77,7 +116,11 @@ describe('measuring instrument poses', () => {
       const cosine = Math.cos(view.elevation)
       const forward: Vec3 = [cosine * Math.sin(view.azimuth), Math.sin(view.elevation), cosine * Math.cos(view.azimuth)]
       const right: Vec3 = [Math.cos(view.azimuth), 0, -Math.sin(view.azimuth)]
-      const up: Vec3 = [-Math.sin(view.elevation) * Math.sin(view.azimuth), cosine, -Math.sin(view.elevation) * Math.cos(view.azimuth)]
+      const up: Vec3 = [
+        -Math.sin(view.elevation) * Math.sin(view.azimuth),
+        cosine,
+        -Math.sin(view.elevation) * Math.cos(view.azimuth),
+      ]
       const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
       for (const x of [box.min[0], box.max[0]]) {
@@ -96,7 +139,14 @@ describe('measuring instrument poses', () => {
   })
 
   it('orbits around the reading zone and shifts the image so the instrument stays framed', () => {
-    const input: InstrumentViewInput = { tool: 'micrometer', mode: 'outer', preset: 'home', caliperX: 0, reading: 6.125, viewportHeight: 1000 }
+    const input: InstrumentViewInput = {
+      tool: 'micrometer',
+      mode: 'outer',
+      preset: 'home',
+      caliperX: 0,
+      reading: 6.125,
+      viewportHeight: 1000,
+    }
     const box = instrumentBounds(input)
     const view = instrumentView({ ...input, centerOffsetPixels: 480, centerOffsetYPixels: -60 })
     // Zoom dollies toward the target, so it sits on the sleeve scale (mid-travel), not the frame.
@@ -106,15 +156,36 @@ describe('measuring instrument poses', () => {
     // The scale is right of the frame center, so the image shifts right of the free-area center.
     expect(view.screenOffset![0]).toBeGreaterThan(480)
 
-    const caliper = instrumentView({ tool: 'caliper', mode: 'outer', preset: 'home', caliperX: 23.45, reading: 0, centerOffsetPixels: 200 })
+    const caliper = instrumentView({
+      tool: 'caliper',
+      mode: 'outer',
+      preset: 'home',
+      caliperX: 23.45,
+      reading: 0,
+      centerOffsetPixels: 200,
+    })
     expect(caliper.target[0]).toBeGreaterThan(25)
     expect(caliper.target[0]).toBeLessThan(25 + 19 + 14)
     expect(caliper.screenOffset![0]).toBeLessThan(200)
   })
 
   it('fits the rotated depth view at wide and narrow aspect ratios', () => {
-    const wide = instrumentView({ tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 80, reading: 0, aspect: 1.2 })
-    const narrow = instrumentView({ tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 80, reading: 0, aspect: 0.22 })
+    const wide = instrumentView({
+      tool: 'caliper',
+      mode: 'depth',
+      preset: 'focus',
+      caliperX: 80,
+      reading: 0,
+      aspect: 1.2,
+    })
+    const narrow = instrumentView({
+      tool: 'caliper',
+      mode: 'depth',
+      preset: 'focus',
+      caliperX: 80,
+      reading: 0,
+      aspect: 0.22,
+    })
     const wideBounds = instrumentBounds({ tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 80, reading: 0 })
     expect(wide.target[1]).toBeCloseTo((wideBounds.min[1] + wideBounds.max[1]) / 2, 8)
     expect(narrow.radius).toBeGreaterThan(wide.radius)
@@ -153,7 +224,13 @@ describe('measuring instrument poses', () => {
 
   it('uses a close reading window for the scale preset', () => {
     const caliperInput: InstrumentViewInput = {
-      tool: 'caliper', mode: 'inner', preset: 'home', caliperX: 23.45, reading: 0, showWork: true, workSize: 23.45,
+      tool: 'caliper',
+      mode: 'inner',
+      preset: 'home',
+      caliperX: 23.45,
+      reading: 0,
+      showWork: true,
+      workSize: 23.45,
     }
     const caliperHome = instrumentBounds(caliperInput)
     const caliperFocus = instrumentBounds({ ...caliperInput, preset: 'focus' })
@@ -162,16 +239,29 @@ describe('measuring instrument poses', () => {
     expect(caliperFocus.max[1]).toBeGreaterThan(45)
 
     const micrometerInput: InstrumentViewInput = {
-      tool: 'micrometer', mode: 'outer', preset: 'home', caliperX: 0, reading: 12,
+      tool: 'micrometer',
+      mode: 'outer',
+      preset: 'home',
+      caliperX: 0,
+      reading: 12,
     }
     const micrometerHome = instrumentBounds(micrometerInput)
     const micrometerFocus = instrumentBounds({ ...micrometerInput, preset: 'focus' })
-    expect(micrometerFocus.max[0] - micrometerFocus.min[0]).toBeLessThan((micrometerHome.max[0] - micrometerHome.min[0]) * 0.55)
+    expect(micrometerFocus.max[0] - micrometerFocus.min[0]).toBeLessThan(
+      (micrometerHome.max[0] - micrometerHome.min[0]) * 0.55,
+    )
   })
 
   it('frames the whole vernier, including its last line, in the caliper scale preset', () => {
     for (const span of [9, 19, 49]) {
-      const focus = instrumentBounds({ tool: 'caliper', mode: 'outer', preset: 'focus', caliperX: 40, vernierSpan: span, reading: 0 })
+      const focus = instrumentBounds({
+        tool: 'caliper',
+        mode: 'outer',
+        preset: 'focus',
+        caliperX: 40,
+        vernierSpan: span,
+        reading: 0,
+      })
       expect(focus.min[0]).toBeLessThan(40)
       expect(focus.max[0]).toBeGreaterThan(40 + span + 4)
     }
@@ -179,7 +269,13 @@ describe('measuring instrument poses', () => {
 
   it('includes the maximum depth-slot workpiece in the focused camera bounds', () => {
     const focused = instrumentBounds({
-      tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 150, reading: 0, showWork: true, workSize: 150,
+      tool: 'caliper',
+      mode: 'depth',
+      preset: 'focus',
+      caliperX: 150,
+      reading: 0,
+      showWork: true,
+      workSize: 150,
     })
     expect(focused.min[0]).toBeLessThanOrEqual(-23)
     expect(focused.max[0]).toBeGreaterThanOrEqual(38)
@@ -188,13 +284,26 @@ describe('measuring instrument poses', () => {
   })
 
   it('keeps the micrometer scale close-up on the scales even with a specimen clamped', () => {
-    const input = { tool: 'micrometer', mode: 'outer', preset: 'focus', caliperX: 0, reading: 25, workSize: 25 } as const
+    const input = {
+      tool: 'micrometer',
+      mode: 'outer',
+      preset: 'focus',
+      caliperX: 0,
+      reading: 25,
+      workSize: 25,
+    } as const
     expect(instrumentBounds({ ...input, showWork: true })).toEqual(instrumentBounds({ ...input, showWork: false }))
   })
 
   it('keeps a depth-scale close-up independent of the distant workpiece', () => {
     const focused = instrumentBounds({
-      tool: 'caliper', mode: 'depth', preset: 'focus', caliperX: 70, reading: 0, showWork: false, workSize: 100,
+      tool: 'caliper',
+      mode: 'depth',
+      preset: 'focus',
+      caliperX: 70,
+      reading: 0,
+      showWork: false,
+      workSize: 100,
     })
     expect(focused.max[1] - focused.min[1]).toBeLessThan(50)
   })

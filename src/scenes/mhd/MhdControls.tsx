@@ -87,7 +87,11 @@ export function MhdControls({
         />
         <RangeField
           id="mhd-load"
-          label={<>负载电阻 R<sub>L</sub></>}
+          label={
+            <>
+              负载电阻 R<sub>L</sub>
+            </>
+          }
           unit="Ω"
           min={0.1}
           max={5}
@@ -97,9 +101,16 @@ export function MhdControls({
         />
       </ControlSection>
       <ModelNote>
-        <p>ε = Bvd；A = 0.08 m²；R<sub>i</sub> = d/(σ<sub>eff</sub> A)，σ<sub>eff</sub> = σ₀·n/n₀</p>
-        <p>I<sub>L</sub> = |ε|/(R<sub>i</sub> + R<sub>L</sub>)；U<sub>AB</sub> = −I<sub>L</sub> R<sub>L</sub>；P<sub>L</sub> = I<sub>L</sub>²R<sub>L</sub></p>
-        <p>E<sub>ind</sub> = −v×B 向上，故上电极 A 为负，U<sub>AB</sub> 带负号。</p>
+        <p>
+          ε = Bvd；A = 0.08 m²；R<sub>i</sub> = d/(σ<sub>eff</sub> A)，σ<sub>eff</sub> = σ₀·n/n₀
+        </p>
+        <p>
+          I<sub>L</sub> = |ε|/(R<sub>i</sub> + R<sub>L</sub>)；U<sub>AB</sub> = −I<sub>L</sub> R<sub>L</sub>；P
+          <sub>L</sub> = I<sub>L</sub>²R<sub>L</sub>
+        </p>
+        <p>
+          E<sub>ind</sub> = −v×B 向上，故上电极 A 为负，U<sub>AB</sub> 带负号。
+        </p>
         <p>载流子偏转和结构尺寸为示意；流体动画速度随 v 滑杆联动。</p>
       </ModelNote>
     </div>

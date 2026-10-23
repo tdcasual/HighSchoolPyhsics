@@ -11,11 +11,21 @@ const channelVisibility = deriveChannelVisibilityConfig()
 /** Scratch object for writing instance matrices. */
 const _dummy = new Object3D()
 
-export const FlowMarkers = memo(function FlowMarkers({ running, flowRateScale }: { running: boolean; flowRateScale: number }) {
+export const FlowMarkers = memo(function FlowMarkers({
+  running,
+  flowRateScale,
+}: {
+  running: boolean
+  flowRateScale: number
+}) {
   const runningRef = useRef(running)
-  useEffect(() => { runningRef.current = running }, [running])
+  useEffect(() => {
+    runningRef.current = running
+  }, [running])
   const flowRateScaleRef = useRef(flowRateScale)
-  useEffect(() => { flowRateScaleRef.current = flowRateScale }, [flowRateScale])
+  useEffect(() => {
+    flowRateScaleRef.current = flowRateScale
+  }, [flowRateScale])
   const phaseRef = useRef(0)
 
   const perf = resolvePerformanceProfile()
@@ -45,7 +55,8 @@ export const FlowMarkers = memo(function FlowMarkers({ running, flowRateScale }:
       const marker = markers[idx]
       const progress = (marker.i / markersPerLane + phaseRef.current) % 1
       const x = MHD_LAYOUT.flow.startX + progress * MHD_LAYOUT.flow.spanX
-      const pulse = 0.55 + 0.45 * Math.sin((phaseRef.current * 2 + marker.i * 0.11 + marker.laneIndex * 0.17) * Math.PI * 2)
+      const pulse =
+        0.55 + 0.45 * Math.sin((phaseRef.current * 2 + marker.i * 0.11 + marker.laneIndex * 0.17) * Math.PI * 2)
 
       group.position.set(x, 0, marker.lane)
 
@@ -65,7 +76,12 @@ export const FlowMarkers = memo(function FlowMarkers({ running, flowRateScale }:
   const geoDetail = getGeometryDetail()
 
   return markers.map((_, index) => (
-    <group key={`flow-${index}`} ref={(el) => { groupRefs.current[index] = el }}>
+    <group
+      key={`flow-${index}`}
+      ref={(el) => {
+        groupRefs.current[index] = el
+      }}
+    >
       <mesh position={[-0.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.02, 0.02, 0.34, geoDetail.cylinderRadialSegments]} />
         <meshBasicMaterial color="#ff84c8" transparent />
@@ -94,13 +110,21 @@ export const ChargeCarriers = memo(function ChargeCarriers({
   electrodeGapM: number
 }) {
   const runningRef = useRef(running)
-  useEffect(() => { runningRef.current = running }, [running])
+  useEffect(() => {
+    runningRef.current = running
+  }, [running])
   const chargeSeparationRef = useRef(chargeSeparation)
-  useEffect(() => { chargeSeparationRef.current = chargeSeparation }, [chargeSeparation])
+  useEffect(() => {
+    chargeSeparationRef.current = chargeSeparation
+  }, [chargeSeparation])
   const driveRatioRef = useRef(driveRatio)
-  useEffect(() => { driveRatioRef.current = driveRatio }, [driveRatio])
+  useEffect(() => {
+    driveRatioRef.current = driveRatio
+  }, [driveRatio])
   const flowRateScaleRef = useRef(flowRateScale)
-  useEffect(() => { flowRateScaleRef.current = flowRateScale }, [flowRateScale])
+  useEffect(() => {
+    flowRateScaleRef.current = flowRateScale
+  }, [flowRateScale])
 
   const phaseRef = useRef(0)
 

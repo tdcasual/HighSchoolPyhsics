@@ -59,9 +59,10 @@ function detectPerformanceLevel(): PerformanceLevel {
     return 'low'
   }
 
-  const cores = typeof navigator !== 'undefined' && 'hardwareConcurrency' in navigator
-    ? (navigator as Navigator & { hardwareConcurrency: number }).hardwareConcurrency
-    : null
+  const cores =
+    typeof navigator !== 'undefined' && 'hardwareConcurrency' in navigator
+      ? (navigator as Navigator & { hardwareConcurrency: number }).hardwareConcurrency
+      : null
 
   if (cores !== null && cores <= 4) {
     return 'medium'
@@ -157,4 +158,3 @@ export function resolveCanvasQualityProfile(): CanvasQualityProfile {
 export function getGeometryDetail(): GeometryDetail {
   return resolvePerformanceProfile().geometry
 }
-

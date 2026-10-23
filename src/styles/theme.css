@@ -266,7 +266,6 @@
   color: var(--shell-ink-muted-night);
 }
 
-
 .app-shell.theme-night .theme-switch {
   background: rgba(255, 255, 255, 0.04);
   border-color: var(--night-border);

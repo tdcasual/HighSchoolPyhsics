@@ -104,11 +104,7 @@ function splitByDepth(points: Vec3[], camera: Vector3) {
   for (let index = 1; index < points.length; index += 1) {
     const start = points[index - 1]
     const end = points[index]
-    const isBehind = behindOf([
-      (start[0] + end[0]) / 2,
-      (start[1] + end[1]) / 2,
-      (start[2] + end[2]) / 2,
-    ])
+    const isBehind = behindOf([(start[0] + end[0]) / 2, (start[1] + end[1]) / 2, (start[2] + end[2]) / 2])
     if (current.length === 0 || isBehind !== behind) {
       if (current.length > 1) (behind ? back : front).push(current)
       current = [start]
@@ -134,7 +130,17 @@ function OrbitStroke({ points, color }: { points: Vec3[]; color: string }) {
   return (
     <group>
       {parts.back.map((segment, index) => (
-        <Line key={`back-${index}`} points={segment} color={color} transparent opacity={0.28} dashed dashSize={0.16} gapSize={0.12} lineWidth={1} />
+        <Line
+          key={`back-${index}`}
+          points={segment}
+          color={color}
+          transparent
+          opacity={0.28}
+          dashed
+          dashSize={0.16}
+          gapSize={0.12}
+          lineWidth={1}
+        />
       ))}
       {parts.front.map((segment, index) => (
         <Line key={`front-${index}`} points={segment} color={color} lineWidth={1.5} />
@@ -158,7 +164,9 @@ function satelliteMesh(satellite: SatellitePose) {
         <boxGeometry args={[0.28, 0.16, 0.02]} />
         <meshStandardMaterial color="#447caa" />
       </mesh>
-      <SceneLabel position={[0.35, 0.28, 0]} variant="text" color={satellite.color} center={false}>{satellite.label}</SceneLabel>
+      <SceneLabel position={[0.35, 0.28, 0]} variant="text" color={satellite.color} center={false}>
+        {satellite.label}
+      </SceneLabel>
     </group>
   )
 }
@@ -230,7 +238,9 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
           <sphereGeometry args={[0.045, 12, 12]} />
           <meshBasicMaterial color={ink} />
         </mesh>
-        <SceneLabel position={[0.12, 1.5, 0]} variant="text" color={ink} center={false}>N</SceneLabel>
+        <SceneLabel position={[0.12, 1.5, 0]} variant="text" color={ink} center={false}>
+          N
+        </SceneLabel>
         <SceneLabel position={[0, -1.35, 0]} variant="text" color={ink} size={14}>
           {pose.bodyId === 'moon' ? '月球' : pose.bodyId === 'sun' ? '太阳' : '地球'}
         </SceneLabel>
@@ -258,14 +268,18 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
             <OrbitStroke points={pose.transfer} color="#d9480f" />
           </group>
         ) : null}
-        {pose.wedges.map((wedge, index) => <AreaWedge key={index} points={wedge.points} color={wedge.color} />)}
+        {pose.wedges.map((wedge, index) => (
+          <AreaWedge key={index} points={wedge.points} color={wedge.color} />
+        ))}
         {pose.periapsis ? (
           <group name="periapsis" position={pose.periapsis}>
             <mesh>
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#0d5c63" />
             </mesh>
-            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>① 加速点火</SceneLabel>
+            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>
+              ① 加速点火
+            </SceneLabel>
           </group>
         ) : null}
         {pose.apoapsis ? (
@@ -274,7 +288,9 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
               <sphereGeometry args={[0.07, 14, 14]} />
               <meshBasicMaterial color="#5dade2" />
             </mesh>
-            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>② 再加速圆化</SceneLabel>
+            <SceneLabel position={[0.16, -0.16, 0]} variant="text" color={ink} size={11} weight={400} center={false}>
+              ② 再加速圆化
+            </SceneLabel>
           </group>
         ) : null}
         {pose.subsatellite ? (
@@ -284,19 +300,17 @@ export function CelestialRig3D({ pose, night = false }: { pose: CelestialPose; n
           </mesh>
         ) : null}
         {pose.satellites.map((satellite) => satelliteMesh(satellite))}
-        {pose.showVectors ? pose.satellites.flatMap((satellite) => {
-          const inward: Vec3 = [
-            -satellite.position[0],
-            -satellite.position[1],
-            -satellite.position[2],
-          ]
-          const length = Math.hypot(...inward) || 1
-          const gravity: Vec3 = [inward[0] / length, inward[1] / length, inward[2] / length]
-          return [
-            vectorArrow(satellite.position, satellite.tangent, 1.25, satellite.color, `${satellite.id}-velocity`),
-            vectorArrow(satellite.position, gravity, 1.05, '#e74c3c', `${satellite.id}-gravity`),
-          ]
-        }) : null}
+        {pose.showVectors
+          ? pose.satellites.flatMap((satellite) => {
+              const inward: Vec3 = [-satellite.position[0], -satellite.position[1], -satellite.position[2]]
+              const length = Math.hypot(...inward) || 1
+              const gravity: Vec3 = [inward[0] / length, inward[1] / length, inward[2] / length]
+              return [
+                vectorArrow(satellite.position, satellite.tangent, 1.25, satellite.color, `${satellite.id}-velocity`),
+                vectorArrow(satellite.position, gravity, 1.05, '#e74c3c', `${satellite.id}-gravity`),
+              ]
+            })
+          : null}
       </group>
     </>
   )

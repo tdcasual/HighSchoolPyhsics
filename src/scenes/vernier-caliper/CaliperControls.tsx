@@ -1,6 +1,12 @@
 import { caliperReading, type VernierDivisions } from '../../instruments/measuring/model'
 import type { CaliperMeasure } from '../../instruments/measuring/pose'
-import { JudgeSection, LessonSection, StepButtons, TargetSection, ViewSection } from '../../instruments/measuring/PracticeControls'
+import {
+  JudgeSection,
+  LessonSection,
+  StepButtons,
+  TargetSection,
+  ViewSection,
+} from '../../instruments/measuring/PracticeControls'
 import { signedStep } from '../../instruments/measuring/practice'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { RangeField } from '../../ui/controls/RangeField'
@@ -29,7 +35,9 @@ export function CaliperControls({ state }: { state: CaliperSceneState }) {
     onClick: () => state.setPosition(state.position + delta),
     disabled: state.locked,
   }))
-  const stepButtons = <StepButtons hint={`步进（mm）：±10、±1、±${state.precision.toFixed(digits)}（一个精度）`} actions={steps} />
+  const stepButtons = (
+    <StepButtons hint={`步进（mm）：±10、±1、±${state.precision.toFixed(digits)}（一个精度）`} actions={steps} />
+  )
 
   return (
     <div className="measure-controls">
@@ -43,8 +51,16 @@ export function CaliperControls({ state }: { state: CaliperSceneState }) {
 
       {!state.challengeActive ? (
         <ControlSection title="分度与测量部位">
-          <SegmentedControl options={DIVISIONS} value={String(state.divisions)} onChange={(key) => state.setDivisions(Number(key) as VernierDivisions)} />
-          <SegmentedControl options={MEASURES} value={state.measure} onChange={(key) => state.setMeasure(key as CaliperMeasure)} />
+          <SegmentedControl
+            options={DIVISIONS}
+            value={String(state.divisions)}
+            onChange={(key) => state.setDivisions(Number(key) as VernierDivisions)}
+          />
+          <SegmentedControl
+            options={MEASURES}
+            value={state.measure}
+            onChange={(key) => state.setMeasure(key as CaliperMeasure)}
+          />
         </ControlSection>
       ) : null}
 
@@ -68,7 +84,13 @@ export function CaliperControls({ state }: { state: CaliperSceneState }) {
       <ViewSection state={state} onView={state.setView} onLabels={state.setShowLabels} onFreeWork={state.setFreeWork} />
 
       {state.lesson === 'free' ? (
-        <TargetSection state={state} label="目标示数（0～150 mm）" example="36.40" onGoTo={state.goTo} onHints={state.setHints} />
+        <TargetSection
+          state={state}
+          label="目标示数（0～150 mm）"
+          example="36.40"
+          onGoTo={state.goTo}
+          onHints={state.setHints}
+        />
       ) : (
         <JudgeSection
           state={state}

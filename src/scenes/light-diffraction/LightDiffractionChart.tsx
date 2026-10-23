@@ -1,7 +1,12 @@
 import { memo, useEffect, useRef } from 'react'
 import { ChartCard } from '../../ui/charts/ChartCard'
 import { drawDark, drawReticle, drawScaleBar } from '../../ui/charts/canvasMarks'
-import { sizeCanvas, useAdaptiveResolution, useContainerWidth, useSettledQuality } from '../../ui/charts/useAdaptiveCanvas'
+import {
+  sizeCanvas,
+  useAdaptiveResolution,
+  useContainerWidth,
+  useSettledQuality,
+} from '../../ui/charts/useAdaptiveCanvas'
 import {
   drawDiffractionPattern,
   drawWhiteLightPattern,
@@ -82,7 +87,21 @@ export const LightDiffractionChart = memo(function LightDiffractionChart({
       if (isWhiteLight) drawWhiteLightPattern(ctx, mode, params, filterColor, fullStep * (isSettled() ? 1 : 3))
       else drawDiffractionPattern(ctx, params, mode)
     })
-  }, [fieldWidth, params, mode, isLightOn, isWhiteLight, filterColor, dpr, perf, currentScale, measure, revision, isSettled, settledRevision])
+  }, [
+    fieldWidth,
+    params,
+    mode,
+    isLightOn,
+    isWhiteLight,
+    filterColor,
+    dpr,
+    perf,
+    currentScale,
+    measure,
+    revision,
+    isSettled,
+    settledRevision,
+  ])
 
   useEffect(() => {
     const canvas = reticleRef.current

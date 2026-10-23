@@ -2,7 +2,14 @@ import { Html } from '@react-three/drei/web/Html'
 import type { BufferGeometry } from 'three'
 import { MICROMETER_PITCH_MM, MICROMETER_RANGE_MM } from './model'
 import { createAxisDragHandlers } from './axisDrag'
-import { MICROMETER_BOW, MICROMETER_INSULATOR, RATCHET_GEOMETRY, SLEEVE_SCALE_GEOMETRY, THIMBLE_BODY_GEOMETRY, THIMBLE_CAP_GEOMETRY } from './instrumentGeometry'
+import {
+  MICROMETER_BOW,
+  MICROMETER_INSULATOR,
+  RATCHET_GEOMETRY,
+  SLEEVE_SCALE_GEOMETRY,
+  THIMBLE_BODY_GEOMETRY,
+  THIMBLE_CAP_GEOMETRY,
+} from './instrumentGeometry'
 import type { MicrometerPose, ViewPreset } from './pose'
 import { SLEEVE_TEXTURE, THIMBLE_TEXTURE, paintSleeveScale, paintThimbleScale } from './scalePaint'
 import { usePaintedTexture } from './usePaintedTexture'
@@ -19,7 +26,15 @@ type MicrometerAssemblyProps = {
   onInstrumentDragChange?: (dragging: boolean) => void
 }
 
-function Metal({ color, metalness = 0.85, roughness = 0.27 }: { color: string; metalness?: number; roughness?: number }) {
+function Metal({
+  color,
+  metalness = 0.85,
+  roughness = 0.27,
+}: {
+  color: string
+  metalness?: number
+  roughness?: number
+}) {
   return <meshStandardMaterial color={color} metalness={metalness} roughness={roughness} />
 }
 
@@ -106,21 +121,22 @@ export function MicrometerAssembly({
         turnPitchMm: MICROMETER_PITCH_MM,
       })
     : {}
-  const labelPositions: Array<{ label: string; position: [number, number, number] }> = viewPreset === 'focus'
-    ? [
-        { label: '固定刻度 / 基准线', position: [pose.thimbleX - 8, 8.5, 6] },
-        { label: '可动刻度', position: [pose.thimbleX + 7, -8.6, 6] },
-      ]
-    : [
-        { label: '测砧', position: [pose.anvilTipX - 12, 8, 8] },
-        { label: '测微螺杆', position: [pose.spindleX - 14, 10, 8] },
-        { label: '锁紧装置', position: [pose.lock[0] - 6, 15, -8] },
-        // Scale names below the barrel, part names above, so the top row is not crowded.
-        { label: '固定刻度', position: [pose.thimbleX - 12, -11, 6] },
-        { label: '微分筒', position: [pose.thimbleX + 12, 13, 0] },
-        { label: '棘轮', position: [pose.thimbleX + 36, 10, 0] },
-        { label: '可动刻度', position: [pose.thimbleX + 9, -12, 6] },
-      ]
+  const labelPositions: Array<{ label: string; position: [number, number, number] }> =
+    viewPreset === 'focus'
+      ? [
+          { label: '固定刻度 / 基准线', position: [pose.thimbleX - 8, 8.5, 6] },
+          { label: '可动刻度', position: [pose.thimbleX + 7, -8.6, 6] },
+        ]
+      : [
+          { label: '测砧', position: [pose.anvilTipX - 12, 8, 8] },
+          { label: '测微螺杆', position: [pose.spindleX - 14, 10, 8] },
+          { label: '锁紧装置', position: [pose.lock[0] - 6, 15, -8] },
+          // Scale names below the barrel, part names above, so the top row is not crowded.
+          { label: '固定刻度', position: [pose.thimbleX - 12, -11, 6] },
+          { label: '微分筒', position: [pose.thimbleX + 12, 13, 0] },
+          { label: '棘轮', position: [pose.thimbleX + 36, 10, 0] },
+          { label: '可动刻度', position: [pose.thimbleX + 9, -12, 6] },
+        ]
 
   return (
     <group name="micrometer-root">
@@ -134,7 +150,15 @@ export function MicrometerAssembly({
       {CylX({ radius: 6.4, length: 12, centerX: 32, color: '#415865', metalness: 0.15, roughness: 0.42 })}
       {CylX({ name: 'micrometer-anvil', radius: 3.2, length: 9, centerX: pose.anvilX, color: '#d3dadd' })}
       {CylX({ radius: 3.22, length: 0.8, centerX: pose.anvilTipX, color: '#5c666b', metalness: 0.7, roughness: 0.35 })}
-      {CylX({ name: 'micrometer-sleeve', radius: 4.6, length: 39, centerX: pose.sleeveX, color: '#cfd6d8', metalness: 0.78, roughness: 0.3 })}
+      {CylX({
+        name: 'micrometer-sleeve',
+        radius: 4.6,
+        length: 39,
+        centerX: pose.sleeveX,
+        color: '#cfd6d8',
+        metalness: 0.78,
+        roughness: 0.3,
+      })}
       <group name="micrometer-sleeve-scale" position={[pose.sleeveScaleX, 0, 0]}>
         <TexturedRevolve
           geometry={SLEEVE_SCALE_GEOMETRY}
@@ -147,7 +171,14 @@ export function MicrometerAssembly({
         />
       </group>
       {CylX({ name: 'micrometer-spindle', radius: 3.2, length: 44, centerX: pose.spindleX, color: '#d3dadd' })}
-      {CylX({ radius: 3.22, length: 0.8, centerX: pose.spindleTipX, color: '#5c666b', metalness: 0.7, roughness: 0.35 })}
+      {CylX({
+        radius: 3.22,
+        length: 0.8,
+        centerX: pose.spindleTipX,
+        color: '#5c666b',
+        metalness: 0.7,
+        roughness: 0.35,
+      })}
       <group
         name="micrometer-thimble"
         position={[pose.thimbleX, pose.thimbleY, 0]}
@@ -175,7 +206,13 @@ export function MicrometerAssembly({
           <meshStandardMaterial color="#b9c3c7" metalness={0.7} roughness={0.38} />
         </mesh>
       </group>
-      {showLabels ? labelPositions.map(({ label, position }) => <PartLabel key={label} position={position}>{label}</PartLabel>) : null}
+      {showLabels
+        ? labelPositions.map(({ label, position }) => (
+            <PartLabel key={label} position={position}>
+              {label}
+            </PartLabel>
+          ))
+        : null}
       <group name="micrometer-lock" position={pose.lock}>
         <mesh position={[0, 1.6, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[1.8, 1.8, 3.2, 20]} />

@@ -1,7 +1,14 @@
 import { rememberFields, useRememberFields } from '../../app/sceneMemory/sceneMemory'
 import { useMemo, useState } from 'react'
 import { useSimulationClock } from '../../simulation/useSimulationClock'
-import { DEFAULT_PROBE_X, deriveWaveReadings, type WaveDirection, type WaveParams, type WavePreset, type WaveStartDirection } from './model'
+import {
+  DEFAULT_PROBE_X,
+  deriveWaveReadings,
+  type WaveDirection,
+  type WaveParams,
+  type WavePreset,
+  type WaveStartDirection,
+} from './model'
 type WaveStateParams = Omit<WaveParams, 'startDirection'> & { startDirection: WaveStartDirection }
 export type WaveStateSceneState = WaveStateParams & {
   probeX: number
@@ -28,11 +35,37 @@ export type WaveStateSceneState = WaveStateParams & {
   step: () => void
   reset: () => void
 }
-type Simulation = Omit<WaveStateSceneState, 'running' | 'readings' | 'setAmplitude' | 'setWavelength' | 'setPeriod' | 'setDirection' | 'setStartDirection' | 'setProbeX' | 'setTimeScale' | 'setPreset' | 'setShowGhost' | 'setShowVelocity' | 'setShowAcceleration' | 'toggleRunning' | 'step' | 'reset'>
+type Simulation = Omit<
+  WaveStateSceneState,
+  | 'running'
+  | 'readings'
+  | 'setAmplitude'
+  | 'setWavelength'
+  | 'setPeriod'
+  | 'setDirection'
+  | 'setStartDirection'
+  | 'setProbeX'
+  | 'setTimeScale'
+  | 'setPreset'
+  | 'setShowGhost'
+  | 'setShowVelocity'
+  | 'setShowAcceleration'
+  | 'toggleRunning'
+  | 'step'
+  | 'reset'
+>
 const INITIAL_SIMULATION: Simulation = {
-  amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up',
-  probeX: DEFAULT_PROBE_X, timeScale: 0.5, elapsed: 0,
-  showGhost: false, showVelocity: true, showAcceleration: true,
+  amplitude: 50,
+  wavelength: 4,
+  period: 2,
+  direction: 'right',
+  startDirection: 'up',
+  probeX: DEFAULT_PROBE_X,
+  timeScale: 0.5,
+  elapsed: 0,
+  showGhost: false,
+  showVelocity: true,
+  showAcceleration: true,
 }
 /**
  * The scene opens paused with the wave front halfway to P (it arrives at t = 3 s), so the class
@@ -40,10 +73,23 @@ const INITIAL_SIMULATION: Simulation = {
  */
 export const OPENING_ELAPSED = 1.5
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
-const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'period', 'direction', 'startDirection', 'probeX', 'timeScale', 'showGhost', 'showVelocity', 'showAcceleration'] as const
+const REMEMBERED_FIELDS = [
+  'amplitude',
+  'wavelength',
+  'period',
+  'direction',
+  'startDirection',
+  'probeX',
+  'timeScale',
+  'showGhost',
+  'showVelocity',
+  'showAcceleration',
+] as const
 
 export function useWaveStateSceneState(): WaveStateSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('wave-state', ({ ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }), REMEMBERED_FIELDS))
+  const [simulation, setSimulation] = useState<Simulation>(() =>
+    rememberFields('wave-state', { ...INITIAL_SIMULATION, elapsed: OPENING_ELAPSED }, REMEMBERED_FIELDS),
+  )
   useRememberFields('wave-state', simulation, REMEMBERED_FIELDS)
   // The scene's own 时间缩放 slider multiplies the shared slow motion; 单步 = T/4.
   const clock = useSimulationClock({
@@ -52,22 +98,32 @@ export function useWaveStateSceneState(): WaveStateSceneState {
     advance: (dt) => setSimulation((current) => ({ ...current, elapsed: current.elapsed + dt })),
   })
   const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
-  const readings = useMemo(
-    () => deriveWaveReadings(simulation.elapsed, simulation, simulation.probeX),
-    [simulation],
-  )
+  const readings = useMemo(() => deriveWaveReadings(simulation.elapsed, simulation, simulation.probeX), [simulation])
   const resetElapsedAndCommit = (patch: Partial<Simulation>) => commit({ ...patch, elapsed: 0 })
   const setPreset = (preset: WavePreset) => {
     if (preset === 'baseline') {
-      resetElapsedAndCommit({ amplitude: 50, wavelength: 4, period: 2, direction: 'right', startDirection: 'up', probeX: 6, timeScale: 0.5 })
+      resetElapsedAndCommit({
+        amplitude: 50,
+        wavelength: 4,
+        period: 2,
+        direction: 'right',
+        startDirection: 'up',
+        probeX: 6,
+        timeScale: 0.5,
+      })
     } else if (preset === 'leftward') {
       resetElapsedAndCommit({ direction: 'left', startDirection: 'down' })
     } else if (preset === 'double-frequency') {
       resetElapsedAndCommit({ wavelength: 2, period: 1, direction: 'right', startDirection: 'up' })
     } else {
       resetElapsedAndCommit({
-        amplitude: 100, wavelength: 4, period: 2, direction: 'right',
-        startDirection: 'up', probeX: 6, timeScale: 0.5,
+        amplitude: 100,
+        wavelength: 4,
+        period: 2,
+        direction: 'right',
+        startDirection: 'up',
+        probeX: 6,
+        timeScale: 0.5,
       })
     }
   }

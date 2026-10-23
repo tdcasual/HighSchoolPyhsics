@@ -59,11 +59,24 @@ describe('SceneLayout playback zone', () => {
   })
 
   it('offers shared slow motion only to scenes that opt in', () => {
-    const { unmount } = render(<SceneLayout controls={<div />} viewport={<div />} playbackActions={[{ key: 'play', label: '播放', onClick: () => {} }]} />)
+    const { unmount } = render(
+      <SceneLayout
+        controls={<div />}
+        viewport={<div />}
+        playbackActions={[{ key: 'play', label: '播放', onClick: () => {} }]}
+      />,
+    )
     expect(screen.queryByRole('radio', { name: '¼×' })).not.toBeInTheDocument()
     unmount()
 
-    render(<SceneLayout timeControl controls={<div />} viewport={<div />} playbackActions={[{ key: 'play', label: '播放', onClick: () => {} }]} />)
+    render(
+      <SceneLayout
+        timeControl
+        controls={<div />}
+        viewport={<div />}
+        playbackActions={[{ key: 'play', label: '播放', onClick: () => {} }]}
+      />,
+    )
     const playback = screen.getByRole('region', { name: '播放控制' })
     fireEvent.click(within(playback).getByRole('radio', { name: '¼×' }))
     expect(useAppStore.getState().playbackRate).toBe(0.25)

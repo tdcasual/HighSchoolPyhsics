@@ -6,10 +6,7 @@ import { SegmentedControl } from '../../ui/controls/SegmentedControl'
 import { ControlSection } from '../../ui/controls/ControlSection'
 import { DataReadout } from '../../ui/controls/DataReadout'
 import type { PresetKey } from './model'
-import {
-  ELECTROSTATIC_LAB_CHARGE_LIMIT,
-  ELECTROSTATIC_LAB_MAX_CHARGES,
-} from './useElectrostaticLabSceneState'
+import { ELECTROSTATIC_LAB_CHARGE_LIMIT, ELECTROSTATIC_LAB_MAX_CHARGES } from './useElectrostaticLabSceneState'
 import type { ElectrostaticLabSceneState } from './useElectrostaticLabSceneState'
 
 const PRESET_OPTIONS: Array<{ key: PresetKey; label: string }> = [
@@ -34,13 +31,18 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
   return (
     <div className="grid gap-[0.8rem]">
       <h2>电势地形与电场线</h2>
-      <ModelNote><p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
-        本场景把平面电势 φ(x,z) 映射为高度，颜色和等势线表示电势值；高度经过平滑压缩，便于同屏观察。
-        这是二维电势分布的三维图像，不是实际空间中的三维等势面。
-      </p></ModelNote>
-      <ModelNote><p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
-        q、φ 和 E 使用相对单位，零电势取无穷远；模型采用 φ=Σqᵢ/√(rᵢ²+ε²)、ε=0.24，E=−∇φ。图高 h=0.62×6.5×tanh(φ/6.5) 只作压缩显示。红色为正、蓝色为负、灰色为零电荷。
-      </p></ModelNote>
+      <ModelNote>
+        <p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
+          本场景把平面电势 φ(x,z) 映射为高度，颜色和等势线表示电势值；高度经过平滑压缩，便于同屏观察。
+          这是二维电势分布的三维图像，不是实际空间中的三维等势面。
+        </p>
+      </ModelNote>
+      <ModelNote>
+        <p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.4]">
+          q、φ 和 E 使用相对单位，零电势取无穷远；模型采用 φ=Σqᵢ/√(rᵢ²+ε²)、ε=0.24，E=−∇φ。图高 h=0.62×6.5×tanh(φ/6.5)
+          只作压缩显示。红色为正、蓝色为负、灰色为零电荷。
+        </p>
+      </ModelNote>
 
       <ControlSection title="课堂预设">
         <SegmentedControl
@@ -101,7 +103,8 @@ export function ElectrostaticLabControls({ state }: ElectrostaticLabControlsProp
         </button>
         {state.advancedInteractionsEnabled ? (
           <p className="m-0 text-[var(--control-ink-muted)] text-[0.84rem] leading-[1.35]">
-            已启用：拖拽电荷移动，双击地面添加正电荷，按住 Shift 双击添加负电荷，右键删除；最多 {ELECTROSTATIC_LAB_MAX_CHARGES} 个电荷，位置限制在视图范围内。
+            已启用：拖拽电荷移动，双击地面添加正电荷，按住 Shift 双击添加负电荷，右键删除；最多{' '}
+            {ELECTROSTATIC_LAB_MAX_CHARGES} 个电荷，位置限制在视图范围内。
           </p>
         ) : null}
 

@@ -27,10 +27,24 @@ async function fakeRepo() {
 }
 
 function run(cwd, extra = []) {
-  return execFileAsync(process.execPath, [
-    SCRIPT_PATH, '--id', 'hall-effect', '--label', '霍尔效应',
-    '--chapter', 'lorentz-force', '--topic', 'magnetic-field', '--lesson', 'models', ...extra,
-  ], { cwd })
+  return execFileAsync(
+    process.execPath,
+    [
+      SCRIPT_PATH,
+      '--id',
+      'hall-effect',
+      '--label',
+      '霍尔效应',
+      '--chapter',
+      'lorentz-force',
+      '--topic',
+      'magnetic-field',
+      '--lesson',
+      'models',
+      ...extra,
+    ],
+    { cwd },
+  )
 }
 
 describe('scene scaffold generator', () => {
@@ -59,20 +73,30 @@ describe('scene scaffold generator', () => {
     const rootDir = await fakeRepo()
     await run(rootDir, ['--tag', '磁场'])
     const [entry] = JSON.parse(await readFile(path.join(rootDir, 'config/demo-scenes.json'), 'utf8'))
-    expect(entry).toMatchObject({ pageId: 'hall-effect', label: '霍尔效应', meta: { tag: '磁场' }, playwright: { readyText: '霍尔效应控制' } })
+    expect(entry).toMatchObject({
+      pageId: 'hall-effect',
+      label: '霍尔效应',
+      meta: { tag: '磁场' },
+      playwright: { readyText: '霍尔效应控制' },
+    })
     const navigation = await readFile(path.join(rootDir, 'src/ui/navigation/sceneNavigation.ts'), 'utf8')
-    expect(navigation).toContain("{ pageId: 'hall-effect', chapter: 'lorentz-force', topic: 'magnetic-field', lesson: 'models' },\n]")
+    expect(navigation).toContain(
+      "{ pageId: 'hall-effect', chapter: 'lorentz-force', topic: 'magnetic-field', lesson: 'models' },\n]",
+    )
   })
 
   it('requires the navigation placement and refuses duplicates', async () => {
     const rootDir = await fakeRepo()
-    await expect(execFileAsync(process.execPath, [SCRIPT_PATH, '--id', 'x', '--label', 'X'], { cwd: rootDir })).rejects.toThrow(/--chapter/)
+    await expect(
+      execFileAsync(process.execPath, [SCRIPT_PATH, '--id', 'x', '--label', 'X'], { cwd: rootDir }),
+    ).rejects.toThrow(/--chapter/)
     await run(rootDir)
     await expect(run(rootDir)).rejects.toThrow(/already exists/)
   })
 
   it('inserts the navigation row before the closing bracket', () => {
-    expect(insertNavigationRow(NAVIGATION, { pageId: 'a', chapter: 'b', topic: 'c', lesson: 'models' }))
-      .toContain("lesson: 'phenomena' },\n  { pageId: 'a', chapter: 'b', topic: 'c', lesson: 'models' },\n]")
+    expect(insertNavigationRow(NAVIGATION, { pageId: 'a', chapter: 'b', topic: 'c', lesson: 'models' })).toContain(
+      "lesson: 'phenomena' },\n  { pageId: 'a', chapter: 'b', topic: 'c', lesson: 'models' },\n]",
+    )
   })
 })

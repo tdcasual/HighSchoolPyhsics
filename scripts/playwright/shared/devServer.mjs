@@ -7,13 +7,7 @@ export function createViteDevServerCommand({ host, port, mode = 'dev' }) {
   return ['run', mode, '--', '--host', host, '--port', String(port), '--strictPort']
 }
 
-export function startViteDevServer({
-  rootDir,
-  port,
-  logPath,
-  host = '127.0.0.1',
-  mode = 'dev',
-}, runtime = {}) {
+export function startViteDevServer({ rootDir, port, logPath, host = '127.0.0.1', mode = 'dev' }, runtime = {}) {
   const spawnImpl = runtime.spawnImpl ?? spawn
   const createWriteStreamImpl = runtime.createWriteStreamImpl ?? createWriteStream
   const env = runtime.env ?? process.env
@@ -53,11 +47,7 @@ function createServerStartupError(url, server) {
   )
 }
 
-export async function waitForViteDevServer(
-  url,
-  server,
-  options = {},
-) {
+export async function waitForViteDevServer(url, server, options = {}) {
   const maxAttempts = options.maxAttempts ?? 120
   const attemptDelayMs = options.attemptDelayMs ?? 500
   const fingerprint = options.fingerprint ?? '<div id="root"></div>'
@@ -115,10 +105,7 @@ export async function stopViteDevServer(server, options = {}) {
     } catch {
       child.kill('SIGTERM')
     }
-    await Promise.race([
-      new Promise((resolve) => child.once('exit', resolve)),
-      delayFn(gracePeriodMs),
-    ])
+    await Promise.race([new Promise((resolve) => child.once('exit', resolve)), delayFn(gracePeriodMs)])
     if (child.exitCode === null) {
       try {
         process.kill(-child.pid, 'SIGKILL')

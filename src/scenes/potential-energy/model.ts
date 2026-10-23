@@ -37,7 +37,9 @@ export function buildPotentialSlicePoints(
   const sampleCount = Number.isFinite(requestedSampleCount) ? Math.max(6, Math.round(requestedSampleCount)) : 60
   const radiusStep = Number.isFinite(requestedRadiusStep) ? Math.max(0.05, Math.abs(requestedRadiusStep)) : 0.3
   const fieldScale = Number.isFinite(requestedFieldScale) ? Math.abs(requestedFieldScale) : POTENTIAL_FIELD_SCALE
-  const maxAbsPotential = Number.isFinite(requestedLimit) ? Math.max(1, Math.abs(requestedLimit)) : POTENTIAL_DISPLAY_LIMIT
+  const maxAbsPotential = Number.isFinite(requestedLimit)
+    ? Math.max(1, Math.abs(requestedLimit))
+    : POTENTIAL_DISPLAY_LIMIT
   const minimumRadius = fieldScale > 0 ? fieldScale / maxAbsPotential : 0.05
 
   const points: PotentialSlicePoint[] = []
@@ -50,9 +52,7 @@ export function buildPotentialSlicePoints(
   return points
 }
 
-export function buildPotentialCurveGeometryPoints(
-  slicePoints: ReadonlyArray<PotentialSlicePoint>,
-): Vector3Tuple[] {
+export function buildPotentialCurveGeometryPoints(slicePoints: ReadonlyArray<PotentialSlicePoint>): Vector3Tuple[] {
   return slicePoints.map((point) => [point.radius, point.potential, 0])
 }
 

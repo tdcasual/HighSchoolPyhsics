@@ -20,9 +20,7 @@ const electrodeThickness = 0.08
 const sceneUnitsPerMeter = 1.55
 
 export function deriveMhdLayout(electrodeGapM: number) {
-  const safeGapM = Number.isFinite(electrodeGapM)
-    ? Math.min(1, Math.max(0.1, electrodeGapM))
-    : 0.4
+  const safeGapM = Number.isFinite(electrodeGapM) ? Math.min(1, Math.max(0.1, electrodeGapM)) : 0.4
   const clearGapScene = safeGapM * sceneUnitsPerMeter
   const halfGapScene = clearGapScene / 2
   const fieldLineInset = Math.min(0.06, halfGapScene * 0.18)

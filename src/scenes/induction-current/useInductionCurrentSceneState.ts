@@ -17,9 +17,7 @@ const MOTION_DURATION_MS = 1400
 type MagnetPosition = 'far' | 'near'
 
 function easeInOut(value: number): number {
-  return value < 0.5
-    ? 4 * value * value * value
-    : 1 - ((-2 * value + 2) ** 3) / 2
+  return value < 0.5 ? 4 * value * value * value : 1 - (-2 * value + 2) ** 3 / 2
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -32,10 +30,8 @@ function easeInOutDerivative(value: number): number {
 }
 
 function resolveMagnetVelocity(direction: MotionDirection, progress: number): number {
-  const travel = direction === 'approach'
-    ? NEAR_POSITION_Y - FAR_POSITION_Y
-    : FAR_POSITION_Y - NEAR_POSITION_Y
-  return travel * easeInOutDerivative(progress) / (MOTION_DURATION_MS / 1000)
+  const travel = direction === 'approach' ? NEAR_POSITION_Y - FAR_POSITION_Y : FAR_POSITION_Y - NEAR_POSITION_Y
+  return (travel * easeInOutDerivative(progress)) / (MOTION_DURATION_MS / 1000)
 }
 
 function resolveMagnetY(
@@ -81,7 +77,9 @@ export type InductionCurrentSceneState = {
 export function useInductionCurrentSceneState(): InductionCurrentSceneState {
   const recordIdRef = useRef(1)
   const pendingRecordRef = useRef<ExperimentRecord | null>(null)
-  const [poleSetting, setPoleSettingState] = useState<PoleSetting>(() => recall('induction-current.poleSetting', 's-top-n-down'))
+  const [poleSetting, setPoleSettingState] = useState<PoleSetting>(() =>
+    recall('induction-current.poleSetting', 's-top-n-down'),
+  )
   useRemember('induction-current', { poleSetting })
   const [magnetPosition, setMagnetPosition] = useState<MagnetPosition>('far')
   const [motionDirection, setMotionDirection] = useState<MotionDirection | null>(null)

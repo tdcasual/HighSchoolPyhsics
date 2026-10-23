@@ -104,7 +104,8 @@ export function checkCaliper(input: string, x: number, n: VernierDivisions): Che
     } else if (Math.abs(parsed.value - truth.value) < 1.01) notes.push('主尺读数应看游标零刻度线左侧最近的整毫米刻度。')
     else notes.push('先看游标零线读主尺，再找与主尺刻度对齐的游标线。')
   }
-  if (parsed.decimals > spec.decimals) notes.push(`游标卡尺不估读：${n} 分度读到 ${spec.precision} mm，保留 ${spec.decimals} 位小数。`)
+  if (parsed.decimals > spec.decimals)
+    notes.push(`游标卡尺不估读：${n} 分度读到 ${spec.precision} mm，保留 ${spec.decimals} 位小数。`)
   else if (valueOk && !formatOk) notes.push(`${n} 分度精度为 ${spec.precision} mm，读数应写成 ${truth.text} mm。`)
   return { ok: valueOk && formatOk, valueOk, formatOk, truth, input: parsed.value, notes }
 }
@@ -140,7 +141,8 @@ export function checkMicrometer(input: string, r: number): CheckResult {
   const valueOk = Math.abs(diff) <= 0.0005 + 1e-9
   const formatOk = parsed.decimals === 3
   if (!valueOk) {
-    if (Math.abs(Math.abs(diff) - 0.5) <= 0.002 + 1e-9) notes.push('半毫米刻度线判断有误：看固定刻度下方的半毫米线是否已经露出。')
+    if (Math.abs(Math.abs(diff) - 0.5) <= 0.002 + 1e-9)
+      notes.push('半毫米刻度线判断有误：看固定刻度下方的半毫米线是否已经露出。')
     else if (Math.abs(diff) < 0.03) notes.push('可动刻度对齐格数读错；每格 0.01 mm，再估读十分之一格。')
     else notes.push('读数 = 固定刻度（含半毫米）+ 可动刻度格数 × 0.01 mm。')
   }

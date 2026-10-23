@@ -19,8 +19,25 @@ export function OscilloscopeScene() {
           rows={[
             { label: '状态', value: state.clock.running ? '运行中' : '已暂停' },
             { label: '时刻', value: <>t = {state.timeCursor.toFixed(3)} s</> },
-            { label: 'Ux / Uy', value: <>{state.ux.toFixed(2)} V / {state.uy.toFixed(2)} V</> },
-            { label: '屏幕坐标（±1）', value: <>x={state.beamX >= 0 ? '+' : ''}{state.beamX.toFixed(2)}，y={state.beamY >= 0 ? '+' : ''}{state.beamY.toFixed(2)}</>, answer: true },
+            {
+              label: 'Ux / Uy',
+              value: (
+                <>
+                  {state.ux.toFixed(2)} V / {state.uy.toFixed(2)} V
+                </>
+              ),
+            },
+            {
+              label: '屏幕坐标（±1）',
+              value: (
+                <>
+                  x={state.beamX >= 0 ? '+' : ''}
+                  {state.beamX.toFixed(2)}，y={state.beamY >= 0 ? '+' : ''}
+                  {state.beamY.toFixed(2)}
+                </>
+              ),
+              answer: true,
+            },
             {
               label: '满偏 ±10 V',
               value: state.clippingReasons.length ? `已限幅：${state.clippingReasons.join('、')}` : '未超量程',

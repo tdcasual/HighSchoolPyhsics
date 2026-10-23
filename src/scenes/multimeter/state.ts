@@ -152,7 +152,10 @@ export function toggleRheostat(state: MultimeterState): MultimeterState {
   if (state.rheostatClosed) return { ...state, rheostatClosed: false, notice: '滑变电路已断开。' }
   const safePosition = state.rheostatMode === 'limit' ? 1 : 0
   if (Math.abs(state.slider - safePosition) > 0.005) {
-    return { ...state, notice: `闭合前先将滑片移到${state.rheostatMode === 'limit' ? 'b 端（最大串联电阻）' : 'a 端（输出 0 V）'}。` }
+    return {
+      ...state,
+      notice: `闭合前先将滑片移到${state.rheostatMode === 'limit' ? 'b 端（最大串联电阻）' : 'a 端（输出 0 V）'}。`,
+    }
   }
   return { ...state, rheostatClosed: true, notice: '滑变电路已闭合；现在可以缓慢移动滑片。' }
 }
@@ -163,7 +166,11 @@ export function requiredConversion(state: MultimeterState): number {
 
 export function connectConversion(state: MultimeterState): MultimeterState {
   const resistance = requiredConversion(state)
-  return { ...state, convResistance: resistance, notice: `已接入 ${resistance.toFixed(2)} Ω。表头偏转等于当前校准比例，比例为 1 时满偏。` }
+  return {
+    ...state,
+    convResistance: resistance,
+    notice: `已接入 ${resistance.toFixed(2)} Ω。表头偏转等于当前校准比例，比例为 1 时满偏。`,
+  }
 }
 
 export function zeroMechanical(state: MultimeterState): MultimeterState {

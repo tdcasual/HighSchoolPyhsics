@@ -43,18 +43,26 @@ function paintDial(context: CanvasRenderingContext2D, width: number, height: num
     context.font = '600 21px Arial'
     for (let index = 0; index <= 5; index += 1) {
       const theta = angle(index / 5)
-      context.fillText(String((scale.max * index) / 5), cx + Math.cos(theta) * scale.radius, cy + Math.sin(theta) * scale.radius)
+      context.fillText(
+        String((scale.max * index) / 5),
+        cx + Math.cos(theta) * scale.radius,
+        cy + Math.sin(theta) * scale.radius,
+      )
     }
   }
   context.fillStyle = '#245b8f'
   context.font = '600 19px Arial'
-  context.fillText('V / A', cx, cy - radius * 0.50)
+  context.fillText('V / A', cx, cy - radius * 0.5)
   context.fillStyle = '#2f7a4f'
   context.font = '600 18px Arial'
   for (const resistance of [0, 15, 50, 200, 1000]) {
     const fraction = resistance === 0 ? 1 : ohmFraction(resistance, 1)
     const theta = angle(fraction)
-    context.fillText(resistance >= 1000 ? '1k' : String(resistance), cx + Math.cos(theta) * (radius + 94), cy + Math.sin(theta) * (radius + 94))
+    context.fillText(
+      resistance >= 1000 ? '1k' : String(resistance),
+      cx + Math.cos(theta) * (radius + 94),
+      cy + Math.sin(theta) * (radius + 94),
+    )
   }
   const infinity = angle(0)
   context.fillText('∞', cx + Math.cos(infinity) * (radius + 94), cy + Math.sin(infinity) * (radius + 94))
@@ -162,7 +170,15 @@ function AxialCell({ position }: { position: Point3 }) {
   )
 }
 
-function AxialResistor({ position, length = 3.2, color = '#d8c39a' }: { position: Point3; length?: number; color?: string }) {
+function AxialResistor({
+  position,
+  length = 3.2,
+  color = '#d8c39a',
+}: {
+  position: Point3
+  length?: number
+  color?: string
+}) {
   return (
     <group position={position}>
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
@@ -192,8 +208,22 @@ function Diode({ position }: { position: Point3 }) {
         <cylinderGeometry args={[0.49, 0.49, 0.18, 16]} />
         <meshStandardMaterial color="#d5d7d3" metalness={0.65} roughness={0.3} />
       </mesh>
-      <BoardWire points={[[-2.4, 0, 0], [-1.2, 0, 0]]} color="#c5c9c5" lineWidth={2.4} />
-      <BoardWire points={[[1.2, 0, 0], [2.4, 0, 0]]} color="#c5c9c5" lineWidth={2.4} />
+      <BoardWire
+        points={[
+          [-2.4, 0, 0],
+          [-1.2, 0, 0],
+        ]}
+        color="#c5c9c5"
+        lineWidth={2.4}
+      />
+      <BoardWire
+        points={[
+          [1.2, 0, 0],
+          [2.4, 0, 0],
+        ]}
+        color="#c5c9c5"
+        lineWidth={2.4}
+      />
     </group>
   )
 }
@@ -214,7 +244,9 @@ function MiniAmmeter({ position, fraction }: { position: Point3; fraction: numbe
         <boxGeometry args={[0.07, 1.12, 0.04]} />
         <meshStandardMaterial color="#c0392b" />
       </mesh>
-      <SceneLabel position={[0, -1.2, 0.65]} variant="text" color="#25333a" weight={800} distanceFactor={26}>A</SceneLabel>
+      <SceneLabel position={[0, -1.2, 0.65]} variant="text" color="#25333a" weight={800} distanceFactor={26}>
+        A
+      </SceneLabel>
     </group>
   )
 }
@@ -253,61 +285,127 @@ function Rheostat({ position, slider }: { position: Point3; slider: number }) {
 
 function UseCircuit({ target }: { target: MeterPose['target'] }) {
   if (target === 'cell') {
-    return <><AxialCell position={[-10, 2.8, 9]} /><TerminalPost position={[-5.6, 2.7, 9]} color="#b8423a" /><TerminalPost position={[-14.4, 2.7, 9]} color="#1d2327" /></>
+    return (
+      <>
+        <AxialCell position={[-10, 2.8, 9]} />
+        <TerminalPost position={[-5.6, 2.7, 9]} color="#b8423a" />
+        <TerminalPost position={[-14.4, 2.7, 9]} color="#1d2327" />
+      </>
+    )
   }
   if (target === 'loopI') {
-    return <>
-      <AxialCell position={[-10, 2.8, 15.2]} />
-      <AxialResistor position={[10, 2.9, 15.2]} length={3.2} />
-      <TerminalPost position={[-2.2, 2.7, 15.2]} color="#b8423a" />
-      <TerminalPost position={[7.8, 2.7, 15.2]} color="#1d2327" />
-      <BoardWire points={[[-5.6, 2.8, 15.2], [-2.2, 2.8, 15.2]]} color="#b8423a" />
-      <BoardWire points={[[7.8, 2.8, 15.2], [8.4, 2.8, 15.2]]} color="#b8423a" />
-      <BoardWire points={[[11.6, 2.8, 15.2], [11.6, 2.8, 19], [-14.4, 2.8, 19], [-14.4, 2.8, 15.2]]} color="#1d2327" />
-    </>
+    return (
+      <>
+        <AxialCell position={[-10, 2.8, 15.2]} />
+        <AxialResistor position={[10, 2.9, 15.2]} length={3.2} />
+        <TerminalPost position={[-2.2, 2.7, 15.2]} color="#b8423a" />
+        <TerminalPost position={[7.8, 2.7, 15.2]} color="#1d2327" />
+        <BoardWire
+          points={[
+            [-5.6, 2.8, 15.2],
+            [-2.2, 2.8, 15.2],
+          ]}
+          color="#b8423a"
+        />
+        <BoardWire
+          points={[
+            [7.8, 2.8, 15.2],
+            [8.4, 2.8, 15.2],
+          ]}
+          color="#b8423a"
+        />
+        <BoardWire
+          points={[
+            [11.6, 2.8, 15.2],
+            [11.6, 2.8, 19],
+            [-14.4, 2.8, 19],
+            [-14.4, 2.8, 15.2],
+          ]}
+          color="#1d2327"
+        />
+      </>
+    )
   }
   if (target === 'resistor') {
-    return <>
-      <AxialResistor position={[0, 2.9, 9]} length={3.2} />
-      <TerminalPost position={[-2.6, 2.7, 9]} color="#b8423a" />
-      <TerminalPost position={[2.6, 2.7, 9]} color="#1d2327" />
-    </>
+    return (
+      <>
+        <AxialResistor position={[0, 2.9, 9]} length={3.2} />
+        <TerminalPost position={[-2.6, 2.7, 9]} color="#b8423a" />
+        <TerminalPost position={[2.6, 2.7, 9]} color="#1d2327" />
+      </>
+    )
   }
   if (target === 'diode') {
-    return <>
-      <Diode position={[9, 2.9, 9]} />
-      <TerminalPost position={[6.6, 2.7, 9]} color="#b8423a" />
-      <TerminalPost position={[11.4, 2.7, 9]} color="#1d2327" />
-    </>
+    return (
+      <>
+        <Diode position={[9, 2.9, 9]} />
+        <TerminalPost position={[6.6, 2.7, 9]} color="#b8423a" />
+        <TerminalPost position={[11.4, 2.7, 9]} color="#1d2327" />
+      </>
+    )
   }
   if (target === 'short') {
-    return <>
-      <mesh position={[0, 3.2, 4.4]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.16, 0.16, 0.6, 12]} />
-        <meshStandardMaterial color="#d1d7d5" metalness={0.85} roughness={0.24} />
-      </mesh>
-      <TerminalPost position={[-0.3, 3.2, 4.4]} color="#b8423a" />
-      <TerminalPost position={[0.3, 3.2, 4.4]} color="#1d2327" />
-    </>
+    return (
+      <>
+        <mesh position={[0, 3.2, 4.4]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.6, 12]} />
+          <meshStandardMaterial color="#d1d7d5" metalness={0.85} roughness={0.24} />
+        </mesh>
+        <TerminalPost position={[-0.3, 3.2, 4.4]} color="#b8423a" />
+        <TerminalPost position={[0.3, 3.2, 4.4]} color="#1d2327" />
+      </>
+    )
   }
   return null
 }
 
 function VaCircuit({ fraction }: { fraction: number }) {
-  return <>
-    <AxialCell position={[-10, 2.8, 15.2]} />
-    <MiniAmmeter position={[0, 2.8, 15.2]} fraction={fraction} />
-    <AxialResistor position={[9, 2.9, 15.2]} length={2.4} />
-    <TerminalPost position={[7.4, 2.7, 15.2]} color="#b8423a" />
-    <TerminalPost position={[10.6, 2.7, 15.2]} color="#1d2327" />
-    <TerminalPost position={[-2.2, 2.7, 15.2]} color="#b8423a" />
-    <BoardWire points={[[-5.6, 2.8, 15.2], [-2.2, 2.8, 15.2]]} color="#b8423a" />
-    <BoardWire points={[[2.2, 2.8, 15.2], [7.4, 2.8, 15.2]]} color="#b8423a" />
-    <BoardWire points={[[10.6, 2.8, 15.2], [10.6, 2.8, 19], [-14.4, 2.8, 19], [-14.4, 2.8, 15.2]]} color="#1d2327" />
-  </>
+  return (
+    <>
+      <AxialCell position={[-10, 2.8, 15.2]} />
+      <MiniAmmeter position={[0, 2.8, 15.2]} fraction={fraction} />
+      <AxialResistor position={[9, 2.9, 15.2]} length={2.4} />
+      <TerminalPost position={[7.4, 2.7, 15.2]} color="#b8423a" />
+      <TerminalPost position={[10.6, 2.7, 15.2]} color="#1d2327" />
+      <TerminalPost position={[-2.2, 2.7, 15.2]} color="#b8423a" />
+      <BoardWire
+        points={[
+          [-5.6, 2.8, 15.2],
+          [-2.2, 2.8, 15.2],
+        ]}
+        color="#b8423a"
+      />
+      <BoardWire
+        points={[
+          [2.2, 2.8, 15.2],
+          [7.4, 2.8, 15.2],
+        ]}
+        color="#b8423a"
+      />
+      <BoardWire
+        points={[
+          [10.6, 2.8, 15.2],
+          [10.6, 2.8, 19],
+          [-14.4, 2.8, 19],
+          [-14.4, 2.8, 15.2],
+        ]}
+        color="#1d2327"
+      />
+    </>
+  )
 }
 
-function RheostatCircuit({ slider, mode, closed, currentFraction }: { slider: number; mode: 'limit' | 'divider'; closed: boolean; currentFraction: number }) {
+function RheostatCircuit({
+  slider,
+  mode,
+  closed,
+  currentFraction,
+}: {
+  slider: number
+  mode: 'limit' | 'divider'
+  closed: boolean
+  currentFraction: number
+}) {
   const sliderX = -7 + 14 * Math.max(0, Math.min(1, slider))
   const pointA = [-8, 2.7, 15.2] as Point3
   const pointB = [8, 2.7, 15.2] as Point3
@@ -316,62 +414,136 @@ function RheostatCircuit({ slider, mode, closed, currentFraction }: { slider: nu
   const ammeterLeft = [1.8, 2.8, 11.7] as Point3
   const ammeterRight = [6.2, 2.8, 11.7] as Point3
   const wiper = [sliderX, 4.25, 15.2] as Point3
-  return <>
-    <AxialCell position={[-10, 2.8, 15.2]} />
-    <Rheostat position={[0, 3.2, 15.2]} slider={slider} />
-    <AxialResistor position={[9, 2.9, 15.2]} length={2.4} />
-    <MiniAmmeter position={[4, 2.8, 11.7]} fraction={currentFraction} />
-    <TerminalPost position={loadRed} color="#b8423a" />
-    <TerminalPost position={loadBlack} color="#1d2327" />
-    <TerminalPost position={pointA} color="#b8423a" />
-    <TerminalPost position={pointB} color="#1d2327" />
-    <SceneLabel position={[-8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>a</SceneLabel>
-    <SceneLabel position={[8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>b</SceneLabel>
-    <TerminalPost position={[-7.85, 2.8, 15.2]} color="#b8423a" />
-    <TerminalPost position={[-6.75, 2.8, 15.2]} color="#b8423a" />
-    <BoardWire points={[[-5.6, 2.8, 15.2], [-6.75, 2.8, 15.2]]} color="#b8423a" />
-    <BoardWire points={[[-7.85, 2.8, 15.2], pointA]} color="#b8423a" />
-    <group position={[-6.75, 2.8, 15.2]} rotation={[0, 0, closed ? 0 : -0.7]}>
-      <mesh position={[-0.55, 0, 0]}>
-        <boxGeometry args={[1.15, 0.13, 0.13]} />
-        <meshStandardMaterial color="#b8423a" metalness={0.72} roughness={0.26} />
-      </mesh>
-    </group>
-    {mode === 'divider' && <>
-      <BoardWire points={[pointB, [8, 2.8, 18.8], [-14.4, 2.8, 18.8], [-13.15, 2.8, 15.2]]} color="#1d2327" />
-      <BoardWire points={[pointA, loadRed]} color="#b8423a" />
-      <BoardWire points={[loadBlack, [10.6, 2.8, 11.7], ammeterRight]} color="#315d88" />
-      <BoardWire points={[ammeterLeft, [1.8, 2.8, 13.2], [sliderX, 2.8, 13.2], wiper]} color="#315d88" />
-    </>}
-    {mode === 'limit' && <>
-      <BoardWire points={[wiper, [sliderX, 2.8, 13.2], [ammeterLeft[0], 2.8, 13.2], ammeterLeft]} color="#d99531" />
-      <BoardWire points={[ammeterRight, [6.2, 2.8, 15.2], loadRed]} color="#d99531" />
-      <BoardWire points={[loadBlack, [10.6, 2.8, 18.8], [-14.4, 2.8, 18.8], [-13.15, 2.8, 15.2]]} color="#1d2327" />
-    </>}
-  </>
+  return (
+    <>
+      <AxialCell position={[-10, 2.8, 15.2]} />
+      <Rheostat position={[0, 3.2, 15.2]} slider={slider} />
+      <AxialResistor position={[9, 2.9, 15.2]} length={2.4} />
+      <MiniAmmeter position={[4, 2.8, 11.7]} fraction={currentFraction} />
+      <TerminalPost position={loadRed} color="#b8423a" />
+      <TerminalPost position={loadBlack} color="#1d2327" />
+      <TerminalPost position={pointA} color="#b8423a" />
+      <TerminalPost position={pointB} color="#1d2327" />
+      <SceneLabel position={[-8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>
+        a
+      </SceneLabel>
+      <SceneLabel position={[8, 4.1, 15.2]} variant="text" color="#34464d" size={11} weight={800} distanceFactor={25}>
+        b
+      </SceneLabel>
+      <TerminalPost position={[-7.85, 2.8, 15.2]} color="#b8423a" />
+      <TerminalPost position={[-6.75, 2.8, 15.2]} color="#b8423a" />
+      <BoardWire
+        points={[
+          [-5.6, 2.8, 15.2],
+          [-6.75, 2.8, 15.2],
+        ]}
+        color="#b8423a"
+      />
+      <BoardWire points={[[-7.85, 2.8, 15.2], pointA]} color="#b8423a" />
+      <group position={[-6.75, 2.8, 15.2]} rotation={[0, 0, closed ? 0 : -0.7]}>
+        <mesh position={[-0.55, 0, 0]}>
+          <boxGeometry args={[1.15, 0.13, 0.13]} />
+          <meshStandardMaterial color="#b8423a" metalness={0.72} roughness={0.26} />
+        </mesh>
+      </group>
+      {mode === 'divider' && (
+        <>
+          <BoardWire points={[pointB, [8, 2.8, 18.8], [-14.4, 2.8, 18.8], [-13.15, 2.8, 15.2]]} color="#1d2327" />
+          <BoardWire points={[pointA, loadRed]} color="#b8423a" />
+          <BoardWire points={[loadBlack, [10.6, 2.8, 11.7], ammeterRight]} color="#315d88" />
+          <BoardWire points={[ammeterLeft, [1.8, 2.8, 13.2], [sliderX, 2.8, 13.2], wiper]} color="#315d88" />
+        </>
+      )}
+      {mode === 'limit' && (
+        <>
+          <BoardWire points={[wiper, [sliderX, 2.8, 13.2], [ammeterLeft[0], 2.8, 13.2], ammeterLeft]} color="#d99531" />
+          <BoardWire points={[ammeterRight, [6.2, 2.8, 15.2], loadRed]} color="#d99531" />
+          <BoardWire points={[loadBlack, [10.6, 2.8, 18.8], [-14.4, 2.8, 18.8], [-13.15, 2.8, 15.2]]} color="#1d2327" />
+        </>
+      )}
+    </>
+  )
 }
 
 function ConversionModule({ connected, kind }: { connected: boolean; kind: 'V' | 'A' }) {
   const redJack = meterWorld(3, 1.9, 2).toArray() as Point3
   const blackJack = meterWorld(-3, 1.9, 2).toArray() as Point3
-  return <>
-    <AxialResistor position={[10, 2.9, 15.2]} length={4.4} color={connected ? '#d8c39a' : '#aaa89c'} />
-    <TerminalPost position={kind === 'A' ? [7.2, 2.7, 15.2] : [12.8, 2.7, 15.2]} color="#b8423a" />
-    <TerminalPost position={kind === 'A' ? [12.8, 2.7, 15.2] : [14.2, 2.7, 15.2]} color="#1d2327" />
-    <TerminalPost position={redJack} color="#b8423a" />
-    <BoardWire points={[redJack, [5, 2.8, 9], [7.2, 2.8, 15.2]]} color={connected ? '#b8423a' : '#9a9a91'} lineWidth={connected ? 3 : 1.2} />
-    {kind === 'A' ? <>
-      <TerminalPost position={blackJack} color="#1d2327" />
-      <BoardWire points={[blackJack, [-5, 2.8, 9], [12.8, 2.8, 15.2]]} color={connected ? '#315d88' : '#9a9a91'} lineWidth={connected ? 3 : 1.2} />
-    </> : <>
-      <TerminalPost position={blackJack} color="#1d2327" />
-      <BoardWire points={[blackJack, [-5, 2.8, 3], [-5, 2.8, 18.5], [14.2, 2.8, 18.5], [14.2, 2.8, 15.2]]} color={connected ? '#315d88' : '#9a9a91'} lineWidth={connected ? 3 : 1.2} />
-    </>}
-    <SceneLabel position={[kind === 'A' ? 7.2 : 12.8, 5.8, 15.2]} variant="text" color={connected ? '#354a52' : '#6b6f70'} size={11} weight={800} distanceFactor={26}>{kind === 'V' ? 'V+ 输入' : 'I+ 输入'}</SceneLabel>
-    {kind === 'V' && <SceneLabel position={[14.2, 3.3, 15.2]} variant="text" color="#6b6f70" size={11} weight={800} distanceFactor={26}>COM</SceneLabel>}
-    {kind === 'A' && <SceneLabel position={[12.8, 3.3, 15.2]} variant="text" color="#6b6f70" size={11} weight={800} distanceFactor={26}>I−</SceneLabel>}
-    <SceneLabel position={[10, 4.2, 15.2]} variant="text" color={connected ? '#354a52' : '#6b6f70'} size={11} weight={800} distanceFactor={26}>{kind === 'V' ? '串联电阻 Rs' : '分流电阻 Rsh'}</SceneLabel>
-  </>
+  return (
+    <>
+      <AxialResistor position={[10, 2.9, 15.2]} length={4.4} color={connected ? '#d8c39a' : '#aaa89c'} />
+      <TerminalPost position={kind === 'A' ? [7.2, 2.7, 15.2] : [12.8, 2.7, 15.2]} color="#b8423a" />
+      <TerminalPost position={kind === 'A' ? [12.8, 2.7, 15.2] : [14.2, 2.7, 15.2]} color="#1d2327" />
+      <TerminalPost position={redJack} color="#b8423a" />
+      <BoardWire
+        points={[redJack, [5, 2.8, 9], [7.2, 2.8, 15.2]]}
+        color={connected ? '#b8423a' : '#9a9a91'}
+        lineWidth={connected ? 3 : 1.2}
+      />
+      {kind === 'A' ? (
+        <>
+          <TerminalPost position={blackJack} color="#1d2327" />
+          <BoardWire
+            points={[blackJack, [-5, 2.8, 9], [12.8, 2.8, 15.2]]}
+            color={connected ? '#315d88' : '#9a9a91'}
+            lineWidth={connected ? 3 : 1.2}
+          />
+        </>
+      ) : (
+        <>
+          <TerminalPost position={blackJack} color="#1d2327" />
+          <BoardWire
+            points={[blackJack, [-5, 2.8, 3], [-5, 2.8, 18.5], [14.2, 2.8, 18.5], [14.2, 2.8, 15.2]]}
+            color={connected ? '#315d88' : '#9a9a91'}
+            lineWidth={connected ? 3 : 1.2}
+          />
+        </>
+      )}
+      <SceneLabel
+        position={[kind === 'A' ? 7.2 : 12.8, 5.8, 15.2]}
+        variant="text"
+        color={connected ? '#354a52' : '#6b6f70'}
+        size={11}
+        weight={800}
+        distanceFactor={26}
+      >
+        {kind === 'V' ? 'V+ 输入' : 'I+ 输入'}
+      </SceneLabel>
+      {kind === 'V' && (
+        <SceneLabel
+          position={[14.2, 3.3, 15.2]}
+          variant="text"
+          color="#6b6f70"
+          size={11}
+          weight={800}
+          distanceFactor={26}
+        >
+          COM
+        </SceneLabel>
+      )}
+      {kind === 'A' && (
+        <SceneLabel
+          position={[12.8, 3.3, 15.2]}
+          variant="text"
+          color="#6b6f70"
+          size={11}
+          weight={800}
+          distanceFactor={26}
+        >
+          I−
+        </SceneLabel>
+      )}
+      <SceneLabel
+        position={[10, 4.2, 15.2]}
+        variant="text"
+        color={connected ? '#354a52' : '#6b6f70'}
+        size={11}
+        weight={800}
+        distanceFactor={26}
+      >
+        {kind === 'V' ? '串联电阻 Rs' : '分流电阻 Rsh'}
+      </SceneLabel>
+    </>
+  )
 }
 
 export function MeterAssembly({
@@ -439,7 +611,9 @@ export function MeterAssembly({
             <meshStandardMaterial color="#c0392b" />
           </mesh>
         </group>
-        <SceneLabel position={[0, 7.25, 2.08]} size={10} weight={800} distanceFactor={28}>{rangeLabel}</SceneLabel>
+        <SceneLabel position={[0, 7.25, 2.08]} size={10} weight={800} distanceFactor={28}>
+          {rangeLabel}
+        </SceneLabel>
         <group name="meter-ohm" position={[3.9, 7.1, 2]} rotation={[0, 0, pose.ohmKnob]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.75, 0.75, 0.6, 16]} />
@@ -454,13 +628,22 @@ export function MeterAssembly({
       {stage === 'use' ? <UseCircuit target={pose.target} /> : null}
       {stage === 'convert' ? <ConversionModule connected={conversionConnected} kind={convKind} /> : null}
       {stage === 'va' ? <VaCircuit fraction={secondaryFraction} /> : null}
-      {stage === 'rheostat' ? <RheostatCircuit slider={rheostatSlider} mode={rheostatMode} closed={rheostatClosed} currentFraction={rheostatCurrentFraction} /> : null}
-      {stage === 'use' || stage === 'va' || stage === 'rheostat' ? <>
-        <Pen name="probe-red" position={pose.red} color="#b8423a" />
-        <Pen name="probe-black" position={pose.black} color="#1d2327" />
-        <ProbeCable tip={pose.red} color="#b8423a" side={1} jack={[3, 1.9, 2]} />
-        <ProbeCable tip={pose.black} color="#1d2327" side={-1} jack={[-3, 1.9, 2]} />
-      </> : null}
+      {stage === 'rheostat' ? (
+        <RheostatCircuit
+          slider={rheostatSlider}
+          mode={rheostatMode}
+          closed={rheostatClosed}
+          currentFraction={rheostatCurrentFraction}
+        />
+      ) : null}
+      {stage === 'use' || stage === 'va' || stage === 'rheostat' ? (
+        <>
+          <Pen name="probe-red" position={pose.red} color="#b8423a" />
+          <Pen name="probe-black" position={pose.black} color="#1d2327" />
+          <ProbeCable tip={pose.red} color="#b8423a" side={1} jack={[3, 1.9, 2]} />
+          <ProbeCable tip={pose.black} color="#1d2327" side={-1} jack={[-3, 1.9, 2]} />
+        </>
+      ) : null}
     </>
   )
 }

@@ -18,7 +18,21 @@ import {
 } from './state'
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
-const REMEMBERED_FIELDS = ['mode', 'body', 'r1', 'r2', 'phaseDeg', 'inclinationDeg', 'timeScale', 'showVectors', 'showArea', 'showPlane', 'corotate', 'azimuthDeg', 'elevationDeg'] as const
+const REMEMBERED_FIELDS = [
+  'mode',
+  'body',
+  'r1',
+  'r2',
+  'phaseDeg',
+  'inclinationDeg',
+  'timeScale',
+  'showVectors',
+  'showArea',
+  'showPlane',
+  'corotate',
+  'azimuthDeg',
+  'elevationDeg',
+] as const
 
 export function useCelestialMotionSceneState() {
   // The scene's own 时间缩放 and each scenario's playback scale ride on the shared slow motion.
@@ -34,19 +48,36 @@ export function useCelestialMotionSceneState() {
     scenario: scenarioOf(simulation),
     toggleRunning: () => commit(toggleCelestial),
     step: () => commit(stepCelestial),
-    reset: () => commit((state) => ({
-      ...state,
-      time: 0,
-      running: false,
-      finished: false,
-      notice: '回到起点。轨道参数保持不变。',
-    })),
+    reset: () =>
+      commit((state) => ({
+        ...state,
+        time: 0,
+        running: false,
+        finished: false,
+        notice: '回到起点。轨道参数保持不变。',
+      })),
     setMode: (mode: OrbitMode) => commit((state) => setMode(state, mode)),
     setBody: (body: BodyId) => commit((state) => setBody(state, body)),
     setR1: (r1: number) => commit((state) => setInnerOrbit(state, r1)),
     setR2: (r2: number) => commit((state) => setOuterOrbit(state, r2)),
-    setPhase: (phaseDeg: number) => commit((state) => ({ ...state, phaseDeg, time: 0, running: false, finished: false, notice: '初始相位已更新，动画回到起点。' })),
-    setInclination: (inclinationDeg: number) => commit((state) => ({ ...state, inclinationDeg, time: 0, running: false, finished: false, notice: '轨道倾角已更新，动画回到起点。' })),
+    setPhase: (phaseDeg: number) =>
+      commit((state) => ({
+        ...state,
+        phaseDeg,
+        time: 0,
+        running: false,
+        finished: false,
+        notice: '初始相位已更新，动画回到起点。',
+      })),
+    setInclination: (inclinationDeg: number) =>
+      commit((state) => ({
+        ...state,
+        inclinationDeg,
+        time: 0,
+        running: false,
+        finished: false,
+        notice: '轨道倾角已更新，动画回到起点。',
+      })),
     setTimeScale: (timeScale: number) => commit((state) => ({ ...state, timeScale, finished: false })),
     setAzimuth: (azimuthDeg: number) => commit((state) => ({ ...state, azimuthDeg, view: 'custom' })),
     setElevation: (elevationDeg: number) => commit((state) => ({ ...state, elevationDeg, view: 'custom' })),

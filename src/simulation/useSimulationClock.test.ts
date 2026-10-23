@@ -59,7 +59,9 @@ describe('useSimulationClock', () => {
   })
 
   it('pauses itself when the process ends', () => {
-    const { result } = renderHook(() => useSimulationClock({ advance: () => false, stepSeconds: 0.1, initiallyRunning: true }))
+    const { result } = renderHook(() =>
+      useSimulationClock({ advance: () => false, stepSeconds: 0.1, initiallyRunning: true }),
+    )
     runFrames(2)
     expect(result.current.running).toBe(false)
   })

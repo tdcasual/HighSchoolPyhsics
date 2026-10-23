@@ -1,10 +1,50 @@
-.orthogonal-em-wave-controls h2 { margin: 0; font-size: 1.04rem; line-height: 1.35; }
-.orthogonal-em-wave-subtitle { margin: 0.2rem 0 0; color: var(--control-ink-muted); font-size: 0.75rem; line-height: 1.45; }
-.orthogonal-em-wave-help { margin: 0; color: var(--control-ink-soft); font-size: 0.78rem; line-height: 1.55; }
-.orthogonal-em-wave-toggle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.42rem; }
-.orthogonal-em-wave-toggle { min-height: 44px; border: 1px solid rgba(230, 57, 70, 0.5); border-radius: 10px; padding: 0.35rem 0.45rem; color: var(--control-ink-soft); background: var(--control-bg); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
-.orthogonal-em-wave-toggle[aria-pressed="true"] { color: #b22e3b; background: rgba(230, 57, 70, 0.1); }
-.orthogonal-em-wave-toggle.projection { border-color: rgba(69, 123, 157, 0.55); }
-.orthogonal-em-wave-toggle.projection[aria-pressed="true"] { color: #2d6787; background: rgba(69, 123, 157, 0.1); }
-.app-shell.theme-night .orthogonal-em-wave-toggle[aria-pressed="true"] { color: #ff8a95; }
-.app-shell.theme-night .orthogonal-em-wave-toggle.projection[aria-pressed="true"] { color: #8cc4e6; }
+.orthogonal-em-wave-controls h2 {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.35;
+}
+.orthogonal-em-wave-subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--control-ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.orthogonal-em-wave-help {
+  margin: 0;
+  color: var(--control-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.orthogonal-em-wave-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+.orthogonal-em-wave-toggle {
+  min-height: 44px;
+  border: 1px solid rgba(230, 57, 70, 0.5);
+  border-radius: 10px;
+  padding: 0.35rem 0.45rem;
+  color: var(--control-ink-soft);
+  background: var(--control-bg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.orthogonal-em-wave-toggle[aria-pressed='true'] {
+  color: #b22e3b;
+  background: rgba(230, 57, 70, 0.1);
+}
+.orthogonal-em-wave-toggle.projection {
+  border-color: rgba(69, 123, 157, 0.55);
+}
+.orthogonal-em-wave-toggle.projection[aria-pressed='true'] {
+  color: #2d6787;
+  background: rgba(69, 123, 157, 0.1);
+}
+.app-shell.theme-night .orthogonal-em-wave-toggle[aria-pressed='true'] {
+  color: #ff8a95;
+}
+.app-shell.theme-night .orthogonal-em-wave-toggle.projection[aria-pressed='true'] {
+  color: #8cc4e6;
+}

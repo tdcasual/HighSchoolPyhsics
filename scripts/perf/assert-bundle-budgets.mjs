@@ -59,9 +59,7 @@ for (const budget of BUDGETS) {
   const maxKilobytes = (budget.maxBytes / 1024).toFixed(1)
   const actualKilobytes = (sizeBytes / 1024).toFixed(1)
   if (sizeBytes > budget.maxBytes) {
-    failures.push(
-      `[over] ${budget.label}: ${matchedFile} = ${actualKilobytes} kB (max ${maxKilobytes} kB)`,
-    )
+    failures.push(`[over] ${budget.label}: ${matchedFile} = ${actualKilobytes} kB (max ${maxKilobytes} kB)`)
     continue
   }
 

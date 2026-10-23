@@ -4,7 +4,7 @@ import { micrometerBowPoints, revolvePoint } from './geometry'
 describe('measuring instrument geometry frame', () => {
   it('starts the micrometer bow at 168 degrees on the outer radius', () => {
     const points = micrometerBowPoints()
-    const angle = 168 * Math.PI / 180
+    const angle = (168 * Math.PI) / 180
     expect(points).toHaveLength(70)
     expect(points[0][0]).toBeCloseTo(9 + 31 * Math.cos(angle), 8)
     expect(points[0][1]).toBeCloseTo(-2 + 31 * Math.sin(angle), 8)

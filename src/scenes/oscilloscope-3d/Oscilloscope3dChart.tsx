@@ -11,7 +11,11 @@ export function Oscilloscope3dChart({ trace, beam, running, mode }: Props) {
   return (
     <ChartCard
       title="荧光屏波形"
-      status={<>{running ? '扫描中' : '已暂停'} · {mode}</>}
+      status={
+        <>
+          {running ? '扫描中' : '已暂停'} · {mode}
+        </>
+      }
       legend={[
         { label: 'Y 偏转/信号', color: 'var(--chart-3)' },
         { label: '光点', color: 'var(--chart-point)', shape: 'dot' },

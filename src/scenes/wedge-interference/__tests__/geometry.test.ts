@@ -16,8 +16,9 @@ describe('wedge geometry mapping', () => {
   it('keeps the thin contact edge touching the lower plate', () => {
     const visualAngle = visualWedgeAngleDegrees(0.0086)
     const groupY = upperPlateGroupY(visualAngle)
-    const angle = visualAngle * Math.PI / 180
-    const lowerSurfaceAtLeft = groupY - WEDGE_PLATE_WIDTH / 2 * Math.sin(angle) - WEDGE_PLATE_HEIGHT / 2 * Math.cos(angle)
+    const angle = (visualAngle * Math.PI) / 180
+    const lowerSurfaceAtLeft =
+      groupY - (WEDGE_PLATE_WIDTH / 2) * Math.sin(angle) - (WEDGE_PLATE_HEIGHT / 2) * Math.cos(angle)
     expect(lowerSurfaceAtLeft).toBeCloseTo(WEDGE_PLATE_Y + WEDGE_PLATE_HEIGHT / 2, 10)
     expect(wedgeGapAtX(visualAngle, -WEDGE_PLATE_WIDTH / 2)).toBe(0)
   })

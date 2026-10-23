@@ -99,9 +99,7 @@ describe('mobilePlaybackActions', () => {
   })
 
   it('is not included in persisted storage', () => {
-    useAppStore.getState().setMobilePlaybackActions([
-      { key: 'play', label: '播放', onClick: () => {} },
-    ])
+    useAppStore.getState().setMobilePlaybackActions([{ key: 'play', label: '播放', onClick: () => {} }])
 
     const persisted = useAppStore.persist.getOptions().storage?.getItem(STORE_NAME)
     const parsed = typeof persisted === 'string' ? JSON.parse(persisted) : persisted

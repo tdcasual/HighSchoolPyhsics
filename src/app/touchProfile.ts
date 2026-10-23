@@ -54,7 +54,10 @@ export function resolveTouchProfile(profile: unknown, fallback: TouchProfile = E
 }
 
 /** `pointer: 'touch'` drops the mouse-only gestures for touch-only devices. */
-export function buildTouchProfileHint(profile: TouchProfile, { pointer = 'any' }: { pointer?: 'any' | 'touch' } = {}): string {
+export function buildTouchProfileHint(
+  profile: TouchProfile,
+  { pointer = 'any' }: { pointer?: 'any' | 'touch' } = {},
+): string {
   const touchFragments: string[] = []
 
   if (profile.gestureMatrix.singleFingerRotate) {

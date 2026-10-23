@@ -18,7 +18,11 @@ describe('electrostatics potential sampling', () => {
       { id: 'C1', x: -2, y: 0, z: 0, magnitude: 10 },
       { id: 'C2', x: 2, y: 0, z: 0, magnitude: -10 },
     ]
-    const nearPositive3D = samplePotential3D(charges3D, { x: -1.7, y: 0, z: 0 }, { softening: 0.12, nonLinearLimit: 24 })
+    const nearPositive3D = samplePotential3D(
+      charges3D,
+      { x: -1.7, y: 0, z: 0 },
+      { softening: 0.12, nonLinearLimit: 24 },
+    )
     const nearNegative3D = samplePotential3D(charges3D, { x: 1.7, y: 0, z: 0 }, { softening: 0.12, nonLinearLimit: 24 })
 
     expect(nearPositive3D).toBeGreaterThan(0)

@@ -35,7 +35,13 @@ describe('multimeter acceptance', () => {
   })
 
   it('requires mechanical zero and shorted probes before zeroing the ohm range', () => {
-    const unzeroed = { ...createMultimeterState(), range: 'R10' as const, task: 'R' as const, mechanicalOffset: 0.028, mechanical: 0 }
+    const unzeroed = {
+      ...createMultimeterState(),
+      range: 'R10' as const,
+      task: 'R' as const,
+      mechanicalOffset: 0.028,
+      mechanical: 0,
+    }
     expect(isOhmZero(zeroOhm(unzeroed))).toBe(false)
     const wrongTask = { ...unzeroed, mechanicalOffset: 0, task: 'R' as const }
     expect(zeroOhm(wrongTask).notice).toContain('短接')
@@ -49,7 +55,12 @@ describe('multimeter acceptance', () => {
   })
 
   it('parks at the safe endpoint and prevents closing either rheostat topology from the wrong endpoint', () => {
-    const initial = { ...createMultimeterState(), stage: 'rheostat' as const, rheostatMode: 'limit' as const, slider: 0.3 }
+    const initial = {
+      ...createMultimeterState(),
+      stage: 'rheostat' as const,
+      rheostatMode: 'limit' as const,
+      slider: 0.3,
+    }
     expect(toggleRheostat(initial).rheostatClosed).toBe(false)
     expect(toggleRheostat(initial).notice).toContain('b 端')
     const limit = selectRheostatMode(initial, 'limit')

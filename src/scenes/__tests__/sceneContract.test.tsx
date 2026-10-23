@@ -11,15 +11,20 @@ import { MAX_DATA_ROWS } from '../../ui/panels/DataRows'
  */
 
 const modules = import.meta.glob<Record<string, unknown>>(['../*/*Scene.tsx'], { eager: true })
-const sources = import.meta.glob<string>(['../*/*.ts', '../*/*.tsx', '!../*/*.test.ts', '!../*/*.test.tsx', '!../__tests__/*'], {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-})
+const sources = import.meta.glob<string>(
+  ['../*/*.ts', '../*/*.tsx', '!../*/*.test.ts', '!../*/*.test.tsx', '!../__tests__/*'],
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
 
 const SCENES: Array<[string, ComponentType]> = Object.entries(modules)
   .map(([path, module]): [string, ComponentType] => {
-    const component = Object.entries(module).find(([name, value]) => name.endsWith('Scene') && typeof value === 'function')
+    const component = Object.entries(module).find(
+      ([name, value]) => name.endsWith('Scene') && typeof value === 'function',
+    )
     return [path.split('/')[1], component?.[1] as ComponentType]
   })
   .sort(([a], [b]) => a.localeCompare(b))
@@ -113,7 +118,9 @@ describe.each(SCENES)('%s keeps the classroom contract', (scene, Scene) => {
   it('remembers every teacher-set slider when the scene is opened again', () => {
     const first = render(<Scene />)
     const sidebar = screen.getByRole('complementary', { name: '参数控制' })
-    const sliders = [...sidebar.querySelectorAll<HTMLInputElement>('input[type="range"]:not([disabled]):not([data-transient])')]
+    const sliders = [
+      ...sidebar.querySelectorAll<HTMLInputElement>('input[type="range"]:not([disabled]):not([data-transient])'),
+    ]
     const chosen = new Map<string, number>()
     for (const slider of sliders) {
       const target = Number(slider.value) === Number(slider.min) ? slider.max : slider.min
@@ -128,7 +135,9 @@ describe.each(SCENES)('%s keeps the classroom contract', (scene, Scene) => {
     }
     first.unmount()
     const again = render(<Scene />)
-    const forgotten = [...chosen].filter(([id, value]) => Number(again.container.querySelector<HTMLInputElement>(`#${CSS.escape(id)}`)?.value) !== value)
+    const forgotten = [...chosen].filter(
+      ([id, value]) => Number(again.container.querySelector<HTMLInputElement>(`#${CSS.escape(id)}`)?.value) !== value,
+    )
     expect(forgotten.map(([id]) => id)).toEqual([])
   })
 })

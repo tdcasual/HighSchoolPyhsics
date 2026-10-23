@@ -37,7 +37,8 @@ describe('free-area framing', () => {
   it('never returns an area under a panel', () => {
     for (const area of freeRects(desktop)) {
       for (const block of desktop.obstacles) {
-        const overlaps = area.left < block.right && block.left < area.right && area.top < block.bottom && block.top < area.bottom
+        const overlaps =
+          area.left < block.right && block.left < area.right && area.top < block.bottom && block.top < area.bottom
         expect(overlaps).toBe(false)
       }
     }

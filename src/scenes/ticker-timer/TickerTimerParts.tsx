@@ -1,39 +1,30 @@
-import { useMemo } from "react";
-import { CatmullRomCurve3, DoubleSide, Vector3 } from "three";
-import { TAPE, tapeWorldX } from "./layout";
-import type { PrintQuality, TapeDot } from "./model";
-import { TICKER_CANDY as C } from "./palette";
-import { SceneLabel } from "../../scene3d/SceneLabel";
+import { useMemo } from 'react'
+import { CatmullRomCurve3, DoubleSide, Vector3 } from 'three'
+import { TAPE, tapeWorldX } from './layout'
+import type { PrintQuality, TapeDot } from './model'
+import { TICKER_CANDY as C } from './palette'
+import { SceneLabel } from '../../scene3d/SceneLabel'
 
 export function PartLabel({
   position,
   children,
   visible,
 }: {
-  position: [number, number, number];
-  children: string;
-  visible: boolean;
+  position: [number, number, number]
+  children: string
+  visible: boolean
 }) {
-  return visible ? <SceneLabel position={position}>{children}</SceneLabel> : null;
+  return visible ? <SceneLabel position={position}>{children}</SceneLabel> : null
 }
 
-export function Wire({
-  points,
-  color,
-}: {
-  points: ReadonlyArray<readonly [number, number, number]>;
-  color: string;
-}) {
-  const curve = useMemo(
-    () => new CatmullRomCurve3(points.map((point) => new Vector3(...point))),
-    [points],
-  );
+export function Wire({ points, color }: { points: ReadonlyArray<readonly [number, number, number]>; color: string }) {
+  const curve = useMemo(() => new CatmullRomCurve3(points.map((point) => new Vector3(...point))), [points])
   return (
     <mesh>
       <tubeGeometry args={[curve, 40, 0.018, 8, false]} />
       <meshStandardMaterial color={color} metalness={0.22} roughness={0.46} />
     </mesh>
-  );
+  )
 }
 
 export function Frame({
@@ -44,12 +35,12 @@ export function Frame({
   bar,
   color,
 }: {
-  position: [number, number, number];
-  width: number;
-  height: number;
-  depth: number;
-  bar: number;
-  color: string;
+  position: [number, number, number]
+  width: number
+  height: number
+  depth: number
+  bar: number
+  color: string
 }) {
   return (
     <group position={position}>
@@ -70,16 +61,10 @@ export function Frame({
         <meshStandardMaterial color={color} metalness={0.7} roughness={0.34} />
       </mesh>
     </group>
-  );
+  )
 }
 
-export function BindingTerminal({
-  position,
-  color,
-}: {
-  position: readonly [number, number, number];
-  color: string;
-}) {
+export function BindingTerminal({ position, color }: { position: readonly [number, number, number]; color: string }) {
   return (
     <group position={position}>
       <mesh>
@@ -91,7 +76,7 @@ export function BindingTerminal({
         <meshStandardMaterial color={color} metalness={0.18} roughness={0.35} />
       </mesh>
     </group>
-  );
+  )
 }
 
 export function GuideWindow({ z }: { z: number }) {
@@ -100,23 +85,15 @@ export function GuideWindow({ z }: { z: number }) {
       {[-0.25, 0.25].map((x) => (
         <mesh key={x} position={[x, 0, 0]}>
           <boxGeometry args={[0.06, 0.34, 0.06]} />
-          <meshStandardMaterial
-            color={C.guide}
-            metalness={0.7}
-            roughness={0.38}
-          />
+          <meshStandardMaterial color={C.guide} metalness={0.7} roughness={0.38} />
         </mesh>
       ))}
       <mesh position={[0, 0.17, 0]}>
         <boxGeometry args={[0.56, 0.06, 0.06]} />
-        <meshStandardMaterial
-          color={C.guide}
-          metalness={0.7}
-          roughness={0.38}
-        />
+        <meshStandardMaterial color={C.guide} metalness={0.7} roughness={0.38} />
       </mesh>
     </group>
-  );
+  )
 }
 
 export function PaperTape({
@@ -124,43 +101,33 @@ export function PaperTape({
   dots,
   printQuality,
 }: {
-  displacementM: number;
-  dots: TapeDot[];
-  printQuality: PrintQuality;
+  displacementM: number
+  dots: TapeDot[]
+  printQuality: PrintQuality
 }) {
-  const tapeMinX = TAPE.centerX - TAPE.visibleLength / 2 + 0.07;
-  const tapeMaxX = TAPE.centerX + TAPE.visibleLength / 2 - 0.06;
+  const tapeMinX = TAPE.centerX - TAPE.visibleLength / 2 + 0.07
+  const tapeMaxX = TAPE.centerX + TAPE.visibleLength / 2 - 0.06
 
   return (
     <group position={[0.8, 0, -0.8]} rotation={[0, -Math.PI / 2, 0]}>
       <mesh position={[TAPE.centerX, TAPE.y, 0]} receiveShadow>
         <boxGeometry args={[TAPE.visibleLength, TAPE.thickness, TAPE.width]} />
-        <meshStandardMaterial
-          color={C.tape}
-          roughness={0.82}
-          side={DoubleSide}
-        />
+        <meshStandardMaterial color={C.tape} roughness={0.82} side={DoubleSide} />
       </mesh>
       {dots.map((dot) => {
-        const x = Math.max(
-          tapeMinX,
-          Math.min(tapeMaxX, tapeWorldX(dot.positionM, displacementM)),
-        );
+        const x = Math.max(tapeMinX, Math.min(tapeMaxX, tapeWorldX(dot.positionM, displacementM)))
         return (
           <mesh
             key={`${dot.index}-${dot.timeS}`}
             position={[x, TAPE.y + TAPE.thickness / 2 + 0.002, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
-            scale={dot.smeared || printQuality === "smeared" ? [2.6, 1, 1] : [1, 1, 1]}
+            scale={dot.smeared || printQuality === 'smeared' ? [2.6, 1, 1] : [1, 1, 1]}
           >
-            <circleGeometry args={[dot.smeared || printQuality === "smeared" ? 0.022 : 0.012, 16]} />
-            <meshBasicMaterial
-              color={printQuality === "smeared" ? C.smeared : C.dot}
-              side={DoubleSide}
-            />
+            <circleGeometry args={[dot.smeared || printQuality === 'smeared' ? 0.022 : 0.012, 16]} />
+            <meshBasicMaterial color={printQuality === 'smeared' ? C.smeared : C.dot} side={DoubleSide} />
           </mesh>
-        );
+        )
       })}
     </group>
-  );
+  )
 }

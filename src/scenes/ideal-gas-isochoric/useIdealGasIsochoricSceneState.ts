@@ -13,14 +13,19 @@ export type IdealGasIsochoricSceneState = IdealGasParams & {
   reset: () => void
 }
 
-type Simulation = Omit<IdealGasIsochoricSceneState, 'running' | 'readings' | 'setTemperatureK' | 'setVolumePreset' | 'toggleRunning' | 'reset'>
+type Simulation = Omit<
+  IdealGasIsochoricSceneState,
+  'running' | 'readings' | 'setTemperatureK' | 'setVolumePreset' | 'toggleRunning' | 'reset'
+>
 const INITIAL_SIMULATION: Simulation = { temperatureK: 220, volumeL: 6, volumePreset: 'large', elapsed: 0 }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
 const REMEMBERED_FIELDS = ['temperatureK', 'volumeL', 'volumePreset'] as const
 
 export function useIdealGasIsochoricSceneState(): IdealGasIsochoricSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('ideal-gas-isochoric', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  const [simulation, setSimulation] = useState<Simulation>(() =>
+    rememberFields('ideal-gas-isochoric', INITIAL_SIMULATION, REMEMBERED_FIELDS),
+  )
   useRememberFields('ideal-gas-isochoric', simulation, REMEMBERED_FIELDS)
   // Molecular motion only animates; there is no 单步 (see sceneConventions NO_STEP).
   const clock = useSimulationClock({

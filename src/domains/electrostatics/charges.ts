@@ -22,9 +22,7 @@ export function nextChargeId(charges: ReadonlyArray<ChargeIdCarrier>): string {
   return `C${maxIndex + 1}`
 }
 
-export function summarizeChargeMagnitudes(
-  charges: ReadonlyArray<ChargeMagnitudeCarrier>,
-): {
+export function summarizeChargeMagnitudes(charges: ReadonlyArray<ChargeMagnitudeCarrier>): {
   positiveCount: number
   negativeCount: number
   netCharge: number
@@ -48,4 +46,3 @@ export function summarizeChargeMagnitudes(
 export function cloneCharges2D(charges: ReadonlyArray<ElectrostaticCharge2D>): ElectrostaticCharge2D[] {
   return charges.map((charge) => ({ ...charge }))
 }
-

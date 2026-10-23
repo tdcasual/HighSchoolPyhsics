@@ -9,7 +9,13 @@ const FRAME = 'var(--chart-1)'
 const indexed = (values: number[]) => values.map((value, index) => [index, value] as const)
 
 /** Magnet and aluminium-frame angular speeds over the latest samples (newest on the right). */
-export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: { magnetSpeeds: number[]; frameSpeeds: number[] }) {
+export function ElectromagneticDriveChart({
+  magnetSpeeds,
+  frameSpeeds,
+}: {
+  magnetSpeeds: number[]
+  frameSpeeds: number[]
+}) {
   const maxValue = niceMax(Math.max(5, ...magnetSpeeds, ...frameSpeeds))
   const samples = Math.max(magnetSpeeds.length, frameSpeeds.length)
   return (
@@ -20,7 +26,11 @@ export function ElectromagneticDriveChart({ magnetSpeeds, frameSpeeds }: { magne
         { label: '磁铁转速', color: MAGNET },
         { label: '铝框转速', color: FRAME },
       ]}
-      footer={<>横轴：采样先后（每 {CHART_SAMPLE_INTERVAL} 步采样，最多 {MAX_CHART_POINTS} 点，右端最新）</>}
+      footer={
+        <>
+          横轴：采样先后（每 {CHART_SAMPLE_INTERVAL} 步采样，最多 {MAX_CHART_POINTS} 点，右端最新）
+        </>
+      }
     >
       <ChartFrame
         ariaLabel="角速度对比图，纵轴单位 rad/s，横轴从较早采样到最新采样"

@@ -79,9 +79,12 @@ export function MotionalEmfControls({
           绿色：杆内正电荷受力方向（电流方向示意）
         </span>
       </div>
-      <ModelNote><p className="m-0 text-[var(--control-ink-muted)] text-[0.82rem] leading-[1.35]">
-        符号约定 U<sub>AB</sub> = V<sub>A</sub>−V<sub>B</sub>，U<sub>AB</sub> = (B×v)·L；测量导线为理想示意，只计算导体棒上的动生电动势。静止或暂停时 U<sub>AB</sub> 为 0。
-      </p></ModelNote>
+      <ModelNote>
+        <p className="m-0 text-[var(--control-ink-muted)] text-[0.82rem] leading-[1.35]">
+          符号约定 U<sub>AB</sub> = V<sub>A</sub>−V<sub>B</sub>，U<sub>AB</sub> =
+          (B×v)·L；测量导线为理想示意，只计算导体棒上的动生电动势。静止或暂停时 U<sub>AB</sub> 为 0。
+        </p>
+      </ModelNote>
 
       <ControlSection title="讨论模式">
         <SegmentedControl

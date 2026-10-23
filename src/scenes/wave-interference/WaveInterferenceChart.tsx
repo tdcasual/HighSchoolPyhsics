@@ -17,12 +17,19 @@ const COMBINED = 'var(--control-ink)'
 export const WaveInterferenceChart = memo(function WaveInterferenceChart({ observer, maxAmp, maxHistory }: Props) {
   const range = Math.max(maxAmp * 1.2, 0.01)
   const count = observer
-    ? Math.min(observer.history.length, observer.history1.length, observer.history2.length, observer.historyTimes.length, maxHistory)
+    ? Math.min(
+        observer.history.length,
+        observer.history1.length,
+        observer.history2.length,
+        observer.historyTimes.length,
+        maxHistory,
+      )
     : 0
   const times = observer?.historyTimes ?? []
   const start = times[0] ?? 0
   const end = count >= 2 ? times[count - 1] : start + 1
-  const series = (values: number[]) => Array.from({ length: count }, (_, index) => [times[index], values[index]] as const)
+  const series = (values: number[]) =>
+    Array.from({ length: count }, (_, index) => [times[index], values[index]] as const)
   return (
     <ChartCard
       title="观察点位移—时间图像（y-t）"
@@ -51,7 +58,9 @@ export const WaveInterferenceChart = memo(function WaveInterferenceChart({ obser
               <Series plot={plot} points={series(observer.history)} color={COMBINED} strokeWidth={2.6} />
             </>
           ) : (
-            <Label plot={plot} x={(start + end) / 2} y={0} dy={-8} anchor="middle">等待观察点数据…</Label>
+            <Label plot={plot} x={(start + end) / 2} y={0} dy={-8} anchor="middle">
+              等待观察点数据…
+            </Label>
           )
         }
       </ChartFrame>

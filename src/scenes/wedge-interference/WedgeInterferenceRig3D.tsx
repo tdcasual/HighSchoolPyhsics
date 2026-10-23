@@ -29,13 +29,26 @@ const TEX_W = 512
 const TEX_H = 256
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return <SceneLabel position={position} variant="tag">{text}</SceneLabel>
+  return (
+    <SceneLabel position={position} variant="tag">
+      {text}
+    </SceneLabel>
+  )
 }
 
 /** Renders the interference fringe pattern as a texture on the top plate surface */
 const fringeCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null
-if (fringeCanvas) { fringeCanvas.width = TEX_W; fringeCanvas.height = TEX_H }
-const fringeTexture = fringeCanvas ? (() => { const t = new CanvasTexture(fringeCanvas); t.minFilter = LinearFilter; return t })() : null
+if (fringeCanvas) {
+  fringeCanvas.width = TEX_W
+  fringeCanvas.height = TEX_H
+}
+const fringeTexture = fringeCanvas
+  ? (() => {
+      const t = new CanvasTexture(fringeCanvas)
+      t.minFilter = LinearFilter
+      return t
+    })()
+  : null
 
 function FringeSurface({ params, isLightOn }: { params: WedgeParams; isLightOn: boolean }) {
   useEffect(() => {
@@ -66,16 +79,12 @@ function FringeSurface({ params, isLightOn }: { params: WedgeParams; isLightOn: 
  * paper strip (thick end / slope top). Placed in world space so the beam
  * stays truly vertical while the intersection point climbs the slope.
  */
-function ScanMarker({ isScanning, visualAngle, groupY }: {
-  isScanning: boolean
-  visualAngle: number
-  groupY: number
-}) {
+function ScanMarker({ isScanning, visualAngle, groupY }: { isScanning: boolean; visualAngle: number; groupY: number }) {
   const beamRef = useRef<Mesh>(null)
   const glowRef = useRef<Mesh>(null)
   const tRef = useRef(0)
 
-  const alphaRad = visualAngle * Math.PI / 180
+  const alphaRad = (visualAngle * Math.PI) / 180
   const sinA = Math.sin(alphaRad)
   const cosA = Math.cos(alphaRad)
   // Bottom of the light-source bulb in world Y
@@ -142,7 +151,6 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
   const { perf, shadowsEnabled, shadowProps } = stage
   const geoDetail = useMemo(() => perf.geometry, [perf])
 
-
   const visualAngle = useMemo(() => visualWedgeAngleDegrees(wedgeAngle), [wedgeAngle])
 
   // The upper plate's left contact edge rests on the lower plate; its shown tilt is schematic.
@@ -151,7 +159,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
   const bumpX = bumpCenterX(bumpPosition)
   const bumpGap = wedgeGapAtX(visualAngle, bumpX)
   const bumpHeightWorld = bumpDisplayHeightWorld(params.bumpHeight, bumpGap)
-  const alphaRad = visualAngle * Math.PI / 180
+  const alphaRad = (visualAngle * Math.PI) / 180
   const beamTargetY = groupY + (PLATE_HEIGHT / 2) * Math.cos(alphaRad) + 0.02
 
   return (
@@ -176,7 +184,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
       <Label text="下玻璃板" position={[-PLATE_WIDTH / 2 - 1, PLATE_Y, PLATE_DEPTH / 2 + 1]} />
 
       {/* ====== Top glass plate (tilted) ====== */}
-      <group position={[0, groupY, 0]} rotation={[0, 0, visualAngle * Math.PI / 180]}>
+      <group position={[0, groupY, 0]} rotation={[0, 0, (visualAngle * Math.PI) / 180]}>
         <mesh {...shadowProps}>
           <boxGeometry args={[PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH]} />
           <meshStandardMaterial {...MAT_GLASS_TOP} />
@@ -214,14 +222,7 @@ export const WedgeInterferenceRig3D = memo(function WedgeInterferenceRig3D({
           <sphereGeometry args={[0.4, geoDetail.sphereSegments, geoDetail.sphereSegments]} />
           <meshBasicMaterial color={isLightOn ? lightColorHex : 0x111111} />
         </mesh>
-        {isLightOn && (
-          <pointLight
-            position={[0, -2, 0]}
-            intensity={2}
-            distance={15}
-            color={lightColorHex}
-          />
-        )}
+        {isLightOn && <pointLight position={[0, -2, 0]} intensity={2} distance={15} color={lightColorHex} />}
       </group>
       <Label text="光源" position={[0, PLATE_Y + 9.5, 0]} />
 

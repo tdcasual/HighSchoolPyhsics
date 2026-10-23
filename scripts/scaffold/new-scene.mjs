@@ -41,7 +41,11 @@ async function ensurePathMissing(path, message) {
 }
 
 function toPascalCase(id) {
-  return id.split('-').filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join('')
+  return id
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join('')
 }
 
 export function buildStateTemplate({ id, base }) {
@@ -263,7 +267,9 @@ async function main() {
   await writeFile(catalogFile, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8')
   await writeFile(navigationFile, insertNavigationRow(navigation, { pageId: id, chapter, topic, lesson }), 'utf8')
 
-  console.log(`New scene created in src/scenes/${id}/ and registered in config/demo-scenes.json and sceneNavigation.ts.`)
+  console.log(
+    `New scene created in src/scenes/${id}/ and registered in config/demo-scenes.json and sceneNavigation.ts.`,
+  )
   console.log('Next:')
   console.log('1) Move the navigation row to its place in textbook teaching order.')
   console.log('2) Replace the placeholder state, readings (DataRows, answer: true for conclusions), notes and rig.')

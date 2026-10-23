@@ -24,7 +24,8 @@ const GAS_CONSTANT = 8.314462618
 const ATMOSPHERE_PA = 101325
 const ABSOLUTE_ZERO_C = -273.15
 const EPSILON = 0.0001
-const REFERENCE_AMOUNT_MOL = REFERENCE_PRESSURE_ATM * ATMOSPHERE_PA * (REFERENCE_VOLUME_L / 1000) / (GAS_CONSTANT * REFERENCE_TEMPERATURE)
+const REFERENCE_AMOUNT_MOL =
+  (REFERENCE_PRESSURE_ATM * ATMOSPHERE_PA * (REFERENCE_VOLUME_L / 1000)) / (GAS_CONSTANT * REFERENCE_TEMPERATURE)
 
 export const ISOCHORIC_TEMPERATURE_RANGE = Object.freeze({ minK: 100, maxK: 420 })
 export const VOLUME_PRESETS: Record<VolumePreset, { volumeL: number; label: string }> = {
@@ -46,7 +47,7 @@ export function deriveIdealGasReadings(params: IdealGasParams): IdealGasReadings
   const volumeL = Math.max(EPSILON, params.volumeL)
   const temperatureK = Math.max(0, params.temperatureK)
   const volumeM3 = volumeL / 1000
-  const slopeAtmPerK = REFERENCE_AMOUNT_MOL * GAS_CONSTANT / volumeM3 / ATMOSPHERE_PA
+  const slopeAtmPerK = (REFERENCE_AMOUNT_MOL * GAS_CONSTANT) / volumeM3 / ATMOSPHERE_PA
   return {
     pressureAtm: slopeAtmPerK * temperatureK,
     celsius: temperatureK + ABSOLUTE_ZERO_C,
@@ -61,7 +62,6 @@ export function deriveIdealGasReadings(params: IdealGasParams): IdealGasReadings
 
 export type IsochoricAxis = 'kelvin' | 'celsius'
 
-
 export const IDEAL_GAS_CONSTANTS = Object.freeze({
   gasConstant: GAS_CONSTANT,
   atmospherePa: ATMOSPHERE_PA,
@@ -72,10 +72,16 @@ export const IDEAL_GAS_CONSTANTS = Object.freeze({
   absoluteZeroC: ABSOLUTE_ZERO_C,
 })
 
-export function buildIsochoricTraceSegment(volumeL: number, axis: IsochoricAxis, min: number, max: number, samples = 81): Array<[number, number]> {
+export function buildIsochoricTraceSegment(
+  volumeL: number,
+  axis: IsochoricAxis,
+  min: number,
+  max: number,
+  samples = 81,
+): Array<[number, number]> {
   const count = Math.max(2, Math.floor(samples))
   return Array.from({ length: count }, (_, index) => {
-    const x = min + (max - min) * index / (count - 1)
+    const x = min + ((max - min) * index) / (count - 1)
     const temperatureK = axis === 'kelvin' ? x : x - ABSOLUTE_ZERO_C
     const pressure = deriveIdealGasReadings({ temperatureK, volumeL, volumePreset: 'large' }).pressureAtm
     return [x, pressure]

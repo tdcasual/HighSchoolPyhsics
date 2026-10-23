@@ -8,7 +8,13 @@ import { ENHANCED_TOUCH_PROFILE } from './src/app/defaultTouchProfile'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react(), slimSceneCatalog(ENHANCED_TOUCH_PROFILE), sceneCatalogShell(ENHANCED_TOUCH_PROFILE), offlineCache()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    slimSceneCatalog(ENHANCED_TOUCH_PROFILE),
+    sceneCatalogShell(ENHANCED_TOUCH_PROFILE),
+    offlineCache(),
+  ],
   resolve: {
     dedupe: ['three'],
     alias: {
@@ -28,9 +34,7 @@ export default defineConfig({
 
         return deps.filter(
           (dep) =>
-            !dep.includes('vendor-three-core') &&
-            !dep.includes('vendor-r3f') &&
-            !dep.includes('vendor-three-extras'),
+            !dep.includes('vendor-three-core') && !dep.includes('vendor-r3f') && !dep.includes('vendor-three-extras'),
         )
       },
     },

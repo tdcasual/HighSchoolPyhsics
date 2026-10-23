@@ -29,7 +29,15 @@ export function OpticalStageLighting({
 }
 
 /** A rider on the optical rail: post, base block and locking knob. */
-export function Stand({ xPos, height = 3.5, radialSegments = 16 }: { xPos: number; height?: number; radialSegments?: number }) {
+export function Stand({
+  xPos,
+  height = 3.5,
+  radialSegments = 16,
+}: {
+  xPos: number
+  height?: number
+  radialSegments?: number
+}) {
   return (
     <group position={[xPos, 0, 0]}>
       <mesh position={[0, height / 2 + 0.5, 0]} castShadow receiveShadow>

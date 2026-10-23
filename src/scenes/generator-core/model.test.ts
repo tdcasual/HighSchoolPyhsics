@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { buildPhaseTrace, deriveGeneratorReadings, emfToPlotPoint, phaseToPlotPoint, positionDescription } from './model'
+import {
+  buildPhaseTrace,
+  deriveGeneratorReadings,
+  emfToPlotPoint,
+  phaseToPlotPoint,
+  positionDescription,
+} from './model'
 
 describe('generator-core model', () => {
   it('derives the neutral, parallel and transition positions', () => {
@@ -26,7 +32,7 @@ describe('generator-core model', () => {
     expect(parallel.velocityVector[2]).toBeCloseTo(-1)
     expect(positionDescription(parallel)).toContain('|e| = Eₘ')
 
-    const reversePeak = deriveGeneratorReadings(3 * Math.PI / 2)
+    const reversePeak = deriveGeneratorReadings((3 * Math.PI) / 2)
     expect(reversePeak.emfNormalized).toBeCloseTo(-1)
     expect(reversePeak.currentDirection).toBe('反向')
 
@@ -47,4 +53,3 @@ describe('generator-core model', () => {
     expect(emfToPlotPoint(Math.PI / 2)[1]).toBeCloseTo(1)
   })
 })
-

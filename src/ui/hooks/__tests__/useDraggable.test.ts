@@ -27,7 +27,7 @@ describe('useDraggable', () => {
 
   it('clamps position within bounds', () => {
     const { result } = renderHook(() =>
-      useDraggable({ initialPosition: { x: 0, y: 0 }, bounds: { left: 0, top: 0, right: 500, bottom: 500 } })
+      useDraggable({ initialPosition: { x: 0, y: 0 }, bounds: { left: 0, top: 0, right: 500, bottom: 500 } }),
     )
     act(() => result.current.setPosition({ x: 600, y: -100 }))
     expect(result.current.position).toEqual({ x: 500, y: 0 })
@@ -79,16 +79,12 @@ describe('useDraggable', () => {
   })
 
   it('includes offsetX in transform when defined', () => {
-    const { result } = renderHook(() =>
-      useDraggable({ initialPosition: { x: 50, y: 30 }, offsetX: 100 }),
-    )
+    const { result } = renderHook(() => useDraggable({ initialPosition: { x: 50, y: 30 }, offsetX: 100 }))
     expect(result.current.style.transform).toBe('translate(150px, 30px)')
   })
 
   it('uses raw position in transform when offsetX is undefined', () => {
-    const { result } = renderHook(() =>
-      useDraggable({ initialPosition: { x: 50, y: 30 } }),
-    )
+    const { result } = renderHook(() => useDraggable({ initialPosition: { x: 50, y: 30 } }))
     expect(result.current.style.transform).toBe('translate(50px, 30px)')
   })
 })

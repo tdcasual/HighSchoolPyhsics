@@ -1,9 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
-import {
-  DEMO_ROUTES,
-  findDemoRoute,
-  normalizeDemoPath,
-} from './app/demoRoutes'
+import { DEMO_ROUTES, findDemoRoute, normalizeDemoPath } from './app/demoRoutes'
 import { SceneRuntimeBoundary } from './app/SceneRuntimeBoundary'
 import { useAppStore } from './store/useAppStore'
 import { useGlobalShortcuts } from './app/useGlobalShortcuts'
@@ -141,7 +137,7 @@ function App() {
   const ActiveScene = activeRoute?.Component
   const [runtimeCapabilities, setRuntimeCapabilities] = useState(() => getRuntimeCapabilities())
   const shellStyle = useMemo<CSSProperties>(
-    () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) } as CSSProperties),
+    () => ({ '--touch-target-min-size': resolveTouchTargetMinSize(activeTouchProfile) }) as CSSProperties,
     [activeTouchProfile],
   )
   const presentingActive = presenting && !isOverviewPage && !isMobile
@@ -178,11 +174,7 @@ function App() {
   }
 
   return (
-    <main
-      className={shellClassName}
-      data-page-scroll={activeTouchProfile.pageScroll}
-      style={shellStyle}
-    >
+    <main className={shellClassName} data-page-scroll={activeTouchProfile.pageScroll} style={shellStyle}>
       <a
         href="#scene-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:dark:bg-[var(--skip-link-bg-night)] focus:shadow-lg focus:rounded focus:text-sm focus:font-medium"
@@ -204,21 +196,30 @@ function App() {
           {!isOverviewPage ? (
             <button className="overview-link touch-target" onClick={() => navigateTo('/')}>
               <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-                <path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M10 3.5L5.5 8l4.5 4.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               {isMobile ? '返回' : '返回导航'}
             </button>
           ) : null}
-          {!isOverviewPage && isMobile && mobilePlaybackActions.map((action) => (
-            <button
-              key={action.key}
-              className="touch-target scene-actions-btn"
-              onClick={action.onClick}
-              disabled={action.disabled}
-            >
-              {action.label}
-            </button>
-          ))}
+          {!isOverviewPage &&
+            isMobile &&
+            mobilePlaybackActions.map((action) => (
+              <button
+                key={action.key}
+                className="touch-target scene-actions-btn"
+                onClick={action.onClick}
+                disabled={action.disabled}
+              >
+                {action.label}
+              </button>
+            ))}
           {isMobile ? (
             <button
               type="button"
@@ -233,7 +234,12 @@ function App() {
               ) : (
                 <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
                   <circle cx="10" cy="10" r="3.6" fill="currentColor" />
-                  <path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path
+                    d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
                 </svg>
               )}
             </button>
@@ -301,10 +307,7 @@ function App() {
       <section className="scene-container" id="scene-content">
         <Suspense fallback={<div className="scene-loading">加载场景...</div>}>
           {isOverviewPage ? (
-            <SceneRuntimeBoundary
-              scenePath="/"
-              onBackToOverview={() => navigateTo('/')}
-            >
+            <SceneRuntimeBoundary scenePath="/" onBackToOverview={() => navigateTo('/')}>
               <NavigationPage routes={DEMO_ROUTES} onOpenRoute={navigateTo} />
             </SceneRuntimeBoundary>
           ) : ActiveScene ? (
@@ -328,7 +331,11 @@ function App() {
                   const routeLabel = resolveRouteButtonLabel(route.label, index)
 
                   return (
-                    <button className="touch-target" key={`${routePath}-${index}`} onClick={() => navigateTo(routePath)}>
+                    <button
+                      className="touch-target"
+                      key={`${routePath}-${index}`}
+                      onClick={() => navigateTo(routePath)}
+                    >
                       {routeLabel}
                     </button>
                   )

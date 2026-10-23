@@ -43,7 +43,12 @@ export function useFittedOrbitCamera(
   const view = dragView ?? fitted
   const maxDistance = Math.max(limits.maxDistance, Math.ceil(view.radius * 1.2))
   const canvasProps: CanvasProps = {
-    camera: { position: orbitPosition(view), fov: limits.fov, near: limits.near, far: Math.max(limits.far, Math.ceil(maxDistance * 1.5)) },
+    camera: {
+      position: orbitPosition(view),
+      fov: limits.fov,
+      near: limits.near,
+      far: Math.max(limits.far, Math.ceil(maxDistance * 1.5)),
+    },
     syncCamera: true,
     screenOffset: view.screenOffset,
     controlsEnabled: dragView === null,

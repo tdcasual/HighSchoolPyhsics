@@ -1,9 +1,5 @@
 import { createServer } from 'node:net'
-import {
-  startViteDevServer,
-  stopViteDevServer,
-  waitForViteDevServer,
-} from './devServer.mjs'
+import { startViteDevServer, stopViteDevServer, waitForViteDevServer } from './devServer.mjs'
 
 function normalizeBaseUrl(raw) {
   let parsed

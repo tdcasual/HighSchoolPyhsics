@@ -7,12 +7,7 @@ type ControlSectionProps = {
   children: ReactNode
 }
 
-export function ControlSection({
-  title,
-  collapsible = false,
-  defaultOpen = true,
-  children,
-}: ControlSectionProps) {
+export function ControlSection({ title, collapsible = false, defaultOpen = true, children }: ControlSectionProps) {
   const [open, setOpen] = useState(defaultOpen)
 
   if (!collapsible) {
@@ -27,11 +22,12 @@ export function ControlSection({
   }
 
   return (
-    <div className="control-section-body rounded-[14px] overflow-hidden border"
+    <div
+      className="control-section-body rounded-[14px] overflow-hidden border"
       style={{
         background: 'var(--control-section-bg)',
         borderColor: 'var(--control-section-border)',
-        boxShadow: 'var(--panel-highlight)'
+        boxShadow: 'var(--panel-highlight)',
       }}
     >
       <button
@@ -45,11 +41,7 @@ export function ControlSection({
         </span>
         {title}
       </button>
-      {open && (
-        <div className="flex flex-col gap-2 md:gap-3 px-2.5 pb-2.5 md:px-3.5 md:pb-3.5">
-          {children}
-        </div>
-      )}
+      {open && <div className="flex flex-col gap-2 md:gap-3 px-2.5 pb-2.5 md:px-3.5 md:pb-3.5">{children}</div>}
     </div>
   )
 }

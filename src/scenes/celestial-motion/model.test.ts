@@ -19,7 +19,15 @@ import {
   worldTransfer,
 } from './model'
 
-const earth = { mode: 'circular' as const, body: 'earth' as const, r1: 1.1, r2: 3, phaseDeg: 90, inclinationDeg: 0, time: 0 }
+const earth = {
+  mode: 'circular' as const,
+  body: 'earth' as const,
+  r1: 1.1,
+  r2: 3,
+  phaseDeg: 90,
+  inclinationDeg: 0,
+  time: 0,
+}
 
 describe('celestial model', () => {
   it('gives Earth the first cosmic speed and a synchronous orbit of 6.62 radii', () => {
@@ -52,9 +60,36 @@ describe('celestial model', () => {
 
   it('keeps both rendezvous sweep sectors on the same time interval at different radii', () => {
     const scenarios = [
-      scenarioOf({ ...earth, mode: 'rendezvous', body: 'earth', r1: 1.4, r2: 2.2, phaseDeg: 100, inclinationDeg: 20, time: 5000 }),
-      scenarioOf({ ...earth, mode: 'rendezvous', body: 'earth', r1: 2.45, r2: 7.9, phaseDeg: 230, inclinationDeg: 55, time: 18000 }),
-      scenarioOf({ ...earth, mode: 'rendezvous', body: 'moon', r1: 1.5, r2: 5.2, phaseDeg: 80, inclinationDeg: 35, time: 1200 }),
+      scenarioOf({
+        ...earth,
+        mode: 'rendezvous',
+        body: 'earth',
+        r1: 1.4,
+        r2: 2.2,
+        phaseDeg: 100,
+        inclinationDeg: 20,
+        time: 5000,
+      }),
+      scenarioOf({
+        ...earth,
+        mode: 'rendezvous',
+        body: 'earth',
+        r1: 2.45,
+        r2: 7.9,
+        phaseDeg: 230,
+        inclinationDeg: 55,
+        time: 18000,
+      }),
+      scenarioOf({
+        ...earth,
+        mode: 'rendezvous',
+        body: 'moon',
+        r1: 1.5,
+        r2: 5.2,
+        phaseDeg: 80,
+        inclinationDeg: 35,
+        time: 1200,
+      }),
     ]
     const sweptAngle = (first: { x: number; y: number; z: number }, last: { x: number; y: number; z: number }) => {
       const crossX = first.y * last.z - first.z * last.y
@@ -93,9 +128,21 @@ describe('celestial model', () => {
     expect(start.eccentricity).toBeCloseTo(2.8 / 5.2, 12)
     expect(start.dv1).toBeCloseTo(1735.4322606023925, 4)
     expect(start.vp).toBeGreaterThan(start.va)
-    expect(Math.hypot(craftsAt(start)[0].position.x, craftsAt(start)[0].position.y, craftsAt(start)[0].position.z)).toBeCloseTo(1.2, 6)
-    const end = scenarioOf({ ...earth, mode: 'transfer', r1: 1.2, r2: 4, phaseDeg: 0, inclinationDeg: 0, time: start.transT })
-    expect(Math.hypot(craftsAt(end)[0].position.x, craftsAt(end)[0].position.y, craftsAt(end)[0].position.z)).toBeCloseTo(4, 5)
+    expect(
+      Math.hypot(craftsAt(start)[0].position.x, craftsAt(start)[0].position.y, craftsAt(start)[0].position.z),
+    ).toBeCloseTo(1.2, 6)
+    const end = scenarioOf({
+      ...earth,
+      mode: 'transfer',
+      r1: 1.2,
+      r2: 4,
+      phaseDeg: 0,
+      inclinationDeg: 0,
+      time: start.transT,
+    })
+    expect(
+      Math.hypot(craftsAt(end)[0].position.x, craftsAt(end)[0].position.y, craftsAt(end)[0].position.z),
+    ).toBeCloseTo(4, 5)
     expect(solveE(0, start.eccentricity)).toBeCloseTo(0, 12)
     expect(solveE(Math.PI, start.eccentricity)).toBeCloseTo(Math.PI, 8)
     const peri = worldTransfer(2.6, 2.6 * Math.sqrt(1 - start.eccentricity ** 2), start.eccentricity, 0, 0, 0)

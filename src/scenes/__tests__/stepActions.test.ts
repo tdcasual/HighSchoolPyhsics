@@ -51,6 +51,9 @@ describe('单步 actions added for the oscilloscopes and wave interference', () 
     act(() => result.current.step())
     expect(result.current.isPlaying).toBe(false)
     expect(result.current.frameVersion).toBe(1)
-    expect(result.current.time.current - before).toBeCloseTo(result.current.wavelength1 / result.current.waveSpeed / 4, 9)
+    expect(result.current.time.current - before).toBeCloseTo(
+      result.current.wavelength1 / result.current.waveSpeed / 4,
+      9,
+    )
   })
 })

@@ -58,9 +58,9 @@ export function formatWhiteLightFringeRange(params: DoubleSlitParams, filterColo
   const profile = filterColor === 'none' ? null : FILTER_PROFILES[filterColor]
   const minWavelength = profile ? Math.max(400, profile.center - profile.halfWidth) : 400
   const maxWavelength = profile ? Math.min(700, profile.center + profile.halfWidth) : 700
-  const minMm = (L * minWavelength * 1e-9 / d) * 1000
-  const maxMm = (L * maxWavelength * 1e-9 / d) * 1000
-  const fmt = (v: number) => v < 0.01 ? formatScientific(v) : v.toFixed(3)
+  const minMm = ((L * minWavelength * 1e-9) / d) * 1000
+  const maxMm = ((L * maxWavelength * 1e-9) / d) * 1000
+  const fmt = (v: number) => (v < 0.01 ? formatScientific(v) : v.toFixed(3))
   return fmt(minMm) + '–' + fmt(maxMm) + ' mm'
 }
 
@@ -79,7 +79,12 @@ let envelopeValues = new Float32Array(0)
  * Two-slit fringes cos²(πdx/λL) and the single-slit envelope sinc²(πax/λL) at one wavelength,
  * as lookup tables over the screen coordinate (reused between draws).
  */
-function fringeTables(params: DoubleSlitParams, wavelengthNm: number, width: number, height: number): { fringes: Lut; envelope: Lut } {
+function fringeTables(
+  params: DoubleSlitParams,
+  wavelengthNm: number,
+  width: number,
+  height: number,
+): { fringes: Lut; envelope: Lut } {
   const size = Math.ceil(Math.max(width, height) * SQRT2)
   if (interferenceValues.length < size + 1) {
     interferenceValues = new Float32Array(size + 1)
@@ -104,10 +109,24 @@ function fringeTables(params: DoubleSlitParams, wavelengthNm: number, width: num
 }
 
 /** Fringes × envelope at one wavelength; with both slits upright it is the same in every row. */
-function patternProfile(params: DoubleSlitParams, wavelengthNm: number, doubleSlitAngle: number, singleSlitAngle: number, width: number, height: number): Profile {
+function patternProfile(
+  params: DoubleSlitParams,
+  wavelengthNm: number,
+  doubleSlitAngle: number,
+  singleSlitAngle: number,
+  width: number,
+  height: number,
+): Profile {
   const { fringes, envelope } = fringeTables(params, wavelengthNm, width, height)
   if (doubleSlitAngle !== 0 || singleSlitAngle !== 0) {
-    return { kind: 'crossed', a: fringes, angleA: doubleSlitAngle, b: envelope, angleB: singleSlitAngle, viewWidth: PHYSICAL_VIEW_WIDTH }
+    return {
+      kind: 'crossed',
+      a: fringes,
+      angleA: doubleSlitAngle,
+      b: envelope,
+      angleB: singleSlitAngle,
+      viewWidth: PHYSICAL_VIEW_WIDTH,
+    }
   }
   const values = new Float32Array(width)
   for (let px = 0; px < width; px++) {
@@ -122,9 +141,19 @@ function patternProfile(params: DoubleSlitParams, wavelengthNm: number, doubleSl
 }
 
 /** The fringes seen through the eyepiece in monochromatic light. */
-export function drawInterferencePattern(ctx: CanvasRenderingContext2D, params: DoubleSlitParams, doubleSlitAngle = 0, singleSlitAngle = 0): void {
+export function drawInterferencePattern(
+  ctx: CanvasRenderingContext2D,
+  params: DoubleSlitParams,
+  doubleSlitAngle = 0,
+  singleSlitAngle = 0,
+): void {
   const { width, height } = ctx.canvas
-  renderer.drawMonochrome(ctx, 'round', params.wavelength, patternProfile(params, params.wavelength, doubleSlitAngle, singleSlitAngle, width, height))
+  renderer.drawMonochrome(
+    ctx,
+    'round',
+    params.wavelength,
+    patternProfile(params, params.wavelength, doubleSlitAngle, singleSlitAngle, width, height),
+  )
 }
 
 /** White light (optionally through a colour filter): every wavelength's fringes summed. */

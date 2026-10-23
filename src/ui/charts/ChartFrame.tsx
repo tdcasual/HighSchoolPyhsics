@@ -76,7 +76,12 @@ export function ChartFrame({
   const x = scale(xDomain, [left, right], xScale)
   const y = scale(yDomain, [bottom, top])
   const plot: Plot = {
-    x, y, left, right, top, bottom,
+    x,
+    y,
+    left,
+    right,
+    top,
+    bottom,
     path: (points) => {
       let d = ''
       let pen = false
@@ -97,7 +102,13 @@ export function ChartFrame({
   const yFormat = formatY ?? tickFormatter(resolvedYTicks.map(tickValue))
   const showZero = zeroAxis && yDomain[0] < 0 && yDomain[1] > 0
   const svg = (
-    <svg className={['chart-frame', className].filter(Boolean).join(' ')} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel} data-testid={testId}>
+    <svg
+      className={['chart-frame', className].filter(Boolean).join(' ')}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label={ariaLabel}
+      data-testid={testId}
+    >
       <defs>
         <clipPath id={clipId}>
           <rect x={left} y={top - 2} width={right - left} height={bottom - top + 4} />
@@ -108,7 +119,9 @@ export function ChartFrame({
         return (
           <g key={`x${tickValue(tick)}`}>
             <line className="chart-grid" x1={px} x2={px} y1={top} y2={bottom} />
-            <text className="chart-tick" x={px} y={bottom + 17} textAnchor="middle">{tickLabel(tick, xFormat)}</text>
+            <text className="chart-tick" x={px} y={bottom + 17} textAnchor="middle">
+              {tickLabel(tick, xFormat)}
+            </text>
           </g>
         )
       })}
@@ -117,7 +130,9 @@ export function ChartFrame({
         return (
           <g key={`y${tickValue(tick)}`}>
             <line className="chart-grid" x1={left} x2={right} y1={py} y2={py} />
-            <text className="chart-tick" x={left - 6} y={py + 4} textAnchor="end">{tickLabel(tick, yFormat)}</text>
+            <text className="chart-tick" x={left - 6} y={py + 4} textAnchor="end">
+              {tickLabel(tick, yFormat)}
+            </text>
           </g>
         )
       })}
@@ -125,8 +140,16 @@ export function ChartFrame({
       <line className="chart-axis" x1={left} x2={right} y1={bottom} y2={bottom} />
       {showZero ? <line className="chart-axis" x1={left} x2={right} y1={y(0)} y2={y(0)} /> : null}
       <g clipPath={clip ? `url(#${clipId})` : undefined}>{children?.(plot)}</g>
-      {xLabel ? <text className="chart-axis-label" x={right} y={height - 5} textAnchor="end">{xLabel}</text> : null}
-      {yLabel ? <text className="chart-axis-label" x={left + 6} y={top - 8}>{yLabel}</text> : null}
+      {xLabel ? (
+        <text className="chart-axis-label" x={right} y={height - 5} textAnchor="end">
+          {xLabel}
+        </text>
+      ) : null}
+      {yLabel ? (
+        <text className="chart-axis-label" x={left + 6} y={top - 8}>
+          {yLabel}
+        </text>
+      ) : null}
     </svg>
   )
   if (!title) return svg
@@ -181,7 +204,15 @@ export function Series({
           fill={color}
         />
       ) : null}
-      <path d={d} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={dashed ? '6 5' : undefined} strokeLinejoin="round" strokeLinecap="round" />
+      <path
+        d={d}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={dashed ? '6 5' : undefined}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </g>
   )
 }
@@ -192,7 +223,11 @@ export function Cursor({ plot, x, label }: { plot: Plot; x: number; label?: Reac
   return (
     <g className="chart-cursor">
       <line x1={px} x2={px} y1={plot.top} y2={plot.bottom} />
-      {label ? <text x={px + 4} y={plot.top + 12}>{label}</text> : null}
+      {label ? (
+        <text x={px + 4} y={plot.top + 12}>
+          {label}
+        </text>
+      ) : null}
     </g>
   )
 }
@@ -290,7 +325,13 @@ export function Label({
   children: ReactNode
 }) {
   return (
-    <text className="chart-label" x={plot.x(x) + dx} y={plot.y(y) + dy} textAnchor={anchor} style={color ? { fill: color } : undefined}>
+    <text
+      className="chart-label"
+      x={plot.x(x) + dx}
+      y={plot.y(y) + dy}
+      textAnchor={anchor}
+      style={color ? { fill: color } : undefined}
+    >
       {children}
     </text>
   )

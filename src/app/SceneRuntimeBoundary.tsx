@@ -12,10 +12,7 @@ type SceneRuntimeBoundaryState = {
   retryVersion: number
 }
 
-export class SceneRuntimeBoundary extends Component<
-  SceneRuntimeBoundaryProps,
-  SceneRuntimeBoundaryState
-> {
+export class SceneRuntimeBoundary extends Component<SceneRuntimeBoundaryProps, SceneRuntimeBoundaryState> {
   state: SceneRuntimeBoundaryState = {
     hasError: false,
     retryVersion: 0,

@@ -16,4 +16,3 @@ describe('semiImplicitEulerStep', () => {
     expect(result.position.x).toBeCloseTo(1)
   })
 })
-

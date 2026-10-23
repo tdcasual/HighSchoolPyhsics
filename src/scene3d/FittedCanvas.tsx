@@ -5,7 +5,10 @@ import type { Bounds3, Vec3 } from './orbitFraming'
 import { boxAround, directionFrom, useAutoFittedCamera, type CameraShot } from './useAutoFittedCamera'
 import type { OrbitCameraLimits } from './useFittedOrbitCamera'
 
-type PassThrough = Pick<ComponentProps<typeof InteractiveCanvas>, 'frameloop' | 'cameraUp' | 'presentationFocus' | 'presentationLockMs' | 'controlsEnabled'>
+type PassThrough = Pick<
+  ComponentProps<typeof InteractiveCanvas>,
+  'frameloop' | 'cameraUp' | 'presentationFocus' | 'presentationLockMs' | 'controlsEnabled'
+>
 
 type FittedCanvasProps = PropsWithChildren<
   PassThrough &
@@ -33,10 +36,21 @@ function resolveShot(shot: FittedCanvasProps['shot']): CameraShot {
  * screen size, with no per-device camera positions. Objects that should not count toward the
  * framing (floor, grid, long field lines) carry `userData={NO_FIT}`.
  */
-export function FittedCanvas({ shot, refitKey = '', initialBounds, frameloop, cameraUp, presentationFocus, presentationLockMs, controlsEnabled, children, ...limits }: FittedCanvasProps) {
+export function FittedCanvas({
+  shot,
+  refitKey = '',
+  initialBounds,
+  frameloop,
+  cameraUp,
+  presentationFocus,
+  presentationLockMs,
+  controlsEnabled,
+  children,
+  ...limits
+}: FittedCanvasProps) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const resolved = resolveShot(shot)
-  const origin = 'from' in shot ? shot.to : resolved.anchor ?? [0, 0, 0]
+  const origin = 'from' in shot ? shot.to : (resolved.anchor ?? [0, 0, 0])
   const camera = useAutoFittedCamera(viewportRef, refitKey, resolved, {
     ...limits,
     initialBounds: initialBounds ?? boxAround(origin, [2, 2, 2]),

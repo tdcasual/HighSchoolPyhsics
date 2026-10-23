@@ -30,7 +30,11 @@ const PROFILE_ARG = process.argv.find((arg) => arg.startsWith('--profile='))?.sl
 const PROFILES = [
   { id: 'desktop', theme: 'day', context: { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 0.5 } },
   { id: 'night', theme: 'night', context: { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 0.5 } },
-  { id: 'phone', theme: 'day', context: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true } },
+  {
+    id: 'phone',
+    theme: 'day',
+    context: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
+  },
 ].filter((profile) => !PROFILE_ARG || PROFILE_ARG.split(',').includes(profile.id))
 
 const VISUAL_PIXEL_THRESHOLD = Number(process.env.VISUAL_PIXEL_THRESHOLD ?? 0.2)
@@ -48,7 +52,6 @@ if (!Number.isFinite(VISUAL_PIXEL_THRESHOLD) || VISUAL_PIXEL_THRESHOLD <= 0 || V
 if (!Number.isFinite(VISUAL_MAX_MISMATCH_RATIO) || VISUAL_MAX_MISMATCH_RATIO < 0 || VISUAL_MAX_MISMATCH_RATIO > 1) {
   throw new Error(`Invalid VISUAL_MAX_MISMATCH_RATIO: ${process.env.VISUAL_MAX_MISMATCH_RATIO}`)
 }
-
 
 const SCENARIOS = [
   {
@@ -113,17 +116,10 @@ async function compareScreenshot(id, maxMismatch, actualPath, baselinePath, diff
   }
 
   const diffPng = new PNG({ width: actualPng.width, height: actualPng.height })
-  const mismatchPixels = pixelmatch(
-    baselinePng.data,
-    actualPng.data,
-    diffPng.data,
-    actualPng.width,
-    actualPng.height,
-    {
-      threshold: VISUAL_PIXEL_THRESHOLD,
-      includeAA: true,
-    },
-  )
+  const mismatchPixels = pixelmatch(baselinePng.data, actualPng.data, diffPng.data, actualPng.width, actualPng.height, {
+    threshold: VISUAL_PIXEL_THRESHOLD,
+    includeAA: true,
+  })
 
   const totalPixels = actualPng.width * actualPng.height
   const mismatchRatio = mismatchPixels / totalPixels
@@ -183,7 +179,8 @@ async function run() {
             await page.evaluate((theme) => {
               sessionStorage.clear()
               localStorage.clear()
-              if (theme === 'night') localStorage.setItem('electromagnetics-lab-ui', JSON.stringify({ state: { theme }, version: 0 }))
+              if (theme === 'night')
+                localStorage.setItem('electromagnetics-lab-ui', JSON.stringify({ state: { theme }, version: 0 }))
             }, profile.theme)
             await page.reload({ waitUntil: 'domcontentloaded' })
             await scenario.ready(page)
@@ -195,13 +192,27 @@ async function run() {
             const baselinePath = path.join(baselineDir, `${scenario.id}.png`)
             const diffPath = path.join(DIFF_DIR, profile.id, `${scenario.id}.png`)
             await page.screenshot({ path: actualPath })
-            const shots = [{ name, actualPath, baselinePath, diffPath, max: MAX_MISMATCH_BY_SCENE[scenario.id] ?? VISUAL_MAX_MISMATCH_RATIO }]
+            const shots = [
+              {
+                name,
+                actualPath,
+                baselinePath,
+                diffPath,
+                max: MAX_MISMATCH_BY_SCENE[scenario.id] ?? VISUAL_MAX_MISMATCH_RATIO,
+              },
+            ]
             const panel = page.getByRole('region', { name: '数据' }).filter({ visible: true }).first()
-            if (scenario.id !== 'overview' && !PANEL_UNSTABLE.has(scenario.id) && await panel.count()) {
+            if (scenario.id !== 'overview' && !PANEL_UNSTABLE.has(scenario.id) && (await panel.count())) {
               const panelFile = `${scenario.id}.data.png`
               const panelPath = path.join(CURRENT_DIR, profile.id, panelFile)
               await panel.screenshot({ path: panelPath })
-              shots.push({ name: `${name} data panel`, actualPath: panelPath, baselinePath: path.join(baselineDir, panelFile), diffPath: path.join(DIFF_DIR, profile.id, panelFile), max: PANEL_MAX_MISMATCH_RATIO })
+              shots.push({
+                name: `${name} data panel`,
+                actualPath: panelPath,
+                baselinePath: path.join(baselineDir, panelFile),
+                diffPath: path.join(DIFF_DIR, profile.id, panelFile),
+                max: PANEL_MAX_MISMATCH_RATIO,
+              })
             }
 
             for (const shot of shots) {
@@ -212,8 +223,16 @@ async function run() {
                 continue
               }
               try {
-                const mismatchRatio = await compareScreenshot(shot.name, shot.max, shot.actualPath, shot.baselinePath, shot.diffPath)
-                console.log(`[ok] ${shot.name} mismatch ${(mismatchRatio * 100).toFixed(2)}% <= ${(shot.max * 100).toFixed(2)}%`)
+                const mismatchRatio = await compareScreenshot(
+                  shot.name,
+                  shot.max,
+                  shot.actualPath,
+                  shot.baselinePath,
+                  shot.diffPath,
+                )
+                console.log(
+                  `[ok] ${shot.name} mismatch ${(mismatchRatio * 100).toFixed(2)}% <= ${(shot.max * 100).toFixed(2)}%`,
+                )
               } catch (error) {
                 failures.push(error instanceof Error ? error.message : String(error))
               }

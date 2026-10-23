@@ -7,9 +7,7 @@ const htmlPath = resolve(process.cwd(), 'dist/index.html')
 const blockedTokens = ['vendor-three-core', 'vendor-three-extras', 'vendor-r3f']
 
 const html = await readFile(htmlPath, 'utf8')
-const preloadHrefs = [...html.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="([^"]+)"/g)].map(
-  (match) => match[1],
-)
+const preloadHrefs = [...html.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="([^"]+)"/g)].map((match) => match[1])
 
 const blockedHrefs = preloadHrefs.filter((href) => blockedTokens.some((token) => href.includes(token)))
 

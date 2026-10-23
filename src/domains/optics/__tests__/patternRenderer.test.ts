@@ -7,9 +7,15 @@ function canvas(size: number) {
     canvas: { width: size, height: size },
     createImageData: vi.fn((w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h })),
     putImageData: vi.fn((image: ImageData) => frames.push(new Uint8ClampedArray(image.data))),
-    beginPath: vi.fn(), arc: vi.fn(), fill: vi.fn(), stroke: vi.fn(), strokeRect: vi.fn(),
+    beginPath: vi.fn(),
+    arc: vi.fn(),
+    fill: vi.fn(),
+    stroke: vi.fn(),
+    strokeRect: vi.fn(),
     createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
-    strokeStyle: '', lineWidth: 0, fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 0,
+    fillStyle: '',
   } as unknown as CanvasRenderingContext2D
   return { ctx, frames }
 }

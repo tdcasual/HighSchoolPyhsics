@@ -18,7 +18,14 @@ export function ProjectionOffset({ x, y, scale = 1 }: { x: number; y: number; sc
     // Show a (width/scale × height/scale) window of the full image so the image center lands
     // at (width/2 + x, height/2 + y) on screen.
     const s = Math.max(0.1, scale)
-    camera.setViewOffset(width, height, width / 2 - (width / 2 + x) / s, height / 2 - (height / 2 + y) / s, width / s, height / s)
+    camera.setViewOffset(
+      width,
+      height,
+      width / 2 - (width / 2 + x) / s,
+      height / 2 - (height / 2 + y) / s,
+      width / s,
+      height / s,
+    )
     invalidate()
     return () => {
       camera.clearViewOffset()

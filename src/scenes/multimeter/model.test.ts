@@ -41,7 +41,7 @@ describe('multimeter model', () => {
   it('puts the ohm mid-scale at the internal resistance and loads a dry cell on the 2.5 V range', () => {
     expect(ohmFraction(15, 1)).toBeCloseTo(0.5, 8)
     const cell = measure({ range: 'V2.5', target: 'cell' })
-    expect(cell.truth).toBeCloseTo(1.5 * 50000 / 50000.6, 4)
+    expect(cell.truth).toBeCloseTo((1.5 * 50000) / 50000.6, 4)
     expect(cell.fraction).toBeCloseTo((cell.truth ?? 0) / 2.5, 6)
     const offsetCell = measure({ range: 'V2.5', target: 'cell', mechanical: 0.028 })
     expect(offsetCell.indicated).toBeCloseTo(1.57, 2)

@@ -3,10 +3,7 @@ import { FittedCanvas } from '../../scene3d/FittedCanvas'
 import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { InductionCurrentControls } from './InductionCurrentControls'
 import { InductionCurrentRig3D } from './InductionCurrentRig3D'
-import {
-  formatCurrentDirection,
-  formatVerticalDirection,
-} from './model'
+import { formatCurrentDirection, formatVerticalDirection } from './model'
 import { useInductionCurrentSceneState } from './useInductionCurrentSceneState'
 import './induction-current.css'
 
@@ -14,9 +11,10 @@ export function InductionCurrentScene() {
   const state = useInductionCurrentSceneState()
   // While the magnet moves, the camera eases toward the coil.
   const cameraTarget: [number, number, number] = [7.5, 3, 0]
-  const presentationFocus = state.motionDirection || state.lastOutcome
-    ? { mode: 'focus' as const, primary: cameraTarget }
-    : { mode: 'overview' as const }
+  const presentationFocus =
+    state.motionDirection || state.lastOutcome
+      ? { mode: 'focus' as const, primary: cameraTarget }
+      : { mode: 'overview' as const }
   const instantaneousCurrentText = !state.isMoving
     ? '0（磁铁静止）'
     : state.coilCurrentSign === 0
@@ -37,11 +35,13 @@ export function InductionCurrentScene() {
     : '无'
 
   return (
-    <SceneLayout timeControl
+    <SceneLayout
+      timeControl
       controls={<InductionCurrentControls state={state} />}
       notes={
         <p>
-          磁铁移近时 |Φ| 增加，移远时 |Φ| 减少；表针和线圈箭头表示感应电流的方向与相对变化快慢。顺时针/逆时针以从线圈上方沿线圈轴线俯视为准，强弱为定性示意，不是校准电流读数。
+          磁铁移近时 |Φ| 增加，移远时 |Φ|
+          减少；表针和线圈箭头表示感应电流的方向与相对变化快慢。顺时针/逆时针以从线圈上方沿线圈轴线俯视为准，强弱为定性示意，不是校准电流读数。
         </p>
       }
       playbackActions={[

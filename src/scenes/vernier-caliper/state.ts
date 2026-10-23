@@ -1,4 +1,10 @@
-import { CALIPER_RANGE_MM, caliperReading, checkCaliper, snapCaliper, type VernierDivisions } from '../../instruments/measuring/model'
+import {
+  CALIPER_RANGE_MM,
+  caliperReading,
+  checkCaliper,
+  snapCaliper,
+  type VernierDivisions,
+} from '../../instruments/measuring/model'
 import type { CaliperMeasure } from '../../instruments/measuring/pose'
 import {
   adjustBlockedNotice,
@@ -21,7 +27,10 @@ const LOCKED_NOTICE = '紧固螺钉已拧紧：先松开，才能移动尺框。
 
 export function createCaliperState(): CaliperState {
   return {
-    ...createPracticeState(23.45, '拖动尺框移动游标；播放面板的 ± 按钮、方向键或「.」键每次调一个精度。输入目标读数后尺框会平滑移动。'),
+    ...createPracticeState(
+      23.45,
+      '拖动尺框移动游标；播放面板的 ± 按钮、方向键或「.」键每次调一个精度。输入目标读数后尺框会平滑移动。',
+    ),
     divisions: 20,
     measure: 'outer',
   }
@@ -48,7 +57,12 @@ export function setDivisions(state: CaliperState, divisions: VernierDivisions): 
 
 export function setMeasure(state: CaliperState, measure: CaliperMeasure): CaliperState {
   if (state.challengeActive) return { ...state, notice: '本题设置已锁定；结束本题后才能更改测量部位。' }
-  const label = measure === 'outer' ? '外测量爪：测外径、厚度。' : measure === 'inner' ? '内测量爪：测内径、槽宽。' : '深度尺：测孔或槽的深度。'
+  const label =
+    measure === 'outer'
+      ? '外测量爪：测外径、厚度。'
+      : measure === 'inner'
+        ? '内测量爪：测内径、槽宽。'
+        : '深度尺：测孔或槽的深度。'
   return clearedPractice({ ...state, measure, view: 'home', notice: `${label}三种测量共用同一套刻度。` })
 }
 
@@ -70,9 +84,14 @@ export function goToReading(state: CaliperState, raw: number): CaliperState {
   if (state.locked) return { ...state, notice: LOCKED_NOTICE }
   const x = snapCaliper(raw, state.divisions)
   const text = x.toFixed(digitsFor(state.divisions))
-  return animateTo(state, 'caliper', x, Math.abs(x - raw) > 1e-9
-    ? `${state.divisions} 分度游标卡尺只能读到 ${(1 / state.divisions).toFixed(2)} mm 的整数倍，已调到最接近的 ${text} mm。`
-    : `尺框移动到 ${text} mm。观察游标零线和对齐的刻度线。`)
+  return animateTo(
+    state,
+    'caliper',
+    x,
+    Math.abs(x - raw) > 1e-9
+      ? `${state.divisions} 分度游标卡尺只能读到 ${(1 / state.divisions).toFixed(2)} mm 的整数倍，已调到最接近的 ${text} mm。`
+      : `尺框移动到 ${text} mm。观察游标零线和对齐的刻度线。`,
+  )
 }
 
 export const stepMotion = (state: CaliperState, dt: number): CaliperState => stepPracticeMotion(state, dt)
@@ -102,7 +121,12 @@ export function submitAnswer(state: CaliperState): CaliperState {
   return { ...state, lastCheckAt: state.position, feedback, feedbackOk: ok, notice: feedback }
 }
 
-export function randomCaliperReading(mode: CaliperMeasure, n: VernierDivisions, current: number, rng: () => number): number {
+export function randomCaliperReading(
+  mode: CaliperMeasure,
+  n: VernierDivisions,
+  current: number,
+  rng: () => number,
+): number {
   const ranges = { outer: [3, 120], inner: [8, 60], depth: [4, 60] } as const
   const [start, end] = ranges[mode]
   let next = current

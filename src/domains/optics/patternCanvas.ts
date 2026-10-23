@@ -64,7 +64,13 @@ export function getCircleMask(w: number, h: number, cx: number, cy: number, radi
   return cached
 }
 
-export type PatternBuffers ={ imgData: ImageData; imgDataU32: Uint32Array; accR: Float32Array; accG: Float32Array; accB: Float32Array }
+export type PatternBuffers = {
+  imgData: ImageData
+  imgDataU32: Uint32Array
+  accR: Float32Array
+  accG: Float32Array
+  accB: Float32Array
+}
 
 /** ImageData sized to the canvas plus RGB accumulators for `n` pixels, reused between draws. */
 export function createBufferPool(): (ctx: CanvasRenderingContext2D, n: number) => PatternBuffers {
@@ -120,7 +126,12 @@ export function createPatternCache(budgetBytes = 30 * 1024 * 1024, initialMaxEnt
       if (maxEntries === 0) return
       const existing = entries.findIndex((entry) => entry.key === key)
       if (existing >= 0) bytes -= sizeOf(entries.splice(existing, 1)[0])
-      const entry: CachedPattern = { key, accR: new Float32Array(accR), accG: new Float32Array(accG), accB: new Float32Array(accB) }
+      const entry: CachedPattern = {
+        key,
+        accR: new Float32Array(accR),
+        accG: new Float32Array(accG),
+        accB: new Float32Array(accB),
+      }
       const size = sizeOf(entry)
       if (size > budgetBytes) return
       while (entries.length >= maxEntries || bytes + size > budgetBytes) {

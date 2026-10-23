@@ -134,7 +134,12 @@ export function setLesson<S extends PracticeState>(state: S, lesson: LessonMode)
     target: null,
     answer: '',
     anim: null,
-    notice: lesson === 'free' ? '自由调节：刻度分解始终可打开。' : lesson === 'read' ? '读数练习：判定前不显示读数分解。' : '调节练习：把仪器调到目标示数。',
+    notice:
+      lesson === 'free'
+        ? '自由调节：刻度分解始终可打开。'
+        : lesson === 'read'
+          ? '读数练习：判定前不显示读数分解。'
+          : '调节练习：把仪器调到目标示数。',
   })
 }
 
@@ -166,7 +171,8 @@ export function toggleLock<S extends PracticeState>(state: S, notices: { locked:
 }
 
 export function toggleExplode<S extends PracticeState>(state: S, name: string): S {
-  if (state.lesson === 'read' && state.challengeActive) return { ...state, notice: '读数题的视图已固定，请按当前刻度判读。' }
+  if (state.lesson === 'read' && state.challengeActive)
+    return { ...state, notice: '读数题的视图已固定，请按当前刻度判读。' }
   const explodeTarget = state.explodeTarget > 0.5 ? 0 : 1
   return { ...state, explodeTarget, notice: explodeTarget ? `正在拆开${name}。` : `正在合拢${name}。` }
 }
@@ -206,7 +212,6 @@ export function startQuestion<S extends PracticeState>(state: S, patch: Partial<
     ...patch,
   })
 }
-
 
 /** Step-button label: "+0.05", "−10". */
 export function signedStep(delta: number, digits: number) {

@@ -22,15 +22,18 @@ const OUTPUT_DIR = path.join(ROOT_DIR, 'output/playwright/interaction-regression
 const requested = process.argv.slice(2)
 const scenes = DEMO_CATALOG.filter((demo) => requested.length === 0 || requested.includes(demo.pageId))
 
-
 const AXE_SOURCE = await readFile(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8')
 
 /** WCAG 2.1 A/AA violations on the page as it stands (axe-core, injected past the page's CSP). */
 async function accessibilityViolations(page) {
   await page.evaluate(AXE_SOURCE)
   return page.evaluate(async () => {
-    const result = await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } })
-    return result.violations.map((violation) => `${violation.id} ×${violation.nodes.length} (${violation.nodes[0].target.join(' ')})`)
+    const result = await window.axe.run(document, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+    })
+    return result.violations.map(
+      (violation) => `${violation.id} ×${violation.nodes.length} (${violation.nodes[0].target.join(' ')})`,
+    )
   })
 }
 
@@ -71,7 +74,10 @@ async function checkScene(context, baseUrl, demo) {
     await page.waitForTimeout(1500)
     check(await page.getByRole('region', { name: '数据' }).isVisible(), `${demo.pageId}: data panel visible`)
     const violations = await accessibilityViolations(page)
-    check(violations.length === 0, `${demo.pageId}: no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`)
+    check(
+      violations.length === 0,
+      `${demo.pageId}: no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`,
+    )
     // Static scenes (fields, patterns, meters) have no playback panel; the rest must show it.
     const playback = page.getByRole('region', { name: '播放控制' })
 
@@ -113,11 +119,17 @@ async function checkOverview(context, baseUrl) {
       if (theme === 'night') await page.getByRole('button', { name: '夜间模式' }).click()
       await page.waitForTimeout(300)
       const violations = await accessibilityViolations(page)
-      check(violations.length === 0, `overview (${theme}): no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`)
+      check(
+        violations.length === 0,
+        `overview (${theme}): no WCAG A/AA violations${violations.length ? ` (${violations.join('; ')})` : ''}`,
+      )
     }
     await page.getByRole('button', { name: '白天模式' }).click()
     await page.getByRole('searchbox').fill('李萨如')
-    check((await page.locator('.scene-card-name').allInnerTexts()).join() === '示波器', 'overview: search matches card highlights')
+    check(
+      (await page.locator('.scene-card-name').allInnerTexts()).join() === '示波器',
+      'overview: search matches card highlights',
+    )
     await page.getByRole('searchbox').fill('')
     await page.locator('body').click({ position: { x: 5, y: 5 } })
     await page.keyboard.press('1')
@@ -142,13 +154,18 @@ async function checkRoundTrip(context, baseUrl, phone) {
   try {
     await overview.waitFor({ timeout: 20000 })
     for (const demo of DEMO_CATALOG) {
-      const card = page.locator('.scene-card').filter({ has: page.locator('.scene-card-name').getByText(demo.label, { exact: true }) })
+      const card = page
+        .locator('.scene-card')
+        .filter({ has: page.locator('.scene-card-name').getByText(demo.label, { exact: true }) })
       await card.click(phone ? { force: true } : undefined)
       await page.waitForURL(`${baseUrl}${demo.path}`, { timeout: 15000 })
       // The overview stays mounted (hidden) and some card names equal a scene's ready text.
       await page.getByText(demo.readyText).filter({ visible: true }).first().waitFor({ timeout: 15000 })
       if (phone) {
-        await page.getByText(/单指旋转.*双指缩放\/平移/).first().waitFor({ timeout: 5000 })
+        await page
+          .getByText(/单指旋转.*双指缩放\/平移/)
+          .first()
+          .waitFor({ timeout: 5000 })
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
         if (overflow) check(false, `${demo.pageId}: no horizontal scrolling on a phone`)
       }
@@ -180,9 +197,15 @@ async function checkMeasuringInstruments(context, baseUrl) {
     check(Math.abs((await reading()) - start - 0.1) < 1e-6, 'vernier-caliper: +0.05 mm and → each move one least count')
     await page.getByRole('radio', { name: '读数练习', exact: true }).click()
     await page.getByRole('button', { name: '出题', exact: true }).click()
-    check(await page.getByRole('radio', { name: '刻度', exact: true }).isChecked(), 'vernier-caliper: a question opens on the scale close-up')
+    check(
+      await page.getByRole('radio', { name: '刻度', exact: true }).isChecked(),
+      'vernier-caliper: a question opens on the scale close-up',
+    )
     await page.getByRole('button', { name: '结束本题并返回自由调节', exact: true }).click()
-    check(await page.getByRole('radio', { name: '全景', exact: true }).isChecked(), 'vernier-caliper: ending practice restores the view')
+    check(
+      await page.getByRole('radio', { name: '全景', exact: true }).isChecked(),
+      'vernier-caliper: ending practice restores the view',
+    )
   } catch (error) {
     check(false, `vernier-caliper: ${error instanceof Error ? error.message.split('\n')[0] : error}`)
     await page.screenshot({ path: path.join(OUTPUT_DIR, 'vernier-caliper-failure.png') })
@@ -216,30 +239,46 @@ async function checkMeasuringInstruments(context, baseUrl) {
 }
 
 await mkdir(OUTPUT_DIR, { recursive: true })
-const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({ defaultBaseUrl: 'http://127.0.0.1:4185', env: process.env })
+const { baseUrl, devPort } = await resolveManagedPlaywrightRuntime({
+  defaultBaseUrl: 'http://127.0.0.1:4185',
+  env: process.env,
+})
 
 // PLAYWRIGHT_SERVER_MODE=preview serves the production build (run npm run build first); CI uses it.
-await runWithManagedViteServer({ rootDir: ROOT_DIR, baseUrl, devPort, logPath: path.join(OUTPUT_DIR, 'vite-dev.log'), mode: process.env.PLAYWRIGHT_SERVER_MODE || 'dev' }, async () => {
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: process.env.CHROME_PATH || undefined,
-    args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
-  })
-  try {
-    const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
-    if (requested.length === 0) {
-      await checkOverview(context, baseUrl)
-      await checkRoundTrip(context, baseUrl, false)
-      const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
-      await checkRoundTrip(phone, baseUrl, true)
-      await phone.close()
-      await checkMeasuringInstruments(context, baseUrl)
+await runWithManagedViteServer(
+  {
+    rootDir: ROOT_DIR,
+    baseUrl,
+    devPort,
+    logPath: path.join(OUTPUT_DIR, 'vite-dev.log'),
+    mode: process.env.PLAYWRIGHT_SERVER_MODE || 'dev',
+  },
+  async () => {
+    const browser = await chromium.launch({
+      headless: true,
+      executablePath: process.env.CHROME_PATH || undefined,
+      args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist'],
+    })
+    try {
+      const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
+      if (requested.length === 0) {
+        await checkOverview(context, baseUrl)
+        await checkRoundTrip(context, baseUrl, false)
+        const phone = await browser.newContext({
+          viewport: { width: 390, height: 844 },
+          hasTouch: true,
+          isMobile: true,
+        })
+        await checkRoundTrip(phone, baseUrl, true)
+        await phone.close()
+        await checkMeasuringInstruments(context, baseUrl)
+      }
+      for (const demo of scenes) await checkScene(context, baseUrl, demo)
+    } finally {
+      await browser.close()
     }
-    for (const demo of scenes) await checkScene(context, baseUrl, demo)
-  } finally {
-    await browser.close()
-  }
-})
+  },
+)
 
 if (failures.length > 0) {
   console.error(`\n${failures.length} interaction check(s) failed:`)

@@ -20,7 +20,9 @@ describe('vernier caliper state', () => {
   it('opens the instrument at 2.2 units per second', () => {
     const moving = stepMotion({ ...createCaliperState(), explodeTarget: 1 }, 0.1)
     expect(moving.explode).toBeCloseTo(0.22, 8)
-    expect(caliperPose({ x: moving.position, exploded: moving.explode, locked: false, mode: 'outer' }).frame[2]).toBeCloseTo(4.84, 6)
+    expect(
+      caliperPose({ x: moving.position, exploded: moving.explode, locked: false, mode: 'outer' }).frame[2],
+    ).toBeCloseTo(4.84, 6)
   })
 
   it('refuses to move a locked frame', () => {

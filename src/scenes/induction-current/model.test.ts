@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  deriveInductionOutcome,
-  formatCurrentDirection,
-  formatFluxChange,
-  formatVerticalDirection,
-} from './model'
+import { deriveInductionOutcome, formatCurrentDirection, formatFluxChange, formatVerticalDirection } from './model'
 
 describe('induction-current model', () => {
   it('maps S上(N下) + 接近 to upward induced field and counterclockwise current', () => {

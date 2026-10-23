@@ -61,9 +61,7 @@ export function isElectromagneticDriveActive(state: ElectromagneticDriveState): 
   return state.isRunning || state.magnetSpeed > 0.01 || state.frameSpeed > 0.01
 }
 
-export function stepElectromagneticDriveState(
-  state: ElectromagneticDriveState,
-): ElectromagneticDriveState {
+export function stepElectromagneticDriveState(state: ElectromagneticDriveState): ElectromagneticDriveState {
   let magnetSpeed = state.magnetSpeed
   if (state.isRunning) {
     magnetSpeed += (TARGET_MAGNET_SPEED - magnetSpeed) * MAGNET_ACCELERATION_FACTOR
@@ -92,9 +90,7 @@ export function stepElectromagneticDriveState(
   const magnetSpeeds = shouldSample
     ? trimHistory([...state.history.magnetSpeeds, magnetSpeed])
     : state.history.magnetSpeeds
-  const frameSpeeds = shouldSample
-    ? trimHistory([...state.history.frameSpeeds, frameSpeed])
-    : state.history.frameSpeeds
+  const frameSpeeds = shouldSample ? trimHistory([...state.history.frameSpeeds, frameSpeed]) : state.history.frameSpeeds
 
   return {
     ...state,
@@ -110,9 +106,7 @@ export function stepElectromagneticDriveState(
   }
 }
 
-export function resetElectromagneticDriveState(
-  state?: ElectromagneticDriveState,
-): ElectromagneticDriveState {
+export function resetElectromagneticDriveState(state?: ElectromagneticDriveState): ElectromagneticDriveState {
   void state
   return createElectromagneticDriveState()
 }

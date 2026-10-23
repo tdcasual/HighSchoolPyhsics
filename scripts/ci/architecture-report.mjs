@@ -23,8 +23,12 @@ const CHECKS = {
   clock: (text) => /useSimulationClock|useAnimatedState|useAnimationLoop/.test(text),
   playback: (text) => /clockActions\(/.test(text),
   charts: (text, files) => !files.some((file) => /Chart\.tsx$/.test(file)) || /ui\/charts\//.test(text),
-  framing: (text) => /<FittedCanvas\b|useFittedOrbitCamera|useBoundsFraming/.test(text) && !/camera=\{\{\s*position/.test(text),
-  layered: (_text, files) => ['SceneState.ts', 'Controls.tsx', 'Scene.tsx'].every((suffix) => files.some((file) => path.basename(file).endsWith(suffix))),
+  framing: (text) =>
+    /<FittedCanvas\b|useFittedOrbitCamera|useBoundsFraming/.test(text) && !/camera=\{\{\s*position/.test(text),
+  layered: (_text, files) =>
+    ['SceneState.ts', 'Controls.tsx', 'Scene.tsx'].every((suffix) =>
+      files.some((file) => path.basename(file).endsWith(suffix)),
+    ),
   dataRows: (text) => /<DataRows/.test(text),
 }
 
@@ -45,7 +49,10 @@ export function collectSceneReport(scenesDir = SCENES_DIR) {
 function toMarkdown(rows) {
   const names = Object.keys(CHECKS)
   const header = `| 场景 | 行数 | 测试 | ${names.join(' | ')} |\n|---|---:|---:|${names.map(() => ':-:').join('|')}|`
-  const body = rows.map((row) => `| ${row.scene} | ${row.lines} | ${row.tests} | ${names.map((name) => (row[name] ? '✔' : '·')).join(' | ')} |`)
+  const body = rows.map(
+    (row) =>
+      `| ${row.scene} | ${row.lines} | ${row.tests} | ${names.map((name) => (row[name] ? '✔' : '·')).join(' | ')} |`,
+  )
   const totals = `| **合计 ${rows.length}** | ${rows.reduce((sum, row) => sum + row.lines, 0)} | ${rows.reduce((sum, row) => sum + row.tests, 0)} | ${names.map((name) => `${rows.filter((row) => row[name]).length}/${rows.length}`).join(' | ')} |`
   return [header, ...body, totals].join('\n')
 }

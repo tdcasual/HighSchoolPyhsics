@@ -11,7 +11,9 @@ describe('motional-emf structure', () => {
 
     screen.queryAllByRole('button', { name: '展开' }).forEach((button) => fireEvent.click(button))
     // The label is 电压 U<sub>AB</sub>; match on the span's combined text.
-    const display = await screen.findByText((_, element) => element?.tagName === 'SPAN' && element.textContent === '电压 UAB')
+    const display = await screen.findByText(
+      (_, element) => element?.tagName === 'SPAN' && element.textContent === '电压 UAB',
+    )
     expect(display).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '播放' }))

@@ -86,7 +86,6 @@ export function useRemember(pageId: string, values: Record<string, unknown>): vo
   }, [pageId, snapshot])
 }
 
-
 /** `initial` with the listed fields replaced by their remembered values, for object-shaped state. */
 export function rememberFields<T extends object>(pageId: string, initial: T, fields: readonly (keyof T & string)[]): T {
   const restored = { ...initial }
@@ -98,7 +97,11 @@ export function rememberFields<T extends object>(pageId: string, initial: T, fie
 }
 
 /** Saves the listed fields of object-shaped state whenever they change. */
-export function useRememberFields<T extends object>(pageId: string, value: T, fields: readonly (keyof T & string)[]): void {
+export function useRememberFields<T extends object>(
+  pageId: string,
+  value: T,
+  fields: readonly (keyof T & string)[],
+): void {
   const snapshot = JSON.stringify(fields.map((field) => value[field]))
   useEffect(() => {
     const values = JSON.parse(snapshot) as unknown[]

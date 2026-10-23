@@ -7,7 +7,7 @@ describe('resistivity model', () => {
     expect(sample.positions).toEqual([0.404, 0.394, 0.402])
     expect(sample.diameter).toBeCloseTo(0.4, 8)
     expect(wireResistance(sample.rho, 0.5, sample.diameter)).toBeCloseTo(
-      1e-6 * 0.5 / (Math.PI * (0.4e-3) ** 2 / 4),
+      (1e-6 * 0.5) / ((Math.PI * 0.4e-3 ** 2) / 4),
       6,
     )
   })
@@ -56,7 +56,12 @@ describe('resistivity model', () => {
   })
 
   it('fits a line through the origin and rates the lamp near its marked current', () => {
-    expect(fitOrigin([[1, 2], [2, 4]])?.slope).toBeCloseTo(2, 8)
+    expect(
+      fitOrigin([
+        [1, 2],
+        [2, 4],
+      ])?.slope,
+    ).toBeCloseTo(2, 8)
     expect(element('lamp', 0).I).toBe(0)
     expect(element('lamp', 2.5).I).toBeGreaterThan(0.2)
     expect(element('lamp', 2.5).I).toBeLessThan(0.45)

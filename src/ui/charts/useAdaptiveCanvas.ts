@@ -5,7 +5,10 @@ import { resolvePerformanceProfile } from '../../scene3d/canvasQuality'
  * The container's CSS width (capped), for charts that draw on a canvas. Without ResizeObserver
  * (tests, old browsers) it reports `fallback`.
  */
-export function useContainerWidth<T extends HTMLElement>(maxWidth = 800, fallback = maxWidth): [RefObject<T | null>, number] {
+export function useContainerWidth<T extends HTMLElement>(
+  maxWidth = 800,
+  fallback = maxWidth,
+): [RefObject<T | null>, number] {
   const ref = useRef<T>(null)
   const [width, setWidth] = useState(() => (typeof ResizeObserver === 'undefined' ? fallback : 0))
   useEffect(() => {
@@ -39,38 +42,45 @@ export function useAdaptiveResolution() {
   const frameRef = useRef<number | null>(null)
   const [revision, setRevision] = useState(0)
 
-  useEffect(() => () => {
-    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+    },
+    [],
+  )
 
   /** Runs `draw`, timing it; returns what it returned. */
-  const measure = useCallback(<T,>(draw: () => T): T => {
-    const startedAt = performance.now()
-    const result = draw()
-    const times = timesRef.current
-    times.push(performance.now() - startedAt)
-    if (times.length > 3) times.shift()
-    if (times.length === 3) {
-      const average = times.reduce((sum, value) => sum + value, 0) / times.length
-      const current = scaleRef.current
-      const next = average > SLOW_MS
-        ? Math.max(MIN_SCALE, +(current - 0.1).toFixed(2))
-        : average < FAST_MS
-          ? Math.min(maxScale, +(current + 0.05).toFixed(2))
-          : current
-      if (next !== current) {
-        scaleRef.current = next
-        times.length = 0
-        if (frameRef.current === null && typeof requestAnimationFrame === 'function') {
-          frameRef.current = requestAnimationFrame(() => {
-            frameRef.current = null
-            setRevision((value) => value + 1)
-          })
+  const measure = useCallback(
+    <T>(draw: () => T): T => {
+      const startedAt = performance.now()
+      const result = draw()
+      const times = timesRef.current
+      times.push(performance.now() - startedAt)
+      if (times.length > 3) times.shift()
+      if (times.length === 3) {
+        const average = times.reduce((sum, value) => sum + value, 0) / times.length
+        const current = scaleRef.current
+        const next =
+          average > SLOW_MS
+            ? Math.max(MIN_SCALE, +(current - 0.1).toFixed(2))
+            : average < FAST_MS
+              ? Math.min(maxScale, +(current + 0.05).toFixed(2))
+              : current
+        if (next !== current) {
+          scaleRef.current = next
+          times.length = 0
+          if (frameRef.current === null && typeof requestAnimationFrame === 'function') {
+            frameRef.current = requestAnimationFrame(() => {
+              frameRef.current = null
+              setRevision((value) => value + 1)
+            })
+          }
         }
       }
-    }
-    return result
-  }, [maxScale])
+      return result
+    },
+    [maxScale],
+  )
 
   /** The current render scale (read it in effects; it changes without a render). */
   const currentScale = useCallback(() => scaleRef.current, [])

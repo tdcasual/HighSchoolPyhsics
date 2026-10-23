@@ -1,13 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import {
-  BufferAttribute,
-  BufferGeometry,
-  CatmullRomCurve3,
-  Euler,
-  Quaternion,
-  TubeGeometry,
-  Vector3,
-} from 'three'
+import { BufferAttribute, BufferGeometry, CatmullRomCurve3, Euler, Quaternion, TubeGeometry, Vector3 } from 'three'
 import { INDUCTION_COIL_RADIUS, type PoleSetting } from './model'
 import { resolvePerformanceProfile, getGeometryDetail } from '../../scene3d/canvasQuality'
 import { NO_FIT } from '../../scene3d/FitBounds'
@@ -38,13 +30,7 @@ function buildCoilCurve(segments: number): CatmullRomCurve3 {
   for (let index = 0; index <= segments; index += 1) {
     const t = index / segments
     const angle = t * Math.PI * 2 * turns
-    points.push(
-      new Vector3(
-        Math.cos(angle) * radius,
-        (t - 0.5) * height,
-        -Math.sin(angle) * radius,
-      ),
-    )
+    points.push(new Vector3(Math.cos(angle) * radius, (t - 0.5) * height, -Math.sin(angle) * radius))
   }
 
   return new CatmullRomCurve3(points)
@@ -55,10 +41,7 @@ const _v3Up = new Vector3(0, 1, 0)
 const _quat = new Quaternion()
 const _euler = new Euler()
 
-function resolveArrowRotation(
-  tangent: [number, number, number],
-  currentSign: -1 | 0 | 1,
-): [number, number, number] {
+function resolveArrowRotation(tangent: [number, number, number], currentSign: -1 | 0 | 1): [number, number, number] {
   _v3Dir.set(tangent[0], tangent[1], tangent[2]).normalize()
   if (currentSign < 0) {
     _v3Dir.multiplyScalar(-1)
@@ -71,10 +54,7 @@ function resolveArrowRotation(
 
 function buildNeedleGeometry(): BufferGeometry {
   const geometry = new BufferGeometry()
-  geometry.setAttribute(
-    'position',
-    new BufferAttribute(new Float32Array([-0.1, 0, 0, 0.1, 0, 0, 0, 3.5, 0]), 3),
-  )
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array([-0.1, 0, 0, 0.1, 0, 0, 0, 3.5, 0]), 3))
   return geometry
 }
 

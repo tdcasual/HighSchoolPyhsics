@@ -81,7 +81,8 @@ export function useCaliperSceneState(): CaliperSceneState {
     setAnswer: (answer) => commit((current) => setAnswer(current, answer)),
     setPosition: (value) => commit((current) => setPosition(current, value)),
     nudge: (precisions) => commit((current) => setPosition(current, current.position + precisions / current.divisions)),
-    toggleLock: () => commit((current) => toggleLock(current, { locked: '紧固螺钉已拧紧。', unlocked: '紧固螺钉已松开。' })),
+    toggleLock: () =>
+      commit((current) => toggleLock(current, { locked: '紧固螺钉已拧紧。', unlocked: '紧固螺钉已松开。' })),
     toggleExplode: () => commit((current) => toggleExplode(current, '游标卡尺')),
     goTo: (value) => commit((current) => goToReading(current, value)),
     submit: () => commit(submitAnswer),

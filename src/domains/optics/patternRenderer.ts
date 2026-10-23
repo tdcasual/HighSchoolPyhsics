@@ -81,7 +81,14 @@ function accumulate(sums: Sums, field: Field, profile: Profile, r: number, g: nu
   else accumulateCrossed(sums, field, profile, r, g, b)
 }
 
-function accumulateColumns({ accR, accG, accB }: Sums, { width, height, rowMin, rowMax, rowWeight }: Field, values: Float32Array, r: number, g: number, b: number) {
+function accumulateColumns(
+  { accR, accG, accB }: Sums,
+  { width, height, rowMin, rowMax, rowWeight }: Field,
+  values: Float32Array,
+  r: number,
+  g: number,
+  b: number,
+) {
   for (let py = 0; py < height; py++) {
     const weight = rowWeight[py]
     const rowBase = py * width
@@ -95,7 +102,14 @@ function accumulateColumns({ accR, accG, accB }: Sums, { width, height, rowMin, 
   }
 }
 
-function accumulateRadial({ accR, accG, accB }: Sums, { width, height, rowMin, rowMax }: Field, values: Float32Array, r: number, g: number, b: number) {
+function accumulateRadial(
+  { accR, accG, accB }: Sums,
+  { width, height, rowMin, rowMax }: Field,
+  values: Float32Array,
+  r: number,
+  g: number,
+  b: number,
+) {
   const cx = width / 2
   const cy = height / 2
   const last = values.length - 1
@@ -113,7 +127,14 @@ function accumulateRadial({ accR, accG, accB }: Sums, { width, height, rowMin, r
   }
 }
 
-function accumulateCrossed({ accR, accG, accB }: Sums, { width, height, rowMin, rowMax }: Field, profile: Extract<Profile, { kind: 'crossed' }>, r: number, g: number, b: number) {
+function accumulateCrossed(
+  { accR, accG, accB }: Sums,
+  { width, height, rowMin, rowMax }: Field,
+  profile: Extract<Profile, { kind: 'crossed' }>,
+  r: number,
+  g: number,
+  b: number,
+) {
   const { a, b: lutB, viewWidth } = profile
   const cosA = Math.cos((profile.angleA * Math.PI) / 180)
   const sinA = Math.sin((profile.angleA * Math.PI) / 180)
@@ -226,19 +247,21 @@ export function createPatternRenderer() {
       const { pool, field } = begin(ctx, shape)
       const { width, height } = ctx.canvas
       const key = `${shape}_${width}_${height}_${options.filterColor}_${options.step}_${options.key}`
-      const sums = cache.get(key, width * height) ?? (() => {
-        pool.accR.fill(0)
-        pool.accG.fill(0)
-        pool.accB.fill(0)
-        for (let wl = 400; wl <= 700; wl += options.step) {
-          const weight = filterTransmission(wl, options.filterColor)
-          const [r, g, b] = waveLengthToRGB(wl)
-          if (weight === 0 || r + g + b === 0) continue
-          accumulate(pool, field, options.profileAt(wl), r * weight, g * weight, b * weight)
-        }
-        cache.store(key, pool.accR, pool.accG, pool.accB)
-        return pool
-      })()
+      const sums =
+        cache.get(key, width * height) ??
+        (() => {
+          pool.accR.fill(0)
+          pool.accG.fill(0)
+          pool.accB.fill(0)
+          for (let wl = 400; wl <= 700; wl += options.step) {
+            const weight = filterTransmission(wl, options.filterColor)
+            const [r, g, b] = waveLengthToRGB(wl)
+            if (weight === 0 || r + g + b === 0) continue
+            accumulate(pool, field, options.profileAt(wl), r * weight, g * weight, b * weight)
+          }
+          cache.store(key, pool.accR, pool.accG, pool.accB)
+          return pool
+        })()
       normalize(pool.imgData.data, sums, field)
       finish(ctx, shape, pool.imgData)
     },

@@ -50,11 +50,12 @@ type DoubleSlitControlsProps = {
 }
 
 export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
-  const canCalculate = state.firstReadingMm !== null
-    && state.secondReadingMm !== null
-    && state.firstReadingMm !== state.secondReadingMm
-    && state.fringeCount >= 2
-    && !state.isWhiteLight
+  const canCalculate =
+    state.firstReadingMm !== null &&
+    state.secondReadingMm !== null &&
+    state.firstReadingMm !== state.secondReadingMm &&
+    state.fringeCount >= 2 &&
+    !state.isWhiteLight
 
   return (
     <div className="grid gap-[0.8rem] content-start">
@@ -78,8 +79,14 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
             onChange={state.setWavelength}
           />
         )}
-        {state.isBlindMode && <p className="text-xs text-slate-500 dark:text-slate-400">未知单色光已隐藏波长；教师可先选波长，再开启测量练习。</p>}
-        {state.isWhiteLight && <p className="text-xs text-slate-500 dark:text-slate-400">白光模式下不显示单一波长滑杆。</p>}
+        {state.isBlindMode && (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            未知单色光已隐藏波长；教师可先选波长，再开启测量练习。
+          </p>
+        )}
+        {state.isWhiteLight && (
+          <p className="text-xs text-slate-500 dark:text-slate-400">白光模式下不显示单一波长滑杆。</p>
+        )}
         <RangeField
           id="double-slit-distance"
           label="双缝间距 d"
@@ -105,7 +112,7 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           label="单缝宽度 a"
           unit="mm"
           min={0.01}
-          max={0.10}
+          max={0.1}
           step={0.005}
           value={state.slitWidth}
           onChange={state.setSlitWidth}
@@ -153,13 +160,21 @@ export function DoubleSlitControls({ state }: DoubleSlitControlsProps) {
           value={state.fringeCount}
           onChange={state.setFringeCount}
         />
-        <p className="text-xs text-slate-500 dark:text-slate-400">a₁：{state.firstReadingMm === null ? '未记录' : state.firstReadingMm.toFixed(3) + ' mm'}；a₂：{state.secondReadingMm === null ? '未记录' : state.secondReadingMm.toFixed(3) + ' mm'}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          a₁：{state.firstReadingMm === null ? '未记录' : state.firstReadingMm.toFixed(3) + ' mm'}；a₂：
+          {state.secondReadingMm === null ? '未记录' : state.secondReadingMm.toFixed(3) + ' mm'}
+        </p>
         <SceneActions
           layout="grid-2"
           actions={[
             { key: 'record-a1', label: '记为 a₁', onClick: state.recordFirstReading },
             { key: 'record-a2', label: '记为 a₂', onClick: state.recordSecondReading },
-            { key: 'calculate', label: '计算 Δx 与 λ', onClick: state.calculateMeasuredWavelength, disabled: !canCalculate },
+            {
+              key: 'calculate',
+              label: '计算 Δx 与 λ',
+              onClick: state.calculateMeasuredWavelength,
+              disabled: !canCalculate,
+            },
             { key: 'clear', label: '清空读数', onClick: state.clearMeasurements },
           ]}
         />

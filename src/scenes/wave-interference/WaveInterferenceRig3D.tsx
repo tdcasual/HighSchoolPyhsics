@@ -5,10 +5,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Plane, Vector2, Vector3 } from 'three'
 import type { Mesh, ShaderMaterial } from 'three'
-import {
-  waveVertexShader,
-  waveFragmentShader,
-} from './shaders'
+import { waveVertexShader, waveFragmentShader } from './shaders'
 import {
   buildInterferenceBranches,
   calcWaveDisplacement,
@@ -59,9 +56,16 @@ function useRedrawOn(version: number) {
 }
 
 const WaveSurface = memo(function WaveSurface({
-  source1, source2, wavelength1, wavelength2,
-  amplitude1, amplitude2, phaseDiff, waveSpeed,
-  time, frameVersion,
+  source1,
+  source2,
+  wavelength1,
+  wavelength2,
+  amplitude1,
+  amplitude2,
+  phaseDiff,
+  waveSpeed,
+  time,
+  frameVersion,
 }: WaveParams & { time: { current: number }; frameVersion: number }) {
   const matRef = useRef<ShaderMaterial>(null)
   useRedrawOn(frameVersion)
@@ -70,17 +74,17 @@ const WaveSurface = memo(function WaveSurface({
     const source1Plane = worldToWavePlane(source1)
     const source2Plane = worldToWavePlane(source2)
     return {
-    uTime: { value: 0 },
-    uSource1: { value: new Vector2(source1Plane.x, source1Plane.z) },
-    uSource2: { value: new Vector2(source2Plane.x, source2Plane.z) },
-    uVisualScale: { value: WAVE_SURFACE_SCALE },
-    uWavelength1: { value: wavelength1 },
-    uWavelength2: { value: wavelength2 },
-    uAmplitude1: { value: amplitude1 },
-    uAmplitude2: { value: amplitude2 },
-    uPhaseDiff: { value: phaseDiff },
-    uWaveSpeed: { value: waveSpeed },
-  }
+      uTime: { value: 0 },
+      uSource1: { value: new Vector2(source1Plane.x, source1Plane.z) },
+      uSource2: { value: new Vector2(source2Plane.x, source2Plane.z) },
+      uVisualScale: { value: WAVE_SURFACE_SCALE },
+      uWavelength1: { value: wavelength1 },
+      uWavelength2: { value: wavelength2 },
+      uAmplitude1: { value: amplitude1 },
+      uAmplitude2: { value: amplitude2 },
+      uPhaseDiff: { value: phaseDiff },
+      uWaveSpeed: { value: waveSpeed },
+    }
   })
 
   useEffect(() => {
@@ -120,7 +124,9 @@ const WaveSurface = memo(function WaveSurface({
 /* ─── Wave Source (draggable sphere) ─── */
 
 const WaveSource = memo(function WaveSource({
-  position, color, label,
+  position,
+  color,
+  label,
   onDrag,
 }: {
   position: Vec2
@@ -150,17 +156,23 @@ const WaveSource = memo(function WaveSource({
   return (
     <group position={[position.x, 0, position.z]}>
       <Html position={[0, 0.27, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-        <span style={{ color, fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap', textShadow: '0 1px 3px white, 0 0 5px white' }}>{label}</span>
+        <span
+          style={{
+            color,
+            fontSize: '12px',
+            fontWeight: 900,
+            whiteSpace: 'nowrap',
+            textShadow: '0 1px 3px white, 0 0 5px white',
+          }}
+        >
+          {label}
+        </span>
       </Html>
 
       {/* visible sphere */}
       <mesh position={[0, 0.08, 0]}>
         <sphereGeometry args={[0.08, 14, 14]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={dragging ? 0.7 : 0.4}
-        />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={dragging ? 0.7 : 0.4} />
       </mesh>
 
       {/* hit area */}
@@ -201,9 +213,20 @@ const WaveSource = memo(function WaveSource({
 /* ─── Observer Point (draggable marker) ─── */
 
 function ObserverPoint({
-  observerBuffer, waveSpeed, wavelength1, wavelength2,
-  amplitude1, amplitude2, phaseDiff, source1, source2,
-  time, frameVersion, resetVersion, setObserverBuffer, tickSyncRef,
+  observerBuffer,
+  waveSpeed,
+  wavelength1,
+  wavelength2,
+  amplitude1,
+  amplitude2,
+  phaseDiff,
+  source1,
+  source2,
+  time,
+  frameVersion,
+  resetVersion,
+  setObserverBuffer,
+  tickSyncRef,
 }: {
   observerBuffer: ObserverBuffer
   waveSpeed: number
@@ -230,7 +253,9 @@ function ObserverPoint({
   }, [wavelength1, wavelength2, amplitude1, amplitude2, phaseDiff, source1, source2, waveSpeed])
 
   const bufferRef = useRef(observerBuffer)
-  useEffect(() => { bufferRef.current = observerBuffer }, [observerBuffer])
+  useEffect(() => {
+    bufferRef.current = observerBuffer
+  }, [observerBuffer])
 
   useEffect(() => {
     if (bufferRef.current) bufferRef.current.time = 0
@@ -238,7 +263,9 @@ function ObserverPoint({
   }, [resetVersion])
 
   const setObserverBufferRef = useRef(setObserverBuffer)
-  useEffect(() => { setObserverBufferRef.current = setObserverBuffer }, [setObserverBuffer])
+  useEffect(() => {
+    setObserverBufferRef.current = setObserverBuffer
+  }, [setObserverBuffer])
 
   useFrame(() => {
     const buf = bufferRef.current
@@ -290,7 +317,17 @@ function ObserverPoint({
       </mesh>
 
       <Html position={[0, 0.55, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-        <span style={{ color: '#7c3aed', fontSize: '11px', fontWeight: 900, whiteSpace: 'nowrap', textShadow: '0 1px 3px white, 0 0 5px white' }}>O</span>
+        <span
+          style={{
+            color: '#7c3aed',
+            fontSize: '11px',
+            fontWeight: 900,
+            whiteSpace: 'nowrap',
+            textShadow: '0 1px 3px white, 0 0 5px white',
+          }}
+        >
+          O
+        </span>
       </Html>
 
       {/* ground ring */}
@@ -336,8 +373,13 @@ function ObserverPoint({
 /* ─── Interference Lines (hyperbolas via drei Line) ─── */
 
 const InterferenceLines = memo(function InterferenceLines({
-  source1, source2, wavelength1, wavelength2, phaseDiff,
-  showConstructive, showDestructive,
+  source1,
+  source2,
+  wavelength1,
+  wavelength2,
+  phaseDiff,
+  showConstructive,
+  showDestructive,
 }: {
   source1: Vec2
   source2: Vec2
@@ -348,21 +390,40 @@ const InterferenceLines = memo(function InterferenceLines({
   showDestructive: boolean
 }) {
   const constructivePts = useMemo(
-    () => showConstructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0) : [],
+    () => (showConstructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0) : []),
     [source1, source2, wavelength1, wavelength2, phaseDiff, showConstructive],
   )
   const destructivePts = useMemo(
-    () => showDestructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0.5) : [],
+    () =>
+      showDestructive ? buildInterferenceBranches(source1, source2, wavelength1, wavelength2, phaseDiff, 0.5) : [],
     [source1, source2, wavelength1, wavelength2, phaseDiff, showDestructive],
   )
 
   return (
     <group>
       {constructivePts.map((pts, i) => (
-        <Line key={"c-" + i} points={pts} color="#16a34a" lineWidth={1.6} transparent opacity={0.9} depthTest={false} depthWrite={false} />
+        <Line
+          key={'c-' + i}
+          points={pts}
+          color="#16a34a"
+          lineWidth={1.6}
+          transparent
+          opacity={0.9}
+          depthTest={false}
+          depthWrite={false}
+        />
       ))}
       {destructivePts.map((pts, i) => (
-        <Line key={"d-" + i} points={pts} color="#a21caf" lineWidth={1.6} transparent opacity={0.9} depthTest={false} depthWrite={false} />
+        <Line
+          key={'d-' + i}
+          points={pts}
+          color="#a21caf"
+          lineWidth={1.6}
+          transparent
+          opacity={0.9}
+          depthTest={false}
+          depthWrite={false}
+        />
       ))}
     </group>
   )
@@ -370,7 +431,11 @@ const InterferenceLines = memo(function InterferenceLines({
 
 /* ─── Wave surface click → place observer ─── */
 
-const WaveSurfaceClickPlane = memo(function WaveSurfaceClickPlane({ setObserverBuffer }: { setObserverBuffer: (b: ObserverBuffer | null) => void }) {
+const WaveSurfaceClickPlane = memo(function WaveSurfaceClickPlane({
+  setObserverBuffer,
+}: {
+  setObserverBuffer: (b: ObserverBuffer | null) => void
+}) {
   return (
     <mesh
       position={[0, -0.02, 0]}
@@ -393,11 +458,23 @@ const WaveSurfaceClickPlane = memo(function WaveSurfaceClickPlane({ setObserverB
 
 export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: RigProps) {
   const {
-    source1, source2, wavelength1, wavelength2,
-    amplitude1, amplitude2, phaseDiff, waveSpeed,
-    time, frameVersion, observerBuffer,
-    setSource1, setSource2, setObserverBuffer,
-    showConstructive, showDestructive, resetVersion,
+    source1,
+    source2,
+    wavelength1,
+    wavelength2,
+    amplitude1,
+    amplitude2,
+    phaseDiff,
+    waveSpeed,
+    time,
+    frameVersion,
+    observerBuffer,
+    setSource1,
+    setSource2,
+    setObserverBuffer,
+    showConstructive,
+    showDestructive,
+    resetVersion,
     _tickSyncRef,
   } = props
 
@@ -409,39 +486,46 @@ export const WaveInterferenceRig3D = memo(function WaveInterferenceRig3D(props: 
       <gridHelper args={[GRID_SIZE, 20, '#cbd5e1', '#e2e8f0']} position={[0, -0.01, 0]} />
 
       <WaveSurface
-        source1={source1} source2={source2}
-        wavelength1={wavelength1} wavelength2={wavelength2}
-        amplitude1={amplitude1} amplitude2={amplitude2}
-        phaseDiff={phaseDiff} waveSpeed={waveSpeed}
-        time={time} frameVersion={frameVersion}
+        source1={source1}
+        source2={source2}
+        wavelength1={wavelength1}
+        wavelength2={wavelength2}
+        amplitude1={amplitude1}
+        amplitude2={amplitude2}
+        phaseDiff={phaseDiff}
+        waveSpeed={waveSpeed}
+        time={time}
+        frameVersion={frameVersion}
       />
 
-      <WaveSource
-        position={source1} color="#ef4444" label="S₁"
-        onDrag={setSource1}
-      />
-      <WaveSource
-        position={source2} color="#3b82f6" label="S₂"
-        onDrag={setSource2}
-      />
+      <WaveSource position={source1} color="#ef4444" label="S₁" onDrag={setSource1} />
+      <WaveSource position={source2} color="#3b82f6" label="S₂" onDrag={setSource2} />
 
       {observerBuffer && (
         <ObserverPoint
           observerBuffer={observerBuffer}
           waveSpeed={waveSpeed}
-          wavelength1={wavelength1} wavelength2={wavelength2}
-          amplitude1={amplitude1} amplitude2={amplitude2}
+          wavelength1={wavelength1}
+          wavelength2={wavelength2}
+          amplitude1={amplitude1}
+          amplitude2={amplitude2}
           phaseDiff={phaseDiff}
-          source1={source1} source2={source2}
-          time={time} frameVersion={frameVersion} resetVersion={resetVersion}
+          source1={source1}
+          source2={source2}
+          time={time}
+          frameVersion={frameVersion}
+          resetVersion={resetVersion}
           setObserverBuffer={setObserverBuffer}
           tickSyncRef={_tickSyncRef}
         />
       )}
 
       <InterferenceLines
-        source1={source1} source2={source2}
-        wavelength1={wavelength1} wavelength2={wavelength2} phaseDiff={phaseDiff}
+        source1={source1}
+        source2={source2}
+        wavelength1={wavelength1}
+        wavelength2={wavelength2}
+        phaseDiff={phaseDiff}
         showConstructive={showConstructive}
         showDestructive={showDestructive}
       />

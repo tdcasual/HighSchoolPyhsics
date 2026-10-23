@@ -35,7 +35,14 @@ function GroundTrack({ scenario }: { scenario: Scenario }) {
         {(plot) => (
           <>
             <Series plot={plot} points={points} color="var(--chart-2)" strokeWidth={2.2} />
-            <Dot plot={plot} x={current.longitude * DEG} y={current.latitude * DEG} color="var(--chart-3)" ring testId="ground-point" />
+            <Dot
+              plot={plot}
+              x={current.longitude * DEG}
+              y={current.latitude * DEG}
+              color="var(--chart-3)"
+              ring
+              testId="ground-point"
+            />
           </>
         )}
       </ChartFrame>
@@ -51,11 +58,13 @@ function PlaneChart({ scenario }: { scenario: Scenario }) {
   const reach = Math.max(scenario.q1, scenario.mode === 'circular' ? scenario.q1 : scenario.q2) * 1.15
   const unit = 108 / reach
   const map = (x: number, y: number) => [center.x + x * unit, center.y - y * unit]
-  const pathOf = (points: number[][]) => points.map((point, index) => `${index ? 'L' : 'M'}${point[0].toFixed(1)} ${point[1].toFixed(1)}`).join(' ')
-  const loop = (radius: number) => Array.from({ length: 73 }, (_, index) => {
-    const angle = (Math.PI * 2 * index) / 72
-    return map(radius * Math.cos(angle), radius * Math.sin(angle))
-  })
+  const pathOf = (points: number[][]) =>
+    points.map((point, index) => `${index ? 'L' : 'M'}${point[0].toFixed(1)} ${point[1].toFixed(1)}`).join(' ')
+  const loop = (radius: number) =>
+    Array.from({ length: 73 }, (_, index) => {
+      const angle = (Math.PI * 2 * index) / 72
+      return map(radius * Math.cos(angle), radius * Math.sin(angle))
+    })
   const ellipse = () => {
     const semiMajor = scenario.semi / scenario.body.R
     const semiMinor = semiMajor * Math.sqrt(1 - scenario.eccentricity ** 2)
@@ -65,12 +74,13 @@ function PlaneChart({ scenario }: { scenario: Scenario }) {
     })
   }
   const [originX, originY] = map(0, 0)
-  const legend = scenario.mode === 'transfer'
-    ? [{ label: '转移椭圆', color: 'var(--chart-2)' }]
-    : [
-        { label: scenario.mode === 'rendezvous' ? '内轨' : '轨道', color: 'var(--chart-3)' },
-        ...(scenario.mode === 'rendezvous' ? [{ label: '外轨', color: 'var(--chart-1)' }] : []),
-      ]
+  const legend =
+    scenario.mode === 'transfer'
+      ? [{ label: '转移椭圆', color: 'var(--chart-2)' }]
+      : [
+          { label: scenario.mode === 'rendezvous' ? '内轨' : '轨道', color: 'var(--chart-3)' },
+          ...(scenario.mode === 'rendezvous' ? [{ label: '外轨', color: 'var(--chart-1)' }] : []),
+        ]
   return (
     <ChartCard title="轨道平面" status="焦点在中心天体" legend={legend}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="轨道平面图">
@@ -80,7 +90,9 @@ function PlaneChart({ scenario }: { scenario: Scenario }) {
         ) : (
           <>
             <path d={pathOf(loop(scenario.q1))} fill="none" stroke="var(--chart-3)" strokeWidth="2" />
-            {scenario.mode === 'rendezvous' ? <path d={pathOf(loop(scenario.q2))} fill="none" stroke="var(--chart-1)" strokeWidth="2" /> : null}
+            {scenario.mode === 'rendezvous' ? (
+              <path d={pathOf(loop(scenario.q2))} fill="none" stroke="var(--chart-1)" strokeWidth="2" />
+            ) : null}
           </>
         )}
         {craftsAt(scenario).map((craft) => {
@@ -88,11 +100,19 @@ function PlaneChart({ scenario }: { scenario: Scenario }) {
           return <circle key={craft.id} cx={x} cy={y} r="5" fill={craft.color} />
         })}
         <g className="chart-tick">
-          <text x="290" y="78">v = √(GM/r)</text>
-          <text x="290" y="104">T = 2π√(r³/GM)</text>
-          <text x="290" y="130">r³/T² = GM/4π²</text>
+          <text x="290" y="78">
+            v = √(GM/r)
+          </text>
+          <text x="290" y="104">
+            T = 2π√(r³/GM)
+          </text>
+          <text x="290" y="130">
+            r³/T² = GM/4π²
+          </text>
         </g>
-        <text className="chart-label" x="290" y="168" style={{ fill: 'var(--chart-2)' }}>r 增大，v 减小，T 增大</text>
+        <text className="chart-label" x="290" y="168" style={{ fill: 'var(--chart-2)' }}>
+          r 增大，v 减小，T 增大
+        </text>
       </svg>
     </ChartCard>
   )

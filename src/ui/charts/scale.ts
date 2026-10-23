@@ -60,9 +60,12 @@ export function tickFormatter(values: number[]): (value: number) => string {
   if (!Number.isFinite(step) || step <= 0) return formatTick
   if (step < 1e-3 || largest >= 1e5) {
     const exponent = Math.floor(Math.log10(largest || step))
-    const superscript = String(exponent).replace('-', '⁻').replace(/\d/g, (digit) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(digit)])
+    const superscript = String(exponent)
+      .replace('-', '⁻')
+      .replace(/\d/g, (digit) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(digit)])
     const decimals = decimalsFor(step / 10 ** exponent)
-    return (value) => (Math.abs(value) < step * 1e-6 ? '0' : `${withMinus((value / 10 ** exponent).toFixed(decimals))}×10${superscript}`)
+    return (value) =>
+      Math.abs(value) < step * 1e-6 ? '0' : `${withMinus((value / 10 ** exponent).toFixed(decimals))}×10${superscript}`
   }
   const decimals = decimalsFor(step)
   return (value) => (Math.abs(value) < step * 1e-6 ? '0' : withMinus(value.toFixed(decimals)))

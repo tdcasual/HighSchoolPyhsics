@@ -19,11 +19,15 @@ export function useAnimatedState<S>(
     stateRef.current = state
   }, [state])
 
-  useAnimationLoop(isActive(state), (dt) => {
-    const next = step(stateRef.current, dt)
-    stateRef.current = next
-    setState(next)
-  }, options)
+  useAnimationLoop(
+    isActive(state),
+    (dt) => {
+      const next = step(stateRef.current, dt)
+      stateRef.current = next
+      setState(next)
+    },
+    options,
+  )
 
   const commit = (update: (current: S) => S) => {
     setState((previous) => {

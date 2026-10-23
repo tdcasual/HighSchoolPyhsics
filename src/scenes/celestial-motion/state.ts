@@ -26,35 +26,73 @@ export type CelestialState = {
   notice: string
 }
 
-export const PRESETS: Record<CelestialPreset, {
-  mode: OrbitMode
-  body: BodyId
-  r1: number
-  r2: number
-  phaseDeg: number
-  inclinationDeg: number
-  azimuthDeg: number
-  elevationDeg: number
-  notice: string
-}> = {
+export const PRESETS: Record<
+  CelestialPreset,
+  {
+    mode: OrbitMode
+    body: BodyId
+    r1: number
+    r2: number
+    phaseDeg: number
+    inclinationDeg: number
+    azimuthDeg: number
+    elevationDeg: number
+    notice: string
+  }
+> = {
   leo: {
-    mode: 'circular', body: 'earth', r1: 1.1, r2: 3, phaseDeg: 90, inclinationDeg: 30, azimuthDeg: -25, elevationDeg: 42,
+    mode: 'circular',
+    body: 'earth',
+    r1: 1.1,
+    r2: 3,
+    phaseDeg: 90,
+    inclinationDeg: 30,
+    azimuthDeg: -25,
+    elevationDeg: 42,
     notice: '近地圆轨道。半径越大，线速度越小，周期越长。',
   },
   sync: {
-    mode: 'synchronous', body: 'earth', r1: 6.62, r2: 8, phaseDeg: 110, inclinationDeg: 30, azimuthDeg: 150, elevationDeg: 40,
+    mode: 'synchronous',
+    body: 'earth',
+    r1: 6.62,
+    r2: 8,
+    phaseDeg: 110,
+    inclinationDeg: 30,
+    azimuthDeg: 150,
+    elevationDeg: 40,
     notice: '同步卫星周期等于恒星日。轨道面离开赤道后，星下点会来回摆动。',
   },
   geo: {
-    mode: 'synchronous', body: 'earth', r1: 6.62, r2: 8, phaseDeg: 110, inclinationDeg: 0, azimuthDeg: 155, elevationDeg: 38,
+    mode: 'synchronous',
+    body: 'earth',
+    r1: 6.62,
+    r2: 8,
+    phaseDeg: 110,
+    inclinationDeg: 0,
+    azimuthDeg: 155,
+    elevationDeg: 38,
     notice: '静止卫星同时满足圆轨道、赤道面、顺行，并且周期等于恒星日。',
   },
   meet: {
-    mode: 'rendezvous', body: 'earth', r1: 1.4, r2: 2.2, phaseDeg: 100, inclinationDeg: 20, azimuthDeg: -35, elevationDeg: 44,
+    mode: 'rendezvous',
+    body: 'earth',
+    r1: 1.4,
+    r2: 2.2,
+    phaseDeg: 100,
+    inclinationDeg: 20,
+    azimuthDeg: -35,
+    elevationDeg: 44,
     notice: '内轨角速度更大。相邻两次同向共线的时间是会合周期。',
   },
   transfer: {
-    mode: 'transfer', body: 'earth', r1: 1.2, r2: 4, phaseDeg: 0, inclinationDeg: 25, azimuthDeg: -20, elevationDeg: 42,
+    mode: 'transfer',
+    body: 'earth',
+    r1: 1.2,
+    r2: 4,
+    phaseDeg: 0,
+    inclinationDeg: 25,
+    azimuthDeg: -20,
+    elevationDeg: 42,
     notice: '近地点加速进入椭圆，远地点再加速，才能进入更高的圆轨道。',
   },
 }
@@ -152,7 +190,11 @@ export function toggleCelestial(state: CelestialState): CelestialState {
   if (state.finished) {
     return { ...state, time: 0, finished: false, running: true, notice: '再演示一次。' }
   }
-  return { ...state, running: !state.running, notice: state.running ? '已暂停。' : '演示按轨道周期加速，读数仍是真实时间。' }
+  return {
+    ...state,
+    running: !state.running,
+    notice: state.running ? '已暂停。' : '演示按轨道周期加速，读数仍是真实时间。',
+  }
 }
 
 export function applyPreset(state: CelestialState, preset: CelestialPreset): CelestialState {
@@ -178,13 +220,14 @@ export function setMode(state: CelestialState, mode: OrbitMode): CelestialState 
     time: 0,
     running: false,
     finished: false,
-    notice: mode === 'synchronous'
-      ? '同步轨道半径由恒星日和地球质量决定，大约 6.62R。'
-      : mode === 'transfer'
-        ? '霍曼转移只飞半个椭圆，从近地点到远地点。'
-        : mode === 'rendezvous'
-          ? '两颗卫星各在自己的圆轨道上。内轨追外轨。'
-          : '单颗卫星做匀速圆周运动。',
+    notice:
+      mode === 'synchronous'
+        ? '同步轨道半径由恒星日和地球质量决定，大约 6.62R。'
+        : mode === 'transfer'
+          ? '霍曼转移只飞半个椭圆，从近地点到远地点。'
+          : mode === 'rendezvous'
+            ? '两颗卫星各在自己的圆轨道上。内轨追外轨。'
+            : '单颗卫星做匀速圆周运动。',
   }
   if (mode === 'rendezvous' || mode === 'transfer') {
     next.r2 = Math.max(next.r2, minimumOuterOrbitRadius(next.r1))
@@ -193,7 +236,14 @@ export function setMode(state: CelestialState, mode: OrbitMode): CelestialState 
 }
 
 export function setBody(state: CelestialState, body: BodyId): CelestialState {
-  return { ...state, body, time: 0, running: false, finished: false, notice: `中心天体改为${body === 'moon' ? '月球' : body === 'sun' ? '太阳' : '地球'}。轨道半径仍用它自己的 R 作单位。` }
+  return {
+    ...state,
+    body,
+    time: 0,
+    running: false,
+    finished: false,
+    notice: `中心天体改为${body === 'moon' ? '月球' : body === 'sun' ? '太阳' : '地球'}。轨道半径仍用它自己的 R 作单位。`,
+  }
 }
 
 export function setView(state: CelestialState, view: CelestialView): CelestialState {

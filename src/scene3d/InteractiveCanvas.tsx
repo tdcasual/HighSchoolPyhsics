@@ -64,9 +64,22 @@ export function InteractiveCanvas({
     () => findRuntimeTouchProfile(activeScenePath) ?? ENHANCED_TOUCH_PROFILE,
     [activeScenePath],
   )
-  const cameraConfig = camera as unknown as { position?: unknown; fov?: number; near?: number; far?: number; zoom?: number }
+  const cameraConfig = camera as unknown as {
+    position?: unknown
+    fov?: number
+    near?: number
+    far?: number
+    zoom?: number
+  }
   const cameraPosition = readVec3(cameraConfig.position)
-  const cameraSyncKey = [cameraPosition?.join(',') ?? 'none', cameraUp?.join(',') ?? 'default-up', cameraConfig.fov, cameraConfig.near, cameraConfig.far, cameraConfig.zoom].join(':')
+  const cameraSyncKey = [
+    cameraPosition?.join(',') ?? 'none',
+    cameraUp?.join(',') ?? 'default-up',
+    cameraConfig.fov,
+    cameraConfig.near,
+    cameraConfig.far,
+    cameraConfig.zoom,
+  ].join(':')
   const orbit = usePresentationFocus({
     controlsRef,
     presentationFocus,
@@ -121,7 +134,16 @@ export function InteractiveCanvas({
         >
           {children}
           {screenOffset && !presenting ? <ProjectionOffset x={screenOffset[0]} y={screenOffset[1]} /> : null}
-          {syncCamera ? <CameraSynchronizer camera={camera} cameraUp={cameraUp} target={targetProp} controlsRef={controlsRef} cameraKey={cameraSyncKey} targetKey={targetKey} /> : null}
+          {syncCamera ? (
+            <CameraSynchronizer
+              camera={camera}
+              cameraUp={cameraUp}
+              target={targetProp}
+              controlsRef={controlsRef}
+              cameraKey={cameraSyncKey}
+              targetKey={targetKey}
+            />
+          ) : null}
           <OrbitControls
             ref={controlsRef}
             makeDefault

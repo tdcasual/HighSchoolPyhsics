@@ -62,11 +62,11 @@ function TerminalPost({
     <group name={name} position={position}>
       <mesh position={[0, -height / 2, 0]} castShadow>
         <cylinderGeometry args={[0.16, 0.22, height, 12]} />
-        <meshStandardMaterial color='#9da6a3' metalness={0.78} roughness={0.28} />
+        <meshStandardMaterial color="#9da6a3" metalness={0.78} roughness={0.28} />
       </mesh>
       <mesh position={[0, -height + 0.12, 0]}>
         <cylinderGeometry args={[0.38, 0.38, 0.2, 14]} />
-        <meshStandardMaterial color='#243239' roughness={0.45} />
+        <meshStandardMaterial color="#243239" roughness={0.45} />
       </mesh>
       <mesh castShadow>
         <sphereGeometry args={[0.25, 12, 8]} />
@@ -89,8 +89,8 @@ function RheostatCoil() {
   }, [])
   useEffect(() => () => geometry.dispose(), [geometry])
   return (
-    <mesh name='rheostat-coil' geometry={geometry} castShadow>
-      <meshStandardMaterial color='#b99355' metalness={0.72} roughness={0.34} />
+    <mesh name="rheostat-coil" geometry={geometry} castShadow>
+      <meshStandardMaterial color="#b99355" metalness={0.72} roughness={0.34} />
     </mesh>
   )
 }
@@ -125,7 +125,7 @@ function Meter({
       </mesh>
       {Array.from({ length: intervals + 1 }, (_, index) => {
         const fraction = index / intervals
-        const angle = (0.5 - fraction) * Math.PI / 2
+        const angle = ((0.5 - fraction) * Math.PI) / 2
         const x = Math.sin(angle) * 3.75
         const y = 1.35 + Math.cos(angle) * 3.75
         const value = centered ? (fraction * 2 - 1) * range : fraction * range
@@ -139,14 +139,33 @@ function Meter({
               <meshBasicMaterial color="#223238" />
             </mesh>
             {labeled ? (
-              <SceneLabel position={[x * 0.73, 1.35 + Math.cos(angle) * 2.75, 3.44]} variant="text" color="#293b40" size={10} distanceFactor={90}>{label}</SceneLabel>
+              <SceneLabel
+                position={[x * 0.73, 1.35 + Math.cos(angle) * 2.75, 3.44]}
+                variant="text"
+                color="#293b40"
+                size={10}
+                distanceFactor={90}
+              >
+                {label}
+              </SceneLabel>
             ) : null}
           </group>
         )
       })}
       <Html position={[0, 5.15, 3.48]} center distanceFactor={90}>
-        <span style={{ color: '#18343a', fontSize: '12px', fontWeight: 800, whiteSpace: 'nowrap', background: 'rgba(255,255,255,.75)', padding: '1px 4px', borderRadius: '4px' }}>
-          {unit} · {centered ? '±' : '0–'}{range} {unit}
+        <span
+          style={{
+            color: '#18343a',
+            fontSize: '12px',
+            fontWeight: 800,
+            whiteSpace: 'nowrap',
+            background: 'rgba(255,255,255,.75)',
+            padding: '1px 4px',
+            borderRadius: '4px',
+          }}
+        >
+          {unit} · {centered ? '±' : '0–'}
+          {range} {unit}
         </span>
       </Html>
       <group name={name} position={[0, 1.35, 3.48]} rotation={[0, 0, rotation]}>
@@ -161,15 +180,15 @@ function Meter({
       </mesh>
       {unit === 'A' ? (
         <>
-          <TerminalPost name='terminal-ammeter-common' position={[-3.2, 8.45, 1.4]} height={1.25} color='#242a2d' />
-          <TerminalPost name='terminal-ammeter-06' position={[0, 8.45, 1.4]} height={1.25} color='#b74738' />
-          <TerminalPost name='terminal-ammeter-3' position={[3.2, 8.45, 1.4]} height={1.25} color='#b74738' />
+          <TerminalPost name="terminal-ammeter-common" position={[-3.2, 8.45, 1.4]} height={1.25} color="#242a2d" />
+          <TerminalPost name="terminal-ammeter-06" position={[0, 8.45, 1.4]} height={1.25} color="#b74738" />
+          <TerminalPost name="terminal-ammeter-3" position={[3.2, 8.45, 1.4]} height={1.25} color="#b74738" />
         </>
       ) : (
         <>
-          <TerminalPost name='terminal-voltmeter-common' position={[-3.2, 8.45, 1.4]} height={1.25} color='#242a2d' />
-          <TerminalPost name='terminal-voltmeter-3' position={[0, 8.45, 1.4]} height={1.25} color='#b74738' />
-          <TerminalPost name='terminal-voltmeter-15' position={[3.2, 8.45, 1.4]} height={1.25} color='#b74738' />
+          <TerminalPost name="terminal-voltmeter-common" position={[-3.2, 8.45, 1.4]} height={1.25} color="#242a2d" />
+          <TerminalPost name="terminal-voltmeter-3" position={[0, 8.45, 1.4]} height={1.25} color="#b74738" />
+          <TerminalPost name="terminal-voltmeter-15" position={[3.2, 8.45, 1.4]} height={1.25} color="#b74738" />
         </>
       )}
     </group>
@@ -285,17 +304,25 @@ export function CircuitAssembly({
             <boxGeometry args={[15, 2.2, 7.4]} />
             <meshStandardMaterial color="#2f4a48" />
           </mesh>
-          <TerminalPost name='terminal-battery-positive' position={[-4, 3.1, 4.1]} height={0.9} color='#b74738' />
-          <TerminalPost name='terminal-battery-negative' position={[4, 3.1, 4.1]} height={0.9} color='#242a2d' />
+          <TerminalPost name="terminal-battery-positive" position={[-4, 3.1, 4.1]} height={0.9} color="#b74738" />
+          <TerminalPost name="terminal-battery-negative" position={[4, 3.1, 4.1]} height={0.9} color="#242a2d" />
           {ivMode ? (
             <>
               <mesh position={[0, 2.3, 0]}>
                 <boxGeometry args={[8.6, 0.18, 1.5]} />
-                <meshStandardMaterial color='#18292c' roughness={0.32} />
+                <meshStandardMaterial color="#18292c" roughness={0.32} />
               </mesh>
-              <SceneLabel position={[0, 2.43, 0]} variant="text" color="#baf3ce" size={11} weight={800} distanceFactor={90}>
-                  U = {elementVoltage < 0 ? '−' : '+'}{Math.abs(elementVoltage).toFixed(2)} V
-                </SceneLabel>
+              <SceneLabel
+                position={[0, 2.43, 0]}
+                variant="text"
+                color="#baf3ce"
+                size={11}
+                weight={800}
+                distanceFactor={90}
+              >
+                U = {elementVoltage < 0 ? '−' : '+'}
+                {Math.abs(elementVoltage).toFixed(2)} V
+              </SceneLabel>
             </>
           ) : (
             <>
@@ -315,8 +342,8 @@ export function CircuitAssembly({
             <boxGeometry args={[9, 0.8, 4.6]} />
             <meshStandardMaterial color="#e6e0d2" />
           </mesh>
-          <TerminalPost name='terminal-switch-input' position={[-4, 2.48, 1.3]} height={1.68} color='#b74738' />
-          <TerminalPost name='terminal-switch-output' position={[4, 2.48, 1.3]} height={1.68} color='#b74738' />
+          <TerminalPost name="terminal-switch-input" position={[-4, 2.48, 1.3]} height={1.68} color="#b74738" />
+          <TerminalPost name="terminal-switch-output" position={[4, 2.48, 1.3]} height={1.68} color="#b74738" />
           <group name="circuit-blade" position={[-4, 2.7, 0]} rotation={[0, 0, pose.bladeRotation]}>
             <mesh position={[4, 0, 0]} castShadow>
               <boxGeometry args={[8, 0.35, 0.7]} />
@@ -325,40 +352,64 @@ export function CircuitAssembly({
           </group>
         </group>
         {!ivMode ? (
-        <group>
-          <mesh position={[2, 4.4, -14]} rotation={[0, 0, Math.PI / 2]} castShadow>
-            <cylinderGeometry args={[1.88, 1.88, 26, 28]} />
-            <meshStandardMaterial color="#d9c6a0" metalness={0.2} roughness={0.55} />
-          </mesh>
-          <RheostatCoil />
-          <TerminalPost name='terminal-rheostat-a' position={[-13.2, 2.2, -11.2]} height={2.2} color='#d1ad65' />
-          <TerminalPost name='terminal-rheostat-b' position={[17.2, 2.2, -11.2]} height={2.2} color='#d1ad65' />
-          <mesh position={[2, 8.4, -14]} castShadow>
-            <boxGeometry args={[27.6, 0.7, 0.7]} />
-            <meshStandardMaterial color="#d3dadd" metalness={0.8} roughness={0.3} />
-          </mesh>
-          <group name="circuit-slider" position={[pose.sliderX, 0, 0]}>
-            <mesh position={[0, 8.4, -14]} castShadow>
-              <boxGeometry args={[2.2, 1.6, 1.8]} />
-              <meshStandardMaterial color="#3a5b6c" />
+          <group>
+            <mesh position={[2, 4.4, -14]} rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[1.88, 1.88, 26, 28]} />
+              <meshStandardMaterial color="#d9c6a0" metalness={0.2} roughness={0.55} />
             </mesh>
-            <mesh position={[0, 7.05, -14]} castShadow>
-              <boxGeometry args={[0.34, 1.15, 0.34]} />
-              <meshStandardMaterial color="#c8a15a" metalness={0.72} roughness={0.3} />
+            <RheostatCoil />
+            <TerminalPost name="terminal-rheostat-a" position={[-13.2, 2.2, -11.2]} height={2.2} color="#d1ad65" />
+            <TerminalPost name="terminal-rheostat-b" position={[17.2, 2.2, -11.2]} height={2.2} color="#d1ad65" />
+            <mesh position={[2, 8.4, -14]} castShadow>
+              <boxGeometry args={[27.6, 0.7, 0.7]} />
+              <meshStandardMaterial color="#d3dadd" metalness={0.8} roughness={0.3} />
             </mesh>
-            <mesh position={[0, 6.48, -14]} castShadow>
-              <boxGeometry args={[1.4, 0.16, 0.56]} />
-              <meshStandardMaterial color="#d3ad62" metalness={0.75} roughness={0.28} />
-            </mesh>
-            <TerminalPost name='terminal-rheostat-wiper' position={[0, 9.9, -14]} height={0.8} color='#b74738' />
+            <group name="circuit-slider" position={[pose.sliderX, 0, 0]}>
+              <mesh position={[0, 8.4, -14]} castShadow>
+                <boxGeometry args={[2.2, 1.6, 1.8]} />
+                <meshStandardMaterial color="#3a5b6c" />
+              </mesh>
+              <mesh position={[0, 7.05, -14]} castShadow>
+                <boxGeometry args={[0.34, 1.15, 0.34]} />
+                <meshStandardMaterial color="#c8a15a" metalness={0.72} roughness={0.3} />
+              </mesh>
+              <mesh position={[0, 6.48, -14]} castShadow>
+                <boxGeometry args={[1.4, 0.16, 0.56]} />
+                <meshStandardMaterial color="#d3ad62" metalness={0.75} roughness={0.28} />
+              </mesh>
+              <TerminalPost name="terminal-rheostat-wiper" position={[0, 9.9, -14]} height={0.8} color="#b74738" />
+            </group>
           </group>
-        </group>
         ) : null}
-        {Meter({ name: 'ammeter-needle', position: [25, 0, -12.5], rotation: pose.ammeterRotation, unit: 'A', range: ammeterRange, division: ammeterDivision, centered: ivMode })}
-        {Meter({ name: 'voltmeter-needle', position: [8, 0, -1.5], rotation: pose.voltmeterRotation, unit: 'V', range: voltmeterRange, division: voltmeterDivision, centered: ivMode })}
-        <SceneLabel {...PART_LABEL} position={ivMode ? [-29, 8, -14] : [-31, 8, -14]}>{ivMode ? '可调电源' : '电源'}</SceneLabel>
-        <SceneLabel {...PART_LABEL} position={[-5, 4.3, -12.5]}>开关</SceneLabel>
-        {!ivMode ? <SceneLabel {...PART_LABEL} position={[2, 11.5, -14]}>滑动变阻器</SceneLabel> : null}
+        {Meter({
+          name: 'ammeter-needle',
+          position: [25, 0, -12.5],
+          rotation: pose.ammeterRotation,
+          unit: 'A',
+          range: ammeterRange,
+          division: ammeterDivision,
+          centered: ivMode,
+        })}
+        {Meter({
+          name: 'voltmeter-needle',
+          position: [8, 0, -1.5],
+          rotation: pose.voltmeterRotation,
+          unit: 'V',
+          range: voltmeterRange,
+          division: voltmeterDivision,
+          centered: ivMode,
+        })}
+        <SceneLabel {...PART_LABEL} position={ivMode ? [-29, 8, -14] : [-31, 8, -14]}>
+          {ivMode ? '可调电源' : '电源'}
+        </SceneLabel>
+        <SceneLabel {...PART_LABEL} position={[-5, 4.3, -12.5]}>
+          开关
+        </SceneLabel>
+        {!ivMode ? (
+          <SceneLabel {...PART_LABEL} position={[2, 11.5, -14]}>
+            滑动变阻器
+          </SceneLabel>
+        ) : null}
         <mesh position={[0, 0.7, 9.4]} receiveShadow>
           <boxGeometry args={[66, 1.4, 9.2]} />
           <meshStandardMaterial color="#e2d2b0" roughness={0.7} />
@@ -368,41 +419,59 @@ export function CircuitAssembly({
         ) : (
           <mesh name="metal-wire" position={[0, 3.25, 11.2]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.12, 0.12, 50, 8]} />
-            <meshStandardMaterial color="#b9c0c2" metalness={0.9} roughness={0.3} emissive="#e07020" emissiveIntensity={pose.hot} />
+            <meshStandardMaterial
+              color="#b9c0c2"
+              metalness={0.9}
+              roughness={0.3}
+              emissive="#e07020"
+              emissiveIntensity={pose.hot}
+            />
           </mesh>
         )}
-        <SceneLabel {...PART_LABEL} position={[0, 6, 11.2]}>{ivMode ? elementKind === 'lamp' ? '小灯泡' : elementKind === 'diode' ? '硅二极管' : '定值电阻' : '待测金属丝'}</SceneLabel>
-        <group name='circuit-fixed-clip' position={[-25, 0, 0]}>
+        <SceneLabel {...PART_LABEL} position={[0, 6, 11.2]}>
+          {ivMode
+            ? elementKind === 'lamp'
+              ? '小灯泡'
+              : elementKind === 'diode'
+                ? '硅二极管'
+                : '定值电阻'
+            : '待测金属丝'}
+        </SceneLabel>
+        <group name="circuit-fixed-clip" position={[-25, 0, 0]}>
           <mesh position={[0, 3.6, 11.2]} castShadow>
             <boxGeometry args={[1.3, 1.1, 1.8]} />
-            <meshStandardMaterial color='#59666a' />
+            <meshStandardMaterial color="#59666a" />
           </mesh>
-          <TerminalPost name='terminal-sample-fixed' position={[0, 4.85, 11.2]} height={0.7} color='#b74738' />
+          <TerminalPost name="terminal-sample-fixed" position={[0, 4.85, 11.2]} height={0.7} color="#b74738" />
         </group>
         <group name="circuit-clip" position={[pose.clipX, 0, 0]}>
           <mesh position={[0, 3.6, 11.2]} castShadow>
             <boxGeometry args={[1.3, 1.1, 1.8]} />
             <meshStandardMaterial color="#c3483a" />
           </mesh>
-          <TerminalPost name='terminal-sample-moving' position={[0, 4.85, 11.2]} height={0.7} color='#242a2d' />
+          <TerminalPost name="terminal-sample-moving" position={[0, 4.85, 11.2]} height={0.7} color="#242a2d" />
         </group>
-        <group name='length-ruler'>
+        <group name="length-ruler">
           {Array.from({ length: 51 }, (_, centimetre) => {
             const major = centimetre % 10 === 0
             const middle = centimetre % 5 === 0
             return (
               <mesh key={centimetre} position={[-25 + centimetre, 1.47, 12.72]} castShadow={false}>
                 <boxGeometry args={[0.055, 0.055, major ? 1 : middle ? 0.68 : 0.34]} />
-                <meshBasicMaterial color='#665e52' />
+                <meshBasicMaterial color="#665e52" />
               </mesh>
             )
           })}
           {[0, 10, 20, 30, 40, 50].map((centimetre) => (
             <Html key={centimetre} position={[-25 + centimetre, 1.58, 13.48]} center distanceFactor={90}>
-              <span style={{ color: '#554f46', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap' }}>{centimetre}</span>
+              <span style={{ color: '#554f46', fontSize: '9px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                {centimetre}
+              </span>
             </Html>
           ))}
-          <SceneLabel position={[2, 1.58, 13.8]} variant="text" color="#554f46" size={9} distanceFactor={90}>cm</SceneLabel>
+          <SceneLabel position={[2, 1.58, 13.8]} variant="text" color="#554f46" size={9} distanceFactor={90}>
+            cm
+          </SceneLabel>
         </group>
         <CircuitWires pose={pose} wires={wires} />
       </group>

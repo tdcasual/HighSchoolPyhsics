@@ -1,4 +1,10 @@
-import { JudgeSection, LessonSection, StepButtons, TargetSection, ViewSection } from '../../instruments/measuring/PracticeControls'
+import {
+  JudgeSection,
+  LessonSection,
+  StepButtons,
+  TargetSection,
+  ViewSection,
+} from '../../instruments/measuring/PracticeControls'
 import { signedStep } from '../../instruments/measuring/practice'
 import { formatZero } from './state'
 import { ControlSection } from '../../ui/controls/ControlSection'
@@ -13,7 +19,9 @@ export function MicrometerControls({ state }: { state: MicrometerSceneState }) {
     onClick: () => state.setGap(state.position + delta, 'fine'),
     disabled: state.locked,
   }))
-  const stepButtons = <StepButtons hint="步进（mm）：±0.5 = 微分筒转一圈，±0.01 = 一格，±0.001 = 估读位" actions={steps} />
+  const stepButtons = (
+    <StepButtons hint="步进（mm）：±0.5 = 微分筒转一圈，±0.01 = 一格，±0.001 = 估读位" actions={steps} />
+  )
 
   return (
     <div className="measure-controls">
@@ -52,12 +60,22 @@ export function MicrometerControls({ state }: { state: MicrometerSceneState }) {
       <ViewSection state={state} onView={state.setView} onLabels={state.setShowLabels} onFreeWork={state.setFreeWork} />
 
       {state.lesson === 'free' ? (
-        <TargetSection state={state} label="目标示数（0～25 mm）" example="6.125" onGoTo={state.goTo} onHints={state.setHints} />
+        <TargetSection
+          state={state}
+          label="目标示数（0～25 mm）"
+          example="6.125"
+          onGoTo={state.goTo}
+          onHints={state.setHints}
+        />
       ) : (
         <JudgeSection
           state={state}
           targetText={state.target === null ? null : state.target.toFixed(3)}
-          readHint={state.zero ? <p className="measure-hint">本题零点误差 {formatZero(state.zero)}：读出仪器示数即可。</p> : null}
+          readHint={
+            state.zero ? (
+              <p className="measure-hint">本题零点误差 {formatZero(state.zero)}：读出仪器示数即可。</p>
+            ) : null
+          }
           stepButtons={stepButtons}
           onAnswer={state.setAnswer}
           onAsk={state.askQuestion}

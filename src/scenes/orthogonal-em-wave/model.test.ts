@@ -10,7 +10,8 @@ describe('orthogonal-em-wave model', () => {
     expect(readings.waveNumber).toBeCloseTo(Math.PI / 2)
     // E and B in phase for a right-going wave, opposite in sign for a left-going one.
     for (const [, e, b] of buildFieldTrace(0.25, params, 9)) expect(e).toBeCloseTo(b)
-    for (const [, e, b] of buildFieldTrace(0.25, { ...params, direction: 'left' as const }, 9)) expect(b).toBeCloseTo(-e)
+    for (const [, e, b] of buildFieldTrace(0.25, { ...params, direction: 'left' as const }, 9))
+      expect(b).toBeCloseTo(-e)
     expect(readings.orthogonality).toBe(0)
   })
 

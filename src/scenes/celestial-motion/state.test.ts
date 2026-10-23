@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { scenarioOf } from './model'
-import {
-  PRESETS,
-  createCelestialState,
-  minimumOuterOrbitRadius,
-  setInnerOrbit,
-  setMode,
-  setOuterOrbit,
-} from './state'
+import { PRESETS, createCelestialState, minimumOuterOrbitRadius, setInnerOrbit, setMode, setOuterOrbit } from './state'
 
 describe('celestial control state', () => {
   it('keeps preset inclinations on the slider step and aligned with DMIT examples', () => {

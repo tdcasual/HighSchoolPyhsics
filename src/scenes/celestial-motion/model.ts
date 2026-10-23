@@ -1,4 +1,4 @@
-export const G = 6.67430e-11
+export const G = 6.6743e-11
 export const SIDEREAL_DAY = 86164.0905
 export const ORBIT_NODE = 0.16
 // Keep the tilted sync orbit aligned with groundPoint's longitude convention.
@@ -74,7 +74,6 @@ export function surfaceSpeeds(mu: number, radius: number) {
   return { v1, v2: Math.SQRT2 * v1 }
 }
 
-
 export function synchronousRadius(body: BodyRecord) {
   const mu = G * body.M
   return Math.cbrt(mu * (SIDEREAL_DAY / (2 * Math.PI)) ** 2)
@@ -83,7 +82,8 @@ export function synchronousRadius(body: BodyRecord) {
 export function solveE(meanAnomaly: number, eccentricity: number) {
   let eccentric = meanAnomaly
   for (let step = 0; step < 8; step += 1) {
-    eccentric -= (eccentric - eccentricity * Math.sin(eccentric) - meanAnomaly) / (1 - eccentricity * Math.cos(eccentric))
+    eccentric -=
+      (eccentric - eccentricity * Math.sin(eccentric) - meanAnomaly) / (1 - eccentricity * Math.cos(eccentric))
   }
   return eccentric
 }
@@ -114,7 +114,14 @@ export function worldOrbit(radius: number, angle: number, inclination: number, n
   return { x: x0 * cosine - y0 * sine, y: x0 * sine + y0 * cosine, z: z0 }
 }
 
-export function worldTransfer(semiMajor: number, semiMinor: number, eccentricity: number, eccentricAnomaly: number, inclination: number, node = 0): LabVec {
+export function worldTransfer(
+  semiMajor: number,
+  semiMinor: number,
+  eccentricity: number,
+  eccentricAnomaly: number,
+  inclination: number,
+  node = 0,
+): LabVec {
   const x0 = semiMajor * (Math.cos(eccentricAnomaly) - eccentricity)
   const y0 = semiMinor * Math.sin(eccentricAnomaly)
   const cosine = Math.cos(node)
@@ -204,7 +211,9 @@ export function isStationary(scenario: Scenario) {
 }
 
 function ring(radius: number, inclination: number, node: number, steps = 128) {
-  return Array.from({ length: steps + 1 }, (_, index) => worldOrbit(radius, (Math.PI * 2 * index) / steps, inclination, node))
+  return Array.from({ length: steps + 1 }, (_, index) =>
+    worldOrbit(radius, (Math.PI * 2 * index) / steps, inclination, node),
+  )
 }
 
 export function orbitSamples(scenario: Scenario, which: 1 | 2) {
@@ -214,14 +223,16 @@ export function orbitSamples(scenario: Scenario, which: 1 | 2) {
 export function transferSamples(scenario: Scenario) {
   const semiMajor = scenario.semi / scenario.body.R
   const semiMinor = semiMajor * Math.sqrt(1 - scenario.eccentricity ** 2)
-  return Array.from({ length: 161 }, (_, index) => worldTransfer(
-    semiMajor,
-    semiMinor,
-    scenario.eccentricity,
-    (Math.PI * 2 * index) / 160,
-    scenario.inclination,
-    scenario.node,
-  ))
+  return Array.from({ length: 161 }, (_, index) =>
+    worldTransfer(
+      semiMajor,
+      semiMinor,
+      scenario.eccentricity,
+      (Math.PI * 2 * index) / 160,
+      scenario.inclination,
+      scenario.node,
+    ),
+  )
 }
 
 export function craftsAt(scenario: Scenario): Craft[] {
@@ -249,20 +260,31 @@ export function craftsAt(scenario: Scenario): Craft[] {
   const semiMinor = semiMajor * Math.sqrt(1 - scenario.eccentricity ** 2)
   const at = (anomaly: number) => worldTransfer(semiMajor, semiMinor, scenario.eccentricity, anomaly, inclination, node)
   const position = at(eccentric)
-  return [{
-    id: 'satellite',
-    label: '转移器',
-    color: '#d9480f',
-    position,
-    ahead: at(eccentric + 0.012),
-    plane: {
-      x: semiMajor * (Math.cos(eccentric) - scenario.eccentricity),
-      y: semiMinor * Math.sin(eccentric),
+  return [
+    {
+      id: 'satellite',
+      label: '转移器',
+      color: '#d9480f',
+      position,
+      ahead: at(eccentric + 0.012),
+      plane: {
+        x: semiMajor * (Math.cos(eccentric) - scenario.eccentricity),
+        y: semiMinor * Math.sin(eccentric),
+      },
     },
-  }]
+  ]
 }
 
-function craft(id: string, label: string, color: string, radius: number, angle: number, ahead: number, inclination: number, node: number): Craft {
+function craft(
+  id: string,
+  label: string,
+  color: string,
+  radius: number,
+  angle: number,
+  ahead: number,
+  inclination: number,
+  node: number,
+): Craft {
   return {
     id,
     label,
@@ -276,7 +298,14 @@ function craft(id: string, label: string, color: string, radius: number, angle: 
 export function areaWedges(scenario: Scenario): Array<{ color: string; points: LabVec[] }> {
   if (scenario.mode === 'circular') {
     const angle = scenario.o1.omega * scenario.time + CIRCULAR_OFFSET
-    return [{ color: '#d9480f', points: Array.from({ length: 29 }, (_, index) => worldOrbit(scenario.q1, angle - 0.55 + (0.55 * index) / 28, scenario.inclination, scenario.node)) }]
+    return [
+      {
+        color: '#d9480f',
+        points: Array.from({ length: 29 }, (_, index) =>
+          worldOrbit(scenario.q1, angle - 0.55 + (0.55 * index) / 28, scenario.inclination, scenario.node),
+        ),
+      },
+    ]
   }
   if (scenario.mode === 'rendezvous') {
     const inner = scenario.o1.omega * scenario.time
@@ -285,8 +314,18 @@ export function areaWedges(scenario: Scenario): Array<{ color: string; points: L
     const innerSweep = scenario.o1.omega * interval
     const outerSweep = scenario.o2.omega * interval
     return [
-      { color: '#d9480f', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q1, inner - innerSweep + (innerSweep * index) / 22, scenario.inclination, scenario.node)) },
-      { color: '#5dade2', points: Array.from({ length: 23 }, (_, index) => worldOrbit(scenario.q2, outer - outerSweep + (outerSweep * index) / 22, scenario.inclination, scenario.node)) },
+      {
+        color: '#d9480f',
+        points: Array.from({ length: 23 }, (_, index) =>
+          worldOrbit(scenario.q1, inner - innerSweep + (innerSweep * index) / 22, scenario.inclination, scenario.node),
+        ),
+      },
+      {
+        color: '#5dade2',
+        points: Array.from({ length: 23 }, (_, index) =>
+          worldOrbit(scenario.q2, outer - outerSweep + (outerSweep * index) / 22, scenario.inclination, scenario.node),
+        ),
+      },
     ]
   }
   if (scenario.mode === 'transfer') {
@@ -294,17 +333,21 @@ export function areaWedges(scenario: Scenario): Array<{ color: string; points: L
     const eccentric = solveE(Math.PI * progress, scenario.eccentricity)
     const semiMajor = scenario.semi / scenario.body.R
     const semiMinor = semiMajor * Math.sqrt(1 - scenario.eccentricity ** 2)
-    return [{
-      color: '#d9480f',
-      points: Array.from({ length: 61 }, (_, index) => worldTransfer(
-        semiMajor,
-        semiMinor,
-        scenario.eccentricity,
-        (eccentric * index) / 60,
-        scenario.inclination,
-        scenario.node,
-      )),
-    }]
+    return [
+      {
+        color: '#d9480f',
+        points: Array.from({ length: 61 }, (_, index) =>
+          worldTransfer(
+            semiMajor,
+            semiMinor,
+            scenario.eccentricity,
+            (eccentric * index) / 60,
+            scenario.inclination,
+            scenario.node,
+          ),
+        ),
+      },
+    ]
   }
   return []
 }

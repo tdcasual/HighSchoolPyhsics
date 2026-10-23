@@ -56,15 +56,43 @@ export function EquipotentialScene() {
       dataOverlay={
         <DataRows
           rows={[
-            { label: '电荷数', value: <>{charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / −{cloudResult.stats.negativeChargeCount}）</> },
-            { label: '网格相对电势范围', value: <>{cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}</> },
-            { label: '正势层值', value: cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无' },
-            { label: '负势层值', value: cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无' },
+            {
+              label: '电荷数',
+              value: (
+                <>
+                  {charges.length}/{maxCharges}（+{cloudResult.stats.positiveChargeCount} / −
+                  {cloudResult.stats.negativeChargeCount}）
+                </>
+              ),
+            },
+            {
+              label: '网格相对电势范围',
+              value: (
+                <>
+                  {cloudResult.stats.minPotential.toFixed(1)} ~ {cloudResult.stats.maxPotential.toFixed(1)}
+                </>
+              ),
+            },
+            {
+              label: '正势层值',
+              value:
+                cloudResult.positiveSurfaces.map((surface) => '+' + surface.isoValue.toFixed(1)).join(' / ') || '无',
+            },
+            {
+              label: '负势层值',
+              value: cloudResult.negativeSurfaces.map((surface) => surface.isoValue.toFixed(1)).join(' / ') || '无',
+            },
           ]}
         />
       }
       viewport={
-        <FittedCanvas shot={{ from: [8, 6, 8], to: [0, 0, 0] }} fov={44} minDistance={4} maxDistance={28} frameloop="demand">
+        <FittedCanvas
+          shot={{ from: [8, 6, 8], to: [0, 0, 0] }}
+          fov={44}
+          minDistance={4}
+          maxDistance={28}
+          frameloop="demand"
+        >
           <EquipotentialRig3D
             bounds={SCENE_BOUNDS}
             charges={charges}

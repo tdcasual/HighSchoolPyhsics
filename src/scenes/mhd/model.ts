@@ -45,11 +45,7 @@ function dot(a: Vec3, b: Vec3): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 }
 function cross(a: Vec3, b: Vec3): Vec3 {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 function deriveInducedFieldAlongElectrodes(magneticFieldT: number, plasmaVelocityMps: number): number {
   const velocity = MHD_LAYOUT.flow.direction.map((part) => part * plasmaVelocityMps) as Vec3
@@ -68,14 +64,11 @@ export function deriveMhdReadings(config: MhdConfig): MhdReadings {
 
   // With +x flow and +z B, -v×B points +y. Since terminal A is the top
   // electrode, U_AB = V_A - V_B is negative.
-  const inducedElectricFieldVPerM = deriveInducedFieldAlongElectrodes(
-    config.magneticFieldT,
-    config.plasmaVelocityMps,
-  )
+  const inducedElectricFieldVPerM = deriveInducedFieldAlongElectrodes(config.magneticFieldT, config.plasmaVelocityMps)
   const openCircuitVoltageV = -inducedElectricFieldVPerM * gap
   const internalResistanceOhm = gap / (conductivity * area)
   const outputCurrentA = Math.abs(openCircuitVoltageV) / (internalResistanceOhm + loadResistance)
-  const outputVoltageV = openCircuitVoltageV * loadResistance / (internalResistanceOhm + loadResistance)
+  const outputVoltageV = (openCircuitVoltageV * loadResistance) / (internalResistanceOhm + loadResistance)
   const currentDensityApm2 = outputCurrentA / area
   const outputPowerW = outputCurrentA ** 2 * loadResistance
   const powerDensityWpm3 = outputPowerW / (gap * area)
@@ -116,9 +109,7 @@ export function deriveCarrierDeflectionAmplitudeY(
   driveRatio: number,
 ): number {
   const charge = Math.min(1, Math.max(0, Number.isFinite(chargeSeparation) ? chargeSeparation : 0))
-  const safeGap = Number.isFinite(electrodeGapM)
-    ? Math.min(1, Math.max(0.1, electrodeGapM))
-    : 0.4
+  const safeGap = Number.isFinite(electrodeGapM) ? Math.min(1, Math.max(0.1, electrodeGapM)) : 0.4
   const drive = Math.min(1, Math.max(0, Number.isFinite(driveRatio) ? driveRatio : 0))
   const halfGapScene = deriveMhdLayout(safeGap).channel.size[1] / 2
   const carrierClearance = Math.max(0, halfGapScene - 0.048)

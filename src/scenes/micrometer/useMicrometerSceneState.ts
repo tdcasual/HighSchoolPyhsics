@@ -80,7 +80,8 @@ export function useMicrometerSceneState(): MicrometerSceneState {
     setGap: (value, source) => commit((current) => setGap(current, value, source)),
     setZero: (value) => commit((current) => setZero(current, value)),
     nudge: (divisions) => commit((current) => setGap(current, current.position + divisions * 0.01, 'fine')),
-    toggleLock: () => commit((current) => toggleLock(current, { locked: '锁紧装置已锁住测微螺杆。', unlocked: '锁紧装置已松开。' })),
+    toggleLock: () =>
+      commit((current) => toggleLock(current, { locked: '锁紧装置已锁住测微螺杆。', unlocked: '锁紧装置已松开。' })),
     toggleExplode: () => commit((current) => toggleExplode(current, '螺旋测微器')),
     goTo: (value) => commit((current) => goToReading(current, value)),
     submit: () => commit(submitAnswer),

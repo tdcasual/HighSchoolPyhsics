@@ -88,18 +88,32 @@ export type ElectrostaticLabSceneState = {
 }
 
 export function useElectrostaticLabSceneState(): ElectrostaticLabSceneState {
-  const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>(() => recall('electrostatic-lab.presetKey', 'dipole'))
-  const [charges, setCharges] = useState<ElectrostaticCharge[]>(() => recall('electrostatic-lab.charges', () => clonePresetCharges('dipole')))
+  const [presetKey, setPresetKey] = useState<PresetKey | 'custom'>(() =>
+    recall('electrostatic-lab.presetKey', 'dipole'),
+  )
+  const [charges, setCharges] = useState<ElectrostaticCharge[]>(() =>
+    recall('electrostatic-lab.charges', () => clonePresetCharges('dipole')),
+  )
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>('C1')
-  const [displayMode, setDisplayMode] = useState<DisplayMode>(() => recall('electrostatic-lab.displayMode', 'potential'))
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(() =>
+    recall('electrostatic-lab.displayMode', 'potential'),
+  )
   const [overlayFieldLines, setOverlayFieldLines] = useState(() => recall('electrostatic-lab.overlayFieldLines', true))
   const [showContourLines, setShowContourLines] = useState(() => recall('electrostatic-lab.showContourLines', true))
   const [invertHeight, setInvertHeight] = useState(() => recall('electrostatic-lab.invertHeight', false))
   const perf = resolvePerformanceProfile()
-  const [resolution, setResolution] = useState(() => recall('electrostatic-lab.resolution', () =>
-    Math.min(30, perf.electrostaticTerrainResolution),
-  ))
-  useRemember('electrostatic-lab', { presetKey, charges, displayMode, overlayFieldLines, showContourLines, invertHeight, resolution })
+  const [resolution, setResolution] = useState(() =>
+    recall('electrostatic-lab.resolution', () => Math.min(30, perf.electrostaticTerrainResolution)),
+  )
+  useRemember('electrostatic-lab', {
+    presetKey,
+    charges,
+    displayMode,
+    overlayFieldLines,
+    showContourLines,
+    invertHeight,
+    resolution,
+  })
   const [probeMode, setProbeMode] = useState(false)
   const [probePoint, setProbePoint] = useState<ProbePoint | null>(null)
   const [advancedInteractionsEnabled, setAdvancedInteractionsEnabled] = useState(false)
@@ -218,9 +232,7 @@ export function useElectrostaticLabSceneState(): ElectrostaticLabSceneState {
     deleteChargeById(selectedChargeId)
   }
 
-  const updateSelectedCharge = (
-    patch: Partial<Pick<ElectrostaticCharge, 'x' | 'z' | 'magnitude'>>,
-  ) => {
+  const updateSelectedCharge = (patch: Partial<Pick<ElectrostaticCharge, 'x' | 'z' | 'magnitude'>>) => {
     if (!selectedChargeId) {
       return
     }

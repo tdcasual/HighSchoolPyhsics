@@ -42,7 +42,11 @@ type LightDiffractionRig3DProps = {
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return <SceneLabel position={position} variant="dark">{text}</SceneLabel>
+  return (
+    <SceneLabel position={position} variant="dark">
+      {text}
+    </SceneLabel>
+  )
 }
 
 function apertureVisualSize(mode: DiffractionMode, params: DiffractionParams): number {
@@ -98,7 +102,6 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
   const { perf, shadowsEnabled, shadowProps } = stage
   const geoDetail = useMemo(() => perf.geometry, [perf])
 
-
   const tubeGeo = useMemo(() => {
     const geo = new CylinderGeometry(0.8, 0.8, 1, geoDetail.cylinderRadialSegments)
     geo.translate(0, 0.5, 0)
@@ -106,14 +109,17 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
   }, [geoDetail.cylinderRadialSegments])
 
   useEffect(() => {
-    return () => { tubeGeo.dispose() }
+    return () => {
+      tubeGeo.dispose()
+    }
   }, [tubeGeo])
 
   const apertureVisualScale = useMemo(() => apertureVisualSize(mode, params), [mode, params])
   const aperturePlateGeometry = useMemo(
-    () => mode === 'single-slit' || mode === 'circular-aperture'
-      ? createAperturePlateGeometry(mode, apertureVisualScale, geoDetail.circleSegments ?? 32)
-      : null,
+    () =>
+      mode === 'single-slit' || mode === 'circular-aperture'
+        ? createAperturePlateGeometry(mode, apertureVisualScale, geoDetail.circleSegments ?? 32)
+        : null,
     [mode, apertureVisualScale, geoDetail.circleSegments],
   )
   useEffect(() => () => aperturePlateGeometry?.dispose(), [aperturePlateGeometry])
@@ -145,15 +151,16 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
   // by the screen texture. This keeps the 3D rays on the panel even though
   // the apparatus and screen are schematic rather than to scale.
   const displayParams = isWhiteLight ? { ...params, wavelength: 700 } : params
-  const featurePosition = mode === 'single-slit'
-    ? singleSlitFirstMinimumPosition(displayParams)
-    : mode === 'circular-aperture'
-      ? airyDiskRadius(displayParams)
-      : mode === 'circular-obstacle'
-        ? poissonSpotFirstDarkRadius(displayParams)
-        : gratingFirstOrderDisplacement(displayParams)
+  const featurePosition =
+    mode === 'single-slit'
+      ? singleSlitFirstMinimumPosition(displayParams)
+      : mode === 'circular-aperture'
+        ? airyDiskRadius(displayParams)
+        : mode === 'circular-obstacle'
+          ? poissonSpotFirstDarkRadius(displayParams)
+          : gratingFirstOrderDisplacement(displayParams)
   const beamSpreadZ = Number.isFinite(featurePosition)
-    ? Math.min(1.1, featurePosition / getPhysicalViewWidth(mode, displayParams) * 2.2)
+    ? Math.min(1.1, (featurePosition / getPhysicalViewWidth(mode, displayParams)) * 2.2)
     : 0
 
   return (
@@ -273,7 +280,11 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
 
       {/* ====== Light source ====== */}
       <Stand xPos={-13} height={3.0} radialSegments={geoDetail.cylinderRadialSegments} />
-      <mesh position={[-13, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
+      <mesh
+        position={[-13, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+        {...(shadowsEnabled ? { castShadow: true } : {})}
+      >
         <cylinderGeometry args={[1.2, 1.2, 2, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...MAT_BLACK_PLASTIC} />
       </mesh>
@@ -357,7 +368,15 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
       )}
 
       <Label
-        text={mode === 'circular-obstacle' ? '不透明圆盘' : mode === 'diffraction-grating' ? '光栅（结构示意）' : mode === 'circular-aperture' ? '圆孔' : '单缝'}
+        text={
+          mode === 'circular-obstacle'
+            ? '不透明圆盘'
+            : mode === 'diffraction-grating'
+              ? '光栅（结构示意）'
+              : mode === 'circular-aperture'
+                ? '圆孔'
+                : '单缝'
+        }
         position={[apertureX, OPTICAL_AXIS_Y + 2.8, 0]}
       />
 
@@ -371,10 +390,7 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
       >
         <meshStandardMaterial {...MAT_WHITE_TUBE} />
       </mesh>
-      <Label
-        text="遮光筒"
-        position={[TUBE_START_X + current3DLength / 2, OPTICAL_AXIS_Y + 1.3, 0]}
-      />
+      <Label text="遮光筒" position={[TUBE_START_X + current3DLength / 2, OPTICAL_AXIS_Y + 1.3, 0]} />
 
       {/* ====== Tail group ====== */}
       <Stand xPos={tailX - 1} height={3.5} radialSegments={geoDetail.cylinderRadialSegments} />
@@ -392,7 +408,6 @@ export const LightDiffractionRig3D = memo(function LightDiffractionRig3D({
       </mesh>
 
       <Label text="衍射屏" position={[screenX, OPTICAL_AXIS_Y + 3, 0]} />
-
     </group>
   )
 })

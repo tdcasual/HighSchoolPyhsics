@@ -24,29 +24,29 @@ export { waveLengthToHex }
 export const PHYSICAL_VIEW_WIDTH = 0.005
 
 export function computeMaximumThickness(wedgeAngleDeg: number): number {
-  return PHYSICAL_VIEW_WIDTH * Math.tan(wedgeAngleDeg * Math.PI / 180) * 1e6
+  return PHYSICAL_VIEW_WIDTH * Math.tan((wedgeAngleDeg * Math.PI) / 180) * 1e6
 }
 
 export function computeFringeSpacing(lambdaNm: number, thetaDeg: number): number {
   const lambdaM = lambdaNm * 1e-9
-  const tanTheta = Math.tan(thetaDeg * Math.PI / 180)
+  const tanTheta = Math.tan((thetaDeg * Math.PI) / 180)
   return (lambdaM / (2 * tanTheta)) * 1e6
 }
 
 export function computeWedgeIntensity(lambdaNm: number, thicknessUm: number): number {
   const lambdaUm = lambdaNm * 1e-3
-  const phase = 2 * Math.PI * thicknessUm / lambdaUm
+  const phase = (2 * Math.PI * thicknessUm) / lambdaUm
   return Math.sin(phase) ** 2
 }
 
 export function computeFringeCount(params: WedgeParams): number {
   const maxD = computeMaximumThickness(params.wedgeAngle)
   const lambdaUm = params.wavelength * 1e-3
-  return Math.floor(2 * maxD / lambdaUm)
+  return Math.floor((2 * maxD) / lambdaUm)
 }
 
 function computeThickness(xM: number, yM: number, params: WedgeParams): number {
-  const theta = params.wedgeAngle * Math.PI / 180
+  const theta = (params.wedgeAngle * Math.PI) / 180
   let d = xM * Math.tan(theta) * 1e6
 
   if (params.mode === 'bump' && params.bumpHeight > 0) {
@@ -86,10 +86,7 @@ function packRGBA(r: number, g: number, b: number, a: number): number {
   return (a << 24) | (b << 16) | (g << 8) | r
 }
 
-export function drawWedgePattern(
-  ctx: CanvasRenderingContext2D,
-  params: WedgeParams,
-): void {
+export function drawWedgePattern(ctx: CanvasRenderingContext2D, params: WedgeParams): void {
   const width = ctx.canvas.width
   const height = ctx.canvas.height
 
@@ -101,9 +98,9 @@ export function drawWedgePattern(
   const viewHeight = viewWidth / 2
 
   if (params.mode === 'flat') {
-    const theta = params.wedgeAngle * Math.PI / 180
+    const theta = (params.wedgeAngle * Math.PI) / 180
     const tanTheta = Math.tan(theta)
-    const invLambda = 2 * Math.PI / (lambda * 1e-3)
+    const invLambda = (2 * Math.PI) / (lambda * 1e-3)
 
     // Pre-compute per-column intensity
     const colInt = new Float32Array(width)

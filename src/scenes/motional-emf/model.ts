@@ -151,7 +151,8 @@ function toDegrees(radians: number): number {
 function angleBetweenVectorsDeg(a: Vec3, b: Vec3): number {
   const normalizedA = normalize(a)
   const normalizedB = normalize(b)
-  const lengthProduct = Math.hypot(normalizedA.x, normalizedA.y, normalizedA.z) * Math.hypot(normalizedB.x, normalizedB.y, normalizedB.z)
+  const lengthProduct =
+    Math.hypot(normalizedA.x, normalizedA.y, normalizedA.z) * Math.hypot(normalizedB.x, normalizedB.y, normalizedB.z)
   if (lengthProduct < 1e-8) {
     return 0
   }
@@ -269,10 +270,7 @@ export function deriveMotionalEmfReadings(config: MotionalEmfConfig): MotionalEm
   }
 }
 
-export function resolveRodContactOffsets(options: {
-  visualRodLength: number
-  rodAngleDeg: number
-}): ContactOffsetPair {
+export function resolveRodContactOffsets(options: { visualRodLength: number; rodAngleDeg: number }): ContactOffsetPair {
   const rodVector = resolveRodVector(options.visualRodLength, options.rodAngleDeg)
 
   return {
@@ -406,7 +404,9 @@ export function formatPolarityText(signedVoltageV: number): string {
   return signedVoltageV > 0 ? 'A 端高电势' : 'B 端高电势'
 }
 
-export function formatRelationText(options: Pick<MotionalEmfReadings, 'angleBetweenBLDeg' | 'angleBetweenLVDeg' | 'angleBetweenBVDeg'>): string {
+export function formatRelationText(
+  options: Pick<MotionalEmfReadings, 'angleBetweenBLDeg' | 'angleBetweenLVDeg' | 'angleBetweenBVDeg'>,
+): string {
   return `∠(B,L)=${formatAngleDegrees(options.angleBetweenBLDeg)}，∠(L,v)=${formatAngleDegrees(options.angleBetweenLVDeg)}，∠(B,v)=${formatAngleDegrees(options.angleBetweenBVDeg)}`
 }
 

@@ -1,9 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { TickerTimerChart } from "./TickerTimerChart";
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { TickerTimerChart } from './TickerTimerChart'
 
-describe("ticker timer charts", () => {
-  it("shows measured speed points at their real times with labelled units", () => {
+describe('ticker timer charts', () => {
+  it('shows measured speed points at their real times with labelled units', () => {
     render(
       <TickerTimerChart
         dots={[]}
@@ -13,19 +13,17 @@ describe("ticker timer charts", () => {
         ]}
         instantaneousSpeedMps={0.5}
       />,
-    );
+    )
 
-    const chart = screen.getByRole("img", {
-      name: "速度-时间图，纵轴速度单位米每秒，横轴时间单位秒",
-    });
-    const markers = chart.querySelectorAll("[data-time-s]");
-    expect(markers).toHaveLength(2);
-    expect(markers[0]).toHaveAttribute("data-time-s", "0.03");
-    expect(markers[1]).toHaveAttribute("data-time-s", "0.05");
-    expect(Number(markers[1].getAttribute("cx"))).toBeGreaterThan(
-      Number(markers[0].getAttribute("cx")),
-    );
-    expect(chart).toHaveTextContent("v / (m·s⁻¹)");
-    expect(chart).toHaveTextContent("t / s");
-  });
-});
+    const chart = screen.getByRole('img', {
+      name: '速度-时间图，纵轴速度单位米每秒，横轴时间单位秒',
+    })
+    const markers = chart.querySelectorAll('[data-time-s]')
+    expect(markers).toHaveLength(2)
+    expect(markers[0]).toHaveAttribute('data-time-s', '0.03')
+    expect(markers[1]).toHaveAttribute('data-time-s', '0.05')
+    expect(Number(markers[1].getAttribute('cx'))).toBeGreaterThan(Number(markers[0].getAttribute('cx')))
+    expect(chart).toHaveTextContent('v / (m·s⁻¹)')
+    expect(chart).toHaveTextContent('t / s')
+  })
+})

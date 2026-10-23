@@ -34,12 +34,18 @@ const INITIAL_SIMULATION: Simulation = {
 const REMEMBERED_FIELDS = ['mode', 'angularSpeedRad'] as const
 
 export function useGeneratorCoreSceneState(): GeneratorCoreSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('generator-core', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  const [simulation, setSimulation] = useState<Simulation>(() =>
+    rememberFields('generator-core', INITIAL_SIMULATION, REMEMBERED_FIELDS),
+  )
   useRememberFields('generator-core', simulation, REMEMBERED_FIELDS)
   const clock = useSimulationClock({
     initiallyRunning: true,
     stepSeconds: simulation.angularSpeedRad > 0 ? STEP_ANGLE_RAD / simulation.angularSpeedRad : 0,
-    advance: (dt) => setSimulation((current) => ({ ...current, angleRad: wrapAngle(current.angleRad + dt * current.angularSpeedRad) })),
+    advance: (dt) =>
+      setSimulation((current) => ({
+        ...current,
+        angleRad: wrapAngle(current.angleRad + dt * current.angularSpeedRad),
+      })),
   })
   const commit = (patch: Partial<Simulation>) => setSimulation((previous) => ({ ...previous, ...patch }))
   const readings = useMemo(() => deriveGeneratorReadings(simulation.angleRad), [simulation.angleRad])

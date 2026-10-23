@@ -42,15 +42,15 @@ export function wire(material: MaterialKey, nominalDiameter: number) {
 }
 
 export function areaMm(diameterMm: number): number {
-  return Math.PI * (diameterMm * 1e-3) ** 2 / 4
+  return (Math.PI * (diameterMm * 1e-3) ** 2) / 4
 }
 
 export function wireResistance(rho: number, lengthM: number, diameterMm: number): number {
-  return rho * lengthM / areaMm(diameterMm)
+  return (rho * lengthM) / areaMm(diameterMm)
 }
 
 export function resistivityFrom(resistance: number, diameterMm: number, lengthM: number): number {
-  return Math.PI * (diameterMm * 1e-3) ** 2 * resistance / (4 * lengthM)
+  return (Math.PI * (diameterMm * 1e-3) ** 2 * resistance) / (4 * lengthM)
 }
 
 export type MeterReading = MeterSpec & {
@@ -178,7 +178,13 @@ export type Measurement = {
 }
 
 export function measurement(input: MeasurementInput): Measurement {
-  const options = { ...DEFAULT_CIRCUIT, voltmeterConnected: true, ammeter: 'A06' as MeterKey, voltmeter: 'V3' as MeterKey, ...input }
+  const options = {
+    ...DEFAULT_CIRCUIT,
+    voltmeterConnected: true,
+    ammeter: 'A06' as MeterKey,
+    voltmeter: 'V3' as MeterKey,
+    ...input,
+  }
   const ammeter = METERS[options.ammeter]
   const voltmeter = METERS[options.voltmeter]
   const voltmeterResistance = options.voltmeterConnected === false ? 1e15 : voltmeter.resistance
@@ -187,7 +193,17 @@ export function measurement(input: MeasurementInput): Measurement {
   const conductance = options.heat * Math.PI * options.diameter * 1e-3 * Math.max(options.length, 1e-3)
   const slider = clamp(options.slider, 0, 1)
   const empty: Measurement = {
-    closed: false, Ix: 0, Ux: 0, Imeter: 0, Umeter: 0, Rtrue: R20, R20, dT: 0, supply: 0, Rmeasured: Number.NaN, slider,
+    closed: false,
+    Ix: 0,
+    Ux: 0,
+    Imeter: 0,
+    Umeter: 0,
+    Rtrue: R20,
+    R20,
+    dT: 0,
+    supply: 0,
+    Rmeasured: Number.NaN,
+    slider,
   }
   if (!options.closed) return empty
   let temperatureRise = 0
@@ -206,8 +222,9 @@ export function measurement(input: MeasurementInput): Measurement {
     const Ux = net.voltages[4]
     const Ix = Ux / Rx
     const Imeter = (net.voltages[3] - net.voltages[4]) / ammeter.resistance
-    const Umeter = options.voltmeterConnected === false ? 0 : options.method === 'internal' ? net.voltages[3] : net.voltages[4]
-    const next = Math.min(600, Ix * Ix * Rx / conductance)
+    const Umeter =
+      options.voltmeterConnected === false ? 0 : options.method === 'internal' ? net.voltages[3] : net.voltages[4]
+    const next = Math.min(600, (Ix * Ix * Rx) / conductance)
     result = {
       closed: true,
       Ix,
@@ -230,15 +247,16 @@ export function measurement(input: MeasurementInput): Measurement {
 export function systematicError(resistance: number, method: CircuitMethod, ammeter: MeterKey, voltmeter: MeterKey) {
   const ammeterResistance = METERS[ammeter].resistance
   const voltmeterResistance = METERS[voltmeter].resistance
-  const measured = method === 'internal'
-    ? resistance + ammeterResistance
-    : resistance * voltmeterResistance / (resistance + voltmeterResistance)
+  const measured =
+    method === 'internal'
+      ? resistance + ammeterResistance
+      : (resistance * voltmeterResistance) / (resistance + voltmeterResistance)
   const critical = Math.sqrt(ammeterResistance * voltmeterResistance)
   return {
     measured,
     relative: (measured - resistance) / resistance,
     critical,
-    recommend: resistance < critical ? 'external' as const : 'internal' as const,
+    recommend: resistance < critical ? ('external' as const) : ('internal' as const),
   }
 }
 
@@ -281,15 +299,16 @@ const LAMP = { rated: 2.5, ratedI: 0.3, R0: 1, T0: 300, exponent: 1.2, conductio
   const hotResistance = LAMP.rated / LAMP.ratedI
   const hotTemperature = LAMP.T0 * (hotResistance / LAMP.R0) ** (1 / LAMP.exponent)
   const power = LAMP.rated * LAMP.ratedI
-  LAMP.kc = power * LAMP.conduction / (hotTemperature - LAMP.T0)
-  LAMP.kr = power * (1 - LAMP.conduction) / (hotTemperature ** 4 - LAMP.T0 ** 4)
+  LAMP.kc = (power * LAMP.conduction) / (hotTemperature - LAMP.T0)
+  LAMP.kr = (power * (1 - LAMP.conduction)) / (hotTemperature ** 4 - LAMP.T0 ** 4)
 })()
 
 export function lampState(voltage: number) {
   const magnitude = Math.abs(voltage)
   const resistanceAt = (temperature: number) => LAMP.R0 * (temperature / LAMP.T0) ** LAMP.exponent
-  const balance = (temperature: number) => magnitude * magnitude / resistanceAt(temperature)
-    - (LAMP.kr * (temperature ** 4 - LAMP.T0 ** 4) + LAMP.kc * (temperature - LAMP.T0))
+  const balance = (temperature: number) =>
+    (magnitude * magnitude) / resistanceAt(temperature) -
+    (LAMP.kr * (temperature ** 4 - LAMP.T0 ** 4) + LAMP.kc * (temperature - LAMP.T0))
   let low = LAMP.T0
   let high = 4000
   for (let step = 0; step < 90; step += 1) {
@@ -301,10 +320,10 @@ export function lampState(voltage: number) {
   const resistance = resistanceAt(temperature)
   return {
     U: voltage,
-    I: Math.sign(voltage) * magnitude / resistance,
+    I: (Math.sign(voltage) * magnitude) / resistance,
     R: resistance,
     T: temperature,
-    P: magnitude * magnitude / resistance,
+    P: (magnitude * magnitude) / resistance,
   }
 }
 
@@ -319,11 +338,17 @@ export const ELEMENTS: Record<ElementKind, { name: string; short: string; min: n
 export function element(kind: ElementKind, voltage: number) {
   if (kind === 'resistor') {
     const resistance = 10
-    return { U: voltage, I: voltage / resistance, R: resistance, P: voltage * voltage / resistance, T: 300 }
+    return { U: voltage, I: voltage / resistance, R: resistance, P: (voltage * voltage) / resistance, T: 300 }
   }
   if (kind === 'lamp') return lampState(voltage)
   const current = DIODE.Is * (Math.exp(voltage / DIODE.nVt) - 1)
-  return { U: voltage, I: current, R: Math.abs(current) > 1e-15 ? voltage / current : Number.POSITIVE_INFINITY, P: voltage * current, T: 300 }
+  return {
+    U: voltage,
+    I: current,
+    R: Math.abs(current) > 1e-15 ? voltage / current : Number.POSITIVE_INFINITY,
+    P: voltage * current,
+    T: 300,
+  }
 }
 
 export function differential(kind: ElementKind, voltage: number) {

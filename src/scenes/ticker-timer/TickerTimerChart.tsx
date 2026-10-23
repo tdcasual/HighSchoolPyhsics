@@ -20,7 +20,13 @@ function TapeStrip({ dots }: { dots: TapeDot[] }) {
       <svg viewBox="0 0 440 56" role="img" aria-label="纸带点迹，横向位置按位移比例显示">
         <rect x="16" y="18" width="408" height="20" rx="4" fill="var(--chart-bg)" stroke="var(--chart-6)" />
         {dots.map((dot, index) => (
-          <circle key={index} cx={24 + (dot.positionM / maxPosition) * 392} cy={28} r={dot.smeared ? 3.4 : 2.2} fill={dot.smeared ? 'var(--chart-5)' : 'var(--control-ink)'} />
+          <circle
+            key={index}
+            cx={24 + (dot.positionM / maxPosition) * 392}
+            cy={28}
+            r={dot.smeared ? 3.4 : 2.2}
+            fill={dot.smeared ? 'var(--chart-5)' : 'var(--control-ink)'}
+          />
         ))}
       </svg>
     </div>
@@ -49,13 +55,29 @@ export function TickerTimerChart({ dots, speedSeriesMps, instantaneousSpeedMps }
         {(plot) =>
           speedSeriesMps.length ? (
             <>
-              <Series plot={plot} points={speedSeriesMps.map((sample) => [sample.timeS, sample.speedMps] as const)} color={SPEED} strokeWidth={2} />
+              <Series
+                plot={plot}
+                points={speedSeriesMps.map((sample) => [sample.timeS, sample.speedMps] as const)}
+                color={SPEED}
+                strokeWidth={2}
+              />
               {speedSeriesMps.map((sample, index) => (
-                <Dot key={index} plot={plot} x={sample.timeS} y={sample.speedMps} r={3} color={SPEED} data-time-s={sample.timeS} data-speed-mps={sample.speedMps} />
+                <Dot
+                  key={index}
+                  plot={plot}
+                  x={sample.timeS}
+                  y={sample.speedMps}
+                  r={3}
+                  color={SPEED}
+                  data-time-s={sample.timeS}
+                  data-speed-mps={sample.speedMps}
+                />
               ))}
             </>
           ) : (
-            <Label plot={plot} x={timeMax / 2} y={speedMax / 2} anchor="middle">点数不足，释放纸带后绘制</Label>
+            <Label plot={plot} x={timeMax / 2} y={speedMax / 2} anchor="middle">
+              点数不足，释放纸带后绘制
+            </Label>
           )
         }
       </ChartFrame>

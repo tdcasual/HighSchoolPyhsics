@@ -5,22 +5,26 @@ export function seriesResistor(voltage: number, galvanometer = GALVANOMETER): nu
 }
 
 export function shuntResistor(current: number, galvanometer = GALVANOMETER): number {
-  return galvanometer.Ig * galvanometer.Rg / (current - galvanometer.Ig)
+  return (galvanometer.Ig * galvanometer.Rg) / (current - galvanometer.Ig)
 }
 
-export function galvanometerCurrent(kind: 'V' | 'A', applied: number, resistance: number, galvanometer = GALVANOMETER): number {
+export function galvanometerCurrent(
+  kind: 'V' | 'A',
+  applied: number,
+  resistance: number,
+  galvanometer = GALVANOMETER,
+): number {
   if (kind === 'V') return applied / (galvanometer.Rg + resistance)
-  return applied * resistance / (galvanometer.Rg + resistance)
+  return (applied * resistance) / (galvanometer.Rg + resistance)
 }
-
 
 export function voltAmmeter(input: { Rx: number; RA: number; RV: number; E: number; Rs: number }) {
   const { Rx, RA, RV, E, Rs } = input
-  const parallel = Rx * RV / (Rx + RV)
+  const parallel = (Rx * RV) / (Rx + RV)
   const externalCurrent = E / (Rs + RA + parallel)
   const externalVoltage = externalCurrent * parallel
   const internalBranch = RA + Rx
-  const internalParallel = internalBranch * RV / (internalBranch + RV)
+  const internalParallel = (internalBranch * RV) / (internalBranch + RV)
   const internalSourceCurrent = E / (Rs + internalParallel)
   const internalVoltage = internalSourceCurrent * internalParallel
   const internalCurrent = internalVoltage / internalBranch
@@ -32,7 +36,7 @@ export function voltAmmeter(input: { Rx: number; RA: number; RV: number; E: numb
     external,
     internal,
     critical: Math.sqrt(RA * RV),
-    better: Math.abs(external.error) <= Math.abs(internal.error) ? 'external' as const : 'internal' as const,
+    better: Math.abs(external.error) <= Math.abs(internal.error) ? ('external' as const) : ('internal' as const),
   }
 }
 
@@ -43,8 +47,9 @@ export function trialContact(input: { Rx: number; RA: number; RV: number; E: num
   return {
     dU,
     dI,
-    choose: dU > dI ? 'external' as const : 'internal' as const,
-    reason: dU > dI ? '电压表示数变化明显，电流表分压影响大，用外接法。' : '电流表示数变化明显，电压表分流影响大，用内接法。',
+    choose: dU > dI ? ('external' as const) : ('internal' as const),
+    reason:
+      dU > dI ? '电压表示数变化明显，电流表分压影响大，用外接法。' : '电流表示数变化明显，电压表分流影响大，用内接法。',
   }
 }
 
@@ -56,7 +61,7 @@ export function rheostat(input: { E: number; r: number; R0: number; Rx: number; 
   const limitVoltage = limitCurrent * Rx
   const lower = slider * R0
   const upper = (1 - slider) * R0
-  const parallel = lower > 0 ? lower * Rx / (lower + Rx) : 0
+  const parallel = lower > 0 ? (lower * Rx) / (lower + Rx) : 0
   const total = r + upper + parallel
   const supply = E / total
   const dividerVoltage = supply * parallel
@@ -64,8 +69,8 @@ export function rheostat(input: { E: number; r: number; R0: number; Rx: number; 
   return {
     limit: { U: limitVoltage, I: limitCurrent },
     divider: { U: dividerVoltage, I: dividerCurrent },
-    limitRange: [E * Rx / (r + R0 + Rx), E * Rx / (r + Rx)] as [number, number],
-    dividerRange: [0, E * Rx * R0 / (R0 + Rx) / (r + R0 * Rx / (R0 + Rx))] as [number, number],
+    limitRange: [(E * Rx) / (r + R0 + Rx), (E * Rx) / (r + Rx)] as [number, number],
+    dividerRange: [0, (E * Rx * R0) / (R0 + Rx) / (r + (R0 * Rx) / (R0 + Rx))] as [number, number],
   }
 }
 
@@ -105,7 +110,7 @@ export const BOARD = { cell: { E: 1.5, r: 0.6 }, loop: { E: 3, R: 470 }, resisto
 
 export function ohmFraction(resistance: number, multiplier: number, zeroFactor = 1): number {
   const internal = OHM.mid * multiplier
-  return zeroFactor * internal / (internal + resistance)
+  return (zeroFactor * internal) / (internal + resistance)
 }
 
 export function ohmFromFraction(fraction: number, multiplier: number): number {
@@ -157,7 +162,14 @@ export function measure(input: MeasureInput): MeasureResult {
   const range = RANGE[input.range]
   const sign = input.swapped ? -1 : 1
   const zeroFactor = input.ohmZero ?? 1
-  const result: MeasureResult = { fraction: input.mechanical ?? 0, truth: null, indicated: null, unit: '', warning: '', damage: false }
+  const result: MeasureResult = {
+    fraction: input.mechanical ?? 0,
+    truth: null,
+    indicated: null,
+    unit: '',
+    warning: '',
+    damage: false,
+  }
   if (range.kind === 'off') {
     result.warning = '选择开关在 OFF 挡，电表不工作。'
     return result
@@ -167,13 +179,13 @@ export function measure(input: MeasureInput): MeasureResult {
     const sourceResistance = input.target === 'cell' ? BOARD.cell.r : BOARD.loop.R
     if (range.kind === 'V' && range.full) {
       const resistance = meterResistance(range)
-      const voltage = emf * resistance / (resistance + sourceResistance)
-      result.fraction += sign * voltage / range.full
+      const voltage = (emf * resistance) / (resistance + sourceResistance)
+      result.fraction += (sign * voltage) / range.full
       result.truth = voltage
       result.unit = 'V'
     } else if (range.kind === 'mA' && range.full) {
       const current = emf / (sourceResistance + (range.resistance ?? 0))
-      result.fraction += sign * current / range.full
+      result.fraction += (sign * current) / range.full
       result.damage = current > range.full * 1.5
       result.warning = '电流挡直接接在电源两端，相当于短路：电流过大会烧坏电表。'
     } else if (range.kind === 'ohm') {
@@ -186,13 +198,13 @@ export function measure(input: MeasureInput): MeasureResult {
   } else if (input.target === 'loopI') {
     if (range.kind === 'mA' && range.full) {
       const current = BOARD.loop.E / (BOARD.loop.R + (range.resistance ?? 0))
-      result.fraction += sign * current / range.full
+      result.fraction += (sign * current) / range.full
       result.truth = current * 1000
       result.unit = 'mA'
     } else if (range.kind === 'V' && range.full) {
       const resistance = meterResistance(range)
-      const voltage = BOARD.loop.E * resistance / (resistance + BOARD.loop.R)
-      result.fraction += sign * voltage / range.full
+      const voltage = (BOARD.loop.E * resistance) / (resistance + BOARD.loop.R)
+      result.fraction += (sign * voltage) / range.full
       result.warning = '电压表串联在电路中，示数接近电源电压。测电流要用电流挡。'
     } else if (range.kind === 'ohm') {
       result.fraction += sign * 0.8
@@ -202,7 +214,7 @@ export function measure(input: MeasureInput): MeasureResult {
       result.warning = '测直流电流应使用直流电流挡。'
     }
   } else if (input.target === 'resistor' || input.target === 'short') {
-    const resistance = input.target === 'short' ? 0 : input.resistance ?? 0
+    const resistance = input.target === 'short' ? 0 : (input.resistance ?? 0)
     if (range.kind === 'ohm') {
       result.fraction += ohmFraction(resistance, range.mult ?? 1, zeroFactor)
       result.truth = resistance
@@ -214,9 +226,9 @@ export function measure(input: MeasureInput): MeasureResult {
     const internal = OHM.mid * (range.mult ?? 1)
     const forward = input.diodeForward !== false
     const current = forward ? diodeOhmCurrent(internal, OHM.E) : DIODE.Is
-    const fraction = zeroFactor * current * internal / OHM.E
+    const fraction = (zeroFactor * current * internal) / OHM.E
     result.fraction += fraction
-    result.truth = ohmFromFraction(current * internal / OHM.E, range.mult ?? 1)
+    result.truth = ohmFromFraction((current * internal) / OHM.E, range.mult ?? 1)
     result.unit = 'Ω'
   } else if (input.target === 'diode') {
     result.warning = '判断二极管的极性要用欧姆挡。'

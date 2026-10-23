@@ -1,12 +1,7 @@
 import { recall, useRemember } from '../../app/sceneMemory/sceneMemory'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSimulationClock } from '../../simulation/useSimulationClock'
-import {
-  deriveGapWidthScene,
-  MAX_ORBIT_RADIUS_M,
-  projectParticleToScene,
-  type Point3,
-} from './layout'
+import { deriveGapWidthScene, MAX_ORBIT_RADIUS_M, projectParticleToScene, type Point3 } from './layout'
 import { deriveCyclotronLaunchState, deriveCyclotronMaximumKineticEnergyJ, type CyclotronConfig } from './model'
 import { advanceCyclotronRun, cyclotronPeriodS, kineticEnergyJ, type CyclotronRun } from './run'
 import {
@@ -99,7 +94,9 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   const [magneticFieldT, setMagneticFieldT] = useState(() => recall('cyclotron.magneticFieldT', 1.0))
   const [gapVoltageKv, setGapVoltageKv] = useState(() => recall('cyclotron.gapVoltageKv', 150))
   const [gapWidthCm, setGapWidthCm] = useState(() => recall('cyclotron.gapWidthCm', 2))
-  const [energyMode, setEnergyMode] = useState<CyclotronEnergyMode>(() => recall('cyclotron.energyMode', 'include-acceleration-time'))
+  const [energyMode, setEnergyMode] = useState<CyclotronEnergyMode>(() =>
+    recall('cyclotron.energyMode', 'include-acceleration-time'),
+  )
   useRemember('cyclotron', { magneticFieldT, gapVoltageKv, gapWidthCm, energyMode })
 
   const config = useMemo<CyclotronConfig>(
@@ -161,22 +158,26 @@ export function useCyclotronSceneState(): CyclotronSceneState {
   // 考虑加速时间: the simulated energy, which rises during each finite gap transit.
   // 忽略加速时间: the ideal staircase, +qU at every half period.
   const windowStart = Math.max(0, run.timeS - windowS)
-  const energySeries = energyMode === 'include-acceleration-time'
-    ? view.history.filter((sample) => sample.timeS >= windowStart)
-    : buildTimeSeries({
-        endTimeS: run.timeS,
-        windowS,
-        samples: 260,
-        evaluate: (timeS) =>
-          Math.min(maximumKineticEnergyJ, evaluateKineticEnergyAtTime({
-            mode: 'ignore-acceleration-time',
-            timeS,
-            periodS,
-            initialEnergyJ,
-            deltaEnergyJ: Math.abs(config.chargeC) * voltageAmplitudeV,
-            crossingDurationS: 0,
-          })),
-      })
+  const energySeries =
+    energyMode === 'include-acceleration-time'
+      ? view.history.filter((sample) => sample.timeS >= windowStart)
+      : buildTimeSeries({
+          endTimeS: run.timeS,
+          windowS,
+          samples: 260,
+          evaluate: (timeS) =>
+            Math.min(
+              maximumKineticEnergyJ,
+              evaluateKineticEnergyAtTime({
+                mode: 'ignore-acceleration-time',
+                timeS,
+                periodS,
+                initialEnergyJ,
+                deltaEnergyJ: Math.abs(config.chargeC) * voltageAmplitudeV,
+                crossingDurationS: 0,
+              }),
+            ),
+        })
 
   return {
     magneticFieldT,

@@ -9,7 +9,10 @@ type WedgeInterferenceChartProps = {
   isLightOn: boolean
 }
 
-export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ params, isLightOn }: WedgeInterferenceChartProps) {
+export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({
+  params,
+  isLightOn,
+}: WedgeInterferenceChartProps) {
   const [fieldRef, fieldWidth] = useContainerWidth<HTMLDivElement>(360)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { dpr, currentScale, measure, revision } = useAdaptiveResolution()
@@ -35,7 +38,10 @@ export const WedgeInterferenceChart = memo(function WedgeInterferenceChart({ par
   }, [params, isLightOn, fieldWidth, dpr, currentScale, measure, revision])
 
   return (
-    <ChartCard title="劈尖干涉条纹" footer={<span className="chart-formula">l = λ / (2tanθ) ≈ λ / (2θ)，θ 用弧度</span>}>
+    <ChartCard
+      title="劈尖干涉条纹"
+      footer={<span className="chart-formula">l = λ / (2tanθ) ≈ λ / (2θ)，θ 用弧度</span>}
+    >
       <div className="chart-field" ref={fieldRef}>
         <canvas ref={canvasRef} role="img" aria-label="劈尖干涉图样" />
       </div>

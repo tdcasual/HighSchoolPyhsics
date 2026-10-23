@@ -1,5 +1,15 @@
 const SUPERSCRIPT: Record<string, string> = {
-  '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻',
+  '0': '⁰',
+  '1': '¹',
+  '2': '²',
+  '3': '³',
+  '4': '⁴',
+  '5': '⁵',
+  '6': '⁶',
+  '7': '⁷',
+  '8': '⁸',
+  '9': '⁹',
+  '-': '⁻',
 }
 
 /**
@@ -15,6 +25,9 @@ export function formatScientific(value: number, significant = 3, minPlain = -2, 
   if (exponent >= minPlain && exponent <= maxPlain) {
     return value.toFixed(Math.max(0, significant - 1 - exponent))
   }
-  const superscript = String(exponent).split('').map((digit) => SUPERSCRIPT[digit] ?? digit).join('')
+  const superscript = String(exponent)
+    .split('')
+    .map((digit) => SUPERSCRIPT[digit] ?? digit)
+    .join('')
   return `${mantissaText}×10${superscript}`
 }

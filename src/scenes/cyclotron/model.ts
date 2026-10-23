@@ -10,10 +10,7 @@ export type CyclotronConfig = {
   gapHalfWidthM: number
 }
 
-export function deriveCyclotronLaunchState(
-  config: CyclotronConfig,
-  launchSpeedMps: number,
-): ParticleState {
+export function deriveCyclotronLaunchState(config: CyclotronConfig, launchSpeedMps: number): ParticleState {
   const speed = Math.max(1, Math.abs(launchSpeedMps))
   const orientation = config.chargeC * config.magneticFieldT
   const launchVx = orientation < 0 ? -speed : speed
@@ -43,11 +40,7 @@ export function stepCyclotronState(
   return semiImplicitEulerStep(state, acceleration, dt)
 }
 
-export function deriveCyclotronMaximumKineticEnergyJ(
-  config: CyclotronConfig,
-  deeRadiusM: number,
-): number {
+export function deriveCyclotronMaximumKineticEnergyJ(config: CyclotronConfig, deeRadiusM: number): number {
   const maximumMomentum = Math.abs(config.chargeC * config.magneticFieldT) * Math.max(0, deeRadiusM)
   return (maximumMomentum * maximumMomentum) / (2 * config.massKg)
 }
-

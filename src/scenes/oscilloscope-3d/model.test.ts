@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { buildElectronBeamPath, buildNormalTrace, buildXYTrace, CRT_SCREEN_HALF_HEIGHT, CRT_SCREEN_HALF_WIDTH, deriveMeasurement, deriveXYConclusion, evaluateWaveform, xyPresetSettings } from './model'
+import {
+  buildElectronBeamPath,
+  buildNormalTrace,
+  buildXYTrace,
+  CRT_SCREEN_HALF_HEIGHT,
+  CRT_SCREEN_HALF_WIDTH,
+  deriveMeasurement,
+  deriveXYConclusion,
+  evaluateWaveform,
+  xyPresetSettings,
+} from './model'
 
 describe('oscilloscope-3d model', () => {
   it('derives the screen divisions and warnings from VOLTS/DIV and TIME/DIV', () => {
@@ -14,13 +24,30 @@ describe('oscilloscope-3d model', () => {
     expect(evaluateWaveform('square', 0)).toBe(1)
     expect(evaluateWaveform('square', Math.PI)).toBe(-1)
     expect(evaluateWaveform('sawtooth', 0)).toBe(-1)
-    expect(buildNormalTrace({ wave: 'sine', amplitudeV: 2, frequencyHz: 200, voltsDiv: 1, timeDiv: 1, elapsed: 0, trigger: true })).toHaveLength(240)
+    expect(
+      buildNormalTrace({
+        wave: 'sine',
+        amplitudeV: 2,
+        frequencyHz: 200,
+        voltsDiv: 1,
+        timeDiv: 1,
+        elapsed: 0,
+        trigger: true,
+      }),
+    ).toHaveLength(240)
   })
   it('keeps the displayed electron beam inside the calibrated CRT grid', () => {
     const measurement = deriveMeasurement({ amplitudeV: 4, frequencyHz: 500, voltsDiv: 0.5, timeDiv: 0.5 })
     const beamPath = buildElectronBeamPath({
-      mode: 'measure', elapsed: 0.0005, wave: 'sine', amplitudeV: 4, frequencyHz: 500,
-      voltsDiv: 0.5, timeDiv: 0.5, trigger: true, xy: xyPresetSettings('circle'),
+      mode: 'measure',
+      elapsed: 0.0005,
+      wave: 'sine',
+      amplitudeV: 4,
+      frequencyHz: 500,
+      voltsDiv: 0.5,
+      timeDiv: 0.5,
+      trigger: true,
+      xy: xyPresetSettings('circle'),
     })
     const screenPoint = beamPath.at(-1)
 

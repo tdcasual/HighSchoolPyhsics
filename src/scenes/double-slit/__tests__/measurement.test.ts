@@ -31,7 +31,7 @@ describe('double-slit measurement workflow', () => {
   })
 
   it('derives 532 nm from seven fringes separated by 1.49 mm at d=0.25 mm and L=0.7 m', () => {
-    const spacingMm = 0.7 * 532e-9 / (0.25e-3) * 1000
+    const spacingMm = ((0.7 * 532e-9) / 0.25e-3) * 1000
     const result = computeWavelengthMeasurement({
       slitDistanceMm: 0.25,
       screenDistanceM: 0.7,

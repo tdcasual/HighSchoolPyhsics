@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildEquipotentialSurfaces,
-  samplePotentialAtPoint,
-  type EquipotentialCharge,
-} from './model'
+import { buildEquipotentialSurfaces, samplePotentialAtPoint, type EquipotentialCharge } from './model'
 
 const DIPOLE_CHARGES: EquipotentialCharge[] = [
   { id: 'C1', x: -2, y: 0, z: 0, magnitude: 10 },
@@ -108,7 +104,11 @@ describe('equipotential model', () => {
     for (let offset = 0; offset < surface.positions.length; offset += 3) {
       const potential = samplePotentialAtPoint(
         [charge],
-        { x: surface.positions[offset] ?? 0, y: surface.positions[offset + 1] ?? 0, z: surface.positions[offset + 2] ?? 0 },
+        {
+          x: surface.positions[offset] ?? 0,
+          y: surface.positions[offset + 1] ?? 0,
+          z: surface.positions[offset + 2] ?? 0,
+        },
         0.18,
       )
       maxPotentialError = Math.max(maxPotentialError, Math.abs(potential - surface.isoValue))
@@ -135,7 +135,9 @@ describe('equipotential model', () => {
 
       expect(allSurfaces.length).toBeGreaterThan(0)
       expect(allSurfaces.every((surface) => hasClosedEdgeIncidence(surface.indices))).toBe(true)
-      expect(allSurfaces.every((surface) => Array.from(surface.positions).every((coordinate) => Math.abs(coordinate) < 5))).toBe(true)
+      expect(
+        allSurfaces.every((surface) => Array.from(surface.positions).every((coordinate) => Math.abs(coordinate) < 5)),
+      ).toBe(true)
       if (charges.some((charge) => charge.magnitude > 0)) expect(result.positiveSurfaces).toHaveLength(6)
       if (charges.some((charge) => charge.magnitude < 0)) expect(result.negativeSurfaces).toHaveLength(6)
     }
@@ -144,7 +146,10 @@ describe('equipotential model', () => {
   it('returns empty finite results for zero charges and sanitizes invalid grid controls', () => {
     const zeroCharge: EquipotentialCharge = { id: 'C0', x: 0, y: 0, z: 0, magnitude: 0 }
     const empty = buildEquipotentialSurfaces({
-      charges: [zeroCharge], bounds: 5, resolution: 20, shellCount: 4,
+      charges: [zeroCharge],
+      bounds: 5,
+      resolution: 20,
+      shellCount: 4,
       softeningEpsilon: 0.18,
     })
     expect(empty.positiveSurfaces).toHaveLength(0)

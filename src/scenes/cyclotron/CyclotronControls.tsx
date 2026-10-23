@@ -75,9 +75,12 @@ export function CyclotronControls({
           value={energyMode}
           onChange={(key) => onEnergyModeChange(key as CyclotronEnergyMode)}
         />
-        <ModelNote><p className="text-xs leading-5 text-slate-500">
-          「仿真」画出粒子仿真得到的动能：每次穿过缝隙的几纳秒内逐渐增加，且因交变电压已偏离峰值，每次略小于 qU。「理想台阶」是教材的简化：每半个周期瞬间增加 qU。
-        </p></ModelNote>
+        <ModelNote>
+          <p className="text-xs leading-5 text-slate-500">
+            「仿真」画出粒子仿真得到的动能：每次穿过缝隙的几纳秒内逐渐增加，且因交变电压已偏离峰值，每次略小于
+            qU。「理想台阶」是教材的简化：每半个周期瞬间增加 qU。
+          </p>
+        </ModelNote>
       </ControlSection>
     </div>
   )

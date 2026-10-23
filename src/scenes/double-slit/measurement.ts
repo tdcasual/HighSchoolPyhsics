@@ -19,7 +19,7 @@ export function clampMicrometerReadout(valueMm: number): number {
 
 export function micrometerWheelRotationRadians(readoutMm: number): number {
   const turns = readoutMm / MICROMETER_PITCH_MM
-  return ((turns % 1) + 1) % 1 * Math.PI * 2
+  return (((turns % 1) + 1) % 1) * Math.PI * 2
 }
 
 export function computeWavelengthMeasurement(input: {
@@ -38,7 +38,7 @@ export function computeWavelengthMeasurement(input: {
   if (fringeSpacingMm <= 0) return null
 
   // d and Δx are converted from mm, L is in m; return the wavelength in nm.
-  const wavelengthNm = input.slitDistanceMm * fringeSpacingMm / input.screenDistanceM * 1000
+  const wavelengthNm = ((input.slitDistanceMm * fringeSpacingMm) / input.screenDistanceM) * 1000
   if (!Number.isFinite(wavelengthNm) || wavelengthNm <= 0) return null
   return { fringeSpacingMm, wavelengthNm }
 }

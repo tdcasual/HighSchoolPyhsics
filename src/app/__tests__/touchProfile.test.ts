@@ -1,23 +1,29 @@
 import { describe, expect, it } from 'vitest'
-import { buildTouchProfileHint, ENHANCED_TOUCH_PROFILE, findRuntimeTouchProfile, findTouchProfileByPath, resolveTouchProfile } from '../touchProfile'
+import {
+  buildTouchProfileHint,
+  ENHANCED_TOUCH_PROFILE,
+  findRuntimeTouchProfile,
+  findTouchProfileByPath,
+  resolveTouchProfile,
+} from '../touchProfile'
 import { findSceneCatalogEntryByPath } from '../sceneCatalog'
 
 describe('touchProfile helpers', () => {
   it('builds the default classroom touch hint from the shared profile', () => {
-    expect(buildTouchProfileHint(ENHANCED_TOUCH_PROFILE)).toBe('拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移')
+    expect(buildTouchProfileHint(ENHANCED_TOUCH_PROFILE)).toBe(
+      '拖拽旋转 · 滚轮缩放 · 右键平移 · 单指旋转 · 双指缩放/平移',
+    )
   })
 
   it('omits mouse gestures on touch-only devices', () => {
     expect(buildTouchProfileHint(ENHANCED_TOUCH_PROFILE, { pointer: 'touch' })).toBe('单指旋转 · 双指缩放/平移')
   })
 
-
   it('resolves scene touch profiles from lightweight metadata by path', () => {
     expect(findTouchProfileByPath('/oscilloscope')).toStrictEqual(ENHANCED_TOUCH_PROFILE)
     expect(findTouchProfileByPath('/oscilloscope')).not.toBe(ENHANCED_TOUCH_PROFILE)
     expect(findTouchProfileByPath('/')).toBeNull()
   })
-
 
   it('reads the declared catalog touch profile for known scenes', () => {
     expect(findTouchProfileByPath('/oscilloscope')).toEqual(findSceneCatalogEntryByPath('/oscilloscope')?.touchProfile)

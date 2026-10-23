@@ -4,7 +4,6 @@ import { afterEach } from 'vitest'
 import { installThreeConsoleFilter } from '../scene3d/threeConsoleFilter'
 import { resetAllSceneMemory } from '../app/sceneMemory/sceneMemory'
 
-
 installThreeConsoleFilter()
 
 afterEach(() => {

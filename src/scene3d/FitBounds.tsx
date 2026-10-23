@@ -13,7 +13,8 @@ function measure(root: Object3D): Bounds3 | null {
   const part = new Box3()
   const visit = (object: Object3D) => {
     if (object.userData.noFit || !object.visible) return
-    const geometry = (object as Object3D & { geometry?: { boundingBox: Box3 | null; computeBoundingBox: () => void } }).geometry
+    const geometry = (object as Object3D & { geometry?: { boundingBox: Box3 | null; computeBoundingBox: () => void } })
+      .geometry
     if (geometry) {
       if (!geometry.boundingBox) geometry.computeBoundingBox()
       if (geometry.boundingBox && !geometry.boundingBox.isEmpty()) {
@@ -31,7 +32,8 @@ function measure(root: Object3D): Bounds3 | null {
 const SETTLE_MS = [150, 600, 1500]
 
 const close = (a: Bounds3 | null, b: Bounds3) =>
-  a !== null && [0, 1, 2].every((axis) => Math.abs(a.min[axis] - b.min[axis]) < 1e-3 && Math.abs(a.max[axis] - b.max[axis]) < 1e-3)
+  a !== null &&
+  [0, 1, 2].every((axis) => Math.abs(a.min[axis] - b.min[axis]) < 1e-3 && Math.abs(a.max[axis] - b.max[axis]) < 1e-3)
 
 /**
  * Measures the world bounds of its children when the scene opens and whenever `refitKey`
@@ -39,7 +41,11 @@ const close = (a: Bounds3 | null, b: Bounds3) =>
  * parts are measured where they start; later motion never reframes the camera. Mark objects
  * that should not count (floor, grids, long field lines) with `userData={NO_FIT}`.
  */
-export function FitBounds({ refitKey, onBounds, children }: PropsWithChildren<{ refitKey: string; onBounds: (bounds: Bounds3) => void }>) {
+export function FitBounds({
+  refitKey,
+  onBounds,
+  children,
+}: PropsWithChildren<{ refitKey: string; onBounds: (bounds: Bounds3) => void }>) {
   const group = useRef<Group>(null)
   const last = useRef<Bounds3 | null>(null)
   useLayoutEffect(() => {

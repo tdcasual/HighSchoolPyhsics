@@ -329,11 +329,16 @@ function evaluateNode(node: ExpressionNode, timeS: number): number {
       const left = evaluateNode(node.left, timeS)
       const right = evaluateNode(node.right, timeS)
       switch (node.operator) {
-        case '+': return left + right
-        case '-': return left - right
-        case '*': return left * right
-        case '/': return left / right
-        case '^': return left ** right
+        case '+':
+          return left + right
+        case '-':
+          return left - right
+        case '*':
+          return left * right
+        case '/':
+          return left / right
+        case '^':
+          return left ** right
       }
       return 0
     }
@@ -364,9 +369,7 @@ export function compileVoltageExpression(source: string): CompiledVoltageExpress
       },
     }
   } catch (error) {
-    const message = error instanceof FormulaParseError
-      ? error.message
-      : '公式解析失败，请检查输入'
+    const message = error instanceof FormulaParseError ? error.message : '公式解析失败，请检查输入'
     return fallback(normalizedSource, message)
   }
 }

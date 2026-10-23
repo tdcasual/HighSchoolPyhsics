@@ -4,10 +4,7 @@ import { SceneLayout } from '../../ui/layout/SceneLayout'
 import { ElectrostaticLabControls } from './ElectrostaticLabControls'
 import { ElectrostaticLabRig3D } from './ElectrostaticLabRig3D'
 import { samplePotentialTerrainHeight } from './model'
-import {
-  ELECTROSTATIC_LAB_SCENE_BOUNDS,
-  useElectrostaticLabSceneState,
-} from './useElectrostaticLabSceneState'
+import { ELECTROSTATIC_LAB_SCENE_BOUNDS, useElectrostaticLabSceneState } from './useElectrostaticLabSceneState'
 
 export function ElectrostaticLabScene() {
   const state = useElectrostaticLabSceneState()
@@ -18,9 +15,15 @@ export function ElectrostaticLabScene() {
   const focusTarget = state.probePoint
     ? ([state.probePoint.x, resolveFocusHeight(state.probePoint), state.probePoint.z] as [number, number, number])
     : state.selectedCharge
-      ? ([state.selectedCharge.x, resolveFocusHeight(state.selectedCharge), state.selectedCharge.z] as [number, number, number])
+      ? ([state.selectedCharge.x, resolveFocusHeight(state.selectedCharge), state.selectedCharge.z] as [
+          number,
+          number,
+          number,
+        ])
       : null
-  const presentationFocus = focusTarget ? { mode: 'focus' as const, primary: focusTarget } : { mode: 'overview' as const }
+  const presentationFocus = focusTarget
+    ? { mode: 'focus' as const, primary: focusTarget }
+    : { mode: 'overview' as const }
 
   return (
     <SceneLayout
@@ -28,12 +31,29 @@ export function ElectrostaticLabScene() {
       dataOverlay={
         <DataRows
           rows={[
-            { label: '电荷方案', value: <>{state.presetLabel}（+{state.chargeSummary.positiveCount} / −{state.chargeSummary.negativeCount}）</> },
-            { label: '相对电势范围', value: <>{state.terrain.stats.minPotential.toFixed(2)} ~ {state.terrain.stats.maxPotential.toFixed(2)}</> },
+            {
+              label: '电荷方案',
+              value: (
+                <>
+                  {state.presetLabel}（+{state.chargeSummary.positiveCount} / −{state.chargeSummary.negativeCount}）
+                </>
+              ),
+            },
+            {
+              label: '相对电势范围',
+              value: (
+                <>
+                  {state.terrain.stats.minPotential.toFixed(2)} ~ {state.terrain.stats.maxPotential.toFixed(2)}
+                </>
+              ),
+            },
             { label: '当前模式', value: state.modeLabel },
-            { label: '探针读数（相对）', value: state.probeReadout
+            {
+              label: '探针读数（相对）',
+              value: state.probeReadout
                 ? `φ = ${state.probeReadout.potential.toFixed(2)}，|E| = ${state.probeReadout.field.magnitude.toFixed(2)}`
-                : '未放置' },
+                : '未放置',
+            },
           ]}
         />
       }

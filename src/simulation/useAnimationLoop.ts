@@ -18,7 +18,11 @@ export type AnimationLoopOptions = {
  * frame time capped and scaled by slow motion. useSimulationClock builds play / pause / 单步 on
  * it; scenes whose state machine owns its own `running` flag (cart, instruments) use it directly.
  */
-export function useAnimationLoop(active: boolean, onFrame: (dt: number) => void, options: AnimationLoopOptions = {}): void {
+export function useAnimationLoop(
+  active: boolean,
+  onFrame: (dt: number) => void,
+  options: AnimationLoopOptions = {},
+): void {
   const latest = useRef({ onFrame, options })
   useEffect(() => {
     latest.current = { onFrame, options }

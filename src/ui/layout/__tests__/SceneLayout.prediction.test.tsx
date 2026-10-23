@@ -11,9 +11,22 @@ function renderWithAnswers() {
       viewport={<div>canvas</div>}
       dataOverlay={
         <div>
-          <p><span>已知 B</span><strong>1.0 T</strong></p>
-          <p><span>电动势</span><strong><Answer>0.50 V</Answer></strong></p>
-          <p><span>方向</span><strong><Answer>A → B</Answer></strong></p>
+          <p>
+            <span>已知 B</span>
+            <strong>1.0 T</strong>
+          </p>
+          <p>
+            <span>电动势</span>
+            <strong>
+              <Answer>0.50 V</Answer>
+            </strong>
+          </p>
+          <p>
+            <span>方向</span>
+            <strong>
+              <Answer>A → B</Answer>
+            </strong>
+          </p>
         </div>
       }
     />,
@@ -27,7 +40,11 @@ describe('SceneLayout prediction mode', () => {
       <SceneLayout
         controls={<div />}
         viewport={<div />}
-        dataOverlay={<p><Answer>2.66 mm</Answer></p>}
+        dataOverlay={
+          <p>
+            <Answer>2.66 mm</Answer>
+          </p>
+        }
         chart={<div>P 点位移图</div>}
         chartVisible
       />,

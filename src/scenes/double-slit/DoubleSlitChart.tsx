@@ -1,8 +1,21 @@
 import { memo, useEffect, useRef } from 'react'
 import { ChartCard } from '../../ui/charts/ChartCard'
 import { drawDark, drawReticle, drawScaleBar } from '../../ui/charts/canvasMarks'
-import { sizeCanvas, useAdaptiveResolution, useContainerWidth, useSettledQuality } from '../../ui/charts/useAdaptiveCanvas'
-import { drawInterferencePattern, drawWhiteLightPattern, setPatternCacheMax, PHYSICAL_VIEW_WIDTH, FILTER_PROFILES, type DoubleSlitParams, type FilterColor } from './model'
+import {
+  sizeCanvas,
+  useAdaptiveResolution,
+  useContainerWidth,
+  useSettledQuality,
+} from '../../ui/charts/useAdaptiveCanvas'
+import {
+  drawInterferencePattern,
+  drawWhiteLightPattern,
+  setPatternCacheMax,
+  PHYSICAL_VIEW_WIDTH,
+  FILTER_PROFILES,
+  type DoubleSlitParams,
+  type FilterColor,
+} from './model'
 import { INITIAL_MEASUREMENT_READOUT_MM } from './measurement'
 
 type DoubleSlitChartProps = {
@@ -34,7 +47,12 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
   const reticleRef = useRef<HTMLCanvasElement>(null)
   const { perf, dpr, currentScale, measure, revision } = useAdaptiveResolution()
   // White light sums many wavelengths: draw coarsely while a slider moves, finely once it rests.
-  const { isFull: isSettled, revision: settledRevision } = useSettledQuality(isWhiteLight, [params, filterColor, doubleSlitAngle, singleSlitAngle])
+  const { isFull: isSettled, revision: settledRevision } = useSettledQuality(isWhiteLight, [
+    params,
+    filterColor,
+    doubleSlitAngle,
+    singleSlitAngle,
+  ])
 
   useEffect(() => {
     setPatternCacheMax(perf.doubleSlitPatternCacheMax)
@@ -60,7 +78,22 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
         drawInterferencePattern(ctx, params, doubleSlitAngle, singleSlitAngle)
       }
     })
-  }, [params, isLightOn, isWhiteLight, filterColor, doubleSlitAngle, singleSlitAngle, fieldWidth, perf, dpr, currentScale, measure, revision, isSettled, settledRevision])
+  }, [
+    params,
+    isLightOn,
+    isWhiteLight,
+    filterColor,
+    doubleSlitAngle,
+    singleSlitAngle,
+    fieldWidth,
+    perf,
+    dpr,
+    currentScale,
+    measure,
+    revision,
+    isSettled,
+    settledRevision,
+  ])
 
   useEffect(() => {
     const canvas = reticleRef.current
@@ -73,11 +106,16 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
     const cx = size / 2
     const cy = size / 2
     const radius = size / 2 - 2
-    const offsetX = ((wheelReadoutMm - INITIAL_MEASUREMENT_READOUT_MM) * 1e-3) / PHYSICAL_VIEW_WIDTH * size
+    const offsetX = (((wheelReadoutMm - INITIAL_MEASUREMENT_READOUT_MM) * 1e-3) / PHYSICAL_VIEW_WIDTH) * size
     drawReticle(ctx, { cx, cy, radius, angleDeg: eyepieceAngle, offsetX, lit: isLightOn })
 
-    const wavelengthNm = isWhiteLight ? (filterColor === 'none' ? null : FILTER_PROFILES[filterColor].center) : params.wavelength
-    const spacingM = wavelengthNm === null ? 0 : (params.screenDistance * wavelengthNm * 1e-9) / (params.slitDistance * 1e-3)
+    const wavelengthNm = isWhiteLight
+      ? filterColor === 'none'
+        ? null
+        : FILTER_PROFILES[filterColor].center
+      : params.wavelength
+    const spacingM =
+      wavelengthNm === null ? 0 : (params.screenDistance * wavelengthNm * 1e-9) / (params.slitDistance * 1e-3)
     const spacingPx = (spacingM / PHYSICAL_VIEW_WIDTH) * size
     if (!(spacingPx > 8) || !Number.isFinite(spacingPx)) return
     drawScaleBar(ctx, { x: cx, y: cy + radius * 0.72, length: spacingPx, label: 'Δx' })
@@ -96,16 +134,45 @@ export const DoubleSlitChart = memo(function DoubleSlitChart({
         ctx.fillText(String(order), x, cy - radius * 0.12)
       }
     }
-  }, [eyepieceAngle, wheelReadoutMm, showFringeOrders, isLightOn, isWhiteLight, filterColor, params.screenDistance, params.wavelength, params.slitDistance, fieldWidth, dpr, currentScale, revision])
+  }, [
+    eyepieceAngle,
+    wheelReadoutMm,
+    showFringeOrders,
+    isLightOn,
+    isWhiteLight,
+    filterColor,
+    params.screenDistance,
+    params.wavelength,
+    params.slitDistance,
+    fieldWidth,
+    dpr,
+    currentScale,
+    revision,
+  ])
 
-  const spectrumLabel = filterColor === 'none' ? '白光' : filterColor === 'red' ? '红色滤光片' : filterColor === 'green' ? '绿色滤光片' : '蓝色滤光片'
+  const spectrumLabel =
+    filterColor === 'none'
+      ? '白光'
+      : filterColor === 'red'
+        ? '红色滤光片'
+        : filterColor === 'green'
+          ? '绿色滤光片'
+          : '蓝色滤光片'
   return (
     <ChartCard
       title="毛玻璃视场与测量分划板"
-      footer={<span className="chart-formula">{isWhiteLight && filterColor === 'none' ? '白光：不同波长的条纹间距不同' : 'Δx = Lλ / d　　λ = dΔx / L'}</span>}
+      footer={
+        <span className="chart-formula">
+          {isWhiteLight && filterColor === 'none' ? '白光：不同波长的条纹间距不同' : 'Δx = Lλ / d　　λ = dΔx / L'}
+        </span>
+      }
     >
       <div className="chart-field" data-shape="round" ref={fieldRef}>
-        <canvas ref={patternRef} role="img" aria-label={isWhiteLight ? spectrumLabel + '双缝干涉图样' : '双缝干涉图样'} />
+        <canvas
+          ref={patternRef}
+          role="img"
+          aria-label={isWhiteLight ? spectrumLabel + '双缝干涉图样' : '双缝干涉图样'}
+        />
         <canvas ref={reticleRef} role="img" aria-label="随测量头移动的分划板与亮纹序号" />
       </div>
     </ChartCard>

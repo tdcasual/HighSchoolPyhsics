@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { CIRCULAR_OFFSET, ORBIT_NODE, scenarioOf, worldOrbit } from './model'
-import { CELESTIAL_CAMERA, celestialPose, celestialView, diagramDepth, diagramScale, drawnOrbitRadius, labToScene, outerRadius } from './pose'
+import {
+  CELESTIAL_CAMERA,
+  celestialPose,
+  celestialView,
+  diagramDepth,
+  diagramScale,
+  drawnOrbitRadius,
+  labToScene,
+  outerRadius,
+} from './pose'
 
 describe('celestial pose', () => {
   it('maps lab north to scene up and keeps the orbit radius', () => {
@@ -21,10 +30,18 @@ describe('celestial pose', () => {
   })
 
   it('seats the default satellite on the shared orbit formula', () => {
-    const scenario = scenarioOf({ mode: 'circular', body: 'earth', r1: 1.1, r2: 3, phaseDeg: 90, inclinationDeg: 0, time: 0 })
+    const scenario = scenarioOf({
+      mode: 'circular',
+      body: 'earth',
+      r1: 1.1,
+      r2: 3,
+      phaseDeg: 90,
+      inclinationDeg: 0,
+      time: 0,
+    })
     const pose = celestialPose({ scenario, showVectors: true, showArea: true, showPlane: true, corotate: false })
     const scale = diagramScale(scenario)
-    expect(scale).toBeCloseTo((184 / 1.1) / 47, 10)
+    expect(scale).toBeCloseTo(184 / 1.1 / 47, 10)
     const expected = labToScene(worldOrbit(1.1 * scale, CIRCULAR_OFFSET, 0, ORBIT_NODE))
     const position = pose.satellites[0]?.position ?? [0, 0, 0]
     expect(position[0]).toBeCloseTo(expected[0], 8)
@@ -38,14 +55,26 @@ describe('celestial pose', () => {
   })
 
   it('frames a wide synchronous orbit and marks both burn points', () => {
-    const sync = scenarioOf({ mode: 'synchronous', body: 'moon', r1: 2, r2: 4, phaseDeg: 110, inclinationDeg: 0, time: 0 })
+    const sync = scenarioOf({
+      mode: 'synchronous',
+      body: 'moon',
+      r1: 2,
+      r2: 4,
+      phaseDeg: 110,
+      inclinationDeg: 0,
+      time: 0,
+    })
     expect(drawnOrbitRadius(sync)).toBeCloseTo(184 / 48, 8)
     const mobileView = celestialView(-25, 42, drawnOrbitRadius(sync), { aspect: 1.36 })
     const bound = drawnOrbitRadius(sync) * 1.22
     expect(mobileView.target).toEqual([0, 0, 0])
     expect(Math.asin(bound / mobileView.radius)).toBeLessThan((16 * Math.PI) / 180)
     // Beside the panel column: the body stays the target and is shifted to the area's centre.
-    const desktopView = celestialView(-35, 44, drawnOrbitRadius(sync), { aspect: 1.5, centerOffsetPixels: 154, viewportHeight: 589 })
+    const desktopView = celestialView(-35, 44, drawnOrbitRadius(sync), {
+      aspect: 1.5,
+      centerOffsetPixels: 154,
+      viewportHeight: 589,
+    })
     expect(desktopView.target).toEqual([0, 0, 0])
     expect(desktopView.screenOffset).toEqual([154, 0])
     // Below the panels on a phone: a shorter area means a farther camera.
@@ -54,8 +83,22 @@ describe('celestial pose', () => {
     expect(CELESTIAL_CAMERA.fov).toBe(32)
     expect(CELESTIAL_CAMERA.minDistance).toBe(6)
     expect(CELESTIAL_CAMERA.maxDistance).toBe(26)
-    const transfer = scenarioOf({ mode: 'transfer', body: 'earth', r1: 1.2, r2: 4, phaseDeg: 0, inclinationDeg: 26, time: 0 })
-    const pose = celestialPose({ scenario: transfer, showVectors: false, showArea: false, showPlane: true, corotate: true })
+    const transfer = scenarioOf({
+      mode: 'transfer',
+      body: 'earth',
+      r1: 1.2,
+      r2: 4,
+      phaseDeg: 0,
+      inclinationDeg: 26,
+      time: 0,
+    })
+    const pose = celestialPose({
+      scenario: transfer,
+      showVectors: false,
+      showArea: false,
+      showPlane: true,
+      corotate: true,
+    })
     const transferScale = diagramScale(transfer)
     expect(Math.hypot(...(pose.periapsis ?? [0, 0, 0]))).toBeCloseTo(1.2 * transferScale, 5)
     expect(Math.hypot(...(pose.apoapsis ?? [0, 0, 0]))).toBeCloseTo(4 * transferScale, 5)

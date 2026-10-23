@@ -25,7 +25,10 @@ function normalizePositive(value: number, fallback: number): number {
 
 export function buildDisplayTracePoints(options: BuildDisplayTraceOptions): Array<[number, number]> {
   const windowS = normalizePositive(options.windowS ?? DEFAULT_TRACE_WINDOW_S, DEFAULT_TRACE_WINDOW_S)
-  const sampleCount = Math.max(2, Math.floor(normalizePositive(options.samples ?? DEFAULT_TRACE_SAMPLES, DEFAULT_TRACE_SAMPLES)))
+  const sampleCount = Math.max(
+    2,
+    Math.floor(normalizePositive(options.samples ?? DEFAULT_TRACE_SAMPLES, DEFAULT_TRACE_SAMPLES)),
+  )
   const start = options.timeCursor - windowS
   const points: Array<[number, number]> = []
 

@@ -50,13 +50,15 @@ export function SegmentedControl({ options, value, onChange, columns, disabled =
             disabled={disabled}
             className={[
               'min-h-[44px] text-[0.72rem] md:text-[0.8rem] font-semibold transition-all duration-150 select-none rounded-[10px] disabled:cursor-not-allowed disabled:opacity-45',
-              active
-                ? 'active shadow-sm'
-                : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',
+              active ? 'active shadow-sm' : 'text-[var(--control-ink)] hover:bg-[var(--control-hover-bg)]',
             ].join(' ')}
-            style={active ? {
-              boxShadow: 'var(--panel-highlight-subtle)'
-            } : {}}
+            style={
+              active
+                ? {
+                    boxShadow: 'var(--panel-highlight-subtle)',
+                  }
+                : {}
+            }
             onClick={() => onChange(option.key)}
           >
             {option.label}

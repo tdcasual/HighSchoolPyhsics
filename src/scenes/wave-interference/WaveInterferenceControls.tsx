@@ -7,17 +7,27 @@ import type { WaveInterferenceSceneState } from './useWaveInterferenceSceneState
 
 type Props = Pick<
   WaveInterferenceSceneState,
-  | 'wavelength1' | 'setWavelength1'
-  | 'amplitude1' | 'setAmplitude1'
-  | 'wavelength2' | 'setWavelength2'
-  | 'amplitude2' | 'setAmplitude2'
-  | 'phaseDiff' | 'setPhaseDiff'
+  | 'wavelength1'
+  | 'setWavelength1'
+  | 'amplitude1'
+  | 'setAmplitude1'
+  | 'wavelength2'
+  | 'setWavelength2'
+  | 'amplitude2'
+  | 'setAmplitude2'
+  | 'phaseDiff'
+  | 'setPhaseDiff'
   | 'waveSpeed'
-  | 'playSpeed' | 'setPlaySpeed'
-  | 'isPlaying' | 'togglePlay'
-  | 'showChart' | 'toggleChart'
-  | 'showConstructive' | 'toggleConstructive'
-  | 'showDestructive' | 'toggleDestructive'
+  | 'playSpeed'
+  | 'setPlaySpeed'
+  | 'isPlaying'
+  | 'togglePlay'
+  | 'showChart'
+  | 'toggleChart'
+  | 'showConstructive'
+  | 'toggleConstructive'
+  | 'showDestructive'
+  | 'toggleDestructive'
   | 'reset'
 >
 
@@ -92,18 +102,28 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
           value={state.playSpeed}
           onChange={state.setPlaySpeed}
         />
-        <ModelNote><p className="text-xs leading-relaxed opacity-75">播放速度只改变动画时间倍率；波速 c 固定为 {state.waveSpeed.toFixed(1)} m/s，频率由 f = c / λ 决定。</p></ModelNote>
+        <ModelNote>
+          <p className="text-xs leading-relaxed opacity-75">
+            播放速度只改变动画时间倍率；波速 c 固定为 {state.waveSpeed.toFixed(1)} m/s，频率由 f = c / λ 决定。
+          </p>
+        </ModelNote>
       </ControlSection>
       <SceneActions
-        actions={[
-          { key: 'chart', label: state.showChart ? '隐藏X-t图' : '显示X-t图', onClick: state.toggleChart },
-        ]}
+        actions={[{ key: 'chart', label: state.showChart ? '隐藏X-t图' : '显示X-t图', onClick: state.toggleChart }]}
       />
       <ControlSection title="干涉线">
         <SceneActions
           actions={[
-            { key: 'constructive', label: state.showConstructive ? '隐藏相长线' : '显示相长线', onClick: state.toggleConstructive },
-            { key: 'destructive', label: state.showDestructive ? '隐藏相消线' : '显示相消线', onClick: state.toggleDestructive },
+            {
+              key: 'constructive',
+              label: state.showConstructive ? '隐藏相长线' : '显示相长线',
+              onClick: state.toggleConstructive,
+            },
+            {
+              key: 'destructive',
+              label: state.showDestructive ? '隐藏相消线' : '显示相消线',
+              onClick: state.toggleDestructive,
+            },
           ]}
         />
         {Math.abs(state.wavelength1 - state.wavelength2) >= 1e-6 && (
@@ -111,8 +131,12 @@ export function WaveInterferenceControls({ state }: { state: Props }) {
         )}
       </ControlSection>
       <ControlSection title="操作与图例">
-        <p className="text-xs leading-relaxed opacity-80">拖动红色 S₁、蓝色 S₂ 改变波源位置；拖动紫色 O 改变观察点。也可按住 Shift 并单击波面放置 O。</p>
-        <p className="text-xs leading-relaxed opacity-80">波面橙色表示正位移（凸起），青色表示负位移（凹陷）；绿色线为相长位置，紫色线为相消位置的平面投影。</p>
+        <p className="text-xs leading-relaxed opacity-80">
+          拖动红色 S₁、蓝色 S₂ 改变波源位置；拖动紫色 O 改变观察点。也可按住 Shift 并单击波面放置 O。
+        </p>
+        <p className="text-xs leading-relaxed opacity-80">
+          波面橙色表示正位移（凸起），青色表示负位移（凹陷）；绿色线为相长位置，紫色线为相消位置的平面投影。
+        </p>
         <p className="text-xs leading-relaxed opacity-80">模型采用理想稳态点波源；只有等振幅时，相消线才是波节。</p>
       </ControlSection>
     </div>

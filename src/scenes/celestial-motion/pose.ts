@@ -79,7 +79,7 @@ export function viewAngles(camera: Vec3) {
 export function diagramScale(scenario: Scenario) {
   if (scenario.mode === 'synchronous') return DIAGRAM_ORBIT_PX / DIAGRAM_SYNC_BODY_PX / scenario.q1
   const maxQ = scenario.mode === 'circular' ? scenario.q1 : scenario.q2
-  return (DIAGRAM_ORBIT_PX / maxQ) / DIAGRAM_BODY_PX
+  return DIAGRAM_ORBIT_PX / maxQ / DIAGRAM_BODY_PX
 }
 
 export function drawnOrbitRadius(scenario: Scenario) {
@@ -107,7 +107,12 @@ function scaleLab(vector: LabVec, factor: number): LabVec {
  * area of the canvas, seen from the teacher's 方位 / 仰角. The body stays the orbit target;
  * the screen offset moves it to the area's centre.
  */
-export function celestialView(azimuthDeg: number, elevationDeg: number, outer: number, area: FramingArea = {}): OrbitView {
+export function celestialView(
+  azimuthDeg: number,
+  elevationDeg: number,
+  outer: number,
+  area: FramingArea = {},
+): OrbitView {
   const heightFraction = Math.max(0.2, area.heightFraction ?? 1)
   return {
     target: [0, 0, 0],
@@ -135,14 +140,13 @@ export function celestialPose(input: {
   const scale = diagramScale(scenario)
   const place = (vector: LabVec) => labToScene(scaleLab(vector, scale))
   const crafts = craftsAt(scenario)
-  const orbits = [
-    { id: 'orbit-inner', color: '#0d5c63', points: orbitSamples(scenario, 1).map(place) },
-  ]
+  const orbits = [{ id: 'orbit-inner', color: '#0d5c63', points: orbitSamples(scenario, 1).map(place) }]
   if (scenario.mode === 'rendezvous') {
     orbits.push({ id: 'orbit-outer', color: '#4a6168', points: orbitSamples(scenario, 2).map(place) })
   }
   const burns = burnPoints(scenario)
-  const track = scenario.mode === 'synchronous' ? groundPoint(scenario.inclination, scenario.phase, scenario.time) : null
+  const track =
+    scenario.mode === 'synchronous' ? groundPoint(scenario.inclination, scenario.phase, scenario.time) : null
   const station = scenario.mode === 'synchronous' ? groundPoint(scenario.inclination, scenario.phase, 0) : null
   const surface = (longitude: number, latitude: number, radius: number): LabVec => ({
     x: radius * Math.cos(latitude) * Math.cos(longitude),
@@ -170,7 +174,9 @@ export function celestialPose(input: {
         tangent: direction(position, place(craft.ahead)),
       }
     }),
-    wedges: input.showArea ? areaWedges(scenario).map((wedge) => ({ color: wedge.color, points: wedge.points.map(place) })) : [],
+    wedges: input.showArea
+      ? areaWedges(scenario).map((wedge) => ({ color: wedge.color, points: wedge.points.map(place) }))
+      : [],
     periapsis: burns ? place(burns.periapsis) : null,
     apoapsis: burns ? place(burns.apoapsis) : null,
     subsatellite: track ? labToScene(surface(track.inertialLongitude, track.latitude, 1.04)) : null,

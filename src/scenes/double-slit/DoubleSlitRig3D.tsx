@@ -3,7 +3,14 @@ import { useThree } from '@react-three/fiber'
 import { memo, useEffect, useMemo } from 'react'
 import { CanvasTexture, CylinderGeometry, DoubleSide, SRGBColorSpace } from 'three'
 import { buildSlitPlateLayout } from './apparatus'
-import { FILTER_HEX, drawInterferencePattern, drawWhiteLightPattern, PHYSICAL_VIEW_WIDTH, type DoubleSlitParams, type FilterColor } from './model'
+import {
+  FILTER_HEX,
+  drawInterferencePattern,
+  drawWhiteLightPattern,
+  PHYSICAL_VIEW_WIDTH,
+  type DoubleSlitParams,
+  type FilterColor,
+} from './model'
 import { INITIAL_MEASUREMENT_READOUT_MM, micrometerWheelRotationRadians } from './measurement'
 import { OpticalStageLighting, Stand } from '../../domains/optics/OpticalBench3D'
 import { MAT_BLACK_PLASTIC, MAT_METAL, useOpticalStage } from '../../domains/optics/opticalStage'
@@ -15,7 +22,15 @@ function markTextureDirty(texture: CanvasTexture) {
 }
 
 const MAT_DARK_METAL = { color: 0x222222, metalness: 0.5, roughness: 0.45 }
-const MAT_TRANSPARENT_TUBE = { color: 0x738390, metalness: 0.2, roughness: 0.65, transparent: true, opacity: 0.22, depthWrite: false, side: DoubleSide }
+const MAT_TRANSPARENT_TUBE = {
+  color: 0x738390,
+  metalness: 0.2,
+  roughness: 0.65,
+  transparent: true,
+  opacity: 0.22,
+  depthWrite: false,
+  side: DoubleSide,
+}
 const MAT_GLASS = { color: 0x88ccff, transparent: true, opacity: 0.4, metalness: 0.2, roughness: 0.2, side: DoubleSide }
 
 const OPTICAL_AXIS_Y = 4.5
@@ -42,7 +57,11 @@ type DoubleSlitRig3DProps = {
 }
 
 function Label({ text, position }: { text: string; position: [number, number, number] }) {
-  return <SceneLabel position={position} variant="dark">{text}</SceneLabel>
+  return (
+    <SceneLabel position={position} variant="dark">
+      {text}
+    </SceneLabel>
+  )
 }
 
 function SlitPlate({
@@ -61,7 +80,7 @@ function SlitPlate({
     [slitCount, params.slitDistance, params.slitWidth],
   )
   const material = slitCount === 1 ? MAT_BLACK_PLASTIC : MAT_DARK_METAL
-  const rotation = angle * Math.PI / 180
+  const rotation = (angle * Math.PI) / 180
 
   return (
     <group position={[x, OPTICAL_AXIS_Y, 0]} rotation={[rotation, 0, 0]}>
@@ -142,13 +161,13 @@ function ScreenPattern({
     ctx.clearRect(0, 0, size, size)
 
     const wheelOffsetMm = wheelReadoutMm - INITIAL_MEASUREMENT_READOUT_MM
-    const reticleOffsetPx = wheelOffsetMm * 1e-3 / PHYSICAL_VIEW_WIDTH * size
+    const reticleOffsetPx = ((wheelOffsetMm * 1e-3) / PHYSICAL_VIEW_WIDTH) * size
     ctx.save()
     ctx.beginPath()
     ctx.arc(center, center, radius, 0, Math.PI * 2)
     ctx.clip()
     ctx.translate(center + reticleOffsetPx, center)
-    ctx.rotate(eyepieceAngle * Math.PI / 180)
+    ctx.rotate((eyepieceAngle * Math.PI) / 180)
     ctx.strokeStyle = isLightOn ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.55)'
     ctx.lineWidth = 2
     ctx.beginPath()
@@ -164,11 +183,17 @@ function ScreenPattern({
     ctx.restore()
 
     const displayWavelengthNm = isWhiteLight
-      ? filterColor === 'none' ? null : filterColor === 'red' ? 650 : filterColor === 'green' ? 532 : 450
+      ? filterColor === 'none'
+        ? null
+        : filterColor === 'red'
+          ? 650
+          : filterColor === 'green'
+            ? 532
+            : 450
       : params.wavelength
     if (displayWavelengthNm !== null) {
-      const spacingM = params.screenDistance * displayWavelengthNm * 1e-9 / (params.slitDistance * 1e-3)
-      const spacingPx = spacingM / PHYSICAL_VIEW_WIDTH * size
+      const spacingM = (params.screenDistance * displayWavelengthNm * 1e-9) / (params.slitDistance * 1e-3)
+      const spacingPx = (spacingM / PHYSICAL_VIEW_WIDTH) * size
       if (spacingPx > 8 && Number.isFinite(spacingPx)) {
         const barY = center + radius * 0.72
         const barStartX = center - spacingPx / 2
@@ -206,12 +231,25 @@ function ScreenPattern({
     }
     markTextureDirty(display.reticleTexture)
     invalidate()
-  }, [display, invalidate, params, isLightOn, isWhiteLight, filterColor, eyepieceAngle, wheelReadoutMm, showFringeOrders])
+  }, [
+    display,
+    invalidate,
+    params,
+    isLightOn,
+    isWhiteLight,
+    filterColor,
+    eyepieceAngle,
+    wheelReadoutMm,
+    showFringeOrders,
+  ])
 
-  useEffect(() => () => {
-    display.patternTexture.dispose()
-    display.reticleTexture.dispose()
-  }, [display])
+  useEffect(
+    () => () => {
+      display.patternTexture.dispose()
+      display.reticleTexture.dispose()
+    },
+    [display],
+  )
 
   return (
     <group>
@@ -221,7 +259,13 @@ function ScreenPattern({
       </mesh>
       <mesh position={[screenX + 1.04, OPTICAL_AXIS_Y, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[2.4, 2.4]} />
-        <meshBasicMaterial map={display.reticleTexture} side={DoubleSide} transparent depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial
+          map={display.reticleTexture}
+          side={DoubleSide}
+          transparent
+          depthWrite={false}
+          toneMapped={false}
+        />
       </mesh>
     </group>
   )
@@ -247,11 +291,11 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
   const wheelOffsetMm = wheelReadoutMm - INITIAL_MEASUREMENT_READOUT_MM
   const reticleOffsetUnits = wheelOffsetMm * (2.4 / (PHYSICAL_VIEW_WIDTH * 1000))
   const wheelRotation = micrometerWheelRotationRadians(wheelReadoutMm)
-  const eyepieceRotation = eyepieceAngle * Math.PI / 180
-  const slitAngle = doubleSlitAngle * Math.PI / 180
+  const eyepieceRotation = (eyepieceAngle * Math.PI) / 180
+  const slitAngle = (doubleSlitAngle * Math.PI) / 180
   const slitSeparation = params.slitDistance * 2
-  const halfSeparationY = -Math.sin(slitAngle) * slitSeparation / 2
-  const halfSeparationZ = Math.cos(slitAngle) * slitSeparation / 2
+  const halfSeparationY = (-Math.sin(slitAngle) * slitSeparation) / 2
+  const halfSeparationZ = (Math.cos(slitAngle) * slitSeparation) / 2
 
   const stage = useOpticalStage()
   const { perf, shadowsEnabled, shadowProps } = stage
@@ -275,14 +319,55 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
   return (
     <group data-rig-scene="double-slit">
       <OpticalStageLighting stage={stage} />
-      <pointLight position={[-11, OPTICAL_AXIS_Y, 0]} intensity={isLightOn ? 1.5 : 0} distance={25} color={outgoingColor} />
+      <pointLight
+        position={[-11, OPTICAL_AXIS_Y, 0]}
+        intensity={isLightOn ? 1.5 : 0}
+        distance={25}
+        color={outgoingColor}
+      />
 
       {isLightOn && (
         <>
-          <Line points={[[-12.2, OPTICAL_AXIS_Y, 0], [SINGLE_SLIT_X, OPTICAL_AXIS_Y, 0]]} color={outgoingColor} lineWidth={2.5} transparent opacity={0.28} />
-          <Line points={[[SINGLE_SLIT_X, OPTICAL_AXIS_Y, 0], [DOUBLE_SLIT_X, OPTICAL_AXIS_Y, 0]]} color={outgoingColor} lineWidth={2} transparent opacity={0.22} />
-          <Line points={[[DOUBLE_SLIT_X, OPTICAL_AXIS_Y - halfSeparationY, -halfSeparationZ], [screenX, OPTICAL_AXIS_Y - halfSeparationY * 1.5, -halfSeparationZ * 1.5]]} color={outgoingColor} lineWidth={1.8} transparent opacity={0.2} />
-          <Line points={[[DOUBLE_SLIT_X, OPTICAL_AXIS_Y + halfSeparationY, halfSeparationZ], [screenX, OPTICAL_AXIS_Y + halfSeparationY * 1.5, halfSeparationZ * 1.5]]} color={outgoingColor} lineWidth={1.8} transparent opacity={0.2} />
+          <Line
+            points={[
+              [-12.2, OPTICAL_AXIS_Y, 0],
+              [SINGLE_SLIT_X, OPTICAL_AXIS_Y, 0],
+            ]}
+            color={outgoingColor}
+            lineWidth={2.5}
+            transparent
+            opacity={0.28}
+          />
+          <Line
+            points={[
+              [SINGLE_SLIT_X, OPTICAL_AXIS_Y, 0],
+              [DOUBLE_SLIT_X, OPTICAL_AXIS_Y, 0],
+            ]}
+            color={outgoingColor}
+            lineWidth={2}
+            transparent
+            opacity={0.22}
+          />
+          <Line
+            points={[
+              [DOUBLE_SLIT_X, OPTICAL_AXIS_Y - halfSeparationY, -halfSeparationZ],
+              [screenX, OPTICAL_AXIS_Y - halfSeparationY * 1.5, -halfSeparationZ * 1.5],
+            ]}
+            color={outgoingColor}
+            lineWidth={1.8}
+            transparent
+            opacity={0.2}
+          />
+          <Line
+            points={[
+              [DOUBLE_SLIT_X, OPTICAL_AXIS_Y + halfSeparationY, halfSeparationZ],
+              [screenX, OPTICAL_AXIS_Y + halfSeparationY * 1.5, halfSeparationZ * 1.5],
+            ]}
+            color={outgoingColor}
+            lineWidth={1.8}
+            transparent
+            opacity={0.2}
+          />
         </>
       )}
 
@@ -304,7 +389,11 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
       </mesh>
 
       <Stand xPos={SOURCE_X} height={3} radialSegments={geoDetail.cylinderRadialSegments} />
-      <mesh position={[SOURCE_X, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
+      <mesh
+        position={[SOURCE_X, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+        {...(shadowsEnabled ? { castShadow: true } : {})}
+      >
         <cylinderGeometry args={[1.2, 1.2, 2, geoDetail.cylinderRadialSegments]} />
         <meshStandardMaterial {...MAT_BLACK_PLASTIC} />
       </mesh>
@@ -330,7 +419,14 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
           <Stand xPos={FILTER_X} height={3} radialSegments={geoDetail.cylinderRadialSegments} />
           <mesh position={[FILTER_X, OPTICAL_AXIS_Y, 0]} rotation={[0, Math.PI / 2, 0]}>
             <planeGeometry args={[1.6, 1.6]} />
-            <meshStandardMaterial color={FILTER_HEX[filterColor]} transparent opacity={0.6} side={DoubleSide} emissive={FILTER_HEX[filterColor]} emissiveIntensity={0.2} />
+            <meshStandardMaterial
+              color={FILTER_HEX[filterColor]}
+              transparent
+              opacity={0.6}
+              side={DoubleSide}
+              emissive={FILTER_HEX[filterColor]}
+              emissiveIntensity={0.2}
+            />
           </mesh>
           <Label text="滤光片" position={[FILTER_X, OPTICAL_AXIS_Y + 3, -0.7]} />
         </>
@@ -356,15 +452,34 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
       </mesh>
       <Label text="双缝开口" position={[DOUBLE_SLIT_X - 2, OPTICAL_AXIS_Y + 6, -0.8]} />
 
-      <mesh position={[TUBE_START_X, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, -Math.PI / 2]} scale={[1, tubeLength, 1]} {...shadowProps} geometry={tubeGeo}>
+      <mesh
+        position={[TUBE_START_X, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, -Math.PI / 2]}
+        scale={[1, tubeLength, 1]}
+        {...shadowProps}
+        geometry={tubeGeo}
+      >
         <meshStandardMaterial {...MAT_TRANSPARENT_TUBE} />
       </mesh>
       <Label text="遮光筒（剖视示意）" position={[TUBE_START_X + tubeLength / 2, OPTICAL_AXIS_Y + 0.5, 0]} />
 
       <Stand xPos={screenX} height={3.5} radialSegments={geoDetail.cylinderRadialSegments} />
-      <mesh position={[screenX, OPTICAL_AXIS_Y, 0]} rotation={[0, 0, Math.PI / 2]} {...(shadowsEnabled ? { castShadow: true } : {})}>
+      <mesh
+        position={[screenX, OPTICAL_AXIS_Y, 0]}
+        rotation={[0, 0, Math.PI / 2]}
+        {...(shadowsEnabled ? { castShadow: true } : {})}
+      >
         <cylinderGeometry args={[1.25, 1.25, 2, geoDetail.cylinderRadialSegments]} />
-        <meshStandardMaterial color={isLightOn ? outgoingColor : 0x17191c} transparent opacity={0.5} roughness={0.92} metalness={0.05} emissive={isLightOn ? outgoingColor : 0x000000} emissiveIntensity={isLightOn ? 0.08 : 0} depthWrite={false} />
+        <meshStandardMaterial
+          color={isLightOn ? outgoingColor : 0x17191c}
+          transparent
+          opacity={0.5}
+          roughness={0.92}
+          metalness={0.05}
+          emissive={isLightOn ? outgoingColor : 0x000000}
+          emissiveIntensity={isLightOn ? 0.08 : 0}
+          depthWrite={false}
+        />
       </mesh>
       <ScreenPattern
         screenX={screenX}
@@ -402,16 +517,32 @@ export const DoubleSlitRig3D = memo(function DoubleSlitRig3D({
       </mesh>
       <Line
         points={[
-          [eyepieceX - 1.27, OPTICAL_AXIS_Y - 0.45 * Math.cos(eyepieceRotation), reticleOffsetUnits - 0.45 * Math.sin(eyepieceRotation)],
-          [eyepieceX - 1.27, OPTICAL_AXIS_Y + 0.45 * Math.cos(eyepieceRotation), reticleOffsetUnits + 0.45 * Math.sin(eyepieceRotation)],
+          [
+            eyepieceX - 1.27,
+            OPTICAL_AXIS_Y - 0.45 * Math.cos(eyepieceRotation),
+            reticleOffsetUnits - 0.45 * Math.sin(eyepieceRotation),
+          ],
+          [
+            eyepieceX - 1.27,
+            OPTICAL_AXIS_Y + 0.45 * Math.cos(eyepieceRotation),
+            reticleOffsetUnits + 0.45 * Math.sin(eyepieceRotation),
+          ],
         ]}
         color="#b7f7dc"
         lineWidth={1.5}
       />
       <Line
         points={[
-          [eyepieceX - 1.27, OPTICAL_AXIS_Y + 0.45 * Math.sin(eyepieceRotation), reticleOffsetUnits - 0.45 * Math.cos(eyepieceRotation)],
-          [eyepieceX - 1.27, OPTICAL_AXIS_Y - 0.45 * Math.sin(eyepieceRotation), reticleOffsetUnits + 0.45 * Math.cos(eyepieceRotation)],
+          [
+            eyepieceX - 1.27,
+            OPTICAL_AXIS_Y + 0.45 * Math.sin(eyepieceRotation),
+            reticleOffsetUnits - 0.45 * Math.cos(eyepieceRotation),
+          ],
+          [
+            eyepieceX - 1.27,
+            OPTICAL_AXIS_Y - 0.45 * Math.sin(eyepieceRotation),
+            reticleOffsetUnits + 0.45 * Math.cos(eyepieceRotation),
+          ],
         ]}
         color="#b7f7dc"
         lineWidth={1.5}

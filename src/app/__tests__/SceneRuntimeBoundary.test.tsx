@@ -41,11 +41,7 @@ describe('SceneRuntimeBoundary', () => {
     const onRetryScene = vi.fn()
 
     render(
-      <SceneRuntimeBoundary
-        scenePath="/oscilloscope"
-        onBackToOverview={() => undefined}
-        onRetryScene={onRetryScene}
-      >
+      <SceneRuntimeBoundary scenePath="/oscilloscope" onBackToOverview={() => undefined} onRetryScene={onRetryScene}>
         <recoverableScene.RecoverableScene />
       </SceneRuntimeBoundary>,
     )

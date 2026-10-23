@@ -45,11 +45,7 @@ function extractHeadArchive(repoRoot, destinationDir) {
         resolve()
         return
       }
-      reject(
-        new Error(
-          `git archive/tar extraction failed (git=${archiveExitCode}, tar=${unpackExitCode})`,
-        ),
-      )
+      reject(new Error(`git archive/tar extraction failed (git=${archiveExitCode}, tar=${unpackExitCode})`))
     }
 
     archive.stdout.pipe(unpack.stdin)

@@ -24,9 +24,7 @@ describe('TextField', () => {
   it('passes text value to onChange', () => {
     const onChange = vi.fn()
 
-    render(
-      <TextField id="scope-expression" label="Ux(t) 函数" value="0" onChange={onChange} />,
-    )
+    render(<TextField id="scope-expression" label="Ux(t) 函数" value="0" onChange={onChange} />)
 
     fireEvent.change(screen.getByLabelText('Ux(t) 函数'), {
       target: { value: '8*sawtooth(2*pi*2*t)' },

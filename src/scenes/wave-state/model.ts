@@ -53,7 +53,7 @@ export function hasWaveReached(x: number, time: number, params: WaveParams): boo
 export function phaseAt(x: number, time: number, params: WaveParams): number {
   if (!hasWaveReached(x, time, params)) return 0
   const elapsedSinceArrival = Math.max(0, time - waveArrivalTime(x, params))
-  return TWO_PI * elapsedSinceArrival / Math.max(EPSILON, params.period)
+  return (TWO_PI * elapsedSinceArrival) / Math.max(EPSILON, params.period)
 }
 function startSign(params: WaveParams): number {
   return (params.startDirection ?? 'up') === 'up' ? 1 : -1
@@ -80,7 +80,10 @@ function particleAt(x: number, time: number, params: WaveParams): WaveParticle {
   const velocity = waveVelocity(x, time, params)
   const acceleration = waveAcceleration(x, time, params)
   return {
-    x, y, velocity, acceleration,
+    x,
+    y,
+    velocity,
+    acceleration,
     velocityDirection: directionOf(velocity),
     accelerationDirection: directionOf(acceleration),
     hasReached: hasWaveReached(x, time, params),
@@ -90,7 +93,7 @@ function particleAt(x: number, time: number, params: WaveParams): WaveParticle {
 export function buildWavePoints(time: number, params: WaveParams, samples = 161): Array<[number, number]> {
   const count = Math.max(2, Math.floor(samples))
   return Array.from({ length: count }, (_, index) => {
-    const x = index / (count - 1) * WAVE_DOMAIN_LENGTH
+    const x = (index / (count - 1)) * WAVE_DOMAIN_LENGTH
     return [x, waveDisplacement(x, time, params)]
   })
 }
@@ -115,7 +118,7 @@ export function buildProbeTrace(params: WaveParams, samples = 96, probeX = DEFAU
   const count = Math.max(2, Math.floor(samples))
   const endTime = waveArrivalTime(probeX, params) + Math.max(EPSILON, params.period)
   return Array.from({ length: count }, (_, index) => {
-    const time = index / (count - 1) * endTime
+    const time = (index / (count - 1)) * endTime
     return [time, waveDisplacement(probeX, time, params)]
   })
 }

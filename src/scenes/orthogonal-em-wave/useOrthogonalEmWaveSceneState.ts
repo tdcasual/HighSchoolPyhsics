@@ -23,7 +23,21 @@ export type OrthogonalEmWaveSceneState = EmWaveParams & {
   reset: () => void
 }
 
-type Simulation = Omit<OrthogonalEmWaveSceneState, 'running' | 'readings' | 'setAmplitude' | 'setWavelength' | 'setSpeed' | 'setDirection' | 'setViewMode' | 'setShowOrthogonality' | 'setShowProjectionMarks' | 'toggleRunning' | 'step' | 'reset'>
+type Simulation = Omit<
+  OrthogonalEmWaveSceneState,
+  | 'running'
+  | 'readings'
+  | 'setAmplitude'
+  | 'setWavelength'
+  | 'setSpeed'
+  | 'setDirection'
+  | 'setViewMode'
+  | 'setShowOrthogonality'
+  | 'setShowProjectionMarks'
+  | 'toggleRunning'
+  | 'step'
+  | 'reset'
+>
 const INITIAL_SIMULATION: Simulation = {
   amplitude: 1,
   wavelength: 4,
@@ -36,10 +50,20 @@ const INITIAL_SIMULATION: Simulation = {
 }
 
 /** Teacher-set parameters restored when the scene is opened again (run state is not). */
-const REMEMBERED_FIELDS = ['amplitude', 'wavelength', 'speed', 'direction', 'viewMode', 'showOrthogonality', 'showProjectionMarks'] as const
+const REMEMBERED_FIELDS = [
+  'amplitude',
+  'wavelength',
+  'speed',
+  'direction',
+  'viewMode',
+  'showOrthogonality',
+  'showProjectionMarks',
+] as const
 
 export function useOrthogonalEmWaveSceneState(): OrthogonalEmWaveSceneState {
-  const [simulation, setSimulation] = useState<Simulation>(() => rememberFields('orthogonal-em-wave', INITIAL_SIMULATION, REMEMBERED_FIELDS))
+  const [simulation, setSimulation] = useState<Simulation>(() =>
+    rememberFields('orthogonal-em-wave', INITIAL_SIMULATION, REMEMBERED_FIELDS),
+  )
   useRememberFields('orthogonal-em-wave', simulation, REMEMBERED_FIELDS)
   // 单步 = T/4 = λ/(4v).
   const clock = useSimulationClock({

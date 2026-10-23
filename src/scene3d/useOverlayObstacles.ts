@@ -6,11 +6,18 @@ export type ScreenRect = { left: number; top: number; right: number; bottom: num
 const OVERLAY_SELECTOR = '.sidebar-panel, .floating-panel, .interaction-hint'
 
 function sameRects(a: ScreenRect[], b: ScreenRect[]): boolean {
-  return a.length === b.length && a.every((rect, index) => {
-    const other = b[index]
-    return Math.abs(rect.left - other.left) < 4 && Math.abs(rect.top - other.top) < 4 &&
-      Math.abs(rect.right - other.right) < 4 && Math.abs(rect.bottom - other.bottom) < 4
-  })
+  return (
+    a.length === b.length &&
+    a.every((rect, index) => {
+      const other = b[index]
+      return (
+        Math.abs(rect.left - other.left) < 4 &&
+        Math.abs(rect.top - other.top) < 4 &&
+        Math.abs(rect.right - other.right) < 4 &&
+        Math.abs(rect.bottom - other.bottom) < 4
+      )
+    })
+  )
 }
 
 /**
@@ -42,7 +49,12 @@ export function useOverlayObstacles(ref: RefObject<HTMLElement | null>, refitKey
       layoutRoot.querySelectorAll<HTMLElement>(OVERLAY_SELECTOR).forEach((overlay) => {
         const rect = overlay.getBoundingClientRect()
         if (rect.width < 1 || rect.height < 1) return
-        next.push({ left: rect.left - base.left, top: rect.top - base.top, right: rect.right - base.left, bottom: rect.bottom - base.top })
+        next.push({
+          left: rect.left - base.left,
+          top: rect.top - base.top,
+          right: rect.right - base.left,
+          bottom: rect.bottom - base.top,
+        })
       })
       setSnapshot((previous) =>
         Math.abs(previous.width - base.width) < 1 && sameRects(previous.obstacles, next)

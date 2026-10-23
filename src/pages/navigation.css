@@ -111,7 +111,9 @@
   font-size: 0.88rem;
   font-weight: 600;
   text-decoration: none;
-  transition: border-color 150ms ease, color 150ms ease;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
 .scene-overview-jump-link::before {
@@ -223,7 +225,11 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   background:
-    radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--scene-card-accent) 18%, transparent), transparent 70%),
+    radial-gradient(
+      120% 90% at 30% 20%,
+      color-mix(in srgb, var(--scene-card-accent) 18%, transparent),
+      transparent 70%
+    ),
     var(--overview-thumb-bg);
 }
 

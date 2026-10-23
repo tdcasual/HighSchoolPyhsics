@@ -29,29 +29,40 @@ export function Oscilloscope3dScene() {
   const state = useOscilloscope3dSceneState()
   const effectiveTrigger = state.mode === 'scan' ? state.trigger : true
   const trace = useMemo(
-    () => state.mode === 'xy'
-      ? buildXYTrace({ xy: state.xy, elapsed: state.elapsed })
-      : buildNormalTrace({
-          wave: state.wave,
-          amplitudeV: state.amplitudeV,
-          frequencyHz: state.frequencyHz,
-          voltsDiv: state.voltsDiv,
-          timeDiv: state.timeDiv,
-          elapsed: state.elapsed,
-          trigger: effectiveTrigger,
-        }),
-    [state.mode, state.xy, state.elapsed, state.wave, state.amplitudeV, state.frequencyHz, state.voltsDiv, state.timeDiv, effectiveTrigger],
+    () =>
+      state.mode === 'xy'
+        ? buildXYTrace({ xy: state.xy, elapsed: state.elapsed })
+        : buildNormalTrace({
+            wave: state.wave,
+            amplitudeV: state.amplitudeV,
+            frequencyHz: state.frequencyHz,
+            voltsDiv: state.voltsDiv,
+            timeDiv: state.timeDiv,
+            elapsed: state.elapsed,
+            trigger: effectiveTrigger,
+          }),
+    [
+      state.mode,
+      state.xy,
+      state.elapsed,
+      state.wave,
+      state.amplitudeV,
+      state.frequencyHz,
+      state.voltsDiv,
+      state.timeDiv,
+      effectiveTrigger,
+    ],
   )
   const beamProgress = deriveBeamProgress(state.mode, state.elapsed, state.timeDiv)
   const beam = trace[Math.floor(beamProgress * (trace.length - 1))] ?? [0, 0]
-  const selectedLabel = state.selectedPart ? PART_LABELS[state.selectedPart] ?? state.selectedPart : '未选择部件'
+  const selectedLabel = state.selectedPart ? (PART_LABELS[state.selectedPart] ?? state.selectedPart) : '未选择部件'
 
   const isMeasuring = state.mode !== 'xy' && state.mode !== 'structure'
 
   return (
     <SceneLayout
       controls={<Oscilloscope3dControls state={state} />}
-      viewport={(
+      viewport={
         <FittedCanvas
           shot={{ from: [14.1, 8.8, 18.4], to: [0.2, 0, 0] }}
           fov={40}
@@ -76,27 +87,74 @@ export function Oscilloscope3dScene() {
             trace={trace}
           />
         </FittedCanvas>
-      )}
-      dataOverlay={(
+      }
+      dataOverlay={
         <DataRows
           className="osc3d-telemetry"
           // Results only: the X/Y waveforms and amplitudes are already in the sidebar.
           rows={[
             { label: '工作模式', value: MODE_LABELS[state.mode] },
             { label: '选中部件', value: selectedLabel, when: state.mode === 'structure' },
-            { label: '信号路径', value: '电子枪 → Y 偏转板 → X 偏转板 → 荧光屏', className: 'osc3d-conclusion', when: state.mode === 'structure' },
-            { label: '频率比 X:Y', value: <>{state.xy.xRate}:{state.xy.yRate}</>, when: state.mode === 'xy' },
+            {
+              label: '信号路径',
+              value: '电子枪 → Y 偏转板 → X 偏转板 → 荧光屏',
+              className: 'osc3d-conclusion',
+              when: state.mode === 'structure',
+            },
+            {
+              label: '频率比 X:Y',
+              value: (
+                <>
+                  {state.xy.xRate}:{state.xy.yRate}
+                </>
+              ),
+              when: state.mode === 'xy',
+            },
             { label: '相位差', value: <>{state.xy.phaseDeg}°</>, when: state.mode === 'xy' },
-            { label: '轨迹关系', value: state.xyConclusion, answer: true, className: 'osc3d-conclusion', when: state.mode === 'xy' },
+            {
+              label: '轨迹关系',
+              value: state.xyConclusion,
+              answer: true,
+              className: 'osc3d-conclusion',
+              when: state.mode === 'xy',
+            },
             { label: 'Uₚₚ', value: <>{state.measurement.peakToPeakV.toFixed(1)} V</>, answer: true, when: isMeasuring },
-            { label: '周期 T', value: <>{state.measurement.periodMs.toFixed(2)} ms</>, answer: true, when: isMeasuring },
-            { label: '屏幕刻度', value: <>{state.measurement.verticalDivisions.toFixed(1)} × {state.measurement.horizontalDivisions.toFixed(1)}</>, when: isMeasuring },
+            {
+              label: '周期 T',
+              value: <>{state.measurement.periodMs.toFixed(2)} ms</>,
+              answer: true,
+              when: isMeasuring,
+            },
+            {
+              label: '屏幕刻度',
+              value: (
+                <>
+                  {state.measurement.verticalDivisions.toFixed(1)} × {state.measurement.horizontalDivisions.toFixed(1)}
+                </>
+              ),
+              when: isMeasuring,
+            },
             { label: '触发', value: state.trigger ? '同步锁定' : '自由漂移', when: state.mode === 'scan' },
           ]}
-          note={isMeasuring ? state.measurement.warnings.map((warning) => <p className="osc3d-warning" key={warning}>{warning}</p>) : null}
+          note={
+            isMeasuring
+              ? state.measurement.warnings.map((warning) => (
+                  <p className="osc3d-warning" key={warning}>
+                    {warning}
+                  </p>
+                ))
+              : null
+          }
         />
-      )}
-      chart={<Oscilloscope3dChart trace={trace} beam={beam} running={state.running} mode={state.mode === 'xy' ? 'X-Y 轨迹' : 'Y(t)'} />}
+      }
+      chart={
+        <Oscilloscope3dChart
+          trace={trace}
+          beam={beam}
+          running={state.running}
+          mode={state.mode === 'xy' ? 'X-Y 轨迹' : 'Y(t)'}
+        />
+      }
       chartVisible
       chartInitiallyCollapsed
       playbackActions={clockActions(

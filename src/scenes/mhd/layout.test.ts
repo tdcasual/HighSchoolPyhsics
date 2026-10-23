@@ -8,11 +8,7 @@ function dot(a: Vec3, b: Vec3): number {
 }
 
 function cross(a: Vec3, b: Vec3): Vec3 {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 
 function normalize(vector: Vec3): Vec3 {
@@ -31,9 +27,7 @@ function areVectorsPerpendicular(a: Vec3, b: Vec3, tolerance = 1e-6): boolean {
 
 describe('mhd layout', () => {
   it('keeps plasma flow perpendicular to magnetic field', () => {
-    expect(
-      areVectorsPerpendicular(MHD_LAYOUT.flow.direction, MHD_LAYOUT.magneticField.direction),
-    ).toBe(true)
+    expect(areVectorsPerpendicular(MHD_LAYOUT.flow.direction, MHD_LAYOUT.magneticField.direction)).toBe(true)
   })
 
   it('aligns induced electric field direction with electrode axis', () => {
@@ -43,7 +37,9 @@ describe('mhd layout', () => {
     const electrodeAxis = normalize(MHD_LAYOUT.electrodes.axis)
 
     expect(dot(inducedFieldDirection, electrodeAxis)).toBeGreaterThan(0.99)
-    expect(dot(normalize(cross(MHD_LAYOUT.flow.direction, MHD_LAYOUT.magneticField.direction)), electrodeAxis)).toBeLessThan(-0.99)
+    expect(
+      dot(normalize(cross(MHD_LAYOUT.flow.direction, MHD_LAYOUT.magneticField.direction)), electrodeAxis),
+    ).toBeLessThan(-0.99)
   })
 
   it('starts both wires from electrode contact points', () => {

@@ -249,7 +249,7 @@ describe('fastPow08', () => {
     for (const x of [0.5, 0.75, 0.9]) {
       const expected = Math.pow(x, 0.8)
       const actual = fastPow08(x)
-      expect(Math.abs(actual - expected) / expected).toBeLessThan(0.10)
+      expect(Math.abs(actual - expected) / expected).toBeLessThan(0.1)
     }
   })
 
@@ -328,7 +328,6 @@ describe('drawInterferencePattern pixel output', () => {
   })
 })
 
-
 describe('white-light measurement display and cache limit', () => {
   it('reports the pass-band fringe range for a selected filter', () => {
     // The shared red filter (domains/optics) passes 650 ± 30 nm.
@@ -337,23 +336,26 @@ describe('white-light measurement display and cache limit', () => {
   })
 
   it('enforces the configured pattern count on future cache inserts', () => {
-    const makeContext = (): CanvasRenderingContext2D => ({
-      canvas: { width: 20, height: 20 },
-      createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(20 * 20 * 4), width: 20, height: 20 })),
-      putImageData: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
-      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
-      strokeStyle: '',
-      lineWidth: 0,
-      fillStyle: '',
-    } as unknown as CanvasRenderingContext2D)
+    const makeContext = (): CanvasRenderingContext2D =>
+      ({
+        canvas: { width: 20, height: 20 },
+        createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(20 * 20 * 4), width: 20, height: 20 })),
+        putImageData: vi.fn(),
+        beginPath: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+        createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+        strokeStyle: '',
+        lineWidth: 0,
+        fillStyle: '',
+      }) as unknown as CanvasRenderingContext2D
 
     setPatternCacheMax(1)
     drawWhiteLightPattern(makeContext(), DEFAULT_PARAMS, 'red', 0, 0, 100)
-    expect(() => drawWhiteLightPattern(makeContext(), { ...DEFAULT_PARAMS, slitDistance: 0.3 }, 'blue', 0, 0, 100)).not.toThrow()
+    expect(() =>
+      drawWhiteLightPattern(makeContext(), { ...DEFAULT_PARAMS, slitDistance: 0.3 }, 'blue', 0, 0, 100),
+    ).not.toThrow()
     setPatternCacheMax(3)
   })
 })

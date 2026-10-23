@@ -36,13 +36,14 @@ export function useDraggable(options?: UseDraggableOptions) {
   const boundsRef = useRef(bounds)
   const draggingRef = useRef(false)
 
-  useEffect(() => { boundsRef.current = bounds }, [bounds])
+  useEffect(() => {
+    boundsRef.current = bounds
+  }, [bounds])
 
   // Follow layout positions while preserving the displayed position for offset-only changes.
   useEffect(() => {
     const previousPosition = prevInitialPositionRef.current
-    const positionChanged =
-      previousPosition.x !== initialX || previousPosition.y !== initialY
+    const positionChanged = previousPosition.x !== initialX || previousPosition.y !== initialY
     prevInitialPositionRef.current = { x: initialX, y: initialY }
 
     const followsLayout = positionChanged && !userMovedRef.current && !draggingRef.current
@@ -84,49 +85,42 @@ export function useDraggable(options?: UseDraggableOptions) {
         setPositionRaw(next)
       }
     }
-    window.addEventListener("resize", clampToViewport)
+    window.addEventListener('resize', clampToViewport)
     clampToViewport()
-    return () => window.removeEventListener("resize", clampToViewport)
+    return () => window.removeEventListener('resize', clampToViewport)
   }, [])
 
+  const setPosition = useCallback((pos: Position) => {
+    const clamped = clampPos(pos, resolveBounds(boundsRef.current))
+    basePositionRef.current = clamped
+    setPositionRaw(clamped)
+  }, [])
 
-  const setPosition = useCallback(
-    (pos: Position) => {
-      const clamped = clampPos(pos, resolveBounds(boundsRef.current))
+  const onPointerDown: PointerEventHandler = useCallback((event) => {
+    if (draggingRef.current) return
+    event.preventDefault()
+    draggingRef.current = true
+    const target = event.currentTarget as HTMLElement
+    target.setPointerCapture(event.pointerId)
+    const startPos = { ...basePositionRef.current }
+    const startPointer = { x: event.clientX, y: event.clientY }
+    const onMove = (e: PointerEvent) => {
+      userMovedRef.current = true
+      const dx = e.clientX - startPointer.x
+      const dy = e.clientY - startPointer.y
+      const resolved = resolveBounds(boundsRef.current)
+      const clamped = clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved)
       basePositionRef.current = clamped
       setPositionRaw(clamped)
-    },
-    [],
-  )
-
-  const onPointerDown: PointerEventHandler = useCallback(
-    (event) => {
-      if (draggingRef.current) return
-      event.preventDefault()
-      draggingRef.current = true
-      const target = event.currentTarget as HTMLElement
-      target.setPointerCapture(event.pointerId)
-      const startPos = { ...basePositionRef.current }
-      const startPointer = { x: event.clientX, y: event.clientY }
-      const onMove = (e: PointerEvent) => {
-        userMovedRef.current = true
-        const dx = e.clientX - startPointer.x
-        const dy = e.clientY - startPointer.y
-        const resolved = resolveBounds(boundsRef.current)
-        const clamped = clampPos({ x: startPos.x + dx, y: startPos.y + dy }, resolved)
-        basePositionRef.current = clamped
-        setPositionRaw(clamped)
-      }
-      const onUp = () => {
-        draggingRef.current = false
-        window.removeEventListener('pointermove', onMove)
-        window.removeEventListener('pointerup', onUp)
-      }
-      window.addEventListener('pointermove', onMove)
-      window.addEventListener('pointerup', onUp)
-    },
-    [],
-  )
+    }
+    const onUp = () => {
+      draggingRef.current = false
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }, [])
 
   const finalX = position.x + (effectiveOffsetX ?? 0)
 

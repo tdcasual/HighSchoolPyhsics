@@ -101,10 +101,13 @@ export function EquipotentialControls({
       <p className="text-xs leading-relaxed text-[var(--control-ink-muted)]">
         最多 12 个场源；红色 + / 蓝色 − 表示场源符号，红色曲面为正电势、蓝色曲面为负电势。
       </p>
-      <ModelNote><p className="text-xs leading-relaxed text-[var(--control-ink-muted)]">
-        模型 φ<sub>rel</sub> = Σ qᵢ / √(rᵢ² + ε²)，q 为相对单位且未乘库仑常量 k，数值不是伏特。ε = 0.18 个模型坐标单位用于软化点电荷奇点。
-        等势层从采样盒边界电势插值到内部极值，避免把开放边界误画成完整曲面；红/蓝球大小只编码相对电量。
-      </p></ModelNote>
+      <ModelNote>
+        <p className="text-xs leading-relaxed text-[var(--control-ink-muted)]">
+          模型 φ<sub>rel</sub> = Σ qᵢ / √(rᵢ² + ε²)，q 为相对单位且未乘库仑常量 k，数值不是伏特。ε = 0.18
+          个模型坐标单位用于软化点电荷奇点。
+          等势层从采样盒边界电势插值到内部极值，避免把开放边界误画成完整曲面；红/蓝球大小只编码相对电量。
+        </p>
+      </ModelNote>
 
       <ControlSection title="选中电荷">
         <SelectField
@@ -192,14 +195,22 @@ export function EquipotentialControls({
           items={[
             { label: '正电势面层数', value: String(stats.positiveSurfaceCount) },
             { label: '负电势面层数', value: String(stats.negativeSurfaceCount) },
-            { label: '网格相对电势范围 (max/min)', value: stats.maxPotential.toFixed(1) + ' / ' + stats.minPotential.toFixed(1) },
-            { label: '正电势层值（相对）', value: positiveIsoValues.map((value) => '+' + value.toFixed(1)).join(' / ') || '无' },
-            { label: '负电势层值（相对）', value: negativeIsoValues.map((value) => value.toFixed(1)).join(' / ') || '无' },
+            {
+              label: '网格相对电势范围 (max/min)',
+              value: stats.maxPotential.toFixed(1) + ' / ' + stats.minPotential.toFixed(1),
+            },
+            {
+              label: '正电势层值（相对）',
+              value: positiveIsoValues.map((value) => '+' + value.toFixed(1)).join(' / ') || '无',
+            },
+            {
+              label: '负电势层值（相对）',
+              value: negativeIsoValues.map((value) => value.toFixed(1)).join(' / ') || '无',
+            },
             { label: '曲面网格三角形', value: String(stats.positiveTriangleCount + stats.negativeTriangleCount) },
           ]}
         />
       </ControlSection>
-
     </div>
   )
 }

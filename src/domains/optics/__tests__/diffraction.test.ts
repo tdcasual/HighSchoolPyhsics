@@ -29,7 +29,6 @@ import {
 } from '../diffraction'
 import { FILTER_PROFILES } from '../filters'
 
-
 function createPixelContext(width: number, height: number) {
   let imageData: { width: number; height: number; data: Uint8ClampedArray } | null = null
   const context = {
@@ -148,7 +147,7 @@ describe('gratingIntensity', () => {
     const a = d * 0.2
     const firstOrder = gratingIntensity(y1, DEFAULT_PARAMS)
     // At exact first order the grating factor tends to 1, leaving the slit envelope.
-    expect(firstOrder).toBeCloseTo((Math.sin(Math.PI * a / d) / (Math.PI * a / d)) ** 2, 4)
+    expect(firstOrder).toBeCloseTo((Math.sin((Math.PI * a) / d) / ((Math.PI * a) / d)) ** 2, 4)
   })
 
   it('uses line density and the declared illuminated width to set slit count', () => {
@@ -159,8 +158,8 @@ describe('gratingIntensity', () => {
 
   it('keeps slit, aperture, and grating settings in the declared far field', () => {
     const shortestWavelength = 400
-    const maximumSlit = { ...DEFAULT_PARAMS, apertureSize: 0.30 }
-    const maximumCircle = { ...DEFAULT_PARAMS, apertureSize: 0.50 }
+    const maximumSlit = { ...DEFAULT_PARAMS, apertureSize: 0.3 }
+    const maximumCircle = { ...DEFAULT_PARAMS, apertureSize: 0.5 }
     const slitMinimum = getFarFieldMinimumScreenDistance('single-slit', maximumSlit, shortestWavelength)
     const circleMinimum = getFarFieldMinimumScreenDistance('circular-aperture', maximumCircle, shortestWavelength)
     const gratingMinimum = getFarFieldMinimumScreenDistance('diffraction-grating', DEFAULT_PARAMS, shortestWavelength)
@@ -198,7 +197,12 @@ describe('gratingIntensity', () => {
     let peakBrightness = 0
     for (let x = Math.max(0, expectedPixel - 2); x <= Math.min(width - 1, expectedPixel + 2); x++) {
       const pixelIndex = (centerY * width + x) * 4
-      peakBrightness = Math.max(peakBrightness, image!.data[pixelIndex], image!.data[pixelIndex + 1], image!.data[pixelIndex + 2])
+      peakBrightness = Math.max(
+        peakBrightness,
+        image!.data[pixelIndex],
+        image!.data[pixelIndex + 1],
+        image!.data[pixelIndex + 2],
+      )
     }
 
     expect(peakBrightness).toBeGreaterThan(30)
@@ -243,9 +247,7 @@ describe('gratingFirstOrderAngle', () => {
 describe('parameter dependent display scales', () => {
   it('keeps the first single-slit minima inside the adaptive view', () => {
     const params = { ...DEFAULT_PARAMS, apertureSize: 0.02, wavelength: 700 }
-    expect(getPhysicalViewWidth('single-slit', params) / 2).toBeGreaterThan(
-      singleSlitCentralWidth(params) / 2,
-    )
+    expect(getPhysicalViewWidth('single-slit', params) / 2).toBeGreaterThan(singleSlitCentralWidth(params) / 2)
   })
 
   it('keeps the first grating order inside the adaptive view', () => {
@@ -280,11 +282,7 @@ describe('radial pattern screen mapping', () => {
     const centerX = Math.floor(width / 2)
     const centerY = Math.floor(height / 2)
     const pixelIndex = (centerY * width + centerX + ringRadiusPx) * 4
-    const ringBrightness = Math.max(
-      image!.data[pixelIndex],
-      image!.data[pixelIndex + 1],
-      image!.data[pixelIndex + 2],
-    )
+    const ringBrightness = Math.max(image!.data[pixelIndex], image!.data[pixelIndex + 1], image!.data[pixelIndex + 2])
 
     expect(ringBrightness).toBeLessThan(12)
   })
@@ -318,13 +316,17 @@ describe('filter-aware white-light feature readout', () => {
   it('limits the reported feature range to the selected filter passband', () => {
     const redRange = formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'single-slit', 'red')
     const { center, halfWidth } = FILTER_PROFILES.red
-    const redMinimum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: center - halfWidth }, 'single-slit').replace(/ mm$/, '')
+    const redMinimum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: center - halfWidth }, 'single-slit').replace(
+      / mm$/,
+      '',
+    )
     const redMaximum = formatCentralWidth({ ...DEFAULT_PARAMS, wavelength: center + halfWidth }, 'single-slit')
 
     expect(redRange).toBe(`${redMinimum}–${redMaximum}`)
     expect(redRange).not.toBe(formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'single-slit'))
-    expect(formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'diffraction-grating', 'green'))
-      .not.toBe(formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'diffraction-grating'))
+    expect(formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'diffraction-grating', 'green')).not.toBe(
+      formatWhiteLightFeatureValue(DEFAULT_PARAMS, 'diffraction-grating'),
+    )
   })
 })
 
@@ -344,7 +346,7 @@ describe('formatWhiteLightFeatureValue', () => {
 
 describe('clampApertureSize', () => {
   it('clamps to mode range', () => {
-    expect(clampApertureSize('single-slit', 0.5)).toBe(0.30)
+    expect(clampApertureSize('single-slit', 0.5)).toBe(0.3)
     expect(clampApertureSize('single-slit', 0.01)).toBe(0.02)
   })
 })

@@ -40,14 +40,24 @@ type Polarity = 'positive' | 'negative'
 type Point3 = [number, number, number]
 
 const CUBE_CORNERS = [
-  [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
-  [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1],
+  [0, 0, 0],
+  [1, 0, 0],
+  [0, 1, 0],
+  [1, 1, 0],
+  [0, 0, 1],
+  [1, 0, 1],
+  [0, 1, 1],
+  [1, 1, 1],
 ] as const
 
 // A consistent six-tetrahedron split around each cube's 0→7 diagonal.
 const TETRAHEDRA = [
-  [0, 5, 1, 7], [0, 1, 3, 7], [0, 3, 2, 7],
-  [0, 2, 6, 7], [0, 6, 4, 7], [0, 4, 5, 7],
+  [0, 5, 1, 7],
+  [0, 1, 3, 7],
+  [0, 3, 2, 7],
+  [0, 2, 6, 7],
+  [0, 6, 4, 7],
+  [0, 4, 5, 7],
 ] as const
 
 function computeIsoLevels(shellCount: number): number[] {
@@ -77,7 +87,8 @@ function findDomainPotentialExtrema(values: Float32Array, resolution: number): D
     for (let y = 0; y < resolution; y += 1) {
       for (let x = 0; x < resolution; x += 1) {
         const value = values[gridIndex(x, y, z, resolution)] ?? 0
-        const isBoundary = x === 0 || y === 0 || z === 0 || x === resolution - 1 || y === resolution - 1 || z === resolution - 1
+        const isBoundary =
+          x === 0 || y === 0 || z === 0 || x === resolution - 1 || y === resolution - 1 || z === resolution - 1
         if (isBoundary) {
           positiveBoundaryMax = Math.max(positiveBoundaryMax, value)
           negativeBoundaryMin = Math.min(negativeBoundaryMin, value)
@@ -112,9 +123,7 @@ function interpolateEdge(
   const valueA = values[a] ?? isoValue
   const valueB = values[b] ?? isoValue
   const denominator = valueB - valueA
-  const t = Math.abs(denominator) < 1e-12
-    ? 0.5
-    : Math.max(0, Math.min(1, (isoValue - valueA) / denominator))
+  const t = Math.abs(denominator) < 1e-12 ? 0.5 : Math.max(0, Math.min(1, (isoValue - valueA) / denominator))
   const offsetA = a * 3
   const offsetB = b * 3
   return [
@@ -140,11 +149,7 @@ function vertexKey(point: Point3): string {
   return `${Math.round(point[0] * 1e5)}:${Math.round(point[1] * 1e5)}:${Math.round(point[2] * 1e5)}`
 }
 
-function addIndexedVertex(
-  point: Point3,
-  positions: number[],
-  vertexLookup: Map<string, number>,
-): number {
+function addIndexedVertex(point: Point3, positions: number[], vertexLookup: Map<string, number>): number {
   const key = vertexKey(point)
   const existing = vertexLookup.get(key)
   if (existing !== undefined) return existing
@@ -195,9 +200,7 @@ function collectIsoSurface(
   const cubeIndices = new Int32Array(8)
   const insideIndices: number[] = []
   const outsideIndices: number[] = []
-  const isInside = polarity === 'positive'
-    ? (value: number) => value >= isoValue
-    : (value: number) => value <= isoValue
+  const isInside = polarity === 'positive' ? (value: number) => value >= isoValue : (value: number) => value <= isoValue
 
   for (let z = 0; z < resolution - 1; z += 1) {
     for (let y = 0; y < resolution - 1; y += 1) {
@@ -271,8 +274,12 @@ export function samplePotentialAtPoint(
 }
 
 export function buildEquipotentialSurfaces(options: BuildEquipotentialSurfacesOptions): EquipotentialSurfaceResult {
-  const validCharges = options.charges.filter((charge) =>
-    Number.isFinite(charge.x) && Number.isFinite(charge.y) && Number.isFinite(charge.z) && Number.isFinite(charge.magnitude),
+  const validCharges = options.charges.filter(
+    (charge) =>
+      Number.isFinite(charge.x) &&
+      Number.isFinite(charge.y) &&
+      Number.isFinite(charge.z) &&
+      Number.isFinite(charge.magnitude),
   )
   const positiveChargeCount = validCharges.filter((charge) => charge.magnitude > 0).length
   const negativeChargeCount = validCharges.filter((charge) => charge.magnitude < 0).length
@@ -328,12 +335,14 @@ export function buildEquipotentialSurfaces(options: BuildEquipotentialSurfacesOp
   const levels = computeIsoLevels(options.shellCount)
   const positiveBoundaryValue = Math.max(0, domainExtrema.positiveBoundaryMax)
   const negativeBoundaryValue = Math.min(0, domainExtrema.negativeBoundaryMin)
-  const positiveIsoValues = domainExtrema.positiveInteriorMax > positiveBoundaryValue + 1e-6
-    ? interpolateIsoLevels(positiveBoundaryValue, domainExtrema.positiveInteriorMax, levels)
-    : []
-  const negativeIsoValues = domainExtrema.negativeInteriorMin < negativeBoundaryValue - 1e-6
-    ? interpolateIsoLevels(negativeBoundaryValue, domainExtrema.negativeInteriorMin, levels)
-    : []
+  const positiveIsoValues =
+    domainExtrema.positiveInteriorMax > positiveBoundaryValue + 1e-6
+      ? interpolateIsoLevels(positiveBoundaryValue, domainExtrema.positiveInteriorMax, levels)
+      : []
+  const negativeIsoValues =
+    domainExtrema.negativeInteriorMin < negativeBoundaryValue - 1e-6
+      ? interpolateIsoLevels(negativeBoundaryValue, domainExtrema.negativeInteriorMin, levels)
+      : []
 
   positiveIsoValues.forEach((isoValue, index) => {
     const level = levels[index] ?? 0

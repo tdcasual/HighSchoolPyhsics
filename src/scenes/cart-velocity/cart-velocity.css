@@ -189,7 +189,6 @@
 }
 
 @media (max-width: 767px) {
-
   .cart-rig-label--cart {
     transform: translate(10px, -22px);
   }

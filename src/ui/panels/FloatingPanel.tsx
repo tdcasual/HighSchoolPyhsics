@@ -58,9 +58,8 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
       const vh = window.innerHeight
       const w = panelSize?.width ?? el.getBoundingClientRect().width
       const h = panelSize?.height ?? el.getBoundingClientRect().height
-      const parentRect = el.offsetParent instanceof HTMLElement
-        ? el.offsetParent.getBoundingClientRect()
-        : { left: 0, top: 0 }
+      const parentRect =
+        el.offsetParent instanceof HTMLElement ? el.offsetParent.getBoundingClientRect() : { left: 0, top: 0 }
       const renderedOffsetX = offsetX ?? 0
       return {
         left: VIEWPORT_MARGIN - parentRect.left - renderedOffsetX,
@@ -85,7 +84,7 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
         setMaxContentHeight(next)
       }
       if (resizable && panelSize && panelSize.height > available) {
-        setPanelSize((current) => current && current.height > available ? { ...current, height: available } : current)
+        setPanelSize((current) => (current && current.height > available ? { ...current, height: available } : current))
       }
     }
 
@@ -172,7 +171,14 @@ export const FloatingPanel = forwardRef<HTMLDivElement, FloatingPanelProps>(func
           aria-expanded={!collapsed}
         >
           <svg className="panel-chevron" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-            <path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M4 10l4-4 4 4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
         {closable && onClose && (
