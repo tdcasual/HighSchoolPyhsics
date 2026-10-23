@@ -1,8 +1,12 @@
 import { EventEmitter } from 'node:events'
+import { mkdtemp, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   createViteDevServerCommand,
+  hasServerReadyLog,
   startViteDevServer,
   stopViteDevServer,
   waitForViteDevServer,
@@ -101,6 +105,17 @@ describe('playwright dev server shared runtime', () => {
 
     expect(fetchImpl).toHaveBeenCalledWith('http://127.0.0.1:9')
     expect(readinessLogCheck).toHaveBeenCalledWith('/tmp/unused.log', 'http://127.0.0.1:9')
+  })
+
+  it('finds the server URL in a coloured Vite banner (as on GitHub Actions)', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'vite-log-'))
+    const logPath = join(dir, 'vite.log')
+    await writeFile(
+      logPath,
+      '  \u001b[32m➜\u001b[39m  Local:   \u001b[36mhttp://127.0.0.1:\u001b[1m4185\u001b[22m/\u001b[39m\n',
+    )
+    expect(await hasServerReadyLog(logPath, 'http://127.0.0.1:4185')).toBe(true)
+    expect(await hasServerReadyLog(logPath, 'http://127.0.0.1:4186')).toBe(false)
   })
 
   it('times out with helpful log path when readiness checks never pass', async () => {

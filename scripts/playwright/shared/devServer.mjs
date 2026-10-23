@@ -29,9 +29,14 @@ export function startViteDevServer({ rootDir, port, logPath, host = '127.0.0.1',
   return { child, logStream, logPath }
 }
 
-async function hasServerReadyLog(logPath, url) {
+// Vite colours its banner when the environment asks for it (GitHub Actions does), splitting the
+// URL with escape codes: "http://127.0.0.1:\x1b[1m4185\x1b[22m/".
+// eslint-disable-next-line no-control-regex
+const ANSI_ESCAPE = /\x1b\[[0-9;]*m/g
+
+export async function hasServerReadyLog(logPath, url) {
   try {
-    const content = await readFile(logPath, 'utf8')
+    const content = (await readFile(logPath, 'utf8')).replace(ANSI_ESCAPE, '')
     const normalized = url.replace(/\/+$/, '')
     return content.includes(normalized)
   } catch {
